@@ -1,0 +1,708 @@
+{
+  "title": "Fundamentals of AWS Pricing",
+  "topic": "AWS Cost Management",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which types of data transfer are free for Amazon S3? (Select TWO.)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "Outbound data transfer from Amazon S3 to Amazon CloudFront in the same Region",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Data transferred from S3 to CloudFront within the same AWS region is free. AWS optimizes this pathway because CloudFront is AWS's content delivery network service, and AWS wants to encourage using CloudFront to cache and distribute S3 content globally.",
+            "keyPoints": [
+              "AWS does not charge for S3 to CloudFront transfers in the same region",
+              "This optimization encourages using CloudFront for content delivery",
+              "CloudFront caches S3 content at edge locations closer to users",
+              "Reduces load on S3 and improves performance for end users"
+            ],
+            "examples": [
+              "A company stores images in S3 US East region and uses CloudFront US East distribution - no data transfer charges",
+              "A website uses S3 for static content and CloudFront for global delivery - only CloudFront to internet charges apply"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - S3 Pricing",
+                "url": "https://aws.amazon.com/s3/pricing/"
+              },
+              {
+                "title": "GeeksforGeeks - AWS S3 Pricing",
+                "url": "https://www.geeksforgeeks.org/aws-s3-pricing/"
+              },
+              {
+                "title": "nOps - AWS S3 Pricing Guide",
+                "url": "https://www.nops.io/blog/aws-s3-pricing/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Inbound data transfer from Amazon EC2 to Amazon S3 across different Regions",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Cross-region data transfers incur charges. When you transfer data from EC2 in one region to S3 in a different region, you pay inter-region data transfer fees.",
+            "why": "AWS charges for cross-region transfers to cover the network infrastructure costs of moving data between geographically separate data centers. Inter-region transfers typically cost $0.02 to $0.05 per GB depending on the regions involved.",
+            "learnMore": [
+              {
+                "title": "AWS - Data Transfer Pricing",
+                "url": "https://docs.aws.amazon.com/cur/latest/userguide/cur-data-transfers-charges.html"
+              },
+              {
+                "title": "Pump - AWS Data Transfer Pricing",
+                "url": "https://www.pump.co/blog/aws-data-transfer-pricing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Outbound data transfer from Amazon S3 to Amazon EC2 across different Regions",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Cross-region data transfers are charged regardless of direction. Moving data from S3 in one region to EC2 in another region incurs inter-region data transfer fees.",
+            "why": "AWS charges for all cross-region data movement. To minimize costs, best practice is to keep resources that frequently communicate with each other in the same AWS region.",
+            "learnMore": [
+              {
+                "title": "nOps - AWS Data Transfer Cost Guide",
+                "url": "https://www.nops.io/blog/aws-data-transfer-cost-operation/"
+              },
+              {
+                "title": "CloudChipr - S3 Pricing Explained",
+                "url": "https://cloudchipr.com/blog/amazon-s3-pricing-explained"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Inbound data transfer from the internet to Amazon S3",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS does not charge for data uploaded into Amazon S3 from the internet. Inbound data transfer (ingress) to AWS services is free across all AWS services, making it easy and cost-effective to get your data into AWS.",
+            "keyPoints": [
+              "All data uploads to S3 from the internet are free",
+              "No charges for PUT, POST, or COPY requests to upload data",
+              "Applies regardless of the amount of data uploaded",
+              "Part of AWS's strategy to make it easy to migrate data to AWS"
+            ],
+            "examples": [
+              "Uploading 100 GB of photos from your computer to S3 - $0 data transfer cost",
+              "Migrating 10 TB of backups from on-premises to S3 - $0 data transfer cost",
+              "Streaming video uploads to S3 from mobile devices - $0 data transfer cost"
+            ],
+            "additionalInfo": "AWS's pricing model makes it free to get data into AWS but charges for data leaving AWS (egress). This encourages customers to move workloads to AWS while generating revenue when data is downloaded or transferred out.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - AWS S3 Pricing",
+                "url": "https://www.geeksforgeeks.org/aws-s3-pricing/"
+              },
+              {
+                "title": "CloudOptimo - S3 Pricing Models",
+                "url": "https://www.cloudoptimo.com/blog/a-look-into-aws-s3-pricing-models/"
+              },
+              {
+                "title": "Pump - AWS Data Transfer Pricing",
+                "url": "https://www.pump.co/blog/aws-data-transfer-pricing"
+              },
+              {
+                "title": "CloudAvocado - AWS S3 Costs Guide",
+                "url": "https://cloudavocado.com/blog/aws-s3-costs-explained-comprehensive-pricing-guide/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "Outbound data transfer from Amazon S3 to the internet",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Outbound data transfer from S3 to the internet always incurs costs. This is one of AWS's primary revenue sources and can become a significant expense for applications with high download volumes.",
+            "why": "AWS charges for internet egress (data leaving AWS to the public internet) at tiered rates. For S3, the first 100 GB per month is free, then pricing starts at $0.09 per GB for the next 10 TB, decreasing as volume increases.",
+            "pricing": "First 100 GB/month: Free; 10 TB/month: $0.09/GB; Next 40 TB: $0.085/GB; Next 100 TB: $0.07/GB; Over 150 TB: Contact AWS for pricing",
+            "learnMore": [
+              {
+                "title": "nOps - AWS S3 Pricing",
+                "url": "https://www.nops.io/blog/aws-s3-pricing/"
+              },
+              {
+                "title": "CloudOptimo - S3 Pricing",
+                "url": "https://www.cloudoptimo.com/blog/a-look-into-aws-s3-pricing-models/"
+              },
+              {
+                "title": "CloudFest - S3 Storage Pricing",
+                "url": "https://www.cloudfest.com/blog/aws-s3-cloud-storage-pricing-explained"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "Which payment options are available for most Amazon EC2 Reserved Instances? (Select THREE.)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "All Upfront payment",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "All Upfront is one of three official payment options for Reserved Instances. You pay the entire cost at the start of the term with no additional hourly charges for the duration. This option provides the highest discount compared to On-Demand pricing.",
+            "keyPoints": [
+              "Full payment made at the beginning of the 1-year or 3-year term",
+              "No monthly or hourly charges during the term",
+              "Provides the largest discount (up to 72% off On-Demand pricing)",
+              "Best for organizations with available capital and predictable workloads"
+            ],
+            "examples": [
+              "A company with steady database workload purchases a 3-year All Upfront Reserved Instance for $10,000, saving 65% compared to On-Demand",
+              "An organization with budget allocated upfront pays $5,000 for 1-year Reserved Instances covering their production servers"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - Reserved Instances Payment Options",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/cost-optimization-reservation-models/reserved-instances-payment-options.html"
+              },
+              {
+                "title": "AWS - EC2 Reserved Instances",
+                "url": "https://aws.amazon.com/ec2/pricing/reserved-instances/"
+              },
+              {
+                "title": "Tutorials Dojo - EC2 Reserved Instance Payment",
+                "url": "https://tutorialsdojo.com/amazon-ec2-reserved-instance-purchasing-option-and-its-different-payment-terms/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Hourly payment",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Hourly payment is not an official Reserved Instance payment option. While Reserved Instances do have hourly components in Partial Upfront and No Upfront options, 'Hourly payment' as a standalone option doesn't exist.",
+            "why": "The three official payment options are All Upfront, Partial Upfront, and No Upfront. Both Partial Upfront and No Upfront include discounted hourly rates, but they're not called 'hourly payment' options.",
+            "learnMore": [
+              {
+                "title": "AWS - EC2 Reserved Instance Pricing",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-reserved-instances.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "No Upfront payment",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "No Upfront is one of three official payment options for Reserved Instances. You pay nothing upfront and instead pay a discounted hourly rate for every hour of the term, regardless of whether you use the instance. This option requires a successful billing history with AWS.",
+            "keyPoints": [
+              "No initial payment required",
+              "Discounted hourly rate for entire 1-year or 3-year term",
+              "Lower discount than All Upfront or Partial Upfront",
+              "Requires proven billing history before purchase",
+              "Best for organizations wanting to preserve cash flow"
+            ],
+            "examples": [
+              "A startup with limited capital chooses No Upfront Reserved Instances to get 30% savings without large upfront investment",
+              "A company wanting to maintain liquidity selects No Upfront payment while still benefiting from Reserved Instance discounts"
+            ],
+            "additionalInfo": "No Upfront Reserved Instances are based on a contractual obligation to pay monthly for the entire term. AWS requires successful billing history to ensure you can meet this commitment.",
+            "learnMore": [
+              {
+                "title": "AWS - Reserved Instances Overview",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-reserved-instances.html"
+              },
+              {
+                "title": "AWS - Cost Optimization with RIs",
+                "url": "https://aws.amazon.com/aws-cost-management/aws-cost-optimization/reserved-instances/"
+              },
+              {
+                "title": "Finout - EC2 Reserved Instances Guide",
+                "url": "https://www.finout.io/blog/aws-ec2-reserved-instances"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Installment payment",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Installment payment is not an official AWS Reserved Instance payment option. AWS does not offer installment plans for Reserved Instances.",
+            "why": "The three official options (All Upfront, Partial Upfront, No Upfront) cover the payment structures AWS provides. While Partial Upfront and No Upfront include ongoing payments, they're not called 'installment payments.'",
+            "learnMore": [
+              {
+                "title": "AWS - Reserved Instance Payment Options",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/cost-optimization-reservation-models/reserved-instances-payment-options.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "Quarterly payment",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Quarterly payment is not an option for Reserved Instances. AWS does not offer quarterly billing cycles for Reserved Instance purchases.",
+            "why": "Reserved Instances use All Upfront, Partial Upfront, or No Upfront payment structures. Partial Upfront and No Upfront bill monthly (based on hourly rates), not quarterly.",
+            "learnMore": [
+              {
+                "title": "AWS - EC2 Pricing",
+                "url": "https://aws.amazon.com/ec2/pricing/reserved-instances/pricing/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "F",
+          "text": "Partial Upfront payment",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Partial Upfront is one of three official payment options for Reserved Instances. You make a portion of the payment upfront (typically 30-50% of total cost) and then pay a discounted hourly rate for the remaining balance over the term. This option balances upfront cost savings with payment flexibility.",
+            "keyPoints": [
+              "Make a partial payment at purchase time",
+              "Pay discounted hourly rate for remainder of term",
+              "Discount level between All Upfront and No Upfront",
+              "Provides balance between savings and cash flow management",
+              "Charged regardless of whether instance is running"
+            ],
+            "examples": [
+              "A company pays $3,000 upfront and then $0.05/hour for a 3-year Reserved Instance, total cost $4,314 vs $6,570 On-Demand",
+              "An organization balances budget by paying 40% upfront and spreading remaining costs monthly over the reservation term"
+            ],
+            "additionalInfo": "Partial Upfront offers middle-ground savings. You get better discounts than No Upfront while keeping some capital available, unlike All Upfront which requires full payment immediately.",
+            "learnMore": [
+              {
+                "title": "AWS - Payment Options Documentation",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/cost-optimization-reservation-models/reserved-instances-payment-options.html"
+              },
+              {
+                "title": "AWS - Reserved Instance Pricing",
+                "url": "https://aws.amazon.com/ec2/pricing/reserved-instances/pricing/"
+              },
+              {
+                "title": "Tutorials Dojo - RI Payment Terms",
+                "url": "https://tutorialsdojo.com/amazon-ec2-reserved-instance-purchasing-option-and-its-different-payment-terms/"
+              },
+              {
+                "title": "Finout - Payment Options Guide",
+                "url": "https://www.finout.io/blog/aws-ec2-reserved-instances"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which statements describe the benefits of using the AWS Pricing Calculator? (Select THREE.)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "It offers a set of default reports that provides insight into cost drivers and usage trends",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This describes AWS Cost Explorer, not AWS Pricing Calculator. Cost Explorer provides reports and visualizations of your actual AWS spending and usage trends.",
+            "why": "AWS Pricing Calculator is for estimating future costs before you use services. Cost Explorer analyzes historical usage data and actual costs after you've used services. They serve different purposes.",
+            "learnMore": [
+              {
+                "title": "AWS - Cost Explorer",
+                "url": "https://aws.amazon.com/aws-cost-management/aws-cost-explorer/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "It gives customers the ability to create estimates for their AWS use cases",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS Pricing Calculator allows customers to model and estimate costs for their specific workloads and use cases. You can configure services, specify usage patterns, and get detailed cost estimates before deploying anything to AWS.",
+            "keyPoints": [
+              "Model specific workloads and applications",
+              "Configure service parameters based on your use case",
+              "Estimate costs for new projects before implementation",
+              "Compare different configuration options",
+              "Include multiple services in a single estimate"
+            ],
+            "examples": [
+              "A developer estimates costs for a web application using EC2, S3, and RDS before building it",
+              "An architect creates estimates for migrating an on-premises application to AWS",
+              "A business analyst models costs for scaling up during peak season",
+              "A team compares costs of running workloads in different AWS regions"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - Pricing Calculator",
+                "url": "https://calculator.aws/"
+              },
+              {
+                "title": "AWS - What is Pricing Calculator?",
+                "url": "https://docs.aws.amazon.com/pricing-calculator/latest/userguide/what-is-pricing-calculator.html"
+              },
+              {
+                "title": "Spot.io - AWS Pricing Calculator Guide",
+                "url": "https://spot.io/resources/aws-cost-optimization/aws-pricing-calculator-calculate-aws-cost-like-the-pros/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "It can help identify opportunities for cost reduction",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS Pricing Calculator helps identify cost reduction opportunities by allowing you to compare different service configurations, instance types, payment options (On-Demand vs Reserved Instances), and pricing models. You can model various scenarios to find the most cost-effective approach.",
+            "keyPoints": [
+              "Compare Reserved Instances vs On-Demand pricing",
+              "Evaluate different instance types for cost-performance balance",
+              "Model Savings Plans to see potential savings",
+              "Compare costs across different AWS regions",
+              "Test various storage class combinations for S3"
+            ],
+            "examples": [
+              "Comparing t3.medium vs t3.large instances shows $30/month savings with smaller size that meets requirements",
+              "Modeling 3-year Reserved Instances reveals 65% savings vs On-Demand for predictable workloads",
+              "Testing S3 Intelligent-Tiering vs S3 Standard shows potential $500/month reduction",
+              "Comparing regions shows Oregon is 15% cheaper than Sydney for same workload"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - Pricing Calculator Features",
+                "url": "https://aws.amazon.com/aws-cost-management/aws-pricing-calculator/"
+              },
+              {
+                "title": "AWS - Cost Management Guide",
+                "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/pricing-calculator.html"
+              },
+              {
+                "title": "AWS - Pricing Calculator FAQs",
+                "url": "https://aws.amazon.com/aws-cost-management/aws-pricing-calculator/faqs/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "It gives customers the ability to create annual, quarterly, monthly, or even daily budgets",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This describes AWS Budgets, not AWS Pricing Calculator. AWS Budgets is a separate tool for setting cost and usage thresholds with alerts.",
+            "why": "AWS Pricing Calculator estimates costs before you use services. AWS Budgets tracks actual spending and sends alerts when costs exceed your defined thresholds. They serve different purposes in cost management.",
+            "learnMore": [
+              {
+                "title": "AWS - Budgets",
+                "url": "https://aws.amazon.com/aws-cost-management/aws-budgets/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "It gives customers the ability to set a custom time period and view usage data",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This describes AWS Cost Explorer, which provides customizable views of historical usage and cost data. Pricing Calculator is for forward-looking estimates, not viewing past usage.",
+            "why": "AWS Pricing Calculator estimates future costs based on planned usage. Cost Explorer shows actual historical usage data with custom time periods. Different tools for different purposes.",
+            "learnMore": [
+              {
+                "title": "AWS - Cost Explorer",
+                "url": "https://aws.amazon.com/aws-cost-management/aws-cost-explorer/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "F",
+          "text": "It estimates monthly services costs",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS Pricing Calculator generates monthly cost estimates for AWS services based on your configured usage. It shows upfront costs, monthly recurring costs, and 12-month totals, helping you understand ongoing expenses before committing to services.",
+            "keyPoints": [
+              "Provides monthly cost breakdowns for each service",
+              "Shows upfront costs separately from monthly recurring costs",
+              "Calculates 12-month total costs",
+              "Includes pricing tiers and volume discounts in estimates",
+              "Accounts for Reserved Instance and Savings Plan discounts"
+            ],
+            "examples": [
+              "Estimating EC2 costs shows $450/month for 3 t3.medium instances running 24/7",
+              "S3 estimate calculates $25/month for 1TB storage with 10,000 requests",
+              "RDS estimate shows $200/month for db.t3.large with 100GB storage",
+              "Complete application estimate totals $800/month across EC2, S3, RDS, and CloudFront"
+            ],
+            "additionalInfo": "The calculator assumes 730 hours per month (365 days × 24 hours ÷ 12 months) for consistent monthly estimates.",
+            "learnMore": [
+              {
+                "title": "AWS - Getting Started with Calculator",
+                "url": "https://docs.aws.amazon.com/pricing-calculator/latest/userguide/getting-started.html"
+              },
+              {
+                "title": "AWS - Calculator Assumptions",
+                "url": "https://aws.amazon.com/calculator/calculator-assumptions/"
+              },
+              {
+                "title": "AWS - Pricing Overview",
+                "url": "https://aws.amazon.com/pricing/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which categories are fundamental drivers of cost with AWS? (Select THREE.)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "Networking and content delivery",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "While networking services exist in AWS, 'Networking and content delivery' is a service category, not a fundamental cost driver. The fundamental cost driver is 'Data transfer' which covers networking costs.",
+            "why": "AWS pricing is primarily driven by compute, storage, and data transfer. Networking and content delivery falls under the data transfer category when considering fundamental cost drivers.",
+            "learnMore": [
+              {
+                "title": "AWS - Pricing Overview",
+                "url": "https://aws.amazon.com/pricing/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Hardware purchases",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Hardware purchases are not applicable in cloud computing. One of the main benefits of AWS is that you don't buy or manage physical hardware—AWS handles all infrastructure.",
+            "why": "AWS operates on a pay-as-you-go model where you rent computing resources rather than purchasing hardware. You avoid capital expenses for servers, storage devices, networking equipment, and data center infrastructure.",
+            "learnMore": [
+              {
+                "title": "AWS - Cloud Economics",
+                "url": "https://aws.amazon.com/economics/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Data transfer",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Data transfer is one of the three fundamental cost drivers in AWS. You pay for data moving out of AWS to the internet, between AWS regions, and in some cases between availability zones. Data transfer costs can become significant for applications with high bandwidth requirements.",
+            "keyPoints": [
+              "Inbound data transfer (into AWS) is typically free",
+              "Outbound data transfer (out to internet) is charged per GB",
+              "Inter-region transfers are charged in both directions",
+              "Pricing is tiered—higher volumes get lower per-GB rates",
+              "First 100 GB per month outbound to internet is free"
+            ],
+            "examples": [
+              "A streaming service pays $900/month for 10TB of video downloads to users",
+              "A global application pays inter-region transfer fees for data replication between US and Europe",
+              "A backup service pays $0 for uploading data to S3 but pays for restoring data downloads"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - Data Transfer Pricing",
+                "url": "https://docs.aws.amazon.com/cur/latest/userguide/cur-data-transfers-charges.html"
+              },
+              {
+                "title": "Pump - AWS Data Transfer Guide",
+                "url": "https://www.pump.co/blog/aws-data-transfer-pricing"
+              },
+              {
+                "title": "nOps - AWS Data Transfer Cost",
+                "url": "https://www.nops.io/blog/aws-data-transfer-cost-operation/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Service termination fees",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS does not charge service termination fees. One of AWS's key principles is 'no lock-in'—you can stop using services at any time without penalties or termination charges.",
+            "why": "AWS operates on a pay-as-you-go model with no long-term contracts required for most services. When you stop using a service, you simply stop paying for it. There are no cancellation fees, exit fees, or termination charges.",
+            "exception": "Reserved Instances and Savings Plans are commitments where you pay for the term regardless of usage, but these aren't termination fees—they're commitments you made upfront.",
+            "learnMore": [
+              {
+                "title": "AWS - Pricing Principles",
+                "url": "https://aws.amazon.com/pricing/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "Compute",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Compute is one of the three fundamental cost drivers in AWS. You pay for the processing power you use—whether that's virtual machines (EC2), containers (ECS/EKS), serverless functions (Lambda), or other compute services. Compute costs are typically based on instance hours or execution time.",
+            "keyPoints": [
+              "Charged based on instance type and runtime hours",
+              "Pricing varies by instance family, size, and region",
+              "Options include On-Demand, Reserved, Spot, and Savings Plans",
+              "Serverless compute (Lambda) charged per request and duration",
+              "Pricing for CPU, memory, and specialized hardware (GPUs)"
+            ],
+            "examples": [
+              "Running 10 t3.medium EC2 instances 24/7 costs approximately $300/month",
+              "Lambda function processing 1 million requests with 512MB memory costs about $20/month",
+              "A high-performance workload using c5.9xlarge instances costs $1.53/hour On-Demand"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - EC2 Pricing",
+                "url": "https://aws.amazon.com/ec2/pricing/"
+              },
+              {
+                "title": "AWS - Compute Services",
+                "url": "https://aws.amazon.com/products/compute/"
+              },
+              {
+                "title": "GeeksforGeeks - AWS Compute Services",
+                "url": "https://www.geeksforgeeks.org/aws-compute-services/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "F",
+          "text": "Storage",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Storage is one of the three fundamental cost drivers in AWS. You pay for the amount of data you store and how long you store it. Different storage services and storage classes have different pricing based on access patterns, durability requirements, and retrieval speeds.",
+            "keyPoints": [
+              "Charged per GB per month of stored data",
+              "Pricing varies by storage class and access frequency",
+              "Additional charges for requests and data retrieval",
+              "Different services: S3 (object), EBS (block), EFS (file)",
+              "Tiered pricing—more storage can mean lower per-GB costs"
+            ],
+            "examples": [
+              "Storing 1TB in S3 Standard costs about $23/month",
+              "S3 Glacier Deep Archive for 1TB costs only $1/month but with slower retrieval",
+              "EBS General Purpose SSD volumes cost $0.10/GB-month",
+              "A company storing 100TB of data pays approximately $2,300/month in S3 Standard"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - S3 Pricing",
+                "url": "https://aws.amazon.com/s3/pricing/"
+              },
+              {
+                "title": "AWS - Storage Services",
+                "url": "https://aws.amazon.com/products/storage/"
+              },
+              {
+                "title": "GeeksforGeeks - AWS Storage Services",
+                "url": "https://www.geeksforgeeks.org/aws-storage-services/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "Which AWS service can customers use to create estimates, share an estimate by a unique link, and revisit any estimates directly through a browser?",
+      "options": [
+        {
+          "id": "A",
+          "text": "AWS Trusted Advisor",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS Trusted Advisor provides real-time guidance and best practice recommendations for optimizing your existing AWS infrastructure. It doesn't create cost estimates for future workloads.",
+            "why": "Trusted Advisor checks your current AWS environment for cost optimization opportunities, security vulnerabilities, performance issues, and service limits. It analyzes what you're already using, not what you're planning to use.",
+            "learnMore": [
+              {
+                "title": "AWS - Trusted Advisor",
+                "url": "https://aws.amazon.com/premiumsupport/technology/trusted-advisor/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "AWS Pricing Calculator",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS Pricing Calculator is a web-based tool that lets customers build detailed cost estimates for AWS services, generate unique shareable links for those estimates, and access and modify estimates anytime through a browser. No software installation required—everything works directly in your web browser.",
+            "keyPoints": [
+              "Create detailed estimates by configuring services and usage patterns",
+              "Generate unique shareable links to collaborate with team members",
+              "Save estimates to your AWS account for later access",
+              "Export estimates to CSV or PDF",
+              "Compare multiple estimates side-by-side",
+              "Access from any device with a web browser"
+            ],
+            "examples": [
+              "An architect creates an estimate for a web application, generates a link, and shares it with the finance team for budget approval",
+              "A consultant builds estimates for three different deployment options, saves them, and revisits later to update parameters",
+              "A project manager exports an estimate to PDF and includes it in a proposal to stakeholders",
+              "A team collaborates on estimate by sharing the unique link—each member can view and suggest modifications"
+            ],
+            "additionalInfo": "Estimates are saved in the browser and optionally to your AWS account. The unique link allows anyone with the link to view the estimate, making it easy to share with stakeholders who may not have AWS accounts.",
+            "learnMore": [
+              {
+                "title": "AWS - Pricing Calculator",
+                "url": "https://calculator.aws/"
+              },
+              {
+                "title": "AWS - Pricing Calculator User Guide",
+                "url": "https://docs.aws.amazon.com/pricing-calculator/latest/userguide/what-is-pricing-calculator.html"
+              },
+              {
+                "title": "AWS - Getting Started Guide",
+                "url": "https://docs.aws.amazon.com/pricing-calculator/latest/userguide/getting-started.html"
+              },
+              {
+                "title": "Spot.io - AWS Pricing Calculator Guide",
+                "url": "https://spot.io/resources/aws-cost-optimization/aws-pricing-calculator-calculate-aws-cost-like-the-pros/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "AWS Cloud Economics Center",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS Cloud Economics Center provides resources, whitepapers, case studies, and guidance on cloud economics and cost optimization strategies. It's an educational resource, not a cost estimation tool.",
+            "why": "The Cloud Economics Center helps you understand the business value of cloud computing through research, customer stories, and frameworks. It doesn't provide functionality to create or share specific cost estimates for your workloads.",
+            "learnMore": [
+              {
+                "title": "AWS - Cloud Economics Center",
+                "url": "https://aws.amazon.com/economics/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "AWS Cost Explorer",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS Cost Explorer is a tool for analyzing your actual AWS spending and usage history. It provides visualizations and reports of your historical costs, not estimates for future workloads.",
+            "why": "Cost Explorer looks backward at what you've already spent. It helps you understand past spending patterns, identify trends, and forecast future costs based on historical usage. The Pricing Calculator looks forward to estimate costs for new or planned workloads before you deploy them.",
+            "difference": "Cost Explorer = Historical actual costs; Pricing Calculator = Future estimated costs",
+            "learnMore": [
+              {
+                "title": "AWS - Cost Explorer",
+                "url": "https://aws.amazon.com/aws-cost-management/aws-cost-explorer/"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

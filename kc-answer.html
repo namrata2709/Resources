@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Check - AWS Learning Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <button id="themeToggle" class="theme-toggle">
+        <span class="theme-icon"></span>
+    </button>
+
+    <div class="page-container">
+        <header class="page-header">
+            <button class="back-btn" onclick="location.href='kc-list.html'">← Back to KC List</button>
+            <h1 id="pageTitle">📝 Knowledge Check</h1>
+        </header>
+
+        <div id="questionsContainer">
+            <div class="loading">Loading questions...</div>
+        </div>
+    </div>
+
+    <script src="js/knowledgeCheck.js"></script>
+    <script>
+        // Theme Management
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Load saved theme or default to light
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', currentTheme);
+
+        // Toggle theme
+        themeToggle?.addEventListener('click', () => {
+            const theme = html.getAttribute('data-theme');
+            const newTheme = theme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // Get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const kcFile = urlParams.get('kc');
+        const kcTitle = urlParams.get('title');
+
+        // Update page title
+        if (kcTitle) {
+            document.getElementById('pageTitle').textContent = `📝 ${kcTitle}`;
+        } else if (kcFile) {
+            // Convert filename to title if title not provided
+            const title = kcFile.split('_').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+            document.getElementById('pageTitle').textContent = `📝 ${title}`;
+        }
+
+        // Initialize and load KC
+        if (kcFile) {
+            const kcEngine = new KnowledgeCheckEngine('questionsContainer');
+            kcEngine.loadFromJSON(`data/kc/${kcFile}.json`);
+        } else {
+            document.getElementById('questionsContainer').innerHTML = `
+                <div class="error">
+                    <h2>Error</h2>
+                    <p>No knowledge check specified. Please select a KC from the list.</p>
+                    <button class="back-btn" onclick="location.href='kc-list.html'" style="margin-top: 1rem;">
+                        ← Go to KC List
+                    </button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

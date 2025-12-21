@@ -1,0 +1,612 @@
+{
+  "title": "Working with the File System",
+  "topic": "Linux File System Navigation and Management",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which statements about Linux file names are true? (Select TWO)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "Extensions are automatically mapped to applications",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Linux does not automatically map file extensions to applications like Windows does. Instead, Linux uses MIME types to determine file types based on file content rather than extensions.",
+            "why": "Unlike Windows, which relies heavily on file extensions to determine which application opens a file, Linux examines the file's actual content to identify its type using MIME (Multipurpose Internet Mail Extensions) types. The file command analyzes file content using magic numbers and file signatures, not extensions. For example, a JPEG image can be correctly identified even if it has a .txt extension. While desktop environments may associate MIME types with applications, this is not an automatic extension-to-application mapping.",
+            "examples": [
+              "A JPEG image renamed to photo.txt will still be recognized as image/jpeg by the system",
+              "Executable files don't need .exe extensions - execute permission determines if a file can run",
+              "Text editors aren't automatically opened based on .txt extension - MIME type text/plain is checked"
+            ],
+            "learnMore": [
+              {
+                "title": "Baeldung - Linux File MIME Types",
+                "url": "https://www.baeldung.com/linux/file-mime-types"
+              },
+              {
+                "title": "How-To Geek - MIME Types Explained",
+                "url": "https://www.howtogeek.com/192628/mime-types-explained-why-linux-and-mac-os-x-dont-need-file-extensions/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "File names can contain spaces",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Linux allows spaces in file names, though they require special handling in the command line. Spaces must be escaped with backslashes or the filename must be enclosed in quotes to be properly interpreted by the shell.",
+            "keyPoints": [
+              "Spaces are legal characters in Linux filenames",
+              "Must use quotes or backslash escaping when referencing names with spaces",
+              "Single quotes, double quotes, or backslashes all work for escaping",
+              "Best practice is to avoid spaces and use underscores or hyphens instead",
+              "Spaces can cause issues in shell scripts if not properly escaped",
+              "Modern file managers handle spaces automatically",
+              "Tab completion in shell automatically adds backslash escapes"
+            ],
+            "examples": [
+              "'touch \"My Document.txt\"' - creates file with spaces using quotes",
+              "'cd My\\ Folder/' - navigates to directory with spaces using backslash",
+              "'ls 'My Files'' - lists directory with spaces using single quotes",
+              "'cat My\\ Document.txt' - displays file content with escaped space",
+              "Recommended: 'My_Document.txt' or 'my-document.txt' instead of spaces"
+            ],
+            "additionalInfo": "While Linux permits spaces in filenames, they can complicate command-line operations and shell scripting. When you type a space, the shell interprets it as separating different arguments, so 'cat My Document.txt' tries to open two files: 'My' and 'Document.txt'. To treat it as one filename, use 'cat \"My Document.txt\"' or 'cat My\\ Document.txt'. Many Linux users follow naming conventions that avoid spaces, using underscores (my_document.txt), hyphens (my-document.txt), or camelCase (myDocument.txt) instead. These conventions make command-line work easier and more reliable, especially in automated scripts.",
+            "learnMore": [
+              {
+                "title": "nixCraft - Linux Filename Rules",
+                "url": "https://www.cyberciti.biz/faq/linuxunix-rules-for-naming-file-and-directory-names/"
+              },
+              {
+                "title": "ComputerNetworkingNotes - Linux File Naming",
+                "url": "https://www.computernetworkingnotes.com/linux-tutorials/linux-file-system-and-naming-convention-explained.html"
+              },
+              {
+                "title": "Uptimia - Special Character Filename Handling",
+                "url": "https://www.uptimia.com/learn/linux-special-character-filename-handling-guide"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Multiple files with the same name can exist in a directory",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Each file and directory name must be unique within its parent directory. Linux does not allow multiple files or directories with identical names in the same location.",
+            "why": "File systems use filenames as unique identifiers within each directory. If multiple files could have the same name in one directory, the system would have no way to distinguish between them when you try to access a specific file. However, files with identical names can exist in different directories. The full path (directory path + filename) must be unique across the file system, but just the filename only needs to be unique within its immediate parent directory.",
+            "examples": [
+              "Cannot have two files named 'data.txt' in /home/user/documents/",
+              "Can have /home/user/data.txt and /home/user/documents/data.txt (different directories)",
+              "Attempting 'touch file.txt' twice in same directory doesn't create two files - second command just updates timestamp"
+            ],
+            "learnMore": [
+              {
+                "title": "Engineering LibreTexts - Linux Directory Structure",
+                "url": "https://eng.libretexts.org/Bookshelves/Computer_Science/Operating_Systems/Linux_-_The_Penguin_Marches_On_(McClanahan)/04:_Managing_Linux_Storage/5.12:_Linux_Directory_Structure"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "File names are case sensitive",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Linux file systems treat uppercase and lowercase letters as distinct characters, meaning 'File.txt', 'file.txt', and 'FILE.txt' are three completely different files that can coexist in the same directory. This case sensitivity is a fundamental characteristic inherited from Unix.",
+            "keyPoints": [
+              "Uppercase and lowercase letters are treated as different characters",
+              "'readme.txt', 'Readme.txt', and 'README.txt' are three distinct files",
+              "File system commands like ls, cp, mv, and rm are case-sensitive",
+              "Case sensitivity applies to both files and directories",
+              "Different from Windows file systems which are case-insensitive",
+              "Reduces ambiguity and prevents accidental file overwrites",
+              "Important for cross-platform compatibility issues"
+            ],
+            "examples": [
+              "Can create 'data.txt', 'Data.txt', and 'DATA.txt' in same directory",
+              "'cat File.txt' and 'cat file.txt' access different files",
+              "'cd /Home' fails if directory is actually named '/home'",
+              "'ls Document.pdf' won't find 'document.pdf'",
+              "Extensions are also case-sensitive: 'image.JPG' vs 'image.jpg'"
+            ],
+            "additionalInfo": "Linux's case sensitivity is inherited from Unix and is deeply embedded in the file system design. This feature provides greater naming flexibility and precision but can cause confusion for users migrating from Windows, where 'FILE.txt' and 'file.txt' would refer to the same file. Case sensitivity is particularly important when working with web servers, as URLs are case-sensitive and must match file names exactly. It also affects shell commands and tab completion - typing 'cd doc' and pressing Tab won't autocomplete to 'Documents' if the 'D' is capitalized. Best practice is to be consistent with case in your naming conventions, typically using all lowercase for easier command-line work.",
+            "learnMore": [
+              {
+                "title": "InMotion Hosting - File Naming Best Practices",
+                "url": "https://www.inmotionhosting.com/support/server/linux/best-practice-for-naming-files-in-linux/"
+              },
+              {
+                "title": "LinuxSecurity - Case Sensitivity Impact",
+                "url": "https://linuxsecurity.com/features/linux-filesystem-case-sensitivity-debate"
+              },
+              {
+                "title": "nixCraft - Linux Filename Rules",
+                "url": "https://www.cyberciti.biz/faq/linuxunix-rules-for-naming-file-and-directory-names/"
+              },
+              {
+                "title": "Engineering LibreTexts - Linux Directory Structure",
+                "url": "https://eng.libretexts.org/Bookshelves/Computer_Science/Operating_Systems/Linux_-_The_Penguin_Marches_On_(McClanahan)/04:_Managing_Linux_Storage/5.12:_Linux_Directory_Structure"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "Extensions are optional",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "File extensions are completely optional in Linux. Unlike Windows, Linux determines file types by examining file content using MIME types and magic numbers rather than relying on extensions. Files can function perfectly without any extension at all.",
+            "keyPoints": [
+              "Extensions are not required for Linux to recognize file types",
+              "File type determined by content analysis, not extension",
+              "The 'file' command identifies types regardless of extension",
+              "Execute permission, not .exe extension, makes files executable",
+              "Extensions used primarily for human convenience and compatibility",
+              "Can create files with any extension or none at all",
+              "MIME types identify file formats based on content signatures"
+            ],
+            "examples": [
+              "Executable script can be named 'backup' instead of 'backup.sh'",
+              "'file photo' correctly identifies JPEG even without .jpg extension",
+              "Configuration files often have no extension: .bashrc, .vimrc, hosts",
+              "Linux kernel images typically named 'vmlinuz' with no extension",
+              "'image.jpg' and 'image' both work if content is JPEG format"
+            ],
+            "additionalInfo": "Linux's approach to file types is fundamentally different from Windows. While Windows relies on extensions like .exe, .doc, or .jpg to determine what program should open a file, Linux examines the file's actual content. The 'file' command reads magic numbers (specific byte sequences at the beginning of files) and other content signatures to identify file types. For example, JPEG files always start with the hex bytes FF D8 and end with FF D9. This means you can rename photo.jpg to photo.txt and Linux will still correctly identify it as a JPEG image. While extensions are optional, they're still commonly used for human readability, consistency with other operating systems, and helping other users understand file contents at a glance.",
+            "learnMore": [
+              {
+                "title": "How-To Geek - Why Linux Doesn't Need Extensions",
+                "url": "https://www.howtogeek.com/192628/mime-types-explained-why-linux-and-mac-os-x-dont-need-file-extensions/"
+              },
+              {
+                "title": "Baeldung - File MIME Types Introduction",
+                "url": "https://www.baeldung.com/linux/file-mime-types"
+              },
+              {
+                "title": "ComputerNetworkingNotes - Linux File Naming",
+                "url": "https://www.computernetworkingnotes.com/linux-tutorials/linux-file-system-and-naming-convention-explained.html"
+              },
+              {
+                "title": "TutorialsPoint - File MIME Types",
+                "url": "https://www.tutorialspoint.com/introduction-to-file-mime-types-on-linux"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "Which directory contains a user's personal files by default?",
+      "options": [
+        {
+          "id": "A",
+          "text": "/home",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The /home directory is the default location that contains personal files for all regular users on a Linux system. Each user gets their own subdirectory under /home (typically /home/username) that serves as their home directory where they store personal files, documents, and user-specific configuration settings.",
+            "keyPoints": [
+              "Contains a subdirectory for each regular user: /home/username",
+              "Users have full read, write, and execute permissions in their own home directory",
+              "Protected from access by other users (except root)",
+              "Stores personal files, documents, downloads, and user data",
+              "Contains hidden configuration files (.bashrc, .profile, etc.)",
+              "Default location when user logs in",
+              "Referenced by ~ symbol or $HOME environment variable"
+            ],
+            "examples": [
+              "User 'john' has home directory at /home/john",
+              "User 'alice' stores files in /home/alice",
+              "Running 'cd' or 'cd ~' takes you to your home directory",
+              "Personal Documents folder located at /home/username/Documents",
+              "Hidden config files: /home/john/.bashrc, /home/john/.ssh/"
+            ],
+            "additionalInfo": "The /home directory structure provides separation and security for multi-user systems. When a new user account is created with useradd or adduser, a corresponding subdirectory is automatically created under /home with the username. This directory becomes that user's personal workspace where they have complete control over their files. The home directory typically contains standard subdirectories like Documents, Downloads, Pictures, Music, and Videos, along with hidden configuration files (those starting with a dot) that store user-specific application settings. Users cannot access each other's home directories by default, ensuring privacy and security. The root user's home directory is an exception - it's located at /root rather than /home/root for security and system administration reasons.",
+            "learnMore": [
+              {
+                "title": "Linux.com - Home and Root Directories",
+                "url": "https://www.linux.com/training-tutorials/linux-directory-structure-home-and-root-folders/"
+              },
+              {
+                "title": "Debian Wiki - Home Directory",
+                "url": "https://wiki.debian.org/home_directory"
+              },
+              {
+                "title": "Wikipedia - Home Directory",
+                "url": "https://en.wikipedia.org/wiki/Home_directory"
+              },
+              {
+                "title": "HowToUseLinux - Finding Home Directory",
+                "url": "https://www.howtouselinux.com/post/find-user-home-directory-in-linux"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "/var",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The /var directory contains variable data that changes during normal system operation, such as logs, mail spools, temporary files, and cache data. It is not used for user personal files.",
+            "why": "/var stands for 'variable' and stores files that are expected to grow and change frequently during system operation. This includes system logs (/var/log), package manager cache (/var/cache), mail queues (/var/mail), print spools (/var/spool), and temporary files that persist between reboots (/var/tmp). These are system files, not personal user data. User personal files belong in /home directories.",
+            "examples": [
+              "/var/log contains system log files like syslog and auth.log",
+              "/var/www often contains website files for web servers",
+              "/var/cache stores application cache data"
+            ],
+            "learnMore": [
+              {
+                "title": "TLDP - Linux Filesystem Hierarchy",
+                "url": "https://tldp.org/LDP/Linux-Filesystem-Hierarchy/html/var.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "/etc",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The /etc directory contains system-wide configuration files and shell scripts used to initialize system settings. It does not store user personal files.",
+            "why": "/etc (et cetera) is dedicated to system configuration files that affect the entire system and all users. Examples include network configuration (/etc/network), user account information (/etc/passwd), system startup scripts (/etc/init.d), and application configuration files. These are administrative files that typically require root access to modify, not personal user data storage locations.",
+            "examples": [
+              "/etc/passwd contains user account information",
+              "/etc/hostname stores the system's hostname",
+              "/etc/fstab defines filesystem mount points"
+            ],
+            "learnMore": [
+              {
+                "title": "TLDP - /etc Directory",
+                "url": "https://tldp.org/LDP/Linux-Filesystem-Hierarchy/html/etc.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "/dev",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The /dev directory contains device files that represent hardware and virtual devices. It is not used for storing user files.",
+            "why": "/dev (devices) contains special files that represent physical and virtual devices on the system. These device files act as interfaces to device drivers, allowing programs to communicate with hardware like hard drives (/dev/sda), terminals (/dev/tty), random number generators (/dev/random), and more. This is a system directory for device management, completely unrelated to user file storage.",
+            "examples": [
+              "/dev/sda1 represents the first partition on the first disk",
+              "/dev/null is a virtual device that discards all data written to it",
+              "/dev/zero produces an endless stream of zero bytes"
+            ],
+            "learnMore": [
+              {
+                "title": "TLDP - /dev Directory",
+                "url": "https://tldp.org/LDP/Linux-Filesystem-Hierarchy/html/dev.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which command displays the absolute path to the user's current location in the file system?",
+      "options": [
+        {
+          "id": "A",
+          "text": "cp",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The cp (copy) command is used to copy files and directories, not to display the current directory path.",
+            "why": "cp is a file manipulation command that duplicates files or directories from one location to another. The syntax is 'cp source destination'. It has nothing to do with displaying your current location in the filesystem - that's the job of pwd.",
+            "examples": [
+              "'cp file.txt backup.txt' creates a copy of file.txt",
+              "'cp -r folder1 folder2' copies a directory recursively"
+            ],
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - cp Command",
+                "url": "https://www.geeksforgeeks.org/cp-command-linux-examples/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "tail",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The tail command displays the last lines of a file, not the current directory path.",
+            "why": "tail is used to view the end portion of text files. By default, it shows the last 10 lines of a file. It's commonly used for monitoring log files or viewing the end of large files. It doesn't provide any information about your current directory location.",
+            "examples": [
+              "'tail logfile.txt' shows last 10 lines of the file",
+              "'tail -f /var/log/syslog' follows log file in real-time"
+            ],
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - tail Command",
+                "url": "https://www.geeksforgeeks.org/tail-command-linux-examples/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "pwd",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The pwd (print working directory) command displays the absolute path of the current directory from the root (/) to your present location. It's one of the most basic and essential commands for understanding where you are in the Linux file system hierarchy.",
+            "keyPoints": [
+              "Stands for 'print working directory'",
+              "Displays the full absolute path starting from root (/)",
+              "Shows your current location in the directory tree",
+              "Helpful when navigating complex directory structures",
+              "Often used in scripts to determine current location",
+              "Works identically across all Unix-like systems",
+              "Shell builtin command - very fast execution"
+            ],
+            "examples": [
+              "'pwd' outputs: /home/john/Documents",
+              "After 'cd /var/log', 'pwd' shows: /var/log",
+              "In scripts: CURRENT_DIR=$(pwd) stores the path",
+              "Combined: 'cd /etc && pwd' changes directory and shows new location",
+              "'pwd -P' shows physical path, resolving symbolic links"
+            ],
+            "additionalInfo": "The pwd command is essential for navigation and orientation in the Linux command line. When you're working in the terminal and lose track of where you are, pwd instantly tells you your exact location in the filesystem. The command has two main options: -L (logical, default) which shows the path you used to get there including any symbolic links, and -P (physical) which resolves all symbolic links to show the actual physical directory location. The pwd command is actually a shell builtin in most shells, meaning it's part of the shell itself rather than an external program, which makes it execute very quickly. The current directory is also stored in the $PWD environment variable, so 'echo $PWD' gives the same result.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - pwd Command Examples",
+                "url": "https://www.geeksforgeeks.org/linux-unix/pwd-command-in-linux-with-examples/"
+              },
+              {
+                "title": "Linuxize - pwd Command Tutorial",
+                "url": "https://linuxize.com/post/current-working-directory/"
+              },
+              {
+                "title": "Baeldung - pwd Command Guide",
+                "url": "https://www.baeldung.com/linux/pwd-tutorial"
+              },
+              {
+                "title": "Atlantic.Net - pwd Command with Examples",
+                "url": "https://www.atlantic.net/dedicated-server-hosting/linux-pwd-command-guide-with-examples/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "cat",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The cat (concatenate) command displays the contents of files, not the current directory path.",
+            "why": "cat is used to read and display file contents to the terminal, concatenate multiple files together, or create new files. It operates on file contents, not directory information. To see your current location, you need pwd, not cat.",
+            "examples": [
+              "'cat file.txt' displays the contents of file.txt",
+              "'cat file1.txt file2.txt' shows both files concatenated"
+            ],
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - cat Command",
+                "url": "https://www.geeksforgeeks.org/cat-command-in-linux-with-examples/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which command changes the current working directory to a different directory?",
+      "options": [
+        {
+          "id": "A",
+          "text": "rm",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The rm (remove) command deletes files and directories, it doesn't change your current directory location.",
+            "why": "rm is a file deletion command used to permanently remove files and directories from the filesystem. It has nothing to do with navigation. The syntax is 'rm filename' to delete a file or 'rm -r directory' to recursively delete a directory. To change directories, you need the cd command.",
+            "examples": [
+              "'rm file.txt' deletes the file",
+              "'rm -r old_folder' removes a directory and its contents"
+            ],
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - rm Command",
+                "url": "https://www.geeksforgeeks.org/rm-command-linux-examples/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "mv",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The mv (move) command moves or renames files and directories, it doesn't change your current working directory.",
+            "why": "mv is used to relocate files/directories to different locations or to rename them. While it moves files around the filesystem, it doesn't change where you currently are in the directory tree. After using mv, you remain in the same directory you were in before the command. To navigate to a different directory, use cd.",
+            "examples": [
+              "'mv oldname.txt newname.txt' renames a file",
+              "'mv file.txt /home/user/documents/' moves file to another directory"
+            ],
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - mv Command",
+                "url": "https://www.geeksforgeeks.org/mv-command-linux-examples/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "mkdir",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The mkdir (make directory) command creates new directories, it doesn't change your current location.",
+            "why": "mkdir is used to create new directories in the filesystem. While it creates directories that you could later navigate to, the command itself doesn't move you anywhere. After running mkdir, you remain in your current directory. To move into a directory, you need to use cd.",
+            "examples": [
+              "'mkdir new_folder' creates a new directory in current location",
+              "'mkdir -p parent/child/grandchild' creates nested directories"
+            ],
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - mkdir Command",
+                "url": "https://www.geeksforgeeks.org/mkdir-command-in-linux-with-examples/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "cd",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The cd (change directory) command is the primary tool for navigating the Linux filesystem. It changes your current working directory to a different location specified by an absolute or relative path. This is one of the most fundamental and frequently used commands in Linux.",
+            "keyPoints": [
+              "Stands for 'change directory'",
+              "Changes the shell's current working directory",
+              "Accepts both absolute paths (from /) and relative paths",
+              "cd with no arguments returns to home directory",
+              "cd ~ also goes to home directory",
+              "cd .. moves up one directory level",
+              "cd - returns to previous directory",
+              "Built-in shell command for fast execution"
+            ],
+            "examples": [
+              "'cd /var/log' changes to absolute path",
+              "'cd Documents' moves to subdirectory using relative path",
+              "'cd ..' goes up one level to parent directory",
+              "'cd' or 'cd ~' returns to home directory",
+              "'cd -' toggles between current and previous directory",
+              "'cd /home/user/Music' navigates using full path"
+            ],
+            "additionalInfo": "The cd command is essential for filesystem navigation and is a shell builtin, meaning it's part of the shell program itself rather than an external executable. This is necessary because the command needs to change the shell's internal state (the current directory). You can use cd with absolute paths (starting from root /) or relative paths (starting from your current location). Special directory references include '.' (current directory), '..' (parent directory), '~' (home directory), and '-' (previous directory). The command requires execute permission on the target directory to work. When used without arguments, cd takes you to your home directory. You can use tab completion to autocomplete directory names, making navigation faster and preventing typos.",
+            "learnMore": [
+              {
+                "title": "PhoenixNAP - cd Command Tutorial",
+                "url": "https://phoenixnap.com/kb/linux-cd-command"
+              },
+              {
+                "title": "GeeksforGeeks - cd Command Examples",
+                "url": "https://www.geeksforgeeks.org/linux-unix/cd-command-in-linux-with-examples/"
+              },
+              {
+                "title": "Linuxize - cd Command Guide",
+                "url": "https://linuxize.com/post/linux-cd-command/"
+              },
+              {
+                "title": "nixCraft - How to Change Directory",
+                "url": "https://www.cyberciti.biz/faq/how-to-change-directory-in-linux-terminal/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "A systems administrator must see a list of all files in the /var/log directory in long format. Which command and option should the administrator use?",
+      "options": [
+        {
+          "id": "A",
+          "text": "ls -la /var/log",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The 'ls -la /var/log' command is the correct and complete solution. It combines -l (long format) and -a (all files including hidden) options to display comprehensive information about every file in /var/log, including detailed metadata like permissions, ownership, size, and modification time, plus hidden files that start with a dot.",
+            "keyPoints": [
+              "-l provides long listing format with detailed information",
+              "-a shows all files including hidden ones (starting with .)",
+              "Displays file permissions, number of links, owner, group, size",
+              "Shows last modification date and time",
+              "Can combine options: -la, -al, -l -a all equivalent",
+              "Useful for seeing complete directory contents with full details",
+              "Essential for system administration and troubleshooting"
+            ],
+            "examples": [
+              "'ls -la /var/log' shows all log files with full details",
+              "Output includes entries like '.', '..', and hidden '.log' files",
+              "Each line shows: -rw-r--r-- 1 root root 1234 Dec 22 10:30 syslog",
+              "'ls -la' in current directory shows all files with details",
+              "'ls -lah /var/log' adds human-readable sizes (K, M, G)"
+            ],
+            "additionalInfo": "The ls command with -la options is one of the most commonly used command combinations for system administration. The -l (lowercase L) option produces a long listing format that displays seven columns of information: file type and permissions, number of hard links, owner name, group name, file size in bytes, last modification timestamp, and filename. The -a option ensures that hidden files (those starting with a dot) are included, which is crucial in directories like /var/log where hidden log files might exist. When combined, these options provide a complete view of the directory. You'll see special entries '.' (current directory) and '..' (parent directory) at the top. The order can be switched (-al works the same as -la), and you can add other options like -h for human-readable sizes or -t to sort by time.",
+            "learnMore": [
+              {
+                "title": "Linuxize - ls Command Guide",
+                "url": "https://linuxize.com/post/how-to-list-files-in-linux-using-the-ls-command/"
+              },
+              {
+                "title": "GeeksforGeeks - ls Command with Examples",
+                "url": "https://www.geeksforgeeks.org/ls-command-in-linux/"
+              },
+              {
+                "title": "TecMint - 15 ls Command Examples",
+                "url": "https://www.tecmint.com/15-basic-ls-command-examples-in-linux/"
+              },
+              {
+                "title": "Atlantic.Net - ls Command Options",
+                "url": "https://www.atlantic.net/dedicated-server-hosting/how-to-use-linux-ls-command-with-options/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "/var/log -la -ls",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This command is syntactically incorrect and will not work. In Linux, commands must come first, followed by options and arguments.",
+            "why": "The correct syntax for Linux commands is 'command [options] [arguments]'. This option attempts to use the directory path '/var/log' as if it were a command, followed by invalid options. The directory path should be an argument after the ls command and its options, not placed at the beginning. Additionally, '-ls' is not a valid option for ls.",
+            "examples": [
+              "Running this would result in 'bash: /var/log: Is a directory'",
+              "Correct syntax: 'ls -la /var/log' (command, options, then path)"
+            ],
+            "learnMore": [
+              {
+                "title": "LinuxHint - Command Syntax Structure",
+                "url": "https://linuxhint.com/linux-command-structure/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "cat -names /var/log",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This command is incorrect because cat is used to display file contents, not list directory contents, and -names is not a valid cat option.",
+            "why": "The cat command is designed to concatenate and display the contents of files, not to list files in a directory. There is no -names option for cat. Even if you tried 'cat /var/log', it would fail with an error because /var/log is a directory, not a file. To list directory contents in long format, you must use the ls command with appropriate options.",
+            "examples": [
+              "'cat /var/log' would error: 'cat: /var/log: Is a directory'",
+              "cat is for reading files: 'cat /var/log/syslog' displays log content"
+            ],
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - Difference Between ls and cat",
+                "url": "https://www.geeksforgeeks.org/practical-applications-of-linux-commands/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "cd /var/log",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The cd command changes your current directory to /var/log but doesn't display the list of files. After changing directories, you would still need to run 'ls -la' to see the file list.",
+            "why": "While 'cd /var/log' successfully navigates to the /var/log directory, it doesn't produce any output showing the files within that directory. The cd command only changes your location in the filesystem. To see a list of files in long format, you must run the ls command with the -l option after changing directories, or use 'ls -la /var/log' directly without changing directories first.",
+            "examples": [
+              "'cd /var/log' moves you there but shows no files",
+              "Would need to follow with 'ls -la' to see the file list",
+              "Or use 'ls -la /var/log' directly without cd"
+            ],
+            "learnMore": [
+              {
+                "title": "DigitalOcean - Linux Commands Guide",
+                "url": "https://www.digitalocean.com/community/tutorials/linux-commands"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

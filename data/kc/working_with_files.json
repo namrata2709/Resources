@@ -1,0 +1,510 @@
+{
+  "title": "Working with Files",
+  "topic": "Linux File Operations",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which option can you use with the find command to run a command on searched files?",
+      "options": [
+        {
+          "id": "A",
+          "text": "-fprint",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The -fprint option writes the full file names of matched files to a specified file, rather than executing commands on them.",
+            "why": "-fprint is used for redirecting find output to a file for later reference or processing. It doesn't execute commands on the files found. To run commands on found files, you need the -exec option.",
+            "examples": [
+              "find /var/log -name '*.log' -fprint logfiles.txt writes log file paths to logfiles.txt",
+              "This is useful for creating file lists but not for performing actions on files"
+            ],
+            "learnMore": [
+              {
+                "title": "TecMint - 35 Practical Examples of Linux Find Command",
+                "url": "https://www.tecmint.com/35-practical-examples-of-linux-find-command/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "-delete",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The -delete option performs a specific action (deletion) on found files, but it's not a general-purpose option for running arbitrary commands.",
+            "why": "While -delete does execute an action on found files, it only performs deletion and cannot run custom commands like moving files, changing permissions, or processing file contents. For running any command on found files, use -exec instead.",
+            "examples": [
+              "find . -name '*.tmp' -delete removes all .tmp files",
+              "This is a shorthand for deletion but doesn't allow running other commands"
+            ],
+            "learnMore": [
+              {
+                "title": "Linux Hint - How to Use the Find Command in Linux",
+                "url": "https://linuxhint.com/use-the-find-command-in-linux-to-search-files/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "-exec",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The -exec option allows you to execute any command on each file found by the find command. It's one of the most powerful features of find, enabling complex file processing workflows by combining search capabilities with command execution.",
+            "keyPoints": [
+              "Executes a specified command on each file that matches the search criteria",
+              "Uses {} as a placeholder for the current file name",
+              "Requires \\; or \\+ at the end to terminate the command",
+              "\\; runs the command once per file, while \\+ runs it once with all files as arguments",
+              "Can execute any Linux command including cp, mv, chmod, rm, or custom scripts",
+              "Provides full control over file processing workflows",
+              "Often combined with -ok for interactive confirmation before executing"
+            ],
+            "examples": [
+              "find . -type f -name '*.log' -exec rm {} \\; deletes all .log files one by one",
+              "find /home -name '*.jpg' -exec cp {} /backup/ \\; copies all .jpg files to backup directory",
+              "find . -type f -exec chmod 644 {} \\; sets read/write permissions on all files",
+              "find /var -mtime +30 -exec gzip {} \\; compresses files older than 30 days"
+            ],
+            "additionalInfo": "The -exec option makes find incredibly versatile by transforming it from a simple search tool into a powerful automation utility. The {} placeholder is replaced by find with each matching file's path. When using \\;, the command runs separately for each file (slower but safer), while \\+ passes multiple files at once to a single command invocation (faster but may hit argument length limits). For safety, you can use -ok instead of -exec to prompt for confirmation before each command execution. Be cautious with -exec and destructive commands like rm, as they can quickly affect many files.",
+            "learnMore": [
+              {
+                "title": "Opensource.com - Find Files and Directories on Linux",
+                "url": "https://opensource.com/article/21/9/linux-find-command"
+              },
+              {
+                "title": "Baeldung - Guide to the Linux Find Command",
+                "url": "https://www.baeldung.com/linux/find-command"
+              },
+              {
+                "title": "Liquid Web - How to Use the Find Command in Linux",
+                "url": "https://www.liquidweb.com/blog/how-to-use-the-find-command-in-linux/"
+              },
+              {
+                "title": "ManageEngine - What is the Find Command in Linux",
+                "url": "https://www.manageengine.com/products/eventlog/kb/linux/what-is-the-find-command-in-linux.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "-user",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The -user option is a search criterion that filters files by owner, not a command execution option.",
+            "why": "-user helps you find files owned by a specific user, but it doesn't execute commands on those files. After finding files with -user, you would typically combine it with -exec to perform actions on the results.",
+            "examples": [
+              "find /home -user john finds all files owned by user john",
+              "find / -user root -name '*.conf' finds config files owned by root",
+              "Combine with -exec: find . -user alice -exec chown bob {} \\; changes ownership"
+            ],
+            "learnMore": [
+              {
+                "title": "Computer Hope - Linux Find Command",
+                "url": "https://www.computerhope.com/unix/ufind.htm"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "A Linux administrator downloaded a file from the internet. The administrator believes that the file is corrupted. Which Linux command can the administrator use to check whether a file is corrupted?",
+      "options": [
+        {
+          "id": "A",
+          "text": "grep",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "grep is a text search utility that searches for patterns within files, not a tool for verifying file integrity or detecting corruption.",
+            "why": "grep searches for text patterns and has no capability to calculate checksums or verify file integrity. While you could use grep to search for error indicators in log files, it cannot determine if a binary or data file is corrupted. Use cksum, md5sum, or sha256sum for corruption detection.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - Grep Command in Linux",
+                "url": "https://www.geeksforgeeks.org/grep-command-in-unixlinux/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "diff",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "diff compares two files line by line and shows differences between them, but it requires having both the original and potentially corrupted file.",
+            "why": "While diff can show differences between files, it's not designed for detecting corruption. You would need the original uncorrupted file to compare against, which defeats the purpose of checking for corruption. Additionally, diff is primarily for text files, not binary files. Use cksum or hash functions instead.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - Diff Command in Linux",
+                "url": "https://www.geeksforgeeks.org/diff-command-linux-examples/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "find",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "find is a search utility that locates files and directories based on various criteria, not a file integrity verification tool.",
+            "why": "find helps you locate files in the filesystem but has no capability to verify file integrity or detect corruption. It can find files based on name, size, permissions, and other attributes, but cannot calculate checksums or detect data corruption.",
+            "learnMore": [
+              {
+                "title": "Linux Today - 25 Examples of the Linux Find Command",
+                "url": "https://www.linuxtoday.com/developer/25-examples-of-the-linux-find-command/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "cksum",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "cksum calculates a cyclic redundancy check (CRC) checksum and byte count for files, enabling you to verify file integrity by comparing checksums before and after transfer or storage. If the checksum changes, the file has been corrupted or modified.",
+            "keyPoints": [
+              "Generates a 32-bit CRC checksum value unique to the file's contents",
+              "Displays both the checksum value and the file size in bytes",
+              "Even minor file changes produce completely different checksum values",
+              "Standardized by POSIX, ensuring consistent results across Unix-like systems",
+              "Useful for detecting accidental corruption during file transfers or storage",
+              "Fast and lightweight compared to cryptographic hash functions",
+              "Cannot protect against intentional tampering (use SHA256 for security)"
+            ],
+            "examples": [
+              "cksum myfile.txt produces: 1234567890 1024 myfile.txt (checksum, size, filename)",
+              "Download a file with known checksum 987654321, run cksum to verify it matches",
+              "cksum document.pdf before transfer shows 555666777, after transfer shows 555666777 (intact)",
+              "Modified file shows different checksum: 555666777 becomes 999888777"
+            ],
+            "additionalInfo": "cksum is ideal for verifying file integrity during network transfers, detecting storage media corruption, or confirming successful downloads. The command outputs a unique numerical value representing the file's contents. To use it effectively, first calculate the checksum of the original file, then recalculate it after transfer or at a later time. If the checksums match, the file is intact; if they differ, corruption has occurred. However, cksum uses a simple CRC algorithm suitable only for detecting accidental corruption, not malicious tampering. For security-critical applications, use cryptographic hash functions like SHA256 (sha256sum command) instead.",
+            "learnMore": [
+              {
+                "title": "Computer Hope - Linux Cksum Command",
+                "url": "https://www.computerhope.com/unix/ucksum.htm"
+              },
+              {
+                "title": "LinuxConfig - Cksum Command: Verify File Integrity",
+                "url": "https://linuxconfig.org/cksum"
+              },
+              {
+                "title": "HowtoForge - Compute CRC Checksums with Cksum",
+                "url": "https://www.howtoforge.com/linux-cksum-command/"
+              },
+              {
+                "title": "TutorialsPoint - Cksum Command in Linux",
+                "url": "https://www.tutorialspoint.com/unix_commands/cksum.htm"
+              },
+              {
+                "title": "FreeCodeCamp - What is Checksum and How to Check Files",
+                "url": "https://www.freecodecamp.org/news/file-last-modified-in-inux-how-to-check-if-two-files-are-same/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "A Linux administrator must compare and display the outputs of two different files. Which Linux command can the administrator use to compare the file outputs?",
+      "options": [
+        {
+          "id": "A",
+          "text": "diff",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The diff command compares two files line by line and displays the differences between them, showing exactly what changes would need to be made to make the files identical. It's an essential tool for code review, configuration management, and tracking changes.",
+            "keyPoints": [
+              "Compares files line by line and reports differences",
+              "Outputs instructions showing how to modify one file to match the other",
+              "Supports multiple output formats: normal, context (-c), and unified (-u)",
+              "Can compare entire directories recursively with the -r option",
+              "Shows added lines with + symbol and deleted lines with - symbol",
+              "Case-sensitive by default, use -i for case-insensitive comparison",
+              "Essential for version control systems like Git"
+            ],
+            "examples": [
+              "diff file1.txt file2.txt shows line-by-line differences",
+              "diff -u old.conf new.conf creates a unified diff showing changes in context",
+              "diff -r dir1/ dir2/ compares all files in two directories recursively",
+              "Output: '2c2' means line 2 in file1 should change to match line 2 in file2"
+            ],
+            "additionalInfo": "diff is fundamental to software development and system administration. The command uses special notation: '3a4' means 'after line 3, add line 4 from file2', '5d3' means 'delete line 5 from file1 to match line 3 of file2', and '7c9' means 'change line 7 to match line 9'. The unified format (-u) is most common in modern use, particularly in Git, showing changes with '+' for additions and '-' for deletions. Context format (-c) shows several lines of context around changes. The side-by-side format (-y) displays files in two columns for easier visual comparison. diff output can be saved to a patch file and applied using the patch command, making it crucial for distributing code changes.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - Compare Files Line by Line with Diff",
+                "url": "https://www.geeksforgeeks.org/diff-command-linux-examples/"
+              },
+              {
+                "title": "Phoenix NAP - Linux Diff Command Syntax and Examples",
+                "url": "https://phoenixnap.com/kb/linux-diff"
+              },
+              {
+                "title": "Linuxize - Diff Command in Linux",
+                "url": "https://linuxize.com/post/diff-command-in-linux/"
+              },
+              {
+                "title": "Red Hat - Introduction to Diff Command",
+                "url": "https://www.redhat.com/en/blog/introduction-diff-command"
+              },
+              {
+                "title": "FreeCodeCamp - Linux Diff Command and Patch",
+                "url": "https://www.freecodecamp.org/news/compare-files-with-diff-in-linux/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "hash",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "hash is a shell built-in command that manages the hash table of recently executed commands to speed up command lookups, not a file comparison tool.",
+            "why": "The hash command maintains a list of command locations in memory to avoid repeatedly searching PATH. It has nothing to do with comparing file contents. If you need cryptographic hashing for file verification, use commands like md5sum or sha256sum, not hash.",
+            "learnMore": [
+              {
+                "title": "Computer Hope - Linux Diff Command",
+                "url": "https://www.computerhope.com/unix/udiff.htm"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "df",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "df (disk free) displays disk space usage information for mounted filesystems, not file content comparison.",
+            "why": "df shows how much disk space is used and available on each mounted filesystem. It provides information about storage capacity, not file contents. To compare files, use the diff command instead.",
+            "examples": [
+              "df -h shows disk usage in human-readable format",
+              "df does not examine file contents or perform comparisons"
+            ],
+            "learnMore": [
+              {
+                "title": "ioFlood - Using Diff in Linux",
+                "url": "https://ioflood.com/blog/diff-linux-command/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "find",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "find searches for files and directories in the filesystem hierarchy but doesn't compare file contents.",
+            "why": "find is used to locate files based on criteria like name, size, permissions, or modification time. It cannot compare the contents of two files or display their differences. Use diff for file comparison.",
+            "learnMore": [
+              {
+                "title": "Medium - Comparing Files and Folders with Diff",
+                "url": "https://medium.com/itversity/comparing-files-and-folders-in-linux-using-diff-command-c2177fd80852"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which statement about symbolic links is true?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Symbolic links can't link to any directory.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This statement is false. Symbolic links can absolutely link to directories, and this is one of their most common uses.",
+            "why": "Symbolic links work with both files and directories. In fact, linking to directories is a common practice for version management, creating convenient shortcuts, and organizing file systems. For example, /usr/bin/python often links to a specific Python version directory.",
+            "examples": [
+              "ln -s /opt/app/version-2.0 /opt/app/current creates a directory symlink",
+              "Many system directories like /lib64 are actually symbolic links to other directories"
+            ],
+            "learnMore": [
+              {
+                "title": "FreeCodeCamp - Symlink Tutorial in Linux",
+                "url": "https://www.freecodecamp.org/news/symlink-tutorial-in-linux-how-to-create-and-remove-a-symbolic-link/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Symbolic links point to a file's inode.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This statement is false. Symbolic links store and point to a pathname (path string), not to an inode. Hard links point to inodes.",
+            "why": "This describes hard links, not symbolic links. A symbolic link contains the path to the target file as a string. When accessed, the operating system reads this path and follows it to find the actual file. Hard links, in contrast, point directly to the inode (the filesystem's internal reference to file data). This fundamental difference means symbolic links can break if the target moves, while hard links remain valid as long as the inode exists.",
+            "examples": [
+              "Symlink stores: '/home/user/documents/file.txt' as text",
+              "Hard link points to: inode number 123456 directly"
+            ],
+            "learnMore": [
+              {
+                "title": "Wikipedia - Symbolic Link",
+                "url": "https://en.wikipedia.org/wiki/Symbolic_link"
+              },
+              {
+                "title": "How-To Geek - Symbolic Links vs Hard Links",
+                "url": "https://www.howtogeek.com/287014/how-to-create-and-use-symbolic-links-aka-symlinks-on-linux/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Symbolic links point to a hard link, instead of the actual file.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This statement is misleading and technically incorrect. Symbolic links point to a pathname, not to hard links. They can point to any file path, whether it's a hard link, a regular file, or even another symbolic link.",
+            "why": "Symbolic links store a path string that can point to any filesystem object (file, directory, or another symlink), regardless of whether that object is accessed through a hard link or not. The symlink doesn't distinguish between or specifically point to hard links. The quiz question's wording suggests symlinks preferentially target hard links, which is false. From the symlink's perspective, it simply follows a path to reach whatever is at that location.",
+            "learnMore": [
+              {
+                "title": "KodeKloud - How to Use Symbolic Links on Linux",
+                "url": "https://kodekloud.com/blog/how-to-use-symbolic-links-symlinks-on-linux/"
+              },
+              {
+                "title": "Hostinger - Linux Symlinks Guide",
+                "url": "https://www.hostinger.com/tutorials/how-to-create-symbolic-links-in-linux"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "If a symbolic link links to a file and the file is deleted, the link will still work.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This statement is false. If the target file is deleted, the symbolic link becomes broken (also called a dangling symlink) and will not work.",
+            "why": "Symbolic links store the path to a target file. When you access the symlink, the system follows that path. If the target file is deleted or moved, the path no longer leads to a valid file, and the symlink breaks. Attempting to access a broken symlink results in a 'No such file or directory' error. This is one key difference from hard links, which continue to work as long as the inode has at least one link pointing to it.",
+            "examples": [
+              "Create symlink: ln -s target.txt link.txt, then rm target.txt breaks the link",
+              "Accessing link.txt after deletion: 'No such file or directory' error",
+              "Use find . -type l -! -exec test -e {} \\; -print to find broken symlinks"
+            ],
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - How to Symlink a File in Linux",
+                "url": "https://www.geeksforgeeks.org/how-to-symlink-a-file-in-linux/"
+              },
+              {
+                "title": "Linode - The Ultimate Guide to Creating Linux Symlinks",
+                "url": "https://www.linode.com/docs/guides/linux-symlinks/"
+              },
+              {
+                "title": "Hostman - Step-by-Step Guide to Creating Symbolic Links",
+                "url": "https://hostman.com/tutorials/creating-symbolic-links-in-linux/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "Which option for the tar command enables a user to create a tarball?",
+      "options": [
+        {
+          "id": "A",
+          "text": "-xf tarball.tar",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "-xf is used to extract files from an existing tarball, not to create one.",
+            "why": "The -x flag stands for 'extract', which unpacks files from an archive. The -f flag specifies the filename. Together, -xf tarball.tar extracts the contents of tarball.tar. To create a tarball, you need the -c (create) flag instead.",
+            "examples": [
+              "tar -xf backup.tar extracts files from backup.tar",
+              "tar -xzf archive.tar.gz extracts a compressed tarball"
+            ],
+            "learnMore": [
+              {
+                "title": "Linuxize - Tar Command: Create and Extract Archives",
+                "url": "https://linuxize.com/post/how-to-create-and-extract-archives-using-the-tar-command-in-linux/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "-v tarball",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This is invalid syntax. The -v option alone without other required flags and proper file specification cannot create a tarball.",
+            "why": "-v (verbose) is a modifier flag that displays the names of files being processed. It must be used in combination with an operation flag like -c (create) or -x (extract) and the -f flag to specify the archive filename. Using -v by itself or with just a filename does nothing useful.",
+            "learnMore": [
+              {
+                "title": "nixCraft - Creating A tar File in Linux",
+                "url": "https://www.cyberciti.biz/faq/creating-a-tar-file-linux-command-line/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "-cvf tarball.tar",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The -cvf option combination creates a tarball archive. The flags stand for: -c (create new archive), -v (verbose output showing files being added), and -f (specify the filename). This is the standard and most common way to create tar archives in Linux.",
+            "keyPoints": [
+              "-c flag tells tar to create a new archive file",
+              "-v flag enables verbose mode, listing each file as it's added",
+              "-f flag must be followed by the archive filename",
+              "The order typically places -f last since it requires a filename argument",
+              "You specify source files/directories after the archive name",
+              "Without compression flags, creates an uncompressed .tar file",
+              "Add -z for gzip compression (.tar.gz) or -j for bzip2 (.tar.bz2)"
+            ],
+            "examples": [
+              "tar -cvf backup.tar /home/user creates backup.tar from /home/user directory",
+              "tar -cvf project.tar file1.txt file2.txt dir1/ bundles specific files and directories",
+              "tar -czvf archive.tar.gz /var/log creates a compressed tarball with gzip",
+              "tar -cvf docs.tar *.pdf archives all PDF files in current directory"
+            ],
+            "additionalInfo": "The tar command (tape archive) is essential for file management in Linux. The -c flag creates a new archive, overwriting any existing file with the same name. The -v flag is optional but recommended as it provides visual feedback during the archiving process, showing each file being added. The -f flag is mandatory and must be immediately followed by the desired archive filename. After specifying the archive name, you list the files or directories to include. For compression, add -z (gzip, fastest), -j (bzip2, better compression), or -J (xz, best compression). The resulting .tar file bundles multiple files while preserving directory structure, permissions, and timestamps. Tarballs are the standard format for software distribution, backups, and file transfers in Unix-like systems.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - Tar Command in Linux with Examples",
+                "url": "https://www.geeksforgeeks.org/tar-command-linux-examples/"
+              },
+              {
+                "title": "Ubiq - How to Create tar.gz file in Linux",
+                "url": "https://ubiq.co/tech-blog/how-to-create-tar-gz-file-in-linux/"
+              },
+              {
+                "title": "Hostinger - How to Use the Tar Command in Linux",
+                "url": "https://www.hostinger.com/tutorials/linux-tar-command-with-examples"
+              },
+              {
+                "title": "linuxvox - Creating Tarballs in Linux: Comprehensive Guide",
+                "url": "https://linuxvox.com/blog/create-a-tarball-linux/"
+              },
+              {
+                "title": "OSC - Tar Tutorial",
+                "url": "https://www.osc.edu/documentation/tutorials/unix-basics/tar-tutorial"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "-c tarball.tar",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "While -c is the correct create flag, this syntax is incomplete and incorrect. It's missing the mandatory -f flag to specify the filename.",
+            "why": "The -c flag alone tells tar you want to create an archive, but tar doesn't know where to write the archive without the -f flag specifying a filename. The correct syntax requires -cf (or -cvf for verbose mode) followed by the archive name and then the files to archive. The command shown would fail with an error.",
+            "examples": [
+              "Wrong: tar -c tarball.tar (missing -f, will fail)",
+              "Correct: tar -cf tarball.tar files/ (includes -f flag)"
+            ],
+            "learnMore": [
+              {
+                "title": "Lenovo - Tarball: Create & Use Tarballs",
+                "url": "https://www.lenovo.com/us/en/glossary/tarball/"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

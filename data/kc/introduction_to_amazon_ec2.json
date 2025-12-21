@@ -1,0 +1,564 @@
+{
+  "title": "Introduction to Amazon EC2",
+  "topic": "AWS Compute Services",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which statement describes the Amazon EC2 service?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It provides containers to run applications on AWS",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Amazon EC2 does not directly provide containers. Container services are provided by Amazon ECS (Elastic Container Service) and Amazon EKS (Elastic Kubernetes Service).",
+            "why": "EC2 provides virtual machines (instances), not containers. While you can run containers on EC2 instances, EC2 itself is not a container service—it's an infrastructure service that provides virtual servers.",
+            "learnMore": [
+              {
+                "title": "AWS - Amazon ECS",
+                "url": "https://aws.amazon.com/ecs/"
+              },
+              {
+                "title": "AWS - Amazon EKS",
+                "url": "https://aws.amazon.com/eks/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "It is a solution that gives customers the ability to deploy their application to run on AWS",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This better describes AWS Elastic Beanstalk, which is a Platform as a Service (PaaS) that simplifies deploying and managing applications. While EC2 can host applications, it doesn't abstract away infrastructure management like a deployment platform does.",
+            "why": "EC2 is Infrastructure as a Service (IaaS)—you get virtual machines and manage everything from the OS up. Services like Elastic Beanstalk or AWS Amplify are specifically designed for simplified application deployment.",
+            "learnMore": [
+              {
+                "title": "AWS - Elastic Beanstalk",
+                "url": "https://aws.amazon.com/elasticbeanstalk/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "It is a serverless compute service",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "EC2 is not serverless. AWS Lambda is AWS's serverless compute service. With EC2, you manage virtual servers; with serverless, you don't manage any servers at all.",
+            "why": "Serverless means you don't provision, manage, or see any servers—you just run code. EC2 requires you to choose instance types, manage operating systems, handle scaling, and maintain the servers. That's the opposite of serverless.",
+            "learnMore": [
+              {
+                "title": "AWS - Lambda (Serverless)",
+                "url": "https://aws.amazon.com/lambda/"
+              },
+              {
+                "title": "AWS - Serverless Compute",
+                "url": "https://aws.amazon.com/serverless/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "It provides virtual machines that run on AWS",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Amazon EC2 (Elastic Compute Cloud) is AWS's core Infrastructure as a Service (IaaS) offering that provides resizable virtual servers, called instances, in the cloud. You can launch virtual machines with your choice of operating system, configure CPU, memory, storage, and networking, and scale capacity up or down as needed.",
+            "keyPoints": [
+              "Launch virtual servers (instances) in minutes with various operating systems",
+              "Choose from hundreds of instance types optimized for different workloads",
+              "Complete control over the virtual machine including root/administrator access",
+              "Scalable—add or remove capacity within minutes",
+              "Pay only for compute time you actually use",
+              "Deploy across multiple AWS regions and availability zones"
+            ],
+            "whatEC2Provides": [
+              "Virtual CPU, memory, storage, and networking resources",
+              "Choice of Linux, Windows, or macOS operating systems",
+              "Instance types optimized for compute, memory, storage, or accelerated computing",
+              "Flexible pricing models: On-Demand, Reserved, Spot, Savings Plans",
+              "Security groups and network isolation for protecting instances",
+              "Integration with other AWS services (S3, RDS, CloudWatch, etc.)"
+            ],
+            "examples": [
+              "Hosting web applications on virtual servers",
+              "Running batch processing jobs on scalable compute instances",
+              "Deploying databases on virtual machines with full control",
+              "Creating development and testing environments",
+              "Running enterprise applications migrated from on-premises"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - What is Amazon EC2?",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html"
+              },
+              {
+                "title": "AWS - EC2 Overview",
+                "url": "https://aws.amazon.com/ec2/"
+              },
+              {
+                "title": "GeeksforGeeks - What is EC2?",
+                "url": "https://www.geeksforgeeks.org/what-is-elastic-compute-cloud-ec2/"
+              },
+              {
+                "title": "AWS - EC2 Instance Types",
+                "url": "https://aws.amazon.com/ec2/instance-types/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "A developer wants to run an application that loads a large amount of data into memory on an Amazon EC2 instance. Which instance type should the developer choose to achieve the best performance?",
+      "options": [
+        {
+          "id": "A",
+          "text": "General purpose",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "General purpose instances provide a balance of compute, memory, and networking resources. They're good for many workloads but not optimized for applications that load large amounts of data into memory.",
+            "why": "General purpose instances (M family) have moderate amounts of memory. For workloads that specifically need to load large datasets into memory, memory-optimized instances provide significantly more RAM per vCPU.",
+            "useCases": "Best for web servers, code repositories, small to medium databases, and applications with balanced resource needs",
+            "learnMore": [
+              {
+                "title": "AWS - General Purpose Instances",
+                "url": "https://aws.amazon.com/ec2/instance-types/general-purpose/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Accelerated computing",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Accelerated computing instances use hardware accelerators (GPUs, FPGAs) for specialized tasks like machine learning, graphics processing, and scientific computing. They're not specifically designed for high-memory workloads.",
+            "why": "Accelerated computing focuses on specialized processing units for tasks like floating-point calculations, graphics rendering, or AI/ML training. While they may have substantial memory, memory-optimized instances are specifically designed for memory-intensive workloads.",
+            "useCases": "Best for machine learning training, graphics rendering, video processing, scientific simulations, and GPU-accelerated applications",
+            "learnMore": [
+              {
+                "title": "AWS - Accelerated Computing Instances",
+                "url": "https://aws.amazon.com/ec2/instance-types/accelerated-computing/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Compute optimized",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Compute optimized instances are designed for compute-intensive workloads that benefit from high-performance processors. They excel at CPU-intensive tasks, not memory-intensive tasks.",
+            "why": "Compute optimized instances (C family) have high CPU-to-memory ratios—they're built for workloads that need powerful processors, not large amounts of RAM. Loading large datasets into memory requires high memory capacity, not high CPU performance.",
+            "useCases": "Best for batch processing, media transcoding, high-performance web servers, scientific modeling, dedicated gaming servers, and CPU-intensive applications",
+            "learnMore": [
+              {
+                "title": "AWS - Compute Optimized Instances",
+                "url": "https://aws.amazon.com/ec2/instance-types/compute-optimized/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Memory optimized",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Memory optimized instances are specifically designed to deliver fast performance for workloads that process large data sets in memory. They provide high memory capacity relative to CPU, making them ideal for applications that load large amounts of data into RAM for fast access.",
+            "keyPoints": [
+              "High memory-to-CPU ratio optimized for memory-intensive workloads",
+              "Fast performance for processing large datasets in memory",
+              "Latest DDR5 memory technology for high bandwidth",
+              "Available in sizes from moderate to massive (up to 24 TB of RAM)",
+              "Designed for sustained memory-intensive operations"
+            ],
+            "memoryOptimizedFamilies": [
+              "R family (R8i, R7i, R6i): General memory-intensive workloads",
+              "X family (X8g, X2idn): Extra large memory for in-memory databases",
+              "U family (U7i, U-24tb1): Ultra-high memory instances with up to 24 TB RAM",
+              "z1d: High compute capacity and memory for EDA workloads"
+            ],
+            "idealUseCases": [
+              "In-memory databases (Redis, Memcached, SAP HANA)",
+              "Real-time big data analytics (Hadoop, Spark clusters)",
+              "High-performance databases (MySQL, PostgreSQL with large caches)",
+              "Enterprise applications requiring large memory footprints",
+              "Data analytics and processing large datasets",
+              "Distributed web-scale in-memory caches"
+            ],
+            "examples": [
+              "Running an in-memory database like SAP HANA that loads entire datasets into RAM for real-time analytics",
+              "Processing genomics data that requires keeping large reference genomes in memory",
+              "Running Redis cache clusters that store frequently accessed data in memory",
+              "Analyzing financial data where keeping historical records in memory speeds up queries",
+              "Operating Apache Spark clusters for big data processing"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - Memory Optimized Instances",
+                "url": "https://aws.amazon.com/ec2/instance-types/memory-optimized/"
+              },
+              {
+                "title": "AWS - Memory Optimized Specs",
+                "url": "https://docs.aws.amazon.com/ec2/latest/instancetypes/mo.html"
+              },
+              {
+                "title": "GeeksforGeeks - EC2 Instance Types",
+                "url": "https://www.geeksforgeeks.org/amazon-ec2-instance-types/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which of the following actions preserves the data on an Amazon EC2 instance that uses an instance store as root volume?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Reboot",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Rebooting an EC2 instance preserves data on instance store volumes. A reboot is equivalent to restarting the operating system—the instance stays on the same physical host, and the instance store volumes remain intact.",
+            "keyPoints": [
+              "Reboot restarts the operating system without moving the instance",
+              "Instance remains on the same physical host hardware",
+              "Instance store data persists through reboots",
+              "Instance ID, private/public IP addresses remain the same",
+              "Similar to restarting a physical computer"
+            ],
+            "whatHappens": [
+              "Operating system shuts down gracefully",
+              "Hardware resources remain allocated to your instance",
+              "Instance store volumes stay attached",
+              "Operating system boots back up",
+              "All data on instance store remains accessible"
+            ],
+            "examples": [
+              "Rebooting to apply OS patches or configuration changes",
+              "Restarting services that require a reboot",
+              "Troubleshooting by performing a clean restart"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - Reboot Your Instance",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-reboot.html"
+              },
+              {
+                "title": "AWS - Instance Store",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Stop",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Stopping an EC2 instance with instance store as root volume causes data loss. When you stop an instance, it may move to different physical hardware, and instance store volumes are ephemeral—they're tied to the specific host.",
+            "why": "Instance store is temporary, block-level storage physically attached to the host computer. When you stop an instance, it's deallocated from the host, and instance store data is permanently lost. The instance may restart on different hardware with empty instance store volumes.",
+            "important": "You cannot stop instances using instance store as root volume—AWS only allows stopping instances with EBS root volumes. Instance store-backed instances can only be rebooted or terminated.",
+            "learnMore": [
+              {
+                "title": "AWS - Stop and Start Instances",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Stop_Start.html"
+              },
+              {
+                "title": "AWS - Instance Store Lifecycle",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Terminate",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Terminating an EC2 instance permanently destroys the instance and all instance store data. Termination is irreversible—once terminated, you cannot recover the instance or its data.",
+            "why": "Termination deletes the instance completely. All instance store volumes are wiped, and all data is permanently lost. Even EBS volumes are deleted unless specifically configured to persist.",
+            "learnMore": [
+              {
+                "title": "AWS - Terminate Your Instance",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Hibernate",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Hibernation is not supported for instances with instance store volumes. Hibernation saves the RAM contents to the root EBS volume, so it requires an EBS-backed root volume, not instance store.",
+            "why": "Hibernate saves the instance's memory (RAM) to persistent storage so the instance can resume quickly. This requires an EBS root volume for storage. Instance store is ephemeral and cannot be used for hibernation.",
+            "learnMore": [
+              {
+                "title": "AWS - Hibernate Your Instance",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which of the following statements are true about security groups for Amazon EC2 instances? (Select TWO.)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "They allow all inbound traffic by default",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Security groups do NOT allow all inbound traffic by default. By default, security groups deny all inbound traffic and you must explicitly add rules to allow specific inbound traffic.",
+            "why": "The default security group rule is to deny all inbound connections for security. This follows the principle of least privilege—start with no access and only open what's needed. You must create rules to allow SSH, HTTP, or other inbound traffic.",
+            "learnMore": [
+              {
+                "title": "AWS - Security Groups",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "They allow all outbound traffic by default",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Security groups allow all outbound traffic by default. When you create a security group, it includes a default outbound rule that allows all outbound traffic to any destination.",
+            "keyPoints": [
+              "Default outbound rule allows all protocols, all ports, to all destinations (0.0.0.0/0)",
+              "Instances can initiate connections to the internet, other instances, AWS services",
+              "You can modify or remove the default outbound rule if needed",
+              "Follows the assumption that most instances need to reach external services"
+            ],
+            "examples": [
+              "An EC2 instance can download updates from the internet",
+              "Instances can connect to S3, DynamoDB, or other AWS services",
+              "Applications can make API calls to external services",
+              "Database instances can replicate to instances in other regions"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - Security Group Rules",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/security-group-rules.html"
+              },
+              {
+                "title": "Wiz - AWS Security Groups Best Practices",
+                "url": "https://www.wiz.io/academy/aws-security-groups-best-practices"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "They support adding rules that deny traffic from specified sources",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Security groups do NOT support deny rules. Security groups only support allow rules—you specify what traffic is permitted, and everything else is implicitly denied.",
+            "why": "Security groups operate on an 'implicit deny' model. If there's no rule allowing traffic, it's automatically blocked. You cannot create explicit deny rules. For deny rules, you need to use Network ACLs (NACLs), which operate at the subnet level.",
+            "learnMore": [
+              {
+                "title": "AWS - Security Group Rules",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/security-group-rules.html"
+              },
+              {
+                "title": "Sysdig - AWS Security Groups Guide",
+                "url": "https://www.sysdig.com/blog/aws-security-groups-guide"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "An EC2 instance can use only one security group",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "An EC2 instance can have multiple security groups attached. You can assign up to 5 security groups to a single instance, and the rules from all attached security groups are aggregated.",
+            "why": "Multiple security groups allow for modular, reusable security configurations. For example, one security group might allow SSH access, another allows HTTP, and a third allows database connections. This makes management easier and more flexible.",
+            "examples": [
+              "Web server with three security groups: SSH access, HTTP/HTTPS traffic, and monitoring agent access",
+              "Database server with two security groups: application tier access and backup service access"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - Security Groups",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "They support adding rules that allow traffic from specified sources",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Security groups support allow rules that specify which traffic is permitted from specific sources. You can allow traffic based on IP addresses, CIDR blocks, or other security groups.",
+            "keyPoints": [
+              "Specify source IP addresses or CIDR blocks (e.g., 203.0.113.0/24)",
+              "Reference other security groups as the source",
+              "Define protocol (TCP, UDP, ICMP) and port ranges",
+              "Create granular rules for specific traffic types",
+              "Security groups are stateful—return traffic is automatically allowed"
+            ],
+            "ruleComponents": [
+              "Protocol: TCP, UDP, ICMP, or all protocols",
+              "Port range: Single port (22), range (1024-2048), or all ports",
+              "Source: IP address, CIDR block, security group ID, or prefix list",
+              "Description: Optional description explaining the rule's purpose"
+            ],
+            "examples": [
+              "Allow SSH (port 22) from your office IP address: 203.0.113.25/32",
+              "Allow HTTP (port 80) from anywhere: 0.0.0.0/0",
+              "Allow MySQL (port 3306) from web server security group: sg-0123456",
+              "Allow all traffic from instances in the same security group"
+            ],
+            "additionalInfo": "Security groups are stateful, meaning if you allow inbound traffic from a source, the response traffic is automatically allowed back to that source, even without an explicit outbound rule.",
+            "learnMore": [
+              {
+                "title": "AWS - Security Group Rules",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/security-group-rules.html"
+              },
+              {
+                "title": "AWS - Working with Security Groups",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/working-with-security-groups.html"
+              },
+              {
+                "title": "Tufin - VPC Security Groups Guide",
+                "url": "https://www.tufin.com/blog/understanding-vpc-security-groups-comprehensive-guide"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "A company needs to run an application that is fault tolerant and tolerates interruptions on AWS. Which pricing model would best fit their requirements and help them lower costs as much as possible?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Reserved Instances",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Reserved Instances provide cost savings (up to 72%) but require a 1-year or 3-year commitment. They're best for steady-state, predictable workloads, not for applications that specifically tolerate interruptions.",
+            "why": "While Reserved Instances offer significant discounts, you pay for the reservation term whether or not you use the capacity. For fault-tolerant workloads that can handle interruptions, Spot Instances provide much deeper discounts (up to 90%) without long-term commitments.",
+            "bestFor": "Predictable, steady-state workloads that run continuously like production databases, always-on web servers, or baseline compute capacity",
+            "learnMore": [
+              {
+                "title": "AWS - Reserved Instances",
+                "url": "https://aws.amazon.com/ec2/pricing/reserved-instances/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "On-Demand Instances",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "On-Demand Instances provide maximum flexibility with no commitments, but they're the most expensive pricing option. For cost optimization with fault-tolerant workloads, other options offer better savings.",
+            "why": "On-Demand pricing is pay-per-second with no upfront costs or commitments. While convenient, it doesn't take advantage of the workload's fault tolerance to achieve cost savings. Spot Instances offer up to 90% savings for interruptible workloads.",
+            "bestFor": "Short-term workloads, testing, development, or applications with unpredictable usage patterns where you need guaranteed availability",
+            "learnMore": [
+              {
+                "title": "AWS - On-Demand Pricing",
+                "url": "https://aws.amazon.com/ec2/pricing/on-demand/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Dedicated Instances",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Dedicated Instances run on hardware dedicated to a single customer, providing physical isolation. They're more expensive than regular instances and don't address the cost optimization requirement for fault-tolerant workloads.",
+            "why": "Dedicated Instances are designed for compliance and regulatory requirements that mandate physical isolation, not for cost savings. They're actually more expensive than standard instances. For cost optimization with fault-tolerant workloads, Spot Instances are the right choice.",
+            "bestFor": "Workloads with compliance requirements for physical isolation, licensing restrictions, or security policies requiring dedicated hardware",
+            "learnMore": [
+              {
+                "title": "AWS - Dedicated Instances",
+                "url": "https://aws.amazon.com/ec2/pricing/dedicated-instances/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Spot Instances",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Spot Instances are the ideal choice for fault-tolerant, interruption-tolerant workloads. They offer up to 90% cost savings compared to On-Demand pricing by using spare EC2 capacity. AWS can reclaim Spot Instances with 2-minute warning when capacity is needed, making them perfect for flexible, resilient applications.",
+            "keyPoints": [
+              "Up to 90% discount compared to On-Demand pricing",
+              "Perfect for fault-tolerant, flexible workloads",
+              "Can be interrupted by AWS with 2-minute warning",
+              "Access to the same EC2 instance types as On-Demand",
+              "No long-term commitments required",
+              "Significant cost savings for the right workloads"
+            ],
+            "howSpotWorksWithInterruptions": [
+              "AWS allocates spare EC2 capacity at discounted prices",
+              "When AWS needs the capacity back, it sends a 2-minute warning",
+              "Your application receives the interruption notice",
+              "Application should save state and gracefully shut down",
+              "AWS terminates the instance after 2 minutes",
+              "You can request new Spot Instances or use other capacity"
+            ],
+            "idealForFaultTolerant": [
+              "Batch processing jobs that can checkpoint and resume",
+              "Big data analytics (Hadoop, Spark) with data replication",
+              "CI/CD and testing environments",
+              "Containerized applications with orchestration (ECS, EKS)",
+              "Stateless web services behind load balancers",
+              "Video rendering and media processing",
+              "Scientific computing and simulations"
+            ],
+            "examples": [
+              "A data processing pipeline that can save progress and resume from checkpoints",
+              "A video encoding service that can re-queue interrupted jobs",
+              "A web crawler that can handle individual instance failures without losing overall progress",
+              "Machine learning training jobs that save model checkpoints regularly",
+              "Hadoop cluster where HDFS replication ensures no data loss from node failures"
+            ],
+            "bestPractices": [
+              "Design applications to handle interruptions gracefully",
+              "Use multiple Spot Instance pools to diversify risk",
+              "Implement checkpointing to save work progress",
+              "Use Spot Instance interruption notices to save state",
+              "Combine with On-Demand or Reserved Instances for baseline capacity",
+              "Use EC2 Auto Scaling to automatically replace interrupted instances"
+            ],
+            "additionalInfo": "Spot Instances are not suitable for workloads that cannot tolerate interruptions like stateful databases, critical production applications without redundancy, or long-running jobs without checkpointing. However, for fault-tolerant workloads designed to handle failures, Spot provides unmatched cost savings.",
+            "learnMore": [
+              {
+                "title": "AWS - Spot Instances",
+                "url": "https://aws.amazon.com/ec2/spot/"
+              },
+              {
+                "title": "AWS - Spot Instance Interruptions",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-interruptions.html"
+              },
+              {
+                "title": "AWS - Spot Best Practices",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-best-practices.html"
+              },
+              {
+                "title": "GeeksforGeeks - EC2 Instance Types",
+                "url": "https://www.geeksforgeeks.org/amazon-ec2-instance-types/"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
