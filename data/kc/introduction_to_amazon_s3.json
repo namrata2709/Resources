@@ -73,7 +73,7 @@
               "UTF-8 encoding: Keys can use any UTF-8 character and can be up to 1,024 bytes long",
               "Global addressing: The combination bucket-name + object-key creates a unique identifier across AWS",
               "URL accessibility: Object keys become part of the URL used to access objects via REST API or web browser"
-              ],
+            ],
             "examples": [
               "A photo stored as photos/vacation/beach.jpg has the key 'photos/vacation/beach.jpg'",
               "In the URL https://my-bucket.s3.us-east-1.amazonaws.com/data/report.csv, the key is 'data/report.csv'",
@@ -416,3 +416,153 @@
           "id": "A",
           "text": "By default, data that is stored in an S3 bucket is public, and this setting must be turned off to make the data private",
           "isCorrect": false,
+          "explanation": {
+            "summary": "This statement is completely false and represents a dangerous security misconception. By default, ALL S3 buckets and objects are private and accessible only to the AWS account owner. AWS has strengthened these defaults over time to prevent accidental public exposure.",
+            "why": "S3's security-by-default design means newly created buckets and objects are private unless you explicitly configure public access through bucket policies, ACLs, or public access settings. Since 2018, AWS introduced Block Public Access settings that are enabled by default on new buckets, making it even harder to accidentally expose data publicly. The misconception about public-by-default likely stems from high-profile security incidents where organizations incorrectly configured buckets to be public, but this required deliberate action to override the secure defaults. Making data public requires multiple explicit steps including disabling Block Public Access and adding permissive bucket policies or ACLs.",
+            "examples": [
+              "Creating a new S3 bucket: All objects are private and inaccessible to the internet by default",
+              "Uploading files: Files remain private unless you specifically grant public-read permissions"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS S3 Block Public Access - Security Defaults",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html"
+              },
+              {
+                "title": "AWS S3 Security Best Practices",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Bucket names are specific to the AWS account, and they must be unique within each AWS account",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This statement is incorrect. S3 bucket names must be globally unique across ALL AWS accounts worldwide, not just within a single account. The S3 namespace is shared globally across every AWS customer.",
+            "why": "S3 bucket names are part of the DNS system and form part of URLs used to access objects (bucket-name.s3.amazonaws.com), requiring global uniqueness. If bucket names were only unique per account, multiple accounts could create buckets with the same name, creating DNS conflicts and making it impossible to address buckets via URLs. When you create a bucket named 'my-company-data,' no other AWS customer anywhere in the world can use that exact name. This is why you sometimes see error messages like 'BucketAlreadyExists' when trying creative bucket names—someone else globally has already claimed them.",
+            "examples": [
+              "If user A creates 'financial-reports' bucket, user B cannot create a bucket with the same name globally",
+              "Common names like 'images' or 'data' are already taken by other AWS customers"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS S3 Bucket Naming Rules",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "It can be used for static web hosting",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Amazon S3 provides built-in static website hosting functionality, allowing you to host websites consisting of HTML, CSS, JavaScript, images, and other static files directly from S3 buckets without requiring web servers. S3 serves these files over HTTP/HTTPS at high performance and global scale, making it an excellent, cost-effective solution for static websites, single-page applications (SPAs), and frontend web assets.",
+            "keyPoints": [
+              "Static content only: Hosts HTML, CSS, JavaScript, images, videos, and downloadable files—no server-side processing",
+              "Custom domain support: Configure Route 53 to use your own domain name (www.example.com) pointing to your S3 bucket",
+              "Index and error documents: Configure default index.html and custom error pages like 404.html",
+              "HTTPS support: Use CloudFront in front of S3 to provide SSL/TLS encryption for secure connections",
+              "High scalability: Automatically handles traffic spikes without server management or capacity planning",
+              "Low cost: Pay only for storage ($0.023/GB/month) and data transfer, no server costs",
+              "Integration with CloudFront: Combine with CDN for global low-latency content delivery"
+            ],
+            "examples": [
+              "Portfolio website: Host an HTML/CSS/JavaScript portfolio site with images at minimal cost",
+              "React/Vue/Angular apps: Deploy single-page applications built with modern JavaScript frameworks",
+              "Documentation sites: Host static documentation generated by tools like Jekyll, Hugo, or MkDocs",
+              "Landing pages: Create and host marketing landing pages with forms (using client-side JavaScript to call APIs)",
+              "Many companies use S3 to host their marketing websites with millions of monthly visitors"
+            ],
+            "additionalInfo": "S3 static website hosting is ideal for JAMstack architectures where dynamic functionality is handled by JavaScript calling APIs (like API Gateway and Lambda) rather than server-side rendering. To enable hosting, you configure the bucket for static website hosting in the S3 console, upload your files, and make the bucket publicly readable. The website endpoint follows the format bucket-name.s3-website-region.amazonaws.com. For production sites, it's recommended to use CloudFront in front of S3 for benefits including SSL/HTTPS support (S3 website endpoints only support HTTP), global CDN distribution for faster loading worldwide, custom domain names, and protection against traffic spikes. S3 website hosting cannot execute server-side code like PHP, Python, or Ruby—for dynamic applications requiring server-side processing, use EC2, Elastic Beanstalk, or Lambda.",
+            "learnMore": [
+              {
+                "title": "AWS S3 Static Website Hosting Tutorial",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html"
+              },
+              {
+                "title": "AWS Tutorial - Hosting a Static Website on S3",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/HostingWebsiteOnS3Setup.html"
+              },
+              {
+                "title": "Cloudflare - S3 Static Website Hosting Guide",
+                "url": "https://www.cloudflare.com/learning/cloud/what-is-aws-s3/"
+              },
+              {
+                "title": "Medium - Complete Guide to S3 Static Website Hosting",
+                "url": "https://medium.com/@kyle.galbraith/how-to-host-a-website-on-s3-without-getting-lost-in-the-sea-e2b82aa6cd38"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Bucket names are universal, and they must be unique across all existing bucket names in Amazon S3",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "S3 bucket names exist in a global namespace shared by all AWS customers worldwide. Each bucket name must be completely unique across every AWS account in every region—no two buckets anywhere in the world can have the same name. This global uniqueness requirement exists because bucket names are used in DNS and URL addressing, requiring universal uniqueness for proper routing and access.",
+            "keyPoints": [
+              "Global namespace: Bucket names are unique worldwide across all AWS accounts and regions",
+              "DNS integration: Bucket names appear in URLs (bucket-name.s3.amazonaws.com) requiring DNS-compatible, globally unique names",
+              "First-come-first-served: Once any AWS customer claims a bucket name, no one else can use it until the bucket is deleted",
+              "Name remains reserved: After deletion, bucket names may remain unavailable temporarily before being released back to the pool",
+              "Naming constraints: Must be 3-63 characters, lowercase letters, numbers, hyphens, and periods only",
+              "No underscores or uppercase: Bucket names must follow DNS naming conventions",
+              "Error on conflict: Attempting to create a bucket with an existing name returns 'BucketAlreadyExists' error"
+            ],
+            "examples": [
+              "If Amazon creates 'aws-documentation' bucket, no other customer anywhere can use that name",
+              "Common names like 'images', 'backup', or 'data' were likely claimed years ago by early AWS adopters",
+              "Companies often use unique prefixes: 'acme-corp-production-data' instead of just 'production-data'",
+              "Your company in us-east-1 creates 'mycompany-assets'—now no one in eu-west-1, ap-south-1, or any region can create that name"
+            ],
+            "additionalInfo": "The global namespace requirement is fundamental to S3's architecture and sometimes surprises new AWS users who expect account-level or region-level uniqueness. This design decision dates to S3's launch in 2006 when AWS chose DNS-based addressing for simplicity and compatibility. Best practices for bucket naming include using company-specific prefixes (company-project-environment), incorporating region or purpose (myorg-logs-us-east-1), adding random suffixes for programmatic creation (app-data-a3f89b), and checking name availability before building automation around specific names. The global namespace has occasionally caused issues like bucket name squatting (reserving popular names) or naming conflicts during company mergers, but it provides the benefit of simple, predictable URL structures. When a bucket is deleted, AWS may hold the name briefly before releasing it, and some names are permanently reserved by AWS for internal use.",
+            "learnMore": [
+              {
+                "title": "AWS S3 Bucket Naming Rules and Requirements",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+              },
+              {
+                "title": "AWS S3 Bucket Overview - Namespace Design",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingBucket.html"
+              },
+              {
+                "title": "AWS re:Post - Bucket Name Uniqueness Explained",
+                "url": "https://repost.aws/knowledge-center/s3-bucket-name-in-use"
+              },
+              {
+                "title": "Hevo Data - Understanding S3 Bucket Names",
+                "url": "https://hevodata.com/learn/s3-bucket-name/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "It can be used for dynamic web hosting",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "S3 cannot host dynamic websites that require server-side processing. S3 only serves static files and cannot execute server-side code like PHP, Python, Java, Ruby, or Node.js that generates pages dynamically based on user input or database queries.",
+            "why": "Dynamic websites need application servers to process code, query databases, handle user sessions, generate personalized content, and perform authentication—capabilities S3 doesn't provide. S3 is object storage that simply serves files as-is without any processing. For dynamic applications, you need compute services like EC2 (virtual servers), Elastic Beanstalk (managed application hosting), Lambda (serverless functions), or ECS (containers). However, S3 can be part of a dynamic application architecture by serving static assets (images, CSS, JavaScript) while APIs handle dynamic functionality, which is the JAMstack pattern.",
+            "examples": [
+              "Cannot run on S3: WordPress (PHP + MySQL), Django applications, e-commerce sites with shopping carts",
+              "Can run on S3: React/Vue/Angular SPAs that call backend APIs for dynamic data"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS Compute Services - Dynamic Application Hosting",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-overview/compute-services.html"
+              },
+              {
+                "title": "AWS Elastic Beanstalk - Dynamic Web Applications",
+                "url": "https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
