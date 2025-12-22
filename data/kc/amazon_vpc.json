@@ -1,0 +1,369 @@
+{
+  "title": "Amazon VPC",
+  "topic": "Networking",
+  "questions": [
+    {
+      "id": 1,
+      "question": "What describes Amazon Virtual Private Cloud (Amazon VPC)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It is used to manage only public networks in the AWS Cloud.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "VPCs manage both public and private networks, not exclusively public networks. This flexibility is a core design principle of VPC architecture.",
+            "why": "Amazon VPC is designed to support diverse network architectures including public subnets (with internet access), private subnets (isolated from internet), and hybrid combinations. Limiting VPC to only public networks would negate its primary value proposition of providing secure, isolated environments. VPCs commonly host databases and internal applications in private subnets alongside public-facing web servers.",
+            "examples": [
+              "Three-tier architecture: public subnet for web servers, private subnets for application and database tiers",
+              "Hybrid network: private subnets connected to on-premises via VPN, no internet access",
+              "Development environment: entirely private subnets for security testing"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS - How Amazon VPC Works",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/how-it-works.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "It enables you to create a private network in the AWS Cloud.",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Amazon VPC enables you to provision a logically isolated section of the AWS Cloud where you launch AWS resources in a virtual network you define. You have complete control over IP address ranges, subnets, route tables, network gateways, and security settings, essentially creating your own private data center in the cloud.",
+            "keyPoints": [
+              "Logically isolated virtual network in AWS Cloud",
+              "Complete control over IP addressing using CIDR blocks",
+              "Create multiple subnets for network segmentation",
+              "Configure custom route tables for traffic control",
+              "Control inbound/outbound traffic with security groups and NACLs",
+              "Connect securely to on-premises networks via VPN or Direct Connect",
+              "Launch EC2, RDS, Lambda, and other AWS resources within VPC",
+              "Free to create and use - pay only for resources launched"
+            ],
+            "examples": [
+              "Corporate network in cloud: VPC with 10.0.0.0/16 CIDR hosting production applications",
+              "Multi-tier application: public subnet (web), private subnet (app), private subnet (database)",
+              "Isolated test environment: VPC 172.16.0.0/16 for staging separate from production",
+              "Hybrid architecture: VPC connected to corporate data center via VPN",
+              "Multi-region deployment: VPCs in us-east-1 and eu-west-1 with VPC peering"
+            ],
+            "additionalInfo": "Amazon VPC is fundamental to AWS networking architecture. When you create a VPC, you define an IPv4 CIDR block (like 10.0.0.0/16) that determines available IP addresses. Within this VPC, you create subnets in different Availability Zones for high availability. Each subnet can be public (routed to internet via internet gateway) or private (no direct internet access). Route tables control traffic flow between subnets and to external destinations. Security groups act as virtual firewalls at instance level, while Network ACLs provide subnet-level filtering. VPC enables you to replicate traditional data center networks with the scalability and elasticity of AWS Cloud. You can connect VPCs to each other via VPC Peering or Transit Gateway, and extend on-premises networks into AWS using VPN or Direct Connect. Default VPCs exist in each region with preconfigured subnets, but custom VPCs offer full control for production workloads.",
+            "learnMore": [
+              {
+                "title": "AWS - What is Amazon VPC",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html"
+              },
+              {
+                "title": "AWS - Amazon VPC Features",
+                "url": "https://aws.amazon.com/vpc/features/"
+              },
+              {
+                "title": "AWS - Get Started with Amazon VPC",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-getting-started.html"
+              },
+              {
+                "title": "TutorialsDojo - Amazon VPC Cheat Sheet",
+                "url": "https://tutorialsdojo.com/amazon-vpc/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "It is a highly available and scalable Domain Name System (DNS) web service.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This describes Amazon Route 53, AWS's DNS service, not Amazon VPC. While VPCs use DNS, they are not DNS services themselves.",
+            "why": "Route 53 is AWS's managed DNS service for routing users to applications, performing health checks, and managing domain names. VPC provides the network infrastructure where applications run. While VPC includes DNS resolution (Amazon-provided DNS at VPC+2 address), its core purpose is virtual networking, not DNS services. These are complementary but distinct AWS services.",
+            "learnMore": [
+              {
+                "title": "AWS - Amazon Route 53",
+                "url": "https://aws.amazon.com/route53/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "It is an on-premises network.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "VPC exists entirely in the AWS Cloud, not on-premises. However, VPCs can connect to on-premises networks to create hybrid architectures.",
+            "why": "Amazon VPC is a cloud-based virtual network service running on AWS infrastructure across AWS Regions and Availability Zones. It's not physical hardware in your data center. The value proposition is avoiding capital expenditure on physical networking equipment while gaining cloud scalability. VPCs can extend on-premises networks via VPN connections or AWS Direct Connect, creating hybrid cloud architectures, but the VPC itself remains in AWS Cloud.",
+            "learnMore": [
+              {
+                "title": "AWS - VPC Connectivity Options",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/extend-intro.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "Which resource must be specified when creating a virtual private cloud (VPC)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Amazon Elastic Compute Cloud (Amazon EC2) instance",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "EC2 instances are resources you launch into a VPC after it's created. They're not required for VPC creation itself.",
+            "why": "VPC is the network foundation that must exist before launching compute resources like EC2 instances. The creation order is: create VPC → create subnets → configure routing → launch EC2 instances. EC2 instances are deployed into VPC subnets, but the VPC doesn't need any instances to exist. Empty VPCs are valid and common during initial setup.",
+            "learnMore": [
+              {
+                "title": "AWS - Create a VPC",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/create-vpc.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Linux system",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Operating systems are not required for VPC creation. OS choices apply to EC2 instances launched within the VPC later.",
+            "why": "VPC is pure network infrastructure - software-defined networking in the cloud. It has no operating system dependency. When you eventually launch EC2 instances in your VPC, you choose the OS (Linux, Windows, etc.), but VPC creation is OS-agnostic. The VPC simply provides the network that instances connect to.",
+            "learnMore": [
+              {
+                "title": "AWS - VPC Networking Components",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/how-it-works.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "IP address range",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "When creating a VPC, you must specify an IPv4 CIDR block (IP address range) that defines the address space for your VPC. This is the only mandatory parameter - everything else can be configured with defaults or added later. The CIDR block determines how many IP addresses are available for resources in your VPC.",
+            "keyPoints": [
+              "IPv4 CIDR block is mandatory for VPC creation",
+              "CIDR block size between /16 (65,536 addresses) and /28 (16 addresses)",
+              "Recommended: use RFC 1918 private address ranges",
+              "Common choices: 10.0.0.0/16, 172.16.0.0/16, 192.168.0.0/16",
+              "Cannot be changed after VPC creation (but can add secondary CIDRs)",
+              "Must not overlap with other VPCs if planning VPC peering",
+              "Determines total address capacity for all subnets",
+              "Address planning critical for network growth"
+            ],
+            "examples": [
+              "Small VPC: 192.168.0.0/24 provides 256 addresses",
+              "Medium VPC: 172.16.0.0/16 provides 65,536 addresses",
+              "Large VPC: 10.0.0.0/16 provides 65,536 addresses for enterprise",
+              "Development: 10.1.0.0/16, Production: 10.0.0.0/16 (no overlap)",
+              "Multi-region: us-east-1 uses 10.0.0.0/16, eu-west-1 uses 10.1.0.0/16"
+            ],
+            "additionalInfo": "The IPv4 CIDR block is the foundational element of VPC creation. CIDR (Classless Inter-Domain Routing) notation like 10.0.0.0/16 specifies the network address and prefix length. The /16 means the first 16 bits are fixed (10.0), leaving 16 bits for host addresses (2^16 = 65,536 addresses). AWS reserves 5 IP addresses per subnet (first 4 and last 1), so plan accordingly. RFC 1918 defines private address ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 - using these avoids conflicts with public internet addresses. Choose CIDR carefully based on expected scale: too small limits growth, too large wastes address space. For enterprises, 10.0.0.0/16 provides 65,536 addresses allowing ~200+ subnets of /24 (256 addresses each). After initial creation, you can add secondary CIDR blocks if you need more addresses, but primary CIDR cannot change. If planning VPC peering or hybrid connectivity to on-premises, ensure CIDR blocks don't overlap with existing networks.",
+            "learnMore": [
+              {
+                "title": "AWS - VPC CIDR Blocks",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-cidr-blocks.html"
+              },
+              {
+                "title": "AWS - Create VPC with CIDR",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/create-vpc.html"
+              },
+              {
+                "title": "Cisco - Understanding IP Addressing and CIDR",
+                "url": "https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/13788-3.html"
+              },
+              {
+                "title": "TutorialsDojo - VPC CIDR Guide",
+                "url": "https://tutorialsdojo.com/amazon-vpc/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Elastic Load Balancing load balancer",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Load balancers are resources deployed into a VPC after creation, not required for VPC creation itself.",
+            "why": "Elastic Load Balancers (Application Load Balancer, Network Load Balancer, Gateway Load Balancer) are advanced services you deploy within existing VPC infrastructure to distribute traffic across EC2 instances or containers. The creation sequence is: create VPC → create subnets → launch instances → deploy load balancer. Load balancers need VPC and subnets to exist first so they know where to route traffic.",
+            "learnMore": [
+              {
+                "title": "AWS - Elastic Load Balancing",
+                "url": "https://aws.amazon.com/elasticloadbalancing/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which resource would benefit from being in a private subnet?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A database",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Databases are ideal candidates for private subnets because they contain sensitive data that should never be directly exposed to the internet. Placing databases in private subnets without internet gateway routes provides defense-in-depth security, ensuring they're accessible only through application tiers within the VPC, significantly reducing attack surface and potential data breach vectors.",
+            "keyPoints": [
+              "No direct internet exposure reduces attack surface dramatically",
+              "Accessible only from authorized resources within VPC",
+              "Implements security best practice of defense-in-depth",
+              "Protects sensitive data from external threats",
+              "Application servers act as intermediary layer",
+              "Can use NAT Gateway for outbound updates only",
+              "Complies with regulatory requirements for data protection",
+              "Reduces risk of data exfiltration"
+            ],
+            "examples": [
+              "RDS MySQL database in private subnet, accessed only by EC2 web servers in public subnet",
+              "Amazon Aurora cluster in private subnet 10.0.3.0/24, application tier in 10.0.2.0/24",
+              "DocumentDB in private subnet for NoSQL data, API Gateway frontend in public subnet",
+              "PostgreSQL RDS with no public IP, accessible via bastion host for maintenance",
+              "Multi-AZ database deployment across two private subnets for high availability"
+            ],
+            "additionalInfo": "Database security is paramount because databases store sensitive customer data, financial records, personal information, and intellectual property. Placing databases in public subnets directly exposed to internet is a critical security vulnerability. Best practice architecture uses three-tier design: public subnet for load balancers/web servers, private subnet for application logic, and isolated private subnet for databases. This layered approach ensures attackers must breach multiple security layers to reach data. Databases in private subnets have no route to internet gateway, making them unreachable from outside. Application servers in private or public subnets communicate with databases using private IP addresses within VPC. For administrative access and updates, use bastion hosts (jump boxes) in public subnets or AWS Systems Manager Session Manager, which doesn't require opening SSH ports. If databases need internet access for software updates or external API calls, attach NAT Gateway to enable outbound-only traffic without allowing inbound connections. This architecture meets compliance requirements like PCI DSS, HIPAA, and SOC 2 that mandate database isolation. Security groups on database instances should allow traffic only from specific application security groups, never from 0.0.0.0/0.",
+            "learnMore": [
+              {
+                "title": "AWS - VPC Public and Private Subnets",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html"
+              },
+              {
+                "title": "AWS - RDS in VPC",
+                "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_VPC.html"
+              },
+              {
+                "title": "AWS - Database Security Best Practices",
+                "url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/create-a-secure-highly-available-multi-tier-rds-database-in-a-vpc.html"
+              },
+              {
+                "title": "AWS Well-Architected - Security Pillar",
+                "url": "https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "An Amazon EC2 instance hosting a website with a public IP address",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Public-facing websites with public IP addresses must be in public subnets to be reachable from the internet.",
+            "why": "Public subnets have route table entries directing 0.0.0.0/0 (all traffic) to an internet gateway, enabling two-way internet communication. If you place a web server in a private subnet, it cannot receive inbound traffic from internet users, making the website inaccessible. Public IP addresses are meaningless without routing through internet gateway.",
+            "learnMore": [
+              {
+                "title": "AWS - Internet Gateways",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "A company site that requires both external and internal access",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Resources needing external (internet) access must be in public subnets with internet gateway routing.",
+            "why": "External access requires bidirectional internet communication through an internet gateway, which is only achievable in public subnets. Private subnets explicitly block inbound internet access. If both internal and external users need access, the resource belongs in a public subnet with appropriate security group restrictions controlling which ports and sources can connect.",
+            "learnMore": [
+              {
+                "title": "AWS - Configure Subnets",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "A public website",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Public websites must be in public subnets to receive traffic from internet users worldwide.",
+            "why": "Public websites need to be accessible to anyone on the internet, requiring placement in public subnets with internet gateway connectivity. Private subnets block all inbound internet traffic, making websites unreachable. The 'public' in public website directly indicates the need for public subnet placement.",
+            "learnMore": [
+              {
+                "title": "AWS - Public and Private Subnets",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "What is the purpose of a route table?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It determines where all traffic is directed outside the virtual private cloud (VPC).",
+          "isCorrect": false,
+          "explanation": {"summary": "Route tables control both internal VPC routing and external destinations, not just outbound traffic.", "why": "Route tables manage all traffic routing including between subnets within VPC, to internet gateway, to VPN connections, and to VPC peering connections. This answer incorrectly limits scope to only external traffic.", "learnMore": [{"title": "AWS Route Tables", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"}]}
+        },
+        {
+          "id": "B",
+          "text": "It limits traffic by allowing only specified IP addresses.",
+          "isCorrect": false,
+          "explanation": {"summary": "Traffic filtering is done by security groups and NACLs, not route tables.", "why": "Route tables determine paths, security groups and Network ACLs filter/allow/deny traffic. Confusing routing with filtering is common mistake.", "learnMore": [{"title": "AWS VPC Security", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"}]}
+        },
+        {
+          "id": "C",
+          "text": "It determines where network traffic is directed within the virtual private cloud (VPC).",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Route tables contain rules determining how packets are routed from subnets based on destination IP addresses. Each route specifies destination CIDR block and target (internet gateway, NAT, VPC peering, VPN, local).",
+            "keyPoints": ["Controls packet routing decisions", "Associates with one or more subnets", "Contains routes: destination CIDR → target", "Local routes for VPC CIDR automatic", "Can route to IGW, NAT, VGW, peering, endpoints", "Main route table created with VPC", "Custom tables for different routing needs"],
+            "examples": ["10.0.0.0/16 → local (VPC traffic)", "0.0.0.0/0 → igw-xxx (internet)", "192.168.0.0/16 → vgw-xxx (VPN)"],
+            "additionalInfo": "Route tables are essential traffic control mechanism. Each subnet must associate with exactly one route table. Routes evaluated most-specific-first. Public subnets route 0.0.0.0/0 to internet gateway, private subnets to NAT gateway or no internet route.",
+            "learnMore": [{"title": "AWS Configure Route Tables", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"}, {"title": "AWS Routing", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"}]
+          }
+        },
+        {
+          "id": "D",
+          "text": "It is responsible for only the network traffic in a subnet.",
+          "isCorrect": false,
+          "explanation": {"summary": "Route tables control routing beyond single subnets - between subnets and external destinations.", "why": "Route tables manage traffic between multiple subnets and to/from external networks. This answer incorrectly limits scope.", "learnMore": [{"title": "AWS Routing", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"}]}
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "Which statement describes a security group?",
+      "options": [
+        {
+          "id": "A",
+          "text": "It acts as a stateless firewall that controls inbound traffic only.",
+          "isCorrect": false,
+          "explanation": {"summary": "Security groups are stateful (not stateless) and control both inbound and outbound traffic.", "why": "Stateful means return traffic automatically allowed. Security groups track connections. Network ACLs are stateless.", "learnMore": [{"title": "AWS Security Groups", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"}]}
+        },
+        {
+          "id": "B",
+          "text": "It acts as a stateful firewall that allows all traffic by default.",
+          "isCorrect": false,
+          "explanation": {"summary": "Security groups deny all inbound by default, must explicitly allow.", "why": "Default deny inbound (implicit), default allow outbound. Must add rules to permit inbound traffic.", "learnMore": [{"title": "Security Group Rules", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"}]}
+        },
+        {
+          "id": "C",
+          "text": "It acts as a stateful firewall that controls inbound network traffic and outbound network traffic.",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Security groups are stateful virtual firewalls operating at instance/ENI level. They control both inbound and outbound traffic. Stateful means return traffic automatically permitted - if you allow inbound HTTPS, response outbound automatically flows regardless of outbound rules.",
+            "keyPoints": ["Stateful firewall at instance level", "Controls inbound and outbound", "Return traffic auto-allowed", "Rules specify allow only (no deny)", "Default deny inbound, allow outbound", "Can reference other security groups", "Changes apply immediately", "Connection tracking maintains state"],
+            "examples": ["Allow port 443 inbound → auto-allows response outbound", "Allow SSH from bastion SG", "Web tier SG allows traffic from ALB SG"],
+            "additionalInfo": "Security groups are fundamental VPC security. Stateful behavior critical - TCP connection initiated from instance allowed back in automatically. Rules are permissive only (allow, not deny). Use NACLs for deny rules. Best practice: least privilege, specific sources/ports.",
+            "learnMore": [{"title": "AWS Security Groups", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"}, {"title": "Stateful Tracking", "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html"}]
+          }
+        },
+        {
+          "id": "D",
+          "text": "It acts as a stateless firewall that controls outbound network traffic only.",
+          "isCorrect": false,
+          "explanation": {"summary": "Security groups are stateful (not stateless) and control both directions.", "why": "This describes neither security groups (which are stateful, both directions) nor NACLs accurately.", "learnMore": [{"title": "Compare SG and NACLs", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"}]}
+        }
+      ]
+    }
+  ]
+}
+  

@@ -1,0 +1,426 @@
+{
+  "title": "Internet Protocol [IP]",
+  "topic": "Networking",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which device should be assigned a static IP address?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A printer",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Printers are ideal candidates for static IP addresses because they provide network services that other devices need to access consistently. A printer with a changing IP address would be difficult to locate and configure for users.",
+            "keyPoints": [
+              "Network printers serve multiple users who need to find them reliably",
+              "Consistent IP ensures print queues and drivers point to correct location",
+              "Prevents reconfiguration when IP changes",
+              "Essential for shared network resources",
+              "Static IPs recommended for all infrastructure devices",
+              "Dynamic IPs would break print mappings",
+              "Standard practice in enterprise networks"
+            ],
+            "examples": [
+              "Office printer at 192.168.1.50 - users always find it there",
+              "Department printer with static IP in print driver configuration",
+              "Network scan destination requires fixed address",
+              "Shared label printer accessed by warehouse systems"
+            ],
+            "additionalInfo": "Network printers exemplify devices needing static IPs. When 20 workstations map to a printer at 192.168.1.50, that address must remain constant. If DHCP reassigned the printer to 192.168.1.75, all print jobs would fail until every workstation updates its configuration. Static assignment eliminates this issue.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - Static vs Dynamic IP",
+                "url": "https://www.geeksforgeeks.org/computer-networks/difference-between-static-and-dynamic-ip-address/"
+              },
+              {
+                "title": "TechTarget - Static vs Dynamic IP",
+                "url": "https://www.techtarget.com/searchnetworking/tip/Static-IP-vs-dynamic-IP-addresses-Whats-the-difference"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "A personal laptop that a network engineer occasionally brings to work",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Transient devices like occasionally-used laptops should use dynamic IP addresses since they don't need consistent network identity.",
+            "why": "Dynamic addressing via DHCP is perfect for mobile devices that connect irregularly. Static IPs waste address space when devices are offline and require manual configuration.",
+            "learnMore": [
+              {
+                "title": "Fortinet - Static vs Dynamic IP",
+                "url": "https://www.fortinet.com/resources/cyberglossary/static-vs-dynamic-ip"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "A work computer that is turned on",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Regular workstations typically use dynamic IP addresses. Being powered on doesn't require a static IP.",
+            "why": "Workstations don't host services that others need to find, so they don't need fixed addresses. DHCP automatically assigns IPs when they connect.",
+            "learnMore": [
+              {
+                "title": "Verizon - Static vs Dynamic IP",
+                "url": "https://www.verizon.com/business/resources/articles/s/understanding-the-difference-between-static-ip-vs-dynamic-ip-addresses/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "A mobile phone",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Mobile phones are quintessential dynamic IP devices, connecting to different networks frequently.",
+            "why": "Phones move between networks (cellular, Wi-Fi) constantly and don't host services. Dynamic addressing is ideal for mobile devices.",
+            "learnMore": [
+              {
+                "title": "Avast - Static vs Dynamic IP",
+                "url": "https://www.avast.com/c-static-vs-dynamic-ip-addresses"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "A network has the following IP address range: 10.0.0.0–10.255.255.255. Which IP address is the network's broadcast address?",
+      "options": [
+        {
+          "id": "A",
+          "text": "10.0.255.254",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This is not the broadcast address. It's a valid host address within the 10.0.0.0/16 subnet.",
+            "why": "Broadcast addresses have all host bits set to 1. For the full 10.0.0.0/8 range, the broadcast is 10.255.255.255, not this address.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - Broadcast Address",
+                "url": "https://www.geeksforgeeks.org/what-is-broadcast-address/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "10.255.255.255",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "This is the broadcast address for the entire 10.0.0.0/8 network. Broadcast addresses are the last address in a subnet range, with all host bits set to 1.",
+            "keyPoints": [
+              "Broadcast address is last IP in subnet range",
+              "All host bits set to binary 1",
+              "Used to send data to all devices in network",
+              "For 10.0.0.0/8: broadcast is 10.255.255.255",
+              "Cannot be assigned to individual hosts",
+              "Layer 2 broadcasts to all devices in broadcast domain",
+              "Routers do not forward broadcasts by default"
+            ],
+            "examples": [
+              "10.0.0.0/8 range: 10.0.0.0 to 10.255.255.255, broadcast = 10.255.255.255",
+              "192.168.1.0/24 range: broadcast = 192.168.1.255",
+              "172.16.0.0/16 range: broadcast = 172.16.255.255"
+            ],
+            "additionalInfo": "Broadcast addresses enable one-to-all communication within a network. For the Class A private network 10.0.0.0/8 (mask 255.0.0.0), the range spans from 10.0.0.0 to 10.255.255.255, making 10.255.255.255 the broadcast address where all host bits equal 1.",
+            "learnMore": [
+              {
+                "title": "Cisco - IP Addressing",
+                "url": "https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/13788-3.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "10.0.0.254",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This is a host address in the 10.0.0.0/24 subnet, not the broadcast for the entire 10.0.0.0/8 range.",
+            "why": "While 10.0.0.255 would be the broadcast for 10.0.0.0/24, the question specifies the full 10.0.0.0-10.255.255.255 range.",
+            "learnMore": [
+              {
+                "title": "NetworkAcademy - Broadcast Addresses",
+                "url": "https://www.networkacademy.io/ccna/ip-subnetting/broadcast-addresses"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "10.0.0.1",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This is typically a host or gateway address, not a broadcast address.",
+            "why": "Broadcast addresses are at the end of address ranges with all host bits as 1, not at the beginning like 10.0.0.1.",
+            "learnMore": [
+              {
+                "title": "IBM - IP Addressing and Subnetting",
+                "url": "https://www.ibm.com/docs/en/aix/7.2?topic=protocol-addressing-subnetting"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "A network engineer wants to separate a network from the internet and from other networks. Which IP address type should the engineer use?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Public IP address",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Public IPs are globally routable on the internet, the opposite of what's needed for isolation.",
+            "why": "Public addresses are designed for internet connectivity and can be reached from anywhere. They don't provide isolation.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - Public vs Private IP",
+                "url": "https://www.geeksforgeeks.org/difference-between-private-and-public-ip-addresses/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Static IP address",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Static vs dynamic addresses relate to how IPs are assigned, not whether they're isolated from the internet.",
+            "why": "Static addresses can be public or private. Static assignment doesn't inherently provide network isolation.",
+            "learnMore": [
+              {
+                "title": "Fortinet - Static vs Dynamic",
+                "url": "https://www.fortinet.com/resources/cyberglossary/static-vs-dynamic-ip"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Private IP address",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Private IP addresses are not routable on the public internet, providing natural isolation. They're designed for internal networks and cannot communicate directly with the internet without NAT.",
+            "keyPoints": [
+              "Not routable on public internet",
+              "Designed for internal network use",
+              "Three private ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16",
+              "Provides security through isolation",
+              "Requires NAT for internet access",
+              "Can be reused across different organizations",
+              "Standard for internal enterprise networks"
+            ],
+            "examples": [
+              "Internal office network using 192.168.1.0/24",
+              "Home network with 192.168.0.0/24 addresses",
+              "Enterprise using 10.0.0.0/8 for all internal systems",
+              "Isolated test environment with 172.16.0.0/16"
+            ],
+            "additionalInfo": "Private IP addresses (RFC 1918) are reserved for internal networks and are not routable on the internet. The three ranges are 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16. Routers on the internet discard packets with private IPs, providing inherent isolation. Internet access requires Network Address Translation (NAT).",
+            "learnMore": [
+              {
+                "title": "Avast - Private IP Addresses",
+                "url": "https://www.avast.com/c-ip-address-public-vs-private"
+              },
+              {
+                "title": "AWS - Public vs Private IPs",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/how-it-works.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Dynamic IP address",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Dynamic assignment relates to how IPs are allocated, not isolation. Dynamic IPs can be public or private.",
+            "why": "DHCP-assigned addresses can be either public or private. Dynamic addressing doesn't provide network isolation.",
+            "learnMore": [
+              {
+                "title": "TechTarget - IP Address Types",
+                "url": "https://www.techtarget.com/searchnetworking/definition/IP-address"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "How many bits are in an IPv4 address?",
+      "options": [
+        {
+          "id": "A",
+          "text": "32 bits",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "IPv4 addresses consist of 32 bits, organized as four 8-bit octets (4 × 8 = 32). This structure allows for approximately 4.3 billion unique addresses.",
+            "keyPoints": [
+              "Total of 32 bits in IPv4 address",
+              "Divided into four 8-bit octets",
+              "Written in dotted decimal: xxx.xxx.xxx.xxx",
+              "Each octet ranges from 0-255 (2^8 = 256 values)",
+              "Provides ~4.3 billion addresses (2^32)",
+              "Address exhaustion led to IPv6 development",
+              "32-bit structure fundamental to IPv4 routing"
+            ],
+            "examples": [
+              "192.168.1.1: four octets, 32 bits total",
+              "Binary: 11000000.10101000.00000001.00000001",
+              "Each octet: 8 bits (e.g., 192 = 11000000)",
+              "Total addresses: 2^32 = 4,294,967,296"
+            ],
+            "additionalInfo": "IPv4 uses 32 bits divided into four 8-bit octets written in decimal notation (0-255 per octet). This creates 2^32 possible addresses. The 32-bit structure is fundamental to IPv4 packet headers and routing decisions.",
+            "learnMore": [
+              {
+                "title": "Cloudflare - What is IPv4",
+                "url": "https://www.cloudflare.com/learning/network-layer/what-is-ipv4/"
+              },
+              {
+                "title": "GeeksforGeeks - IPv4",
+                "url": "https://www.geeksforgeeks.org/what-is-ipv4/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "16 bits",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "16 bits would allow only 65,536 addresses (2^16), insufficient for even small networks. IPv4 uses 32 bits.",
+            "why": "16 bits is too small for network addressing. This might confuse IPv4 addresses with port numbers, which are 16-bit.",
+            "learnMore": [
+              {
+                "title": "Cisco - IP Addressing",
+                "url": "https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/13788-3.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "4 bits",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "4 bits would allow only 16 addresses (2^4), completely inadequate. IPv4 uses 32 bits.",
+            "why": "This is far too small. Perhaps confusion with the four octets in IPv4 addresses, but each octet is 8 bits.",
+            "learnMore": [
+              {
+                "title": "IBM - IPv4 Addresses",
+                "url": "https://www.ibm.com/docs/en/aix/7.2?topic=protocol-ipv4-addresses"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "8 bits",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "8 bits is the size of each octet in an IPv4 address, not the total address length. Total is 32 bits.",
+            "why": "Each of the four octets is 8 bits, but the complete address is 4 × 8 = 32 bits.",
+            "learnMore": [
+              {
+                "title": "TechTarget - IPv4 Address",
+                "url": "https://www.techtarget.com/searchnetworking/definition/IPv4-address-class"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "Which statement describes the purpose of a port number?",
+      "options": [
+        {
+          "id": "A",
+          "text": "The port number does not serve a purpose",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Port numbers are essential for network communication, directing traffic to specific applications or services.",
+            "why": "Without port numbers, devices couldn't run multiple network services simultaneously. Ports are fundamental to TCP/IP.",
+            "learnMore": [
+              {
+                "title": "CloudFlare - What is a Port",
+                "url": "https://www.cloudflare.com/learning/network-layer/what-is-a-computer-port/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "A port number assigns a number to an IP address",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Port numbers don't assign anything to IP addresses. They're separate identifiers for services/applications.",
+            "why": "IP addresses and port numbers are independent. Ports identify services on a device, not modify IP addresses.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - Port Number",
+                "url": "https://www.geeksforgeeks.org/what-is-ports-in-networking/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "A port number is used to uniquely identify a physical device on a network",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "IP addresses identify devices. Port numbers identify applications/services on those devices.",
+            "why": "Physical device identification is the IP address's role. Ports identify processes/services running on devices.",
+            "learnMore": [
+              {
+                "title": "Microsoft - Port Overview",
+                "url": "https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/service-overview-and-network-port-requirements"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "When a port number is combined with an IP address, it uniquely identifies a source or a destination for data communication",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Port numbers combined with IP addresses form sockets that uniquely identify communication endpoints. IP addresses identify devices, port numbers identify specific services/applications on those devices.",
+            "keyPoints": [
+              "Port numbers identify applications/services on devices",
+              "16-bit values: 0-65535",
+              "IP + Port = Socket (unique endpoint)",
+              "Well-known ports: 0-1023 (HTTP=80, HTTPS=443, SSH=22)",
+              "Registered ports: 1024-49151",
+              "Dynamic ports: 49152-65535",
+              "Enables multiple services on one IP"
+            ],
+            "examples": [
+              "192.168.1.1:80 = Web server on device",
+              "10.0.0.5:22 = SSH service",
+              "Web server: IP identifies server, port 80 identifies HTTP service",
+              "Email: port 25 (SMTP), port 143 (IMAP)"
+            ],
+            "additionalInfo": "Port numbers (Layer 4) enable multiple network services on a single IP address. The combination of IP:Port creates a socket uniquely identifying communication endpoints. Common ports: HTTP (80), HTTPS (443), SSH (22), FTP (21).",
+            "learnMore": [
+              {
+                "title": "CloudFlare - What is a Computer Port",
+                "url": "https://www.cloudflare.com/learning/network-layer/what-is-a-computer-port/"
+              },
+              {
+                "title": "GeeksforGeeks - Ports in Networking",
+                "url": "https://www.geeksforgeeks.org/what-is-ports-in-networking/"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
