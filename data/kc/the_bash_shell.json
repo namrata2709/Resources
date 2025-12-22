@@ -1,0 +1,522 @@
+{
+  "title": "The Bash Shell",
+  "topic": "Bash Shell Scripting and Environment",
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is a variable?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A variable is a value that contains an ampersand (&).",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This statement incorrectly defines a variable based on a special character. The ampersand is a shell operator for background processes, not a defining characteristic of variables.",
+            "why": "Variables are named storage locations for data values, not containers specifically for ampersands. The ampersand (&) is a special character in Bash used to run commands in the background ('command &'). While a variable could store a string containing an ampersand, this isn't what defines a variable. Variables are about storing and retrieving values dynamically.",
+            "learnMore": [
+              {
+                "title": "W3Schools - Bash Variables",
+                "url": "https://www.w3schools.com/bash/bash_variables.php"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "A variable is strictly a value that contains a letter.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This is incorrect because variables are not restricted to containing only letters. Bash variables are untyped and can hold any type of data.",
+            "why": "Bash variables can contain numbers, letters, special characters, spaces (when quoted), or combinations thereof. They're not limited to alphabetic characters. For example, 'count=42', 'name=\"John Doe\"', or 'path=\"/usr/bin\"' are all valid variable assignments with different types of content.",
+            "examples": [
+              "'number=123' - variable contains only numbers",
+              "'mixed=\"abc123\"' - variable contains letters and numbers",
+              "'path=\"/home/user\"' - variable contains slashes and letters"
+            ],
+            "learnMore": [
+              {
+                "title": "Hostinger - Bash Variables Guide",
+                "url": "https://www.hostinger.com/tutorials/bash-variables"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "A variable is a value that's substituted into the script or command.",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "This correctly describes a variable in Bash. A variable is a named placeholder that stores a value, which can be dynamically substituted into scripts or commands during execution. When the shell encounters a variable reference (using $ syntax), it replaces that reference with the stored value before executing the command.",
+            "keyPoints": [
+              "Variables are named storage locations for data values",
+              "Store data that can be referenced and reused throughout scripts",
+              "Substituted dynamically when referenced with $ syntax",
+              "Bash variables are untyped - can hold strings, numbers, or any data",
+              "Make scripts flexible and maintainable",
+              "Reduce repetition and enable parameterization",
+              "Values can be changed without modifying the entire script"
+            ],
+            "examples": [
+              "'name=\"Alice\"' then 'echo $name' outputs: Alice",
+              "'count=5' then 'echo \"Count: $count\"' outputs: Count: 5",
+              "'dir=\"/home/user\"' then 'cd $dir' changes to /home/user directory",
+              "'greeting=\"Hello\"' then '$greeting World' becomes: Hello World",
+              "'file=\"data.txt\"' then 'cat $file' reads the file data.txt"
+            ],
+            "additionalInfo": "Variables in Bash scripting serve as dynamic placeholders that store values for later use. When you define a variable with 'variable_name=value', you're creating a named reference to that value. The real power comes from substitution: when you use $variable_name in a command or script, the shell replaces it with the stored value before execution. This substitution happens transparently - the command never sees the variable name, only its value. This makes scripts incredibly flexible: you can set a variable once at the top of a script and use it multiple times throughout, then easily change behavior by modifying just that one line. Variables can store user input, command output (using command substitution), file paths, configuration settings, or any text/numeric data. The substitution mechanism is what enables parameterization, allowing the same script to work in different contexts just by changing variable values.",
+            "learnMore": [
+              {
+                "title": "W3Schools - Bash Variables Tutorial",
+                "url": "https://www.w3schools.com/bash/bash_variables.php"
+              },
+              {
+                "title": "TutorialWorks - Environment Variables in Shell Scripts",
+                "url": "https://www.tutorialworks.com/environment-variables-shell-scripts/"
+              },
+              {
+                "title": "DigitalOcean - Shell Variables on Linux",
+                "url": "https://www.digitalocean.com/community/tutorials/how-to-read-and-set-environmental-and-shell-variables-on-linux"
+              },
+              {
+                "title": "Hostinger - How to Use Bash Variables",
+                "url": "https://www.hostinger.com/tutorials/bash-variables"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "A variable is strictly a value that contains a number.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This is incorrect because Bash variables are untyped and can contain any data, not just numbers.",
+            "why": "Unlike strongly-typed programming languages where variables have specific types, Bash treats all variable values as strings by default. Variables can hold numbers, but they can equally hold text, paths, command output, or any other data. When you need numeric operations, Bash provides arithmetic expansion, but the variables themselves aren't restricted to numeric content.",
+            "examples": [
+              "'text=\"Hello World\"' - variable contains text",
+              "'number=42' - variable contains a number",
+              "'both=\"abc123\"' - variable contains both letters and numbers"
+            ],
+            "learnMore": [
+              {
+                "title": "Shell-Tips - Bash Environment Variables",
+                "url": "https://www.shell-tips.com/bash/environment-variables/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "Consider the following command: echo $HOME. Which portion of the command is the variable?",
+      "options": [
+        {
+          "id": "A",
+          "text": "$",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The dollar sign ($) is not the variable itself. It's the dereferencing operator that tells the shell to substitute the variable's value.",
+            "why": "The $ symbol is a special character that signals variable expansion or substitution. When the shell sees $VARIABLE_NAME, it knows to replace that entire expression with the variable's value. The $ is syntax for accessing variables, not the variable itself. Think of it like the way you use parentheses in math - they indicate an operation, but aren't the numbers themselves.",
+            "examples": [
+              "In '$HOME', the variable is HOME, $ is the operator",
+              "In '$USER', the variable is USER, $ triggers substitution",
+              "$ is required to access variable values, like 'echo $name'"
+            ],
+            "learnMore": [
+              {
+                "title": "LinuxSimply - Bash Environment Variables",
+                "url": "https://linuxsimply.com/bash-scripting-tutorial/variables/types/environment-variables/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "HOME",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "HOME is the variable name. In the syntax $HOME, the dollar sign is the operator that accesses the variable's value, while HOME is the actual variable identifier that stores the user's home directory path. The variable name is what references the stored data.",
+            "keyPoints": [
+              "Variable name is the identifier that references stored data",
+              "HOME is a standard environment variable in Linux/Unix",
+              "Stores the absolute path to the current user's home directory",
+              "Convention: environment variables use UPPERCASE names",
+              "The $ prefix accesses the variable but isn't part of its name",
+              "Variable names can contain letters, numbers, and underscores",
+              "Cannot start with a number"
+            ],
+            "examples": [
+              "'echo $HOME' - HOME is the variable, displays /home/username",
+              "'cd $HOME' - navigates to home directory using HOME variable",
+              "'echo $PATH' - PATH is the variable containing executable paths",
+              "'echo $USER' - USER is the variable with current username",
+              "'my_var=\"hello\"' then 'echo $my_var' - my_var is the variable"
+            ],
+            "additionalInfo": "In Bash syntax, when you write $HOME, you're combining two elements: the $ operator which tells Bash to perform variable substitution, and HOME which is the variable name identifying which value to substitute. The variable itself is HOME - it's a predefined environment variable that automatically stores the path to the logged-in user's home directory (like /home/john). Environment variables, by convention, use ALL CAPS names. When defining your own variables, you'd write 'name=value' to set it, then '$name' to access its value. The variable name is what you use in both cases - it's the identifier that labels and retrieves the stored data. Understanding this distinction is important for reading and writing shell scripts: the variable is the named storage location, the $ is how you tell the shell to retrieve what's stored there.",
+            "learnMore": [
+              {
+                "title": "Opensource.com - What are Environment Variables",
+                "url": "https://opensource.com/article/19/8/what-are-environment-variables"
+              },
+              {
+                "title": "DigitalOcean - Environmental and Shell Variables",
+                "url": "https://www.digitalocean.com/community/tutorials/how-to-read-and-set-environmental-and-shell-variables-on-linux"
+              },
+              {
+                "title": "Vultr - Set Environment Variables in Bash",
+                "url": "https://docs.vultr.com/how-to-set-environment-variables-in-bash-on-linux"
+              },
+              {
+                "title": "TLDP - Bash Variables Guide",
+                "url": "https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_03_02.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "The command has no variable",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This is incorrect. The command 'echo $HOME' clearly contains a variable reference.",
+            "why": "$HOME is a variable reference where HOME is the environment variable containing the user's home directory path. The $ symbol indicates variable substitution, and HOME is the variable being referenced. Without HOME being a variable, the command would just print the literal string '$HOME' instead of the directory path.",
+            "learnMore": [
+              {
+                "title": "W3Schools - Bash Variables",
+                "url": "https://www.w3schools.com/bash/bash_variables.php"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "echo",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "echo is the command being executed, not a variable. Commands and variables are different concepts in Bash.",
+            "why": "echo is a built-in Bash command that displays text or variable values to standard output. It's the instruction being executed, not a storage location for data. In 'echo $HOME', echo is the command that prints, and $HOME is the variable whose value gets printed. Commands perform actions, variables store data.",
+            "examples": [
+              "'echo' is a command that prints output",
+              "'$HOME' is a variable that stores a path",
+              "'echo $HOME' uses the command to display the variable's value"
+            ],
+            "learnMore": [
+              {
+                "title": "TutorialWorks - Environment Variables Tutorial",
+                "url": "https://www.tutorialworks.com/environment-variables-shell-scripts/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "A developer is testing a Bash script and wants to display information as the script runs. Which command should the developer use?",
+      "options": [
+        {
+          "id": "A",
+          "text": "echo",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The echo command is the standard tool for displaying text, variables, and debugging information in Bash scripts. It prints its arguments to standard output, making it perfect for showing script progress, displaying variable values, debugging, and providing user feedback during script execution.",
+            "keyPoints": [
+              "Prints text and variable values to standard output (terminal)",
+              "Primary command for displaying information in scripts",
+              "Essential for debugging - shows variable values and execution flow",
+              "Can display multiple arguments separated by spaces",
+              "Supports escape sequences with -e option (\\n for newline, \\t for tab)",
+              "Simple syntax: echo \"text\" or echo $variable",
+              "Universally available across all Unix-like systems"
+            ],
+            "examples": [
+              "'echo \"Starting script...\"' - displays status message",
+              "'echo \"User: $USER\"' - shows variable value",
+              "'echo \"Processing file $1\"' - displays script argument",
+              "'echo \"Debug: count=$count\"' - debugging variable values",
+              "'echo -e \"Line 1\\nLine 2\"' - prints on multiple lines",
+              "'echo \"Current directory: $(pwd)\"' - shows command output"
+            ],
+            "additionalInfo": "The echo command is indispensable for Bash scripting and debugging. When developing or troubleshooting scripts, strategically placed echo statements help you understand what's happening at each stage: you can print variable values to verify they contain expected data, display progress messages to track which sections execute, show error conditions, and provide user feedback. The basic syntax is simple: 'echo \"message\"' for text or 'echo $variable' to display variable contents. You can combine text and variables: 'echo \"The value is: $myvar\"'. The -e option enables interpretation of backslash escapes, allowing formatted output with newlines (\\n), tabs (\\t), and other special characters. The -n option suppresses the trailing newline. For complex debugging, you might use echo to print multiple variables: 'echo \"Status: $status, Count: $count, File: $filename\"'. This visibility into script execution is crucial for understanding behavior, identifying bugs, and ensuring scripts work correctly.",
+            "learnMore": [
+              {
+                "title": "W3Schools - Bash Echo Command",
+                "url": "https://www.w3schools.com/bash/bash_echo.php"
+              },
+              {
+                "title": "GeeksforGeeks - echo Command in Linux",
+                "url": "https://www.geeksforgeeks.org/echo-command-in-linux-with-examples/"
+              },
+              {
+                "title": "TutorialWorks - Using Echo in Shell Scripts",
+                "url": "https://www.tutorialworks.com/environment-variables-shell-scripts/"
+              },
+              {
+                "title": "LinuxConfig - Bash echo Command",
+                "url": "https://linuxconfig.org/bash-scripting-tutorial"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "run",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "There is no standard 'run' command in Bash for displaying information. This appears to be a distractor option.",
+            "why": "Bash doesn't have a built-in command called 'run' for displaying output or executing scripts. While some applications or custom scripts might define a 'run' function, it's not a standard shell command. To display information during script execution, use echo, printf, or similar output commands.",
+            "learnMore": [
+              {
+                "title": "Bash Manual - Builtin Commands",
+                "url": "https://www.gnu.org/software/bash/manual/bash.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "env",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The env command displays or modifies environment variables. It's not designed for printing custom messages or debugging information during script execution.",
+            "why": "env is used to run programs in a modified environment or to print all current environment variables. While it can display information ('env' shows all environment variables), it's not intended for general script output or debugging. For displaying custom messages and variable values during script execution, echo is the appropriate choice.",
+            "examples": [
+              "'env' lists all environment variables",
+              "'env VAR=value command' runs command with modified environment",
+              "Not used for: 'env \"Processing file...\"' - this doesn't work"
+            ],
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - env Command",
+                "url": "https://www.geeksforgeeks.org/env-command-in-linux-with-examples/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "chksum",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "There's no 'chksum' command in standard Bash. You may be thinking of 'cksum' or 'sha256sum' which calculate file checksums, but these aren't for displaying script information.",
+            "why": "Checksum commands like cksum, md5sum, or sha256sum are for verifying file integrity by computing hash values. They're not designed for displaying messages or debugging scripts. The correct command for printing information during script execution is echo.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - cksum Command",
+                "url": "https://www.geeksforgeeks.org/cksum-command-in-linux-with-examples/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "A user would like to change how their aliases are configured. Which file should the user change to alter their configurations?",
+      "options": [
+        {
+          "id": "A",
+          "text": ".passwd file",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The .passwd file doesn't exist in user home directories. You may be thinking of /etc/passwd which stores user account information, but it has nothing to do with shell aliases.",
+            "why": "/etc/passwd is a system file that contains user account details like username, user ID, home directory, and default shell. It's not a configuration file for shell customization or aliases. Aliases are defined in shell configuration files like .bashrc, not in password-related files.",
+            "learnMore": [
+              {
+                "title": "Linux Manual - passwd File",
+                "url": "https://man7.org/linux/man-pages/man5/passwd.5.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": ".bashrc file",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The .bashrc file is the standard configuration file for Bash where users define aliases, functions, environment variables, and shell preferences. It's executed every time a new interactive non-login shell is started, making it the perfect place for persistent alias configurations that are available in every terminal session.",
+            "keyPoints": [
+              "Main Bash configuration file in user's home directory (~/.bashrc)",
+              "Executed for interactive non-login shells (new terminal windows)",
+              "Standard location for defining persistent aliases",
+              "Can also contain functions, environment variables, shell options",
+              "Changes take effect in new shells or after running 'source ~/.bashrc'",
+              "Hidden file (starts with dot) in home directory",
+              "Each user has their own .bashrc for personal customization"
+            ],
+            "examples": [
+              "'alias ll=\"ls -la\"' in .bashrc creates permanent ll shortcut",
+              "'alias gs=\"git status\"' adds permanent git status alias",
+              "'alias update=\"sudo apt update && sudo apt upgrade\"' for system updates",
+              "Edit with: 'nano ~/.bashrc' or 'vim ~/.bashrc'",
+              "Apply changes: 'source ~/.bashrc' or open new terminal"
+            ],
+            "additionalInfo": "The .bashrc file is the heart of Bash customization for individual users. Located at ~/.bashrc in each user's home directory, this file runs every time you open a new terminal window or start an interactive shell. This makes it perfect for aliases because they'll automatically be available in every session. When you define an alias in .bashrc with syntax like 'alias name=\"command\"', that shortcut becomes permanently available. The file typically contains: default aliases provided by your distribution, custom aliases you add, functions for more complex operations, environment variable exports, shell options (like history settings), and prompt customization. Many users organize their .bashrc by keeping aliases in a separate ~/.bash_aliases file and sourcing it from .bashrc with an if statement. After editing .bashrc, changes don't affect current terminals - you must either open a new terminal or run 'source ~/.bashrc' to reload the configuration. This file is user-specific, so each account can have different aliases and configurations.",
+            "learnMore": [
+              {
+                "title": "FreeCodeCamp - Bashrc Customization Guide",
+                "url": "https://www.freecodecamp.org/news/bashrc-customization-guide/"
+              },
+              {
+                "title": "Linode - Add Alias Commands in bashrc",
+                "url": "https://www.linode.com/docs/guides/how-to-add-linux-alias-command-in-bashrc-file/"
+              },
+              {
+                "title": "nixCraft - Create Permanent Bash Alias",
+                "url": "https://www.cyberciti.biz/faq/create-permanent-bash-alias-linux-unix/"
+              },
+              {
+                "title": "TecMint - Bash Aliases Tutorial",
+                "url": "https://www.tecmint.com/create-and-use-bash-aliases-in-linux/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "host.conf file",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The host.conf file (typically /etc/host.conf) is a system configuration file that controls hostname resolution behavior. It has nothing to do with shell aliases.",
+            "why": "/etc/host.conf configures how the system resolves hostnames - whether it checks DNS, /etc/hosts, or other naming services. This is network-related configuration, not shell customization. Aliases for Bash commands are defined in shell configuration files like .bashrc.",
+            "learnMore": [
+              {
+                "title": "Linux Manual - host.conf",
+                "url": "https://man7.org/linux/man-pages/man5/host.conf.5.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": ".profile file",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "While .profile can contain aliases, .bashrc is more appropriate for interactive shell configuration. .profile is executed for login shells and is shell-agnostic.",
+            "why": "The .profile file runs once when you log in and is designed to be compatible with all POSIX shells (sh, bash, dash, etc.), not just Bash. It typically sets environment variables and executes once per login session. .bashrc is specifically for Bash and runs for every new interactive shell, making it the better choice for aliases that you want available in every terminal window. Many systems configure .profile to source .bashrc, but .bashrc is the standard place for Bash-specific aliases.",
+            "examples": [
+              ".profile: Sets environment variables at login",
+              ".bashrc: Defines aliases for interactive shells",
+              "Best practice: Put aliases in .bashrc, not .profile"
+            ],
+            "learnMore": [
+              {
+                "title": "W3Schools - Bash Alias",
+                "url": "https://www.w3schools.com/bash/bash_alias.php"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "Which environment variable is used to indicate the location of the commands?",
+      "options": [
+        {
+          "id": "A",
+          "text": "$PATH",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The PATH environment variable contains a colon-separated list of directories that the shell searches when you execute a command. When you type a command name, the shell looks through each directory in PATH, in order, to find an executable file with that name. This is fundamental to how command execution works in Unix-like systems.",
+            "keyPoints": [
+              "Colon-separated list of directories containing executable commands",
+              "Shell searches these directories in order when you run a command",
+              "Typically includes: /usr/bin, /bin, /usr/local/bin, ~/bin",
+              "First match found is executed",
+              "Can be modified to add custom command locations",
+              "Explains why some commands require full paths if not in PATH",
+              "Convention: directories are searched left-to-right in the list"
+            ],
+            "examples": [
+              "'echo $PATH' shows: /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+              "When you type 'ls', shell finds /bin/ls from PATH",
+              "'export PATH=\"$PATH:$HOME/bin\"' adds ~/bin to PATH",
+              "'which ls' shows which PATH directory contains ls command",
+              "If command not in PATH: 'command not found' error"
+            ],
+            "additionalInfo": "The PATH variable is one of the most important environment variables in any Unix-like system. It determines which directories the shell examines when you type a command name without a path. For example, when you type 'ls', the shell doesn't magically know where the ls program is - it searches through each directory listed in PATH until it finds an executable file named 'ls'. The PATH value is inherited from parent processes and typically set in shell initialization files. A typical PATH might be '/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin' - the shell checks /usr/local/bin first, then /usr/bin, and so on. Users often add their own directories: 'export PATH=\"$PATH:$HOME/bin\"' appends ~/bin to PATH, allowing custom scripts in that directory to run without typing full paths. Understanding PATH is crucial for troubleshooting 'command not found' errors and for installing custom software. You can see which specific executable is found with 'which command' or 'type -a command'.",
+            "learnMore": [
+              {
+                "title": "DigitalOcean - Environment Variables on Linux",
+                "url": "https://www.digitalocean.com/community/tutorials/how-to-read-and-set-environmental-and-shell-variables-on-linux"
+              },
+              {
+                "title": "Opensource.com - What are Environment Variables",
+                "url": "https://opensource.com/article/19/8/what-are-environment-variables"
+              },
+              {
+                "title": "LinuxSimply - Bash Environment Variables",
+                "url": "https://linuxsimply.com/bash-scripting-tutorial/variables/types/environment-variables/"
+              },
+              {
+                "title": "AaltoSciComp - Variables and Functions",
+                "url": "https://aaltoscicomp.github.io/linux-shell/variables-functions-environments/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "$HOME",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The HOME environment variable stores the path to the current user's home directory, not the locations where commands are found.",
+            "why": "HOME points to the logged-in user's home directory (like /home/username), which is where personal files, documents, and configurations are stored. While some users place custom scripts in ~/bin (within their home directory) and add that to PATH, HOME itself doesn't indicate command locations. The PATH variable serves that purpose.",
+            "examples": [
+              "'echo $HOME' shows: /home/john",
+              "'cd' or 'cd ~' uses HOME to navigate to home directory",
+              "HOME stores user's directory, PATH stores command directories"
+            ],
+            "learnMore": [
+              {
+                "title": "TLDP - Bash Variables",
+                "url": "https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_03_02.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "$SHELL",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The SHELL environment variable indicates which shell program the user is running (like /bin/bash), not where commands are located.",
+            "why": "SHELL stores the path to the current user's login shell executable. It tells you what shell interpreter is being used (bash, zsh, fish, etc.), but doesn't specify where to find commands. That's the job of the PATH variable, which contains directories to search for executables.",
+            "examples": [
+              "'echo $SHELL' shows: /bin/bash",
+              "Indicates shell program, not command locations",
+              "PATH contains command directories, SHELL identifies the shell program"
+            ],
+            "learnMore": [
+              {
+                "title": "Shell-Tips - Bash Environment Variables",
+                "url": "https://www.shell-tips.com/bash/environment-variables/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "$USER",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The USER environment variable contains the current logged-in username, not command locations.",
+            "why": "USER stores the name of the current user (like 'john' or 'alice'), which is useful for identifying who's running commands or for scripts that need to know the current user. However, it has nothing to do with locating executable commands. The PATH variable contains the directories where commands are found.",
+            "examples": [
+              "'echo $USER' shows: john",
+              "Identifies the logged-in user, not command paths",
+              "PATH locates commands, USER identifies who is running them"
+            ],
+            "learnMore": [
+              {
+                "title": "Vultr - Environment Variables in Bash",
+                "url": "https://docs.vultr.com/how-to-set-environment-variables-in-bash-on-linux"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

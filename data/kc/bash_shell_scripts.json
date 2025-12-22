@@ -1,0 +1,557 @@
+{
+  "title": "Bash Shell Scripts",
+  "topic": "Bash Shell Scripting Fundamentals",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Why might an administrator create a Bash shell script? (Select TWO)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "To run a task that requires elevated permissions",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "While Bash scripts can run tasks requiring elevated permissions, this capability comes from sudo or running as root, not from creating a script itself. Scripting doesn't inherently provide privilege elevation.",
+            "why": "Elevated permissions are granted through the sudo command or by running as the root user, not by writing a script. A script is just a text file containing commands - it executes with the permissions of the user running it. You could script 'sudo command' or run './script.sh' as root, but the script itself doesn't provide elevated permissions. Privilege management is separate from scripting.",
+            "examples": [
+              "Script with 'sudo apt update' requires sudo permissions",
+              "Running './script.sh' as normal user has normal permissions",
+              "'sudo ./script.sh' elevates the script execution, not the script itself"
+            ],
+            "learnMore": [
+              {
+                "title": "Opensource.com - Automation with Bash Scripts",
+                "url": "https://opensource.com/article/19/12/automation-bash-scripts"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "To automate a repetitive task",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Automating repetitive tasks is one of the core purposes of Bash scripting. By capturing a sequence of commands in a script, administrators can execute complex multi-step procedures with a single command, saving time, reducing manual effort, and eliminating human error from routine operations.",
+            "keyPoints": [
+              "Primary purpose of shell scripting is automation",
+              "Eliminates need to manually type same commands repeatedly",
+              "Saves significant time on routine tasks",
+              "Reduces human error from manual command entry",
+              "Can schedule automated execution with cron",
+              "Makes complex multi-step procedures simple and reliable",
+              "Frees administrator time for more valuable work"
+            ],
+            "examples": [
+              "Daily backup script automates file backup instead of manual copying",
+              "Log rotation script runs automatically to manage disk space",
+              "System health check script monitors multiple services periodically",
+              "User account creation script automates multi-step setup process",
+              "Application deployment script automates complex deployment steps"
+            ],
+            "additionalInfo": "Automation through Bash scripting is fundamental to efficient system administration. Consider a daily backup task: manually, you'd need to stop services, copy files, compress archives, verify integrity, restart services, and log results - every single day. One missed step or typo could corrupt backups. A script executes all steps perfectly every time, can run automatically via cron at 2 AM, handles errors consistently, and logs everything for audit trails. The same principle applies to log rotation, security patching, monitoring, user management, and countless other repetitive tasks. Once you've automated a task with a script, you never have to think about the details again - just run the script. This is why experienced sysadmins script everything: it's not about saving minutes today, it's about saving hours over time while ensuring consistency and reliability.",
+            "learnMore": [
+              {
+                "title": "Opensource.com - Introduction to Automation with Bash",
+                "url": "https://opensource.com/article/19/12/automation-bash-scripts"
+              },
+              {
+                "title": "Red Hat - Arguments and Options in Bash Scripts",
+                "url": "https://www.redhat.com/en/blog/arguments-options-bash-scripts"
+              },
+              {
+                "title": "FreeCodeCamp - Bash Scripting Tutorial",
+                "url": "https://www.freecodecamp.org/news/bash-scripting-tutorial-linux-shell-script-and-command-line-for-beginners/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "To use the built-in data validation feature of the Bash shell when they run a task",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Bash does not have built-in data validation features. Any validation logic must be explicitly scripted by the programmer using conditionals, pattern matching, and tests.",
+            "why": "Bash is a shell and scripting language, not a framework with built-in validation. If you want to validate user input, check file existence, verify numeric ranges, or validate data formats, you must write the validation code yourself using if statements, test commands, regular expressions, and other Bash constructs. There's no automatic validation happening behind the scenes.",
+            "examples": [
+              "Must write: 'if [[ ! -f \"$file\" ]]; then echo \"File not found\"; fi'",
+              "Must write: 'if [[ ! \"$num\" =~ ^[0-9]+$ ]]; then echo \"Not a number\"; fi'",
+              "Validation is manual, not automatic or built-in"
+            ],
+            "learnMore": [
+              {
+                "title": "Bash Scripting Tutorial",
+                "url": "https://linuxconfig.org/bash-scripting-tutorial"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "To document commonly used commands in a single file",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "While scripts do contain commands in a file, documentation is not a primary purpose of scripting. Scripts are meant to be executed, not just stored as reference material.",
+            "why": "Documentation belongs in README files, wikis, or comments within scripts. If you just want to save commands for reference, a text file or personal notes would suffice. Scripts are executable programs meant to automate tasks, not passive documentation. While good scripts should include comments explaining their purpose, the primary goal is automation and execution, not documentation.",
+            "examples": [
+              "Documentation: README.md explaining commands",
+              "Script: Executable file that runs commands automatically",
+              "Scripts can have comments, but are primarily for execution"
+            ],
+            "learnMore": [
+              {
+                "title": "Linux Journal - Shell Script Best Practices",
+                "url": "https://www.linuxjournal.com/content/shell-scripting-best-practices"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "To ensure that a task runs correctly and consistently",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Ensuring correct and consistent execution is a fundamental benefit of Bash scripting. Scripts execute commands in exactly the same way every time, eliminating variability from human error, memory lapses, or inconsistent procedures. This reliability is critical for maintaining system stability and operational predictability.",
+            "keyPoints": [
+              "Scripts execute identically every time they run",
+              "Eliminates human error and inconsistency",
+              "Ensures all steps execute in correct order",
+              "Provides reliable, repeatable results",
+              "Reduces risk of missing critical steps",
+              "Maintains consistent system configuration",
+              "Easier to test, debug, and improve procedures"
+            ],
+            "examples": [
+              "Database backup script ensures all steps execute in correct sequence",
+              "Server configuration script applies identical settings every time",
+              "Application deployment script guarantees consistent installation process",
+              "Security audit script checks same items in same way every run",
+              "System update script follows exact procedure without deviation"
+            ],
+            "additionalInfo": "Consistency is perhaps the most undervalued benefit of scripting. Manual procedures executed by humans inherently vary: someone might skip a step thinking it's not needed this time, perform steps in different order, use slightly different commands, or simply forget something. These variations cause unpredictable results and make troubleshooting difficult. A script, once tested and proven, executes identically every single time. If something goes wrong, you know it's not due to procedural variation - it's either an environmental issue or a bug in the script that can be fixed once and for all. This consistency is critical for: maintaining regulatory compliance (prove procedures were followed), replicating issues (reproduce problems consistently), team collaboration (everyone uses the same process), and scaling operations (script works the same way on 1 server or 1000 servers). When you script a procedure, you're not just automating it - you're standardizing it.",
+            "learnMore": [
+              {
+                "title": "Opensource.com - Automation with Bash Scripts",
+                "url": "https://opensource.com/article/19/12/automation-bash-scripts"
+              },
+              {
+                "title": "LabEx - Shell Script Best Practices",
+                "url": "https://labex.io/tutorials/shell-shell-script-best-practices-385366"
+              },
+              {
+                "title": "FreeCodeCamp - Bash Scripting for Beginners",
+                "url": "https://www.freecodecamp.org/news/bash-scripting-tutorial-linux-shell-script-and-command-line-for-beginners/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "Which of the following displays the correct syntax for the first line of a bash script to make it executable?",
+      "options": [
+        {
+          "id": "A",
+          "text": "#!/bin",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This shebang is incomplete. /bin is a directory, not an executable interpreter.",
+            "why": "The shebang line must point to the full path of an executable interpreter program. /bin is just a directory containing executables - it's not itself an interpreter that can execute Bash code. The complete path should be #!/bin/bash or #!/bin/sh to specify which shell interpreter to use.",
+            "learnMore": [
+              {
+                "title": "PhoenixNAP - Shebang in Bash",
+                "url": "https://phoenixnap.com/kb/shebang-bash"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "#!/bash",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This shebang points to /bash which doesn't exist on Linux systems. The Bash interpreter is located at /bin/bash, not /bash.",
+            "why": "The shebang must specify the complete absolute path to the interpreter. The bash executable is located in /bin/bash on standard Linux systems, not at the root /bash. Without the full correct path, the system cannot find the interpreter and the script will fail to execute with an error like 'bad interpreter: No such file or directory'.",
+            "learnMore": [
+              {
+                "title": "Linuxize - Bash Shebang",
+                "url": "https://linuxize.com/post/bash-shebang/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "#!",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This shows only the shebang characters without specifying an interpreter path. It's incomplete and won't work.",
+            "why": "The #! characters alone tell the system 'look for an interpreter', but don't specify which interpreter to use. You must include the full path to the interpreter after the shebang: #!/bin/bash. Without the path, the system doesn't know whether to use Bash, sh, Python, Perl, or any other interpreter.",
+            "learnMore": [
+              {
+                "title": "Baeldung - Shebang Types in Linux",
+                "url": "https://www.baeldung.com/linux/shebang-types"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "#!/bin/bash",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "This is the correct shebang syntax for a Bash script. The sequence #! (shebang) followed by the absolute path /bin/bash tells the operating system to use the Bash interpreter to execute the script. This must be the very first line of the script for it to function properly as an executable.",
+            "keyPoints": [
+              "Must be the absolute first line in the script file",
+              "#! is called 'shebang' or 'hashbang'",
+              "/bin/bash is the full path to Bash interpreter",
+              "Tells the OS which interpreter to use for script execution",
+              "Allows script to run directly: './script.sh'",
+              "Without shebang, script requires explicit shell invocation: 'bash script.sh'",
+              "Alternative: #!/usr/bin/env bash for better portability"
+            ],
+            "examples": [
+              "Script with #!/bin/bash can run as: './myscript.sh'",
+              "Script without shebang needs: 'bash myscript.sh'",
+              "'#!/bin/bash -x' enables debug mode",
+              "'#!/usr/bin/env bash' searches PATH for bash",
+              "Other interpreters: #!/bin/sh, #!/usr/bin/python3"
+            ],
+            "additionalInfo": "The shebang line is fundamental to making scripts executable on Unix-like systems. When you type './script.sh', the operating system reads the first two bytes of the file. If it sees #!, it knows this is an executable script and reads the rest of that line to find the interpreter path. It then launches that interpreter with the script file as an argument. The path /bin/bash specifies exactly which program interprets the script - in this case, the Bourne Again SHell located at /bin/bash. This is critical because different shells have different syntax and features. A script written for Bash might not work correctly if interpreted by sh, dash, or another shell. The shebang line must be the absolute first line - no blank lines or comments before it. An alternative form #!/usr/bin/env bash is considered more portable because it searches the user's PATH environment variable to find bash rather than assuming a fixed location, which can vary across different Unix systems.",
+            "learnMore": [
+              {
+                "title": "nixCraft - Linux Shell Scripting Shebang Tutorial",
+                "url": "https://bash.cyberciti.biz/guide/Shebang"
+              },
+              {
+                "title": "LinuxConfig - Bash Script Shebang Usage",
+                "url": "https://linuxconfig.org/bash-script-shebang-usage-and-best-practices"
+              },
+              {
+                "title": "Vultr - How to Use Shebang in Bash Scripts",
+                "url": "https://docs.vultr.com/how-to-use-shebang-in-bash"
+              },
+              {
+                "title": "CyberPanel - Bash Shebang Explained",
+                "url": "https://cyberpanel.net/blog/bash-shebang"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Consider the following statement: sum=$(($2 + $4)). Which parts of the statement represent the arguments?",
+      "options": [
+        {
+          "id": "A",
+          "text": "sum and ($2 + $4)",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "'sum' is a variable name being assigned a value, and '($2 + $4)' is an arithmetic expression using arguments. These are not the arguments themselves.",
+            "why": "In this statement, 'sum' is the destination variable that will store the result. '($2 + $4)' is an arithmetic expression that adds two arguments together. The actual arguments are the positional parameters $2 and $4, which represent the second and fourth command-line arguments passed to the script. The surrounding syntax ($(...), $((...)), +) are operators and expansion mechanisms, not arguments.",
+            "learnMore": [
+              {
+                "title": "Bash Cyberciti - Positional Parameters",
+                "url": "https://bash.cyberciti.biz/guide/How_to_use_positional_parameters"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "$() and ($2 + $4)",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "$() and $(()) are command substitution and arithmetic expansion syntax respectively. They're not arguments but rather Bash operators that process the arguments.",
+            "why": "$() is command substitution (though here we're using $((...)) for arithmetic expansion). $((...)) performs arithmetic evaluation. These are syntax elements that tell Bash how to process the expression, but they're not the actual arguments. The arguments are the values $2 and $4 that were passed to the script at runtime.",
+            "learnMore": [
+              {
+                "title": "LinuxCommand - Positional Parameters",
+                "url": "https://www.linuxcommand.org/lc3_wss0120.php"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "$2 and $4",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "$2 and $4 are positional parameters that represent the second and fourth arguments passed to the script from the command line. These are the actual arguments being referenced in the arithmetic operation.",
+            "keyPoints": [
+              "Positional parameters store command-line arguments",
+              "$1 through $9 (and beyond) represent arguments by position",
+              "$2 is the second argument passed to the script",
+              "$4 is the fourth argument passed to the script",
+              "Arguments are set when script is invoked: './script.sh arg1 arg2 arg3 arg4'",
+              "$0 contains the script name itself",
+              "$(($2 + $4)) performs arithmetic on these argument values"
+            ],
+            "examples": [
+              "Running './script.sh 5 10 3 7' sets: $1=5, $2=10, $3=3, $4=7",
+              "sum=$(($2 + $4)) would calculate: sum=$((10 + 7)) = 17",
+              "'./script.sh apple banana cherry date' sets: $2='banana', $4='date'",
+              "$2 and $4 are the positional parameter variables",
+              "Their values depend on what user passes when running script"
+            ],
+            "additionalInfo": "Positional parameters are Bash's mechanism for passing data into scripts from the command line. When you execute './myscript.sh first second third fourth', Bash automatically assigns these values: $0='./myscript.sh' (script name), $1='first', $2='second', $3='third', $4='fourth'. In the expression sum=$(($2 + $4)), the variables $2 and $4 are positional parameters that hold the second and fourth arguments respectively. The double parentheses $((...)) tell Bash to evaluate the contents as an arithmetic expression, and the addition operator + sums the two values. The result is then assigned to the variable sum using command substitution $(). If the script was run as './myscript.sh 10 20 30 40', then $2=20 and $4=40, so sum=$(($2 + $4)) would calculate sum=60. Positional parameters make scripts flexible because the same script can operate on different data each time it runs, simply by passing different arguments.",
+            "learnMore": [
+              {
+                "title": "Baeldung - Command Line Arguments in Bash",
+                "url": "https://www.baeldung.com/linux/use-command-line-arguments-in-bash-script"
+              },
+              {
+                "title": "Refine - Using Arguments in Bash Scripts",
+                "url": "https://refine.dev/blog/bash-script-arguments/"
+              },
+              {
+                "title": "TheGeekStuff - Bash Positional Parameters Explained",
+                "url": "https://www.thegeekstuff.com/2010/05/bash-shell-positional-parameters/"
+              },
+              {
+                "title": "GNU Bash Manual - Positional Parameters",
+                "url": "https://www.gnu.org/software/bash/manual/html_node/Positional-Parameters.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "$ and ()",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The $ and () characters are syntax elements in Bash, not arguments. $ is used for variable expansion, and () can be used for subshells or arithmetic depending on context.",
+            "why": "In Bash syntax, $ indicates variable expansion or command substitution, while () can create subshells or, when doubled as $((...)), perform arithmetic evaluation. These are operators and syntactic constructs that tell Bash how to interpret the code. The actual arguments are the values referenced by $2 and $4 - the second and fourth positional parameters passed to the script.",
+            "learnMore": [
+              {
+                "title": "Wikibooks - Bash Positional Parameters",
+                "url": "https://en.wikibooks.org/wiki/Bash_Shell_Scripting/Positional_Parameters"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which command causes a Bash script to stop running and exit the shell?",
+      "options": [
+        {
+          "id": "A",
+          "text": "return",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The return command exits from a function and returns control to the calling code, but it does not exit the script or shell. It's function-specific, not script-wide.",
+            "why": "return is used inside Bash functions to exit the function and optionally return a status code to the caller. When a function executes return, execution continues in the script at the point where the function was called. The script keeps running. To exit the entire script, you need the exit command.",
+            "examples": [
+              "function myFunc() { return 0; } - exits function only",
+              "Script continues after function returns",
+              "'exit 0' stops entire script, 'return 0' stops only function"
+            ],
+            "learnMore": [
+              {
+                "title": "Bash Manual - Shell Functions",
+                "url": "https://www.gnu.org/software/bash/manual/bash.html#Shell-Functions"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "wait",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The wait command pauses script execution until background processes complete. It doesn't exit the script - it just waits.",
+            "why": "wait is used to pause execution until one or more background jobs finish. For example, if you launch processes in the background with &, you can use wait to pause until they complete. This is for synchronization, not termination. The script continues running after wait completes.",
+            "examples": [
+              "'command & wait' - runs command in background, then waits for it",
+              "'wait $pid' - waits for specific background process",
+              "Script continues after wait, doesn't exit"
+            ],
+            "learnMore": [
+              {
+                "title": "Bash Manual - Job Control Builtins",
+                "url": "https://www.gnu.org/software/bash/manual/bash.html#Job-Control-Builtins"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "exit",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The exit command immediately terminates the Bash script and returns control to the parent shell or calling process. It can optionally return an exit status code (0 for success, non-zero for errors) that can be checked by the caller using $?. This is the standard way to cleanly terminate script execution.",
+            "keyPoints": [
+              "Immediately stops script execution",
+              "Returns control to parent shell or calling process",
+              "Can specify exit status: 'exit 0' (success) or 'exit 1' (error)",
+              "Exit status 0 conventionally means success",
+              "Non-zero exit status indicates error or failure",
+              "Calling process can check status with $? variable",
+              "Good practice to exit with appropriate status codes"
+            ],
+            "examples": [
+              "'exit 0' - exits script with success status",
+              "'exit 1' - exits script indicating error",
+              "'if [[ ! -f file ]]; then exit 1; fi' - exits if file missing",
+              "'./script.sh; echo $?' - checks exit status of script",
+              "'exit' without number defaults to status of last command"
+            ],
+            "additionalInfo": "The exit command is essential for proper script termination and error handling. When a script encounters a fatal error condition, it should exit immediately with a non-zero status code rather than continuing execution. This allows calling scripts or processes to detect failures and respond appropriately. By convention, exit status 0 means success, while values 1-255 indicate different types of errors (though 1 is commonly used for general errors). Exit codes are particularly important in automated environments, CI/CD pipelines, and when scripts are called by other scripts or system services. The status returned by exit is accessible to the caller through the special variable $?. For example, after running './backup.sh', you could check 'if [ $? -eq 0 ]; then echo Success; fi'. Without explicit exit commands, scripts exit automatically when they reach the end, returning the status of the last command executed. For better control and clearer intent, explicitly using exit is recommended.",
+            "learnMore": [
+              {
+                "title": "Linuxize - Bash Exit Command",
+                "url": "https://linuxize.com/post/bash-exit/"
+              },
+              {
+                "title": "GeeksforGeeks - exit Command in Linux",
+                "url": "https://www.geeksforgeeks.org/exit-command-in-linux-with-examples/"
+              },
+              {
+                "title": "Bash Hackers Wiki - Exit Status",
+                "url": "https://wiki.bash-hackers.org/scripting/basics#exit_status"
+              },
+              {
+                "title": "TLDP - Exit and Exit Status",
+                "url": "https://tldp.org/LDP/abs/html/exit-status.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "kill",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The kill command sends signals to processes, typically to terminate other processes. It's not the proper way to exit a script from within the script itself.",
+            "why": "kill is used to send signals (like SIGTERM or SIGKILL) to processes identified by their PID (Process ID). While you could theoretically kill the script's own process with 'kill $$', this is abnormal and doesn't provide clean termination or proper exit status handling. The correct, clean way to exit a script is using the exit command.",
+            "examples": [
+              "'kill 1234' - sends SIGTERM to process 1234",
+              "'kill -9 1234' - forcefully kills process 1234",
+              "Inside script: use 'exit 1', not 'kill $$'"
+            ],
+            "learnMore": [
+              {
+                "title": "Linuxize - How to Kill a Process",
+                "url": "https://linuxize.com/post/how-to-kill-a-process-in-linux/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "Which conditional statement defines two courses of action?",
+      "options": [
+        {
+          "id": "A",
+          "text": "if - else",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The if-else statement provides exactly two courses of action: one path executes when the condition is true, and an alternative path executes when the condition is false. This binary branching is fundamental to conditional logic in Bash scripts.",
+            "keyPoints": [
+              "Provides two distinct execution paths",
+              "if block executes when condition is true",
+              "else block executes when condition is false",
+              "Ensures one path always executes",
+              "Basic structure of binary decision making",
+              "Can be extended with elif for multiple conditions",
+              "Essential for error handling and validation"
+            ],
+            "examples": [
+              "'if [[ -f file ]]; then echo \"Exists\"; else echo \"Missing\"; fi'",
+              "'if [[ $count -gt 10 ]]; then echo \"High\"; else echo \"Low\"; fi'",
+              "'if ping -c 1 host; then echo \"Up\"; else echo \"Down\"; fi'",
+              "File check: if exists do A, else do B",
+              "User validation: if authorized proceed, else deny"
+            ],
+            "additionalInfo": "The if-else construct is one of the most fundamental control structures in programming and scripting. It implements binary logic: given a condition, execute one block of code if true, or a different block if false. In Bash, the syntax is: if [[ condition ]]; then commands_if_true; else commands_if_false; fi. The condition is evaluated, and exactly one path executes - never both, never neither. This is crucial for error handling: if a command succeeds, continue normal operations; else, handle the error. For file operations: if file exists, process it; else, report missing. For user input validation: if input is valid, use it; else, prompt again. The if-else pattern can be extended with elif (else if) for multiple conditions, but the basic if-else provides the simplest form of conditional branching with exactly two possible outcomes. Every properly designed script should use if-else for error checking, input validation, and handling different execution scenarios.",
+            "learnMore": [
+              {
+                "title": "Linuxize - Bash if else Statement",
+                "url": "https://linuxize.com/post/bash-if-else-statement/"
+              },
+              {
+                "title": "GeeksforGeeks - Bash if-else Statement",
+                "url": "https://www.geeksforgeeks.org/bash-scripting-if-else-statement/"
+              },
+              {
+                "title": "TutorialsPoint - Bash if-else",
+                "url": "https://www.tutorialspoint.com/unix/if-else-statement.htm"
+              },
+              {
+                "title": "TLDP - Conditional Statements",
+                "url": "https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_01.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "if",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A standalone if statement without else defines only one course of action - what to do if the condition is true. There's no alternative action specified for when the condition is false.",
+            "why": "An if statement alone executes a block of code only when the condition is true. If the condition is false, nothing happens - execution simply continues to the next line after the if block. This provides only one action path, not two. To have two distinct courses of action, you need if-else.",
+            "examples": [
+              "'if [[ -f file ]]; then rm file; fi' - one action (delete if exists)",
+              "No alternative action specified for when file doesn't exist",
+              "For two actions need: if-else structure"
+            ],
+            "learnMore": [
+              {
+                "title": "Bash Manual - Conditional Constructs",
+                "url": "https://www.gnu.org/software/bash/manual/bash.html#Conditional-Constructs"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "while",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "while is a loop construct, not a conditional statement for branching. It repeatedly executes a block of code as long as a condition remains true.",
+            "why": "while creates a loop that continues executing its code block as long as the test condition is true. It's for repetition, not for choosing between two alternative actions. A while loop doesn't define two courses of action - it defines repeated action versus stopping when the condition becomes false.",
+            "examples": [
+              "'while [[ $count -lt 10 ]]; do echo $count; ((count++)); done'",
+              "Repeats action until condition false, doesn't choose between two paths",
+              "For two action paths, use if-else"
+            ],
+            "learnMore": [
+              {
+                "title": "Linuxize - Bash while Loop",
+                "url": "https://linuxize.com/post/bash-while-loop/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "for",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "for is a loop construct used to iterate over lists or ranges, not a conditional statement for defining alternative courses of action.",
+            "why": "A for loop executes a block of code for each item in a list or for each value in a range. It's about iteration and repetition, not about choosing between two different actions based on a condition. The for loop defines one action that happens multiple times, not two alternative actions.",
+            "examples": [
+              "'for file in *.txt; do echo $file; done' - repeats for each file",
+              "'for i in {1..5}; do echo $i; done' - iterates through range",
+              "Iteration construct, not conditional branching"
+            ],
+            "learnMore": [
+              {
+                "title": "Linuxize - Bash for Loop",
+                "url": "https://linuxize.com/post/bash-for-loop/"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

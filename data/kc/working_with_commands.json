@@ -1,0 +1,730 @@
+{
+  "title": "Working with Commands",
+  "topic": "Linux Command Line Operations",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Wildcards are used to specify one to many unknown characters, or a set of limited and specific values in a search. What types of wild card characters does Bash recognize? (Select TWO)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "?",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The question mark (?) is one of Bash's fundamental wildcard characters. It represents exactly one character in filename patterns, making it useful for matching files with specific lengths or patterns where a single character varies.",
+            "keyPoints": [
+              "Matches exactly one single character at its position",
+              "Cannot match zero characters (unlike asterisk)",
+              "Can be used multiple times in same pattern to match multiple characters",
+              "Works with any character type: letters, numbers, symbols",
+              "Case-sensitive like all Linux filename matching",
+              "Part of globbing (filename expansion) in Bash",
+              "Useful for precise pattern matching where file lengths are known"
+            ],
+            "examples": [
+              "'file?.txt' matches file1.txt, fileA.txt, file_.txt but not file10.txt",
+              "'????.log' matches any 4-character filename with .log extension",
+              "'test??.txt' matches test01.txt, testAB.txt but not test.txt or test123.txt",
+              "'photo?.jpg' matches photo1.jpg through photo9.jpg",
+              "'data-?.csv' matches data-a.csv, data-1.csv but not data-10.csv"
+            ],
+            "additionalInfo": "The question mark wildcard is particularly useful when you know the exact structure and length of filenames but one or more characters vary. Unlike the asterisk which can match zero or more characters, the question mark must match exactly one character, making it more precise for certain matching scenarios. For example, if you have files named 'report1.txt' through 'report9.txt' and want to avoid matching 'report10.txt', using 'report?.txt' ensures you only match single-digit reports. You can combine multiple question marks to match specific length patterns: '????' matches any four-character name, '??-??-????' could match date patterns like '01-15-2024'. The question mark is processed during shell expansion (globbing) before the command runs, so 'ls file?.txt' first expands to the matching filenames, then passes those explicit names to the ls command.",
+            "learnMore": [
+              {
+                "title": "Linux Hint - Bash Wildcard Tutorial",
+                "url": "https://linuxhint.com/bash_wildcard_tutorial/"
+              },
+              {
+                "title": "TLDP - Wildcards",
+                "url": "https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm"
+              },
+              {
+                "title": "LinuxG.net - Bash Wildcards: ? and *",
+                "url": "https://linuxg.net/bash-wildcards-question-mark-and-asterisk/"
+              },
+              {
+                "title": "Bash Scripting Tutorial - Wildcards",
+                "url": "https://bash.cyberciti.biz/guide/Wildcards"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "#",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The hash symbol (#) is not a wildcard character in Bash. It is used to denote comments in shell scripts and commands, causing everything after it on the line to be ignored.",
+            "why": "In Bash, # marks the beginning of a comment when it appears at the start of a word. Everything from # to the end of the line is ignored by the shell. While # has special meaning in Bash, it's not part of the wildcard/globbing system used for filename pattern matching. The actual wildcards are *, ?, and [ ].",
+            "examples": [
+              "'# This is a comment' - entire line ignored",
+              "'ls  # list files' - command runs, comment ignored",
+              "'file#name.txt' - # has no special meaning in middle of word"
+            ],
+            "learnMore": [
+              {
+                "title": "Marquette HPC - Bash Wildcards Guide",
+                "url": "https://www.freecodecamp.org/news/linux-terminal-piping-and-redirection-guide/"
+              },
+              {
+                "title": "Baeldung - Pipes and Redirection in Linux",
+                "url": "https://www.baeldung.com/linux/pipes-redirection"
+              },
+              {
+                "title": "GeeksforGeeks - Input-Output Redirection",
+                "url": "https://www.geeksforgeeks.org/input-output-redirection-in-linux/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "<",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The less-than symbol (<) is an input redirection operator, not an output redirector. It redirects input to a command from a file rather than redirecting output from a command to a file.",
+            "why": "Input redirection works in the opposite direction from output redirection. While > and >> send command output to files, < sends file content as input to commands. For example, 'sort < unsorted.txt' reads from unsorted.txt as input to the sort command. This is fundamentally different from output redirection which writes command results to files.",
+            "examples": [
+              "'sort < unsorted.txt' - provides file as input to sort",
+              "'wc -l < file.txt' - counts lines reading from file",
+              "'cat < input.txt' - reads input.txt as stdin"
+            ],
+            "learnMore": [
+              {
+                "title": "ThoughtBot - Input/Output Redirection",
+                "url": "https://thoughtbot.com/blog/input-output-redirection-in-the-shell"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": ">",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The single greater-than symbol (>) is the primary output redirection operator in Linux. It redirects standard output from a command to a file, overwriting the file if it exists or creating it if it doesn't. This operator is fundamental to shell scripting and command-line data management.",
+            "keyPoints": [
+              "Redirects standard output (stdout) to a file",
+              "Overwrites existing file content completely",
+              "Creates new file if it doesn't exist",
+              "Most basic and commonly used output redirector",
+              "Truncates file to zero bytes before writing",
+              "Can be combined with file descriptor numbers (1> for stdout, 2> for stderr)",
+              "Essential for saving command output and creating files from command results"
+            ],
+            "examples": [
+              "'ls -l > filelist.txt' - saves directory listing to file (overwrites existing)",
+              "'echo \"Hello World\" > greeting.txt' - creates file with text",
+              "'date > timestamp.txt' - saves current date/time to file",
+              "'command 2> error.txt' - redirects only errors to file",
+              "'ps aux > processes.txt' - saves process list to file"
+            ],
+            "additionalInfo": "The output redirection operator (>) is one of the most fundamental concepts in Unix/Linux shell usage. When you use >, the shell opens the specified file in write mode, truncating it to zero bytes if it exists, then connects the command's standard output to this file instead of the terminal. This means anything the command would normally print to your screen is written to the file instead. The operator is particularly useful for saving command results, creating files from command output, and building scripts that process data. A critical behavior to remember is that > completely overwrites existing files without warning - if important.txt exists and you run 'echo test > important.txt', the original content is gone. This is why >> (append) is often safer for files you want to preserve. You can redirect different output streams: 1> for standard output (default), 2> for standard error, and &> for both. Common patterns include '> output.txt 2> error.txt' to separate normal and error output, or '> output.txt 2>&1' to combine both streams into one file.",
+            "learnMore": [
+              {
+                "title": "Linuxize - Bash Redirect Output and Errors",
+                "url": "https://linuxize.com/post/bash-redirect-stderr-stdout/"
+              },
+              {
+                "title": "GeeksforGeeks - Input-Output Redirection in Linux",
+                "url": "https://www.geeksforgeeks.org/input-output-redirection-in-linux/"
+              },
+              {
+                "title": "Liquid Web - Linux Redirection Operators",
+                "url": "https://www.liquidweb.com/blog/how-to-use-linux-pipe-for-redirection/"
+              },
+              {
+                "title": "TutorialsPoint - Pipes and Redirection",
+                "url": "https://www.tutorialspoint.com/pipes-and-redirection-in-linux"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "|",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The pipe (|) operator connects commands together by sending output from one command as input to another, but it doesn't redirect output to a file.",
+            "why": "While the pipe is crucial for command chaining, it's not an output redirector in the sense asked by the question. Pipes create data flow between commands (command1 | command2), whereas output redirectors (> and >>) send output to files. The question specifically asks about redirecting standard output, which implies to a file, not to another command.",
+            "examples": [
+              "'ls | grep txt' - pipes ls output to grep (not to a file)",
+              "'cat file.txt | sort' - sends file content to sort command",
+              "To actually redirect to file: 'ls | grep txt > results.txt'"
+            ],
+            "learnMore": [
+              {
+                "title": "Liquid Web - How to Use Linux Pipe",
+                "url": "https://www.liquidweb.com/blog/how-to-use-linux-pipe-for-redirection/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "<<",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The double less-than (<<) operator is used for here-documents, a special form of input redirection. It's not an output redirector.",
+            "why": "The << operator creates a here-document, which allows you to provide multi-line input directly in a script or command line until a specified delimiter is reached. This is an input mechanism, not output redirection. For example, 'cat << EOF' reads lines until it sees 'EOF'. To redirect output to a file, use > or >>.",
+            "examples": [
+              "'cat << EOF > file.txt' - here-doc provides input, > redirects to file",
+              "'mail user@example.com << END' - sends email with inline message",
+              "'<< EOF' reads input until EOF delimiter appears"
+            ],
+            "learnMore": [
+              {
+                "title": "Baeldung - Here Documents in Bash",
+                "url": "https://www.baeldung.com/linux/heredoc-herestring"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "&",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The ampersand (&) is not a wildcard character. It's a control operator used to run commands in the background or as part of logical operators like && (AND).",
+            "why": "In Bash, & has several uses but none involve pattern matching. At the end of a command, it runs the command in the background. As && it creates a logical AND operator that runs the second command only if the first succeeds. The symbol is completely unrelated to Bash's wildcard functionality for filename matching.",
+            "examples": [
+              "'sleep 10 &' - runs sleep in background",
+              "'command1 && command2' - runs command2 only if command1 succeeds",
+              "'ls &' - lists files in background (pointless but demonstrates syntax)"
+            ],
+            "learnMore": [
+              {
+                "title": "TecMint - Using Wildcards to Match Filenames",
+                "url": "https://www.tecmint.com/use-wildcards-to-match-filenames-in-linux/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "%",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The percent sign (%) is not a wildcard character in Bash. It's used in job control to reference background jobs and in parameter expansion for pattern removal.",
+            "why": "While % has special meanings in Bash (like referencing jobs with %1, %2, etc., or removing suffixes in parameter expansion like ${variable%pattern}), it is not a wildcard for filename pattern matching. The three wildcards recognized by Bash for globbing are * (asterisk), ? (question mark), and [ ] (brackets).",
+            "examples": [
+              "'%1' - refers to job 1 in job control",
+              "'${filename%.txt}' - removes .txt extension in parameter expansion",
+              "Not used for: 'ls file%.txt' - % has no wildcard meaning here"
+            ],
+            "learnMore": [
+              {
+                "title": "TheLinuxCode - Bash Wildcards Tutorial",
+                "url": "https://thelinuxcode.com/bash_wildcard_tutorial/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "*",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The asterisk (*) is the most versatile and commonly used wildcard in Bash. It matches zero or more characters of any type, making it extremely powerful for pattern matching across files and directories. The asterisk works in any position within a pattern and can appear multiple times.",
+            "keyPoints": [
+              "Matches zero or more characters (including no characters)",
+              "Can match any character type: letters, numbers, symbols",
+              "Works at any position: beginning, middle, or end of pattern",
+              "Can be used multiple times in same pattern",
+              "Does not match hidden files (those starting with .) unless explicitly included",
+              "Most flexible wildcard - matches the broadest range of possibilities",
+              "Part of shell globbing performed before command execution"
+            ],
+            "examples": [
+              "'*.txt' matches all files ending with .txt: file.txt, document.txt, report.txt",
+              "'file*' matches file, file1, file_backup, filename, etc.",
+              "'*test*' matches anything containing 'test': test, mytest, test1, testing123",
+              "'*.tar.gz' matches compressed archives: backup.tar.gz, data.tar.gz",
+              "'report-*-2024.pdf' matches report-january-2024.pdf, report-Q1-2024.pdf",
+              "'*' alone matches all visible files in current directory"
+            ],
+            "additionalInfo": "The asterisk wildcard is fundamental to efficient command-line work in Linux. It can match zero characters, meaning 'file*' matches both 'file' and 'filename'. This differs from the question mark which must match exactly one character. A key behavior to understand is that * does not match hidden files (those starting with .) unless you explicitly include the dot: '.*' matches hidden files, while '*' does not. The asterisk can appear multiple times: '*.*.tar' matches files with multiple extensions. Bash expands wildcards before executing commands, so 'rm *.txt' first expands to all matching filenames, then passes them to rm. Be careful with commands like 'rm *' which will delete all visible files in the current directory. The * is case-sensitive on Linux, so '*.TXT' and '*.txt' match different files. For recursive operations, modern shells support '**' to match files in subdirectories.",
+            "learnMore": [
+              {
+                "title": "LabEx - Linux Wildcard Character Guide",
+                "url": "https://labex.io/tutorials/linux-linux-wildcard-character-271447"
+              },
+              {
+                "title": "LinuxBash - Using Wildcards in File Operations",
+                "url": "https://www.linuxbash.sh/post/using-wildcards-in-file-operations"
+              },
+              {
+                "title": "Warp - How to Use Linux Wildcards",
+                "url": "https://www.warp.dev/terminus/linux-wildcards"
+              },
+              {
+                "title": "TheLinuxCode - Unlock the Power of Bash Wildcards",
+                "url": "https://thelinuxcode.com/bash_wildcard_tutorial/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "Which of the following runs a series of three commands with a single command line?",
+      "options": [
+        {
+          "id": "A",
+          "text": "cd .. ; rm *.csv ; ls *.csv",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The semicolon (;) is the correct operator for running multiple commands sequentially on a single line. Each command executes independently in order, regardless of whether previous commands succeed or fail. This syntax is perfect for running a series of unrelated commands one after another.",
+            "keyPoints": [
+              "Semicolon separates multiple commands on one line",
+              "Commands execute sequentially from left to right",
+              "Each command runs regardless of previous command success or failure",
+              "Commands are independent - failure doesn't stop execution",
+              "Equivalent to running commands on separate lines",
+              "Can chain unlimited number of commands",
+              "Each command runs in the current shell context"
+            ],
+            "examples": [
+              "'cd /tmp ; ls ; pwd' - changes directory, lists files, shows location",
+              "'mkdir backup ; cp file.txt backup/ ; cd backup' - creates dir, copies file, enters dir",
+              "'date ; whoami ; hostname' - displays time, username, and computer name",
+              "'echo 'Start' ; sleep 5 ; echo 'Done'' - prints Start, waits 5 seconds, prints Done",
+              "'false ; echo 'This runs'' - echo runs even though false command fails"
+            ],
+            "additionalInfo": "The semicolon command separator is one of the most fundamental Bash operators for command chaining. Unlike pipes which connect command outputs to inputs, semicolons simply run commands in sequence. Unlike the && operator which only continues if previous commands succeed, semicolon always runs all commands regardless of success or failure. In the example 'cd .. ; rm *.csv ; ls *.csv', the shell first changes to parent directory, then removes all CSV files, then lists CSV files (which should show none if rm succeeded). Each command is completely independent. This makes semicolon useful for setup scripts or when you want to perform multiple operations but don't want early failures to prevent later commands from running. The semicolon is equivalent to pressing Enter after each command - it's just a way to put multiple commands on one line for convenience or in scripts.",
+            "learnMore": [
+              {
+                "title": "FreeCodeCamp - Linux Terminal Piping and Redirection Guide",
+                "url": "https://www.freecodecamp.org/news/linux-terminal-piping-and-redirection-guide/"
+              },
+              {
+                "title": "Ryan's Tutorials - Piping and Redirection",
+                "url": "https://ryanstutorials.net/linuxtutorial/piping.php"
+              },
+              {
+                "title": "Baeldung - Pipes and Redirection in Linux",
+                "url": "https://www.baeldung.com/linux/pipes-redirection"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "cd .. --add rm *.csv --add ls *.csv",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The --add flag is not a valid Bash command separator or operator. This syntax is completely invalid and will result in an error.",
+            "why": "There is no --add operator or flag in Bash for chaining commands. This appears to be confusion with some other syntax or possibly Git commands where --add exists as an option. In Bash, valid command separators are semicolon (;), pipe (|), double ampersand (&&), and double pipe (||). The correct syntax would use semicolons: 'cd .. ; rm *.csv ; ls *.csv'.",
+            "learnMore": [
+              {
+                "title": "TutorialsPoint - Pipes and Redirection in Linux",
+                "url": "https://www.tutorialspoint.com/pipes-and-redirection-in-linux"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "cd .. | rm *.csv | ls *.csv",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The pipe (|) operator is incorrect here because it connects stdout of one command to stdin of the next, which doesn't make sense for these particular commands.",
+            "why": "Pipes are designed to pass the output of one command as input to another command. The cd command produces no standard output, rm doesn't read from stdin, and ls doesn't need stdin input. This syntax would fail because: cd produces no output to pipe, rm doesn't accept filenames from stdin (it expects them as arguments), and the pipe chain doesn't match how these commands work. Pipes are for data flow between commands, not for sequential execution.",
+            "examples": [
+              "Correct pipe usage: 'ls | grep .txt' - passes ls output to grep",
+              "Incorrect: 'cd dir | ls' - cd produces no output to pipe",
+              "Correct for these commands: 'cd .. ; rm *.csv ; ls *.csv'"
+            ],
+            "learnMore": [
+              {
+                "title": "Liquid Web - How to Use Linux Pipe",
+                "url": "https://www.liquidweb.com/blog/how-to-use-linux-pipe-for-redirection/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "cd .. > rm *.csv > ls *.csv",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The greater-than symbol (>) is for output redirection to files, not for chaining commands. This syntax would attempt to redirect cd's output to a file named 'rm', which is incorrect.",
+            "why": "Output redirection (>) sends a command's standard output to a file, overwriting that file. Using > between commands doesn't execute them sequentially. 'cd .. > rm' would try to create/overwrite a file named 'rm' with cd's output (which is none). This completely misuses the redirection operator and won't execute the commands as intended.",
+            "examples": [
+              "Correct > usage: 'ls > filelist.txt' - saves ls output to file",
+              "Incorrect: 'cd .. > rm *.csv' - tries to redirect to file named 'rm'",
+              "Correct for command chaining: 'cd .. ; rm *.csv ; ls *.csv'"
+            ],
+            "learnMore": [
+              {
+                "title": "ThoughtBot - Input/Output Redirection in the Shell",
+                "url": "https://thoughtbot.com/blog/input-output-redirection-in-the-shell"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "A developer is troubleshooting an issue and wants to check the log file /var/log/secure.log for any failures. Which command syntax is available to find if the log file contains the word 'fail'?",
+      "options": [
+        {
+          "id": "A",
+          "text": "grep fail | find /var/log/secure.log",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This command is backwards - it attempts to pipe grep output into find, which doesn't make sense because find is for locating files, not searching within them.",
+            "why": "The find command locates files and directories based on names, paths, or attributes - it doesn't search file contents. Piping grep (which needs a file to search) into find (which finds files) is logically incorrect. The correct order would be 'grep fail /var/log/secure.log' to search the pattern within the file, not involving find at all since we already know the file location.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - Piping in Unix or Linux",
+                "url": "https://www.geeksforgeeks.org/piping-in-unix-or-linux/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "find fail -name /var/log/secure.log",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This uses the find command incorrectly. The find command locates files by name/path/attributes but doesn't search file contents for text patterns.",
+            "why": "The find command syntax is 'find [path] [options]', not 'find [pattern] -name [file]'. This command attempts to search for files starting from a directory called 'fail', looking for files named '/var/log/secure.log', which isn't what we want. To search for text within a file, use grep, not find.",
+            "learnMore": [
+              {
+                "title": "Red Hat - Find Text in Files Using grep",
+                "url": "https://www.redhat.com/en/blog/find-text-files-using-grep"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "find fail /var/log/secure.log",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This misuses the find command. Find locates files in the filesystem hierarchy but doesn't search text content within files.",
+            "why": "This syntax incorrectly tries to use find to search for the word 'fail' in a specific file. The find command is for locating files and directories based on criteria like name, size, or modification time, not for searching text patterns inside files. The correct tool for searching text within files is grep.",
+            "learnMore": [
+              {
+                "title": "HowToForge - Linux grep Command Tutorial",
+                "url": "https://www.howtoforge.com/tutorial/linux-grep-command/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "grep fail /var/log/secure.log",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "This is the correct command for searching text within a file. The grep command searches for patterns inside files and prints matching lines, making it the standard tool for log file analysis and text searching in Linux.",
+            "keyPoints": [
+              "grep searches for text patterns inside files",
+              "Syntax: grep [pattern] [file]",
+              "Prints all lines containing the matching pattern",
+              "Case-sensitive by default (use -i for case-insensitive)",
+              "Can search multiple files simultaneously",
+              "Essential tool for log file analysis and troubleshooting",
+              "Supports regular expressions for complex pattern matching"
+            ],
+            "examples": [
+              "'grep fail /var/log/secure.log' - finds all lines with 'fail' in the log",
+              "'grep -i error /var/log/syslog' - case-insensitive search for 'error'",
+              "'grep -n 'failed login' /var/log/auth.log' - shows line numbers of matches",
+              "'grep -c warning /var/log/messages' - counts lines containing 'warning'",
+              "'grep -r 'Exception' /var/log/' - recursively searches all log files"
+            ],
+            "additionalInfo": "The grep command (Global Regular Expression Print) is one of the most powerful and frequently used Linux commands for text searching. In log file analysis and troubleshooting, grep is indispensable for quickly finding relevant entries among thousands of log lines. The basic syntax 'grep pattern filename' searches the file line-by-line and outputs every line containing the pattern. For log analysis, common options include: -i for case-insensitive searches (catches 'FAIL', 'Fail', 'fail'), -n to show line numbers, -C to show context lines around matches, -v to invert matches (show lines NOT containing pattern), and -E for extended regular expressions. You can combine grep with other commands: 'tail -f /var/log/syslog | grep error' monitors a log file in real-time for errors. The command is fast even on large files because it processes the file as a stream without loading everything into memory.",
+            "learnMore": [
+              {
+                "title": "PhoenixNAP - grep Command with Examples",
+                "url": "https://phoenixnap.com/kb/grep-command-linux-unix-examples"
+              },
+              {
+                "title": "Linode - How to Use grep Command",
+                "url": "https://www.linode.com/docs/guides/how-to-use-grep-command/"
+              },
+              {
+                "title": "CyberPanel - Find Text in Files Using Linux",
+                "url": "https://cyberpanel.net/blog/find-text-in-files-using-linux"
+              },
+              {
+                "title": "BuiltIn - grep Command Tutorial",
+                "url": "https://builtin.com/articles/grep-command"
+              },
+              {
+                "title": "DigitalOcean - Mastering grep Command",
+                "url": "https://www.digitalocean.com/community/tutorials/grep-command-in-linux-unix"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "What is the sed command?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A tool to manage directories",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "sed is not a directory management tool. Directory management is handled by commands like mkdir, rmdir, cd, and ls.",
+            "why": "sed stands for Stream Editor and is specifically designed for text manipulation - searching, replacing, inserting, and deleting text in files or streams. It has no functionality for creating, removing, or managing directories. Those tasks are performed by entirely different commands focused on filesystem operations.",
+            "learnMore": [
+              {
+                "title": "DigitalOcean - Basics of Using sed",
+                "url": "https://www.digitalocean.com/community/tutorials/the-basics-of-using-the-sed-stream-editor-to-manipulate-text-in-linux"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "A non interactive text editor",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "sed (Stream Editor) is a non-interactive text editor that performs text transformations on an input stream or file. Unlike interactive editors like vi or nano where you manually edit text, sed automatically applies editing commands you specify, making it perfect for batch processing, automation, and shell scripting.",
+            "keyPoints": [
+              "Stands for 'Stream Editor'",
+              "Processes text non-interactively using pre-defined commands",
+              "Edits text line-by-line as a stream",
+              "Primarily used for search-and-replace operations",
+              "Essential for shell scripting and automation",
+              "Makes only one pass over the input for efficiency",
+              "Can edit files in-place or output to stdout",
+              "Supports regular expressions for complex pattern matching"
+            ],
+            "examples": [
+              "'sed 's/old/new/' file.txt' - replaces first occurrence of 'old' with 'new' per line",
+              "'sed 's/error/warning/g' log.txt' - globally replaces 'error' with 'warning'",
+              "'sed -i 's/http/https/g' config.txt' - edits file in-place",
+              "'sed -n '10,20p' file.txt' - prints only lines 10-20",
+              "'sed '/^$/d' file.txt' - deletes all blank lines"
+            ],
+            "additionalInfo": "The sed command is called 'non-interactive' because all editing decisions are made when you invoke the command, not during execution. This contrasts with interactive editors like vi, nano, or emacs where you open the file, manually make changes, and save. With sed, you specify the transformations as arguments, and sed automatically applies them. This makes sed incredibly powerful for automation, batch processing, and scripting. The command reads input line by line (hence 'stream'), applies your editing rules to each line, and outputs the result. sed was developed in the 1970s at Bell Labs and embodies the Unix philosophy of doing one thing well. Its most common use is text substitution using the s command: 's/pattern/replacement/flags'. sed can also insert lines, delete lines, perform pattern-based operations, and use regular expressions. The -i flag enables in-place editing, modifying the file directly instead of printing to stdout.",
+            "learnMore": [
+              {
+                "title": "PhoenixNAP - Linux sed Command Tutorial",
+                "url": "https://phoenixnap.com/kb/linux-sed"
+              },
+              {
+                "title": "Baeldung - Guide to sed Stream Editor",
+                "url": "https://www.baeldung.com/linux/sed-editor"
+              },
+              {
+                "title": "W3Schools - Bash sed Command",
+                "url": "https://www.w3schools.com/bash/bash_sed.php"
+              },
+              {
+                "title": "DigitalOcean - Mastering sed Command",
+                "url": "https://www.digitalocean.com/community/tutorials/linux-sed-command"
+              },
+              {
+                "title": "IOFlood - sed Linux Command Guide",
+                "url": "https://ioflood.com/blog/sed-linux-command/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "An editor similar to vi",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "sed is fundamentally different from vi. While vi is an interactive visual editor where you manually edit text, sed is a non-interactive stream editor that automatically applies editing commands.",
+            "why": "vi (and vim) are interactive editors where you open a file, visually navigate, make changes, and save manually. sed is non-interactive - you define all editing operations in the command line, and sed processes the entire file automatically. They serve different purposes: vi for manual editing, sed for automated batch processing and scripting.",
+            "learnMore": [
+              {
+                "title": "GeeksforGeeks - sed Command with Examples",
+                "url": "https://www.geeksforgeeks.org/linux-unix/sed-command-in-linux-unix-with-examples/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "A search tool",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "While sed can search for patterns, it's primarily a text editor/transformer, not just a search tool. grep is the dedicated search tool in Linux.",
+            "why": "sed's primary purpose is text transformation and editing - replacing, inserting, deleting, and modifying text. Although it uses pattern matching, its goal is to edit text based on those patterns, not merely to find them. For pure text searching and displaying matches, grep is the appropriate tool. sed is for editing text based on patterns, grep is for finding text.",
+            "examples": [
+              "Search tool: 'grep error file.txt' - finds and displays lines with 'error'",
+              "sed editing: 'sed 's/error/warning/' file.txt' - transforms error to warning",
+              "grep doesn't modify files, sed does"
+            ],
+            "learnMore": [
+              {
+                "title": "TutorialsPoint - Stream Editor Quick Guide",
+                "url": "https://www.tutorialspoint.com/sed/sed_quick_guide.htm"
+              },
+              {
+                "title": "Computer Hope - Linux sed Command",
+                "url": "https://www.computerhope.com/unix/used.htm"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "Which of the following are output redirectors that enable redirecting the standard output? (Select TWO)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": ">>",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The double greater-than operator (>>) is an output redirection operator that appends command output to the end of a file. Unlike the single >, which overwrites the file, >> preserves existing content and adds new output at the end, making it essential for maintaining logs and accumulating data over time.",
+            "keyPoints": [
+              "Appends output to the end of an existing file",
+              "Creates the file if it doesn't exist",
+              "Preserves existing file content (doesn't overwrite)",
+              "Essential for maintaining log files and cumulative records",
+              "Redirects standard output (stdout) to a file",
+              "Can be used with file descriptor: 1>> (explicit stdout)",
+              "Commonly used for continuous logging and data collection"
+            ],
+            "examples": [
+              "'echo \"New entry\" >> log.txt' - adds line to end of log.txt",
+              "'ls -l >> filelist.txt' - appends directory listing to existing list",
+              "'date >> activity.log' - timestamps at end of log file",
+              "'command 2>> error.log' - appends errors to error log",
+              "'cat file1.txt >> combined.txt; cat file2.txt >> combined.txt' - combines files"
+            ],
+            "additionalInfo": "The append redirection operator (>>) is crucial for any scenario where you need to accumulate data over time without losing previous information. In logging and system administration, >> is used far more than > because logs should grow rather than be replaced. When you use >>, the shell opens the target file in append mode, positioning the file pointer at the end before writing new data. If the file doesn't exist, >> creates it just like > would. The difference only matters for existing files: > truncates them to zero bytes before writing, while >> preserves all existing content. This makes >> safer for important files since you won't accidentally lose data. Common use cases include: adding timestamps to logs ('date >> activity.log'), collecting test results over multiple runs, building reports incrementally, and maintaining audit trails. You can also append stderr with '2>>' to keep error logs separate from standard output.",
+            "learnMore": [
+              {
+                "title": "Ryan's Tutorials - Piping and Redirection",
+                "url": "https://ryanstutorials.net/linuxtutorial/piping.php"
+              },
+              {
+                "title": "FreeCodeCamp - Piping and Redirection Guide",
+                "url": "https://www.freecodecamp.org/news/linux-terminal-piping-and-redirection-guide/"
+              },
+              {
+                "title": "Baeldung - Pipes and Redirection in Linux",
+                "url": "https://www.baeldung.com/linux/pipes-redirection"
+              },
+              {
+                "title": "GeeksforGeeks - Input-Output Redirection",
+                "url": "https://www.geeksforgeeks.org/input-output-redirection-in-linux/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "<",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The less-than symbol (<) is an input redirection operator, not an output redirector. It redirects input to a command from a file rather than redirecting output from a command to a file.",
+            "why": "Input redirection works in the opposite direction from output redirection. While > and >> send command output to files, < sends file content as input to commands. For example, 'sort < unsorted.txt' reads from unsorted.txt as input to the sort command. This is fundamentally different from output redirection which writes command results to files.",
+            "examples": [
+              "'sort < unsorted.txt' - provides file as input to sort",
+              "'wc -l < file.txt' - counts lines reading from file",
+              "'cat < input.txt' - reads input.txt as stdin"
+            ],
+            "learnMore": [
+              {
+                "title": "ThoughtBot - Input/Output Redirection",
+                "url": "https://thoughtbot.com/blog/input-output-redirection-in-the-shell"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": ">",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The single greater-than symbol (>) is the primary output redirection operator in Linux. It redirects standard output from a command to a file, overwriting the file if it exists or creating it if it doesn't. This operator is fundamental to shell scripting and command-line data management.",
+            "keyPoints": [
+              "Redirects standard output (stdout) to a file",
+              "Overwrites existing file content completely",
+              "Creates new file if it doesn't exist",
+              "Most basic and commonly used output redirector",
+              "Truncates file to zero bytes before writing",
+              "Can be combined with file descriptor numbers (1> for stdout, 2> for stderr)",
+              "Essential for saving command output and creating files from command results"
+            ],
+            "examples": [
+              "'ls -l > filelist.txt' - saves directory listing to file (overwrites existing)",
+              "'echo \"Hello World\" > greeting.txt' - creates file with text",
+              "'date > timestamp.txt' - saves current date/time to file",
+              "'command 2> error.txt' - redirects only errors to file",
+              "'ps aux > processes.txt' - saves process list to file"
+            ],
+            "additionalInfo": "The output redirection operator (>) is one of the most fundamental concepts in Unix/Linux shell usage. When you use >, the shell opens the specified file in write mode, truncating it to zero bytes if it exists, then connects the command's standard output to this file instead of the terminal. This means anything the command would normally print to your screen is written to the file instead. The operator is particularly useful for saving command results, creating files from command output, and building scripts that process data. A critical behavior to remember is that > completely overwrites existing files without warning - if important.txt exists and you run 'echo test > important.txt', the original content is gone. This is why >> (append) is often safer for files you want to preserve. You can redirect different output streams: 1> for standard output (default), 2> for standard error, and &> for both. Common patterns include '> output.txt 2> error.txt' to separate normal and error output, or '> output.txt 2>&1' to combine both streams into one file.",
+            "learnMore": [
+              {
+                "title": "Linuxize - Bash Redirect Output and Errors",
+                "url": "https://linuxize.com/post/bash-redirect-stderr-stdout/"
+              },
+              {
+                "title": "GeeksforGeeks - Input-Output Redirection in Linux",
+                "url": "https://www.geeksforgeeks.org/input-output-redirection-in-linux/"
+              },
+              {
+                "title": "Liquid Web - Linux Redirection Operators",
+                "url": "https://www.liquidweb.com/blog/how-to-use-linux-pipe-for-redirection/"
+              },
+              {
+                "title": "TutorialsPoint - Pipes and Redirection",
+                "url": "https://www.tutorialspoint.com/pipes-and-redirection-in-linux"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "|",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The pipe (|) operator connects commands together by sending output from one command as input to another, but it doesn't redirect output to a file.",
+            "why": "While the pipe is crucial for command chaining, it's not an output redirector in the sense asked by the question. Pipes create data flow between commands (command1 | command2), whereas output redirectors (> and >>) send output to files. The question specifically asks about redirecting standard output, which implies to a file, not to another command.",
+            "examples": [
+              "'ls | grep txt' - pipes ls output to grep (not to a file)",
+              "'cat file.txt | sort' - sends file content to sort command",
+              "To actually redirect to file: 'ls | grep txt > results.txt'"
+            ],
+            "learnMore": [
+              {
+                "title": "Liquid Web - How to Use Linux Pipe",
+                "url": "https://www.liquidweb.com/blog/how-to-use-linux-pipe-for-redirection/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "<<",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The double less-than (<<) operator is used for here-documents, a special form of input redirection. It's not an output redirector.",
+            "why": "The << operator creates a here-document, which allows you to provide multi-line input directly in a script or command line until a specified delimiter is reached. This is an input mechanism, not output redirection. For example, 'cat << EOF' reads lines until it sees 'EOF'. To redirect output to a file, use > or >>.",
+            "examples": [
+              "'cat << EOF > file.txt' - here-doc provides input, > redirects to file",
+              "'mail user@example.com << END' - sends email with inline message",
+              "'<< EOF' reads input until EOF delimiter appears"
+            ],
+            "learnMore": [
+              {
+                "title": "Baeldung - Here Documents in Bash",
+                "url": "https://www.baeldung.com/linux/heredoc-herestring"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

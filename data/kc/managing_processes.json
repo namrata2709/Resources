@@ -11,11 +11,11 @@
           "text": "echo <process_name>",
           "isCorrect": false,
           "explanation": {
-            "summary": "The echo command simply displays text or variables to standard output, it does not retrieve process information.",
-            "why": "echo is a shell built-in command that prints arguments to the screen. It cannot query the system for process information or PIDs. To find process IDs, you need commands specifically designed for process management like ps or pidof.",
+            "summary": "The echo command simply prints text to the terminal. It does not interact with processes or retrieve process information.",
+            "why": "echo is a basic command that outputs whatever text or variables you provide to it. It has no ability to query the system for process information, list running processes, or retrieve PIDs. To find process IDs, you need commands specifically designed for process management like ps, pidof, or top.",
             "learnMore": [
               {
-                "title": "GeeksforGeeks - Echo Command in Linux",
+                "title": "GeeksforGeeks - echo Command in Linux",
                 "url": "https://www.geeksforgeeks.org/echo-command-in-linux-with-examples/"
               }
             ]
@@ -26,39 +26,40 @@
           "text": "ps -ef",
           "isCorrect": true,
           "explanation": {
-            "summary": "The ps -ef command lists all running processes on the system in full format, displaying detailed information including process IDs (PIDs), parent process IDs (PPIDs), user information, CPU usage, start time, and the complete command that started each process. This makes it one of the most comprehensive tools for finding PIDs.",
+            "summary": "The ps -ef command lists all running processes in full format, displaying comprehensive process information including PIDs, parent PIDs, CPU usage, start times, and command names. This is one of the most commonly used commands for retrieving process IDs and is typically combined with grep to filter for specific processes.",
             "keyPoints": [
-              "The -e option shows every process on the entire system, not just the current terminal",
-              "The -f option provides full-format listing with detailed columns of information",
-              "Displays UID, PID, PPID, C (CPU utilization), STIME (start time), TTY, TIME, and CMD",
-              "Output can be piped to grep to filter for specific processes",
-              "Shows complete command-line arguments used to start each process",
-              "Works consistently across all Unix-like systems",
-              "Standard syntax recognized by system administrators worldwide"
+              "Lists all processes running on the system",
+              "The -e flag shows every process for all users",
+              "The -f flag provides full-format listing with detailed information",
+              "Displays PID (Process ID) in the second column",
+              "Shows PPID (Parent Process ID), user, CPU time, and command",
+              "Often piped with grep to find specific processes",
+              "Standard output can be searched and filtered easily"
             ],
             "examples": [
-              "ps -ef shows all processes: UID PID PPID C STIME TTY TIME CMD",
-              "ps -ef | grep firefox finds all Firefox-related processes with their PIDs",
-              "ps -ef | grep apache2 locates web server processes",
-              "ps -ef | awk '{print $2, $8}' extracts only PID and command name"
+              "'ps -ef' shows all processes with full details",
+              "'ps -ef | grep nginx' finds all nginx-related processes",
+              "'ps -ef | grep 1234' locates process with PID 1234",
+              "'ps -ef | grep java' shows all Java application processes",
+              "Output format: UID PID PPID C STIME TTY TIME CMD"
             ],
-            "additionalInfo": "The ps -ef command provides a comprehensive snapshot of all system processes. The output columns include: UID (user ID of process owner), PID (unique process identifier), PPID (parent process ID showing which process spawned this one), C (CPU utilization), STIME (process start time), TTY (controlling terminal, or ? for daemons), TIME (cumulative CPU time consumed), and CMD (complete command with arguments). System administrators typically combine ps -ef with grep to filter results, like 'ps -ef | grep mysql' to find database processes. The -e and -f flags follow System V Unix syntax, making this command portable across different Unix systems. An alternative BSD-style syntax 'ps aux' provides similar information with slightly different formatting.",
+            "additionalInfo": "The ps -ef command is the Unix/Linux standard for viewing process information and is one of the first commands system administrators learn for process management. The -e option (every) shows all processes, not just those owned by the current user, and the -f option (full format) provides detailed information in a column-based display. The output includes eight columns: UID (user ID), PID (process ID), PPID (parent process ID), C (CPU utilization), STIME (start time), TTY (terminal), TIME (cumulative CPU time), and CMD (command). The PID column is what you need for the kill command. In practice, ps -ef is almost always used with grep to filter results, making it easy to find specific processes: 'ps -ef | grep processname'. This combination is so common that many administrators create aliases for it. Alternative forms include 'ps aux' (BSD style), which provides similar information but with slightly different column arrangements.",
             "learnMore": [
-              {
-                "title": "Linux Journey - ps Command Guide",
-                "url": "https://labex.io/lesson/monitor-processes-ps-command"
-              },
-              {
-                "title": "linuxvox - Mastering the ps -ef Command",
-                "url": "https://linuxvox.com/blog/ps-ef-linux/"
-              },
-              {
-                "title": "Linux Genie - ps -ef Command Explained",
-                "url": "https://linuxgenie.net/ps-ef-command-in-linux-explained/"
-              },
               {
                 "title": "GeeksforGeeks - ps Command in Linux",
                 "url": "https://www.geeksforgeeks.org/ps-command-in-linux-with-examples/"
+              },
+              {
+                "title": "Linuxize - ps Command Tutorial",
+                "url": "https://linuxize.com/post/ps-command-in-linux/"
+              },
+              {
+                "title": "PhoenixNAP - ps Command Guide",
+                "url": "https://phoenixnap.com/kb/ps-linux-command"
+              },
+              {
+                "title": "nixCraft - Find Process ID",
+                "url": "https://www.cyberciti.biz/faq/linux-find-process-id-pid/"
               }
             ]
           }
@@ -68,16 +69,17 @@
           "text": "jobs <process_name>",
           "isCorrect": false,
           "explanation": {
-            "summary": "The jobs command lists background and suspended processes started from the current shell session only, not all system processes.",
-            "why": "jobs is a shell built-in that only shows processes managed by the current shell (jobs sent to background with & or suspended with Ctrl+Z). It doesn't accept a process name as an argument and cannot search for arbitrary processes. For finding PIDs of any process, use ps -ef or pidof instead.",
+            "summary": "The jobs command lists background jobs started in the current shell session, but it doesn't accept a process name as an argument and doesn't show PIDs by default.",
+            "why": "jobs is a shell builtin that only shows jobs started from your current terminal session and placed in the background. It doesn't search for processes by name, doesn't show system-wide processes, and by default displays job numbers (not PIDs). While you can get PIDs with 'jobs -l', this is limited to current shell jobs only. For finding any process by name, use ps or pidof.",
             "examples": [
-              "jobs shows: [1]+ Running sleep 100 &",
-              "jobs lists only your shell's background jobs, not system-wide processes"
+              "'jobs' lists background jobs: [1]+ Running sleep 100 &",
+              "'jobs -l' shows PIDs: [1]+ 12345 Running sleep 100 &",
+              "Only works for processes started in current terminal session"
             ],
             "learnMore": [
               {
-                "title": "Linux Manual - jobs Command",
-                "url": "https://man7.org/linux/man-pages/man1/jobs.1p.html"
+                "title": "Linuxize - jobs Command",
+                "url": "https://linuxize.com/post/jobs-command-in-linux/"
               }
             ]
           }
@@ -87,12 +89,17 @@
           "text": "ps <process_name>",
           "isCorrect": false,
           "explanation": {
-            "summary": "This is invalid syntax. The ps command does not accept process names as direct arguments without specific options.",
-            "why": "Without options, ps only shows processes associated with the current terminal. To search by process name, you need ps -ef | grep <process_name> or use specialized commands like pidof or pgrep. The bare ps command with just a name doesn't work.",
+            "summary": "This syntax is incorrect. The ps command doesn't accept process names directly as arguments. You need to use options like -ef and pipe to grep to filter by process name.",
+            "why": "The ps command requires specific flags to control what processes are displayed and how. Simply typing 'ps processname' will result in an error or unexpected behavior because ps interprets arguments as PIDs or specific options, not process names. The correct approach is 'ps -ef | grep processname' or use 'pidof processname' to search by name.",
+            "examples": [
+              "Wrong: 'ps nginx' - doesn't work as expected",
+              "Correct: 'ps -ef | grep nginx' - filters by process name",
+              "Alternative: 'pidof nginx' - directly returns PID"
+            ],
             "learnMore": [
               {
-                "title": "George Ornbo - ps Command Tutorial",
-                "url": "https://shapeshed.com/unix-ps/"
+                "title": "TecMint - ps Command Examples",
+                "url": "https://www.tecmint.com/ps-command-examples-for-linux-process-monitoring/"
               }
             ]
           }
@@ -101,7 +108,7 @@
     },
     {
       "id": 2,
-      "question": "Which commands list the process IDs (PIDs) for the running processes on a Linux host? (Select TWO.)",
+      "question": "Which commands list the process IDs (PIDs) for the running processes on a Linux host? (Select TWO)",
       "multiSelect": true,
       "options": [
         {
@@ -109,12 +116,12 @@
           "text": "echo",
           "isCorrect": false,
           "explanation": {
-            "summary": "echo is a command for displaying text or variables, not for listing process information.",
-            "why": "echo simply prints its arguments to standard output. It has no capability to query the operating system for process information. To list PIDs, you need process management commands like ps or pidof.",
+            "summary": "The echo command outputs text or variables to the terminal. It has no functionality for listing processes or retrieving PIDs.",
+            "why": "echo is purely an output command used to display strings, variables, or command results. It doesn't interact with the process table, query system information, or access process management functions. Process information requires specialized commands like ps, pidof, top, or pgrep.",
             "learnMore": [
               {
-                "title": "TutorialsPoint - Echo Command",
-                "url": "https://www.tutorialspoint.com/unix_commands/echo.htm"
+                "title": "Linux Manual - echo Command",
+                "url": "https://man7.org/linux/man-pages/man1/echo.1.html"
               }
             ]
           }
@@ -124,11 +131,11 @@
           "text": "crontab",
           "isCorrect": false,
           "explanation": {
-            "summary": "crontab is used for scheduling recurring tasks, not for listing running processes.",
-            "why": "crontab manages the cron table of scheduled jobs. It allows you to schedule commands to run periodically but provides no information about currently running processes or their PIDs.",
+            "summary": "The crontab command manages scheduled tasks (cron jobs) for users. It does not list currently running processes or their PIDs.",
+            "why": "crontab is a scheduling utility that allows users to create, edit, list, and remove scheduled tasks that run at specific times or intervals. While cron jobs may create processes when they execute, the crontab command itself is for managing the schedule, not for viewing running processes. Use ps, pidof, or top for process management.",
             "learnMore": [
               {
-                "title": "Linuxize - Scheduling Cron Jobs with Crontab",
+                "title": "Linuxize - Crontab Command",
                 "url": "https://linuxize.com/post/scheduling-cron-jobs-with-crontab/"
               }
             ]
@@ -139,40 +146,40 @@
           "text": "ps",
           "isCorrect": true,
           "explanation": {
-            "summary": "The ps (process status) command displays information about active processes, including their PIDs. It's one of the most fundamental and versatile tools for process management in Linux, providing snapshots of current processes with various levels of detail depending on the options used.",
+            "summary": "The ps (process status) command is the primary tool for displaying information about active processes, including their PIDs. It can show processes for the current user, all users, with various levels of detail, and supports extensive filtering and formatting options.",
             "keyPoints": [
-              "Shows processes and their PIDs in various formats depending on options",
-              "ps without options shows processes in current terminal session",
-              "ps -e or ps -A lists all processes system-wide",
-              "ps -ef provides full-format listing with detailed information",
-              "ps aux uses BSD-style syntax for similar comprehensive output",
-              "Can be combined with grep to filter for specific processes",
-              "Supports extensive formatting options for custom output"
+              "Standard command for viewing process information",
+              "Shows PID, user, CPU usage, memory usage, and command",
+              "Supports both Unix (-ef) and BSD (aux) syntax styles",
+              "Can filter by user, terminal, process state",
+              "Default 'ps' shows processes for current user in current terminal",
+              "'ps -e' or 'ps -A' shows all processes",
+              "'ps aux' provides detailed information in BSD format"
             ],
             "examples": [
-              "ps shows basic process list: PID TTY TIME CMD",
-              "ps -e lists all running processes with PIDs",
-              "ps -ef | grep nginx finds nginx processes with full details",
-              "ps aux shows all processes with CPU and memory usage",
-              "ps -p 1234 displays information for PID 1234 specifically"
+              "'ps' shows processes in current terminal",
+              "'ps -ef' lists all processes in full format",
+              "'ps aux' shows all processes with resource usage",
+              "'ps -u username' shows processes for specific user",
+              "'ps -p 1234' shows details for process ID 1234"
             ],
-            "additionalInfo": "ps is derived from 'process status' and has been a Unix command since the early days. It supports three different syntax styles: Unix (with dashes), BSD (without dashes), and GNU (with double dashes). The command reads process information from the /proc filesystem. Common uses include 'ps -ef' (System V style), 'ps aux' (BSD style), and 'ps -ely' for long listings. You can customize output with -o option: 'ps -eo pid,user,cmd' shows only PID, user, and command. The ps command provides a snapshot at a single moment, unlike top which continuously updates. For scripting, ps is preferred because its output format is stable and predictable.",
+            "additionalInfo": "The ps command has a long history in Unix and Linux systems, originating from the earliest Unix versions. It supports multiple syntax styles: Unix (using dash: -e, -f), BSD (no dash: aux), and GNU (double dash: --forest). The most common usage patterns are 'ps -ef' (Unix style showing all processes in full format) and 'ps aux' (BSD style showing all processes with resource usage). The output format varies by options but typically includes PID, TTY (controlling terminal), TIME (CPU time), and CMD (command). Advanced users combine ps with sort, grep, awk, or head to filter and process the output. Modern alternatives include top (interactive), htop (enhanced interactive), and pgrep (search by name), but ps remains the standard for scriptable, non-interactive process listing.",
             "learnMore": [
               {
-                "title": "Linux Manual - ps Command",
-                "url": "https://man7.org/linux/man-pages/man1/ps.1.html"
-              },
-              {
-                "title": "GeeksforGeeks - ps Command Examples",
+                "title": "GeeksforGeeks - ps Command with Examples",
                 "url": "https://www.geeksforgeeks.org/ps-command-in-linux-with-examples/"
               },
               {
-                "title": "TutorialsPoint - Unix ps Command",
-                "url": "https://www.tutorialspoint.com/unix_commands/ps.htm"
+                "title": "Linuxize - ps Command Guide",
+                "url": "https://linuxize.com/post/ps-command-in-linux/"
               },
               {
-                "title": "nixCraft - Linux ps Command Examples",
-                "url": "https://www.cyberciti.biz/faq/show-all-running-processes-in-linux/"
+                "title": "TecMint - ps Command for Process Monitoring",
+                "url": "https://www.tecmint.com/ps-command-examples-for-linux-process-monitoring/"
+              },
+              {
+                "title": "How-To Geek - Using ps Command",
+                "url": "https://www.howtogeek.com/107217/how-to-manage-processes-from-the-linux-terminal-10-commands-you-need-to-know/"
               }
             ]
           }
@@ -182,12 +189,12 @@
           "text": "ls",
           "isCorrect": false,
           "explanation": {
-            "summary": "ls lists files and directories in the filesystem, not running processes.",
-            "why": "ls is a file system command that displays directory contents. While it can list the /proc directory where process information is stored, it doesn't provide readable process information like PIDs. For process listing, use ps or pidof.",
+            "summary": "The ls command lists files and directories in the filesystem. It has no functionality for process management or displaying PIDs.",
+            "why": "ls is a file system navigation command that shows directory contents. While you can use 'ls /proc' to see numbered directories representing PIDs (since Linux exposes process information through the /proc filesystem), this is not a practical way to list processes and their details. Use proper process management commands like ps or pidof instead.",
             "learnMore": [
               {
                 "title": "GeeksforGeeks - ls Command",
-                "url": "https://www.geeksforgeeks.org/linux-unix/practical-guide-to-linux-ls-command/"
+                "url": "https://www.geeksforgeeks.org/ls-command-in-linux/"
               }
             ]
           }
@@ -197,40 +204,40 @@
           "text": "pidof",
           "isCorrect": true,
           "explanation": {
-            "summary": "The pidof command finds the process ID(s) of running programs by name, providing a quick and direct way to locate PIDs without parsing through full process listings. It's particularly useful in scripts and when you need just the PID numbers without additional process information.",
+            "summary": "The pidof command finds the process ID(s) of running programs by name. It's a quick and direct way to get PIDs without parsing through ps output, making it ideal when you know the program name and just need its PID.",
             "keyPoints": [
-              "Returns only the PID numbers, nothing else",
-              "Accepts program names as arguments",
-              "Can return multiple PIDs if a program has multiple instances running",
-              "The -s option returns only the first (single) PID found",
-              "The -x option allows finding PIDs of shell scripts",
-              "Returns nothing if the specified program is not running",
-              "Exit code 0 if at least one PID found, 1 otherwise"
+              "Returns PID(s) of specified program by name",
+              "Searches for exact program name matches",
+              "Returns multiple PIDs if program has multiple instances",
+              "Output is just PID numbers, nothing else",
+              "Faster than ps for simple PID lookups",
+              "Case-sensitive program name matching",
+              "Returns nothing if program is not running"
             ],
             "examples": [
-              "pidof firefox returns: 1234 5678 (if multiple Firefox processes exist)",
-              "pidof -s nginx returns only one PID: 4321",
-              "pidof sshd shows all SSH daemon process IDs",
-              "pidof apache2 finds all Apache web server PIDs",
-              "kill $(pidof unresponsive_app) terminates all instances at once"
+              "'pidof sshd' returns: 1234 (or multiple PIDs if several instances)",
+              "'pidof nginx' finds all nginx process IDs",
+              "'pidof apache2' locates Apache web server PIDs",
+              "'pidof -s firefox' returns only the first found PID",
+              "'kill $(pidof processname)' combines with kill command"
             ],
-            "additionalInfo": "pidof is specifically designed for quickly obtaining PIDs by program name, making it ideal for scripting. Unlike ps which requires parsing output with grep and awk, pidof returns clean PID values ready for use. The command is actually a symbolic link to killall5 on many systems, but behaves differently based on how it's called. pidof only works with executable names, not with command-line arguments. For more flexible pattern matching, consider using pgrep instead. The -o option allows omitting specific PIDs from results, useful when you want to exclude your own shell or specific processes. When multiple instances exist, pidof lists them from newest to oldest by default.",
+            "additionalInfo": "The pidof command is essentially a simplified wrapper that searches for process IDs by program name, saving you from having to pipe ps output through grep and awk. It's particularly useful in shell scripts where you need to quickly check if a program is running and get its PID for further operations. The command searches through the process table for programs whose name matches the argument exactly. If multiple instances of the program are running, pidof returns all their PIDs separated by spaces. Common use cases include checking service status, automated process management in scripts, and preparing to send signals to processes. The -s option returns only the first PID found, useful when you know only one instance should be running. The -x option also checks scripts, making it find PIDs of shell scripts by script name. While pidof is convenient, remember it only works with program names, not with command arguments or partial matches.",
             "learnMore": [
               {
-                "title": "nixCraft - pidof Command Examples",
+                "title": "GeeksforGeeks - pidof Command",
+                "url": "https://www.geeksforgeeks.org/pidof-command-in-linux-with-examples/"
+              },
+              {
+                "title": "Linuxize - pidof Command Tutorial",
+                "url": "https://linuxize.com/post/pidof-command-in-linux/"
+              },
+              {
+                "title": "nixCraft - Find PID of Running Program",
                 "url": "https://www.cyberciti.biz/faq/linux-pidof-command-examples-find-pid-of-program/"
               },
               {
-                "title": "How-To Geek - Find PID with pidof or pgrep",
-                "url": "https://www.howtogeek.com/846713/find-pid-of-process-linux/"
-              },
-              {
-                "title": "GeeksforGeeks - pidof Command in Linux",
-                "url": "https://www.geeksforgeeks.org/linux-unix/pidof-command-in-linux-with-examples/"
-              },
-              {
-                "title": "Linuxize - pidof Command in Linux",
-                "url": "https://linuxize.com/post/pidof-command-in-linux/"
+                "title": "TecAdmin - pidof Command Examples",
+                "url": "https://tecadmin.net/how-to-find-process-id-of-a-program-in-linux/"
               }
             ]
           }
@@ -239,7 +246,7 @@
     },
     {
       "id": 3,
-      "question": "A systems administrator wants to schedule some tasks so that they run automatically. Which commands enable the administrator to schedule automatic tasks? (Select TWO.)",
+      "question": "A systems administrator wants to schedule some tasks so that they run automatically. Which commands enable the administrator to schedule automatic tasks? (Select TWO)",
       "multiSelect": true,
       "options": [
         {
@@ -247,40 +254,40 @@
           "text": "at",
           "isCorrect": true,
           "explanation": {
-            "summary": "The at command schedules one-time tasks to be executed at a specific time in the future. Unlike cron which handles recurring tasks, at is designed for commands or scripts that need to run once at a designated time, making it perfect for temporary or ad-hoc automation needs.",
+            "summary": "The at command schedules one-time tasks to run at a specific time in the future. Unlike cron which handles recurring tasks, at is designed for single execution at a designated time, making it ideal for non-repeating maintenance tasks, reminders, or delayed operations.",
             "keyPoints": [
-              "Schedules one-time jobs for future execution",
-              "Accepts intuitive time formats like 'now + 2 hours', '3:30 PM tomorrow', 'midnight'",
-              "Uses atd (at daemon) running in background to execute scheduled jobs",
-              "Provides interactive prompt for entering commands to execute",
-              "Can also accept commands via standard input or from a file with -f option",
-              "Jobs persist across system reboots",
-              "Use atq to list pending jobs and atrm to remove jobs"
+              "Schedules commands to run once at a specific future time",
+              "Accepts various time formats: 'now + 1 hour', '2:30 PM', 'tomorrow'",
+              "Interactive input mode for entering commands to execute",
+              "Jobs stored in /var/spool/at/ until execution time",
+              "Commands run with user's environment and permissions",
+              "atq lists scheduled at jobs",
+              "atrm removes pending at jobs before they run"
             ],
             "examples": [
-              "at 10:30 PM schedules a job for 10:30 PM today (or tomorrow if time passed)",
-              "echo 'backup.sh' | at now + 1 hour runs backup in 1 hour",
-              "at -f script.sh 3:00 AM tomorrow executes script tomorrow at 3 AM",
-              "at midnight << EOF then enter commands, useful for system maintenance",
-              "atq shows: 5 Wed Dec 25 03:00:00 2025 a username"
+              "'at 10:30 PM' schedules task for 10:30 PM today",
+              "'at now + 2 hours' runs task in 2 hours",
+              "'at 4:00 AM tomorrow' schedules for tomorrow morning",
+              "'echo \"backup.sh\" | at midnight' schedules backup at midnight",
+              "'atq' shows: 5 Thu Dec 24 10:00:00 2025 a user"
             ],
-            "additionalInfo": "The at command provides flexible scheduling for one-off tasks like running maintenance scripts during off-hours, scheduling system shutdowns, or executing reports at specific times. Time specifications are highly flexible: 'noon', 'teatime' (4 PM), 'now + 30 minutes', 'midnight', '10:00 AM Dec 25', or '2:30 PM next Friday' all work. The atd daemon must be running for jobs to execute. Jobs are stored in /var/spool/at/ and execute with the same environment as when scheduled. Email notifications are sent when jobs complete (if mail is configured). For security, /etc/at.allow and /etc/at.deny control who can use at. Unlike cron's recurring nature, at excels at temporary automation: scheduling a one-time backup, rebooting a server after maintenance, or running cleanup scripts.",
+            "additionalInfo": "The at command provides a simple interface for scheduling one-time tasks, filling the gap between immediate command execution and recurring cron jobs. When you run at with a time specification, it enters interactive mode where you type the commands you want to execute, press Ctrl+D when finished. The specified commands are stored in a queue file and executed by the atd (at daemon) at the scheduled time. The commands run in the user's login environment, so environment variables and paths from the scheduling user are preserved. This makes at particularly useful for tasks like: shutting down a server at a specific time, running a backup job once, sending reminder emails, scheduling system maintenance tasks, or executing commands after a specific event. The at command accepts flexible time specifications including absolute times (10:30 PM), relative times (now + 30 minutes), special keywords (midnight, noon, tomorrow), and even dates (10:00 AM Dec 25). Use atq to list pending jobs and atrm to remove jobs before they execute.",
             "learnMore": [
               {
-                "title": "TecAdmin - One-Time Task Scheduling Using at",
-                "url": "https://tecadmin.net/one-time-task-scheduling-using-at-commad-in-linux/"
+                "title": "Linuxize - Schedule Tasks with at Command",
+                "url": "https://linuxize.com/post/at-command-in-linux/"
               },
               {
-                "title": "Opensource.com - Schedule Tasks with at Command",
-                "url": "https://opensource.com/article/21/8/linux-at-command"
+                "title": "GeeksforGeeks - at Command",
+                "url": "https://www.geeksforgeeks.org/at-command-in-linux-with-examples/"
               },
               {
-                "title": "Phoenix NAP - Linux at Command Guide",
+                "title": "PhoenixNAP - at Command Tutorial",
                 "url": "https://phoenixnap.com/kb/linux-at-command"
               },
               {
-                "title": "GeeksforGeeks - Scheduling Tasks Using at",
-                "url": "https://www.geeksforgeeks.org/linux-unix/how-to-schedule-tasks-using-at-command-in-linux/"
+                "title": "How-To Geek - Schedule One-Time Tasks",
+                "url": "https://www.howtogeek.com/451386/how-to-use-at-and-batch-on-linux-to-launch-processes/"
               }
             ]
           }
@@ -290,12 +297,12 @@
           "text": "ps",
           "isCorrect": false,
           "explanation": {
-            "summary": "ps displays information about currently running processes but does not schedule tasks.",
-            "why": "ps is a process monitoring command, not a scheduling command. It shows process status information at a moment in time but has no capability to schedule future execution of tasks. For task scheduling, use at or crontab.",
+            "summary": "The ps command displays information about currently running processes. It does not schedule tasks or have any scheduling functionality.",
+            "why": "ps is a process viewing command, not a task scheduler. It shows you what's currently executing, but it cannot schedule future tasks or automate recurring operations. For task scheduling, you need cron (recurring tasks) or at (one-time tasks).",
             "learnMore": [
               {
-                "title": "GeeksforGeeks - Difference Between Cron and Scheduling",
-                "url": "https://www.geeksforgeeks.org/linux-unix/crontab-in-linux-with-examples/"
+                "title": "GeeksforGeeks - ps Command",
+                "url": "https://www.geeksforgeeks.org/ps-command-in-linux-with-examples/"
               }
             ]
           }
@@ -305,12 +312,12 @@
           "text": "jobs",
           "isCorrect": false,
           "explanation": {
-            "summary": "jobs lists background and suspended processes in the current shell session but doesn't schedule tasks for future execution.",
-            "why": "jobs is a shell built-in for managing background processes already running in your shell. It shows job numbers and statuses but cannot schedule tasks to run at future times. For scheduling, use at or crontab.",
+            "summary": "The jobs command lists background jobs in the current shell session. It does not schedule tasks to run at future times or automate task execution.",
+            "why": "jobs is a shell builtin for managing processes started in the current terminal session and placed in the background with & or Ctrl+Z. It shows job status but has no scheduling capabilities. Jobs listed by jobs command run immediately when started, not at scheduled times. For automatic scheduling, use cron or at.",
             "learnMore": [
               {
-                "title": "Baeldung - Job Control in Linux",
-                "url": "https://www.baeldung.com/linux/job-control-disown-nohup"
+                "title": "Linuxize - jobs Command",
+                "url": "https://linuxize.com/post/jobs-command-in-linux/"
               }
             ]
           }
@@ -320,40 +327,40 @@
           "text": "crontab",
           "isCorrect": true,
           "explanation": {
-            "summary": "The crontab command manages the cron table file, which schedules recurring tasks to run automatically at specified intervals. It's the standard tool for automating repetitive system administration tasks like backups, updates, log rotation, and monitoring, with support for schedules ranging from every minute to once a year.",
+            "summary": "The crontab command manages cron jobs, which are recurring tasks scheduled to run automatically at specified intervals. System administrators use crontab to create, edit, list, and remove scheduled tasks that execute periodically based on a time pattern defined using cron syntax.",
             "keyPoints": [
-              "Schedules recurring tasks using five time fields: minute, hour, day, month, weekday",
-              "crontab -e opens the editor to create or modify scheduled jobs",
-              "crontab -l lists all scheduled cron jobs for the current user",
-              "crontab -r removes all cron jobs for the current user",
-              "Each user has their own crontab file managed independently",
-              "Supports special time strings: @reboot, @daily, @weekly, @monthly, @yearly",
-              "Jobs execute with the user's permissions who created them"
+              "Manages recurring scheduled tasks (cron jobs)",
+              "Each user has their own crontab file",
+              "Uses cron syntax: minute hour day month weekday command",
+              "Tasks run automatically without manual intervention",
+              "Ideal for regular maintenance, backups, reports, monitoring",
+              "'crontab -e' edits user's crontab",
+              "'crontab -l' lists current cron jobs"
             ],
             "examples": [
-              "0 2 * * * /backup.sh runs backup daily at 2:00 AM",
-              "*/15 * * * * /monitor.sh runs every 15 minutes",
-              "0 0 * * 0 /cleanup.sh runs weekly at midnight on Sundays",
-              "@daily /update-db.sh runs once per day at midnight",
-              "30 14 1 * * /report.sh runs at 2:30 PM on the 1st of each month"
+              "'crontab -e' opens editor to add/modify cron jobs",
+              "'0 2 * * * /backup.sh' runs backup daily at 2:00 AM",
+              "'*/15 * * * * /check.sh' runs every 15 minutes",
+              "'0 0 * * 0 /weekly.sh' runs weekly on Sunday at midnight",
+              "'crontab -l' displays all scheduled cron jobs"
             ],
-            "additionalInfo": "Crontab syntax uses five time fields: minute (0-59), hour (0-23), day of month (1-31), month (1-12), and day of week (0-7, where 0 and 7 are Sunday). Each field accepts specific values, ranges (1-5), lists (1,3,5), steps (*/10), or asterisk (*) for all values. The cron daemon (crond) runs continuously, checking crontab files every minute. System-wide crontabs exist in /etc/crontab and /etc/cron.d/ requiring an additional username field. User crontabs are stored in /var/spool/cron/. Common uses include: database backups (@daily), log rotation (@weekly), system updates (@monthly), and monitoring scripts (*/5 * * * * for every 5 minutes). Cron jobs run in a minimal environment, so always use full paths to commands and set environment variables explicitly if needed.",
+            "additionalInfo": "The crontab command is the user interface to the cron daemon, which is responsible for executing scheduled tasks. Each user on the system can have their own crontab file containing their scheduled jobs. The cron syntax consists of five time fields (minute, hour, day of month, month, day of week) followed by the command to execute. Special characters include: * (any value), , (value list), - (range), / (step values). For example, '0 2 * * *' means 'at 2:00 AM every day', while '*/30 * * * *' means 'every 30 minutes'. Common administrative tasks automated with cron include: system backups, log rotation, database maintenance, sending reports, checking disk space, monitoring services, updating virus definitions, and clearing temporary files. System-wide cron jobs can be placed in /etc/crontab or /etc/cron.d/ for root-level scheduled tasks. The crond service must be running for cron jobs to execute, and users must have proper permissions to use crontab (controlled by /etc/cron.allow and /etc/cron.deny files).",
             "learnMore": [
               {
-                "title": "GeeksforGeeks - Crontab in Linux with Examples",
-                "url": "https://www.geeksforgeeks.org/linux-unix/crontab-in-linux-with-examples/"
-              },
-              {
-                "title": "Linuxize - Scheduling Cron Jobs with Crontab",
+                "title": "Linuxize - Crontab Command Tutorial",
                 "url": "https://linuxize.com/post/scheduling-cron-jobs-with-crontab/"
               },
               {
-                "title": "Phoenix NAP - How to Set Up a Cron Job",
-                "url": "https://phoenixnap.com/kb/set-up-cron-job-linux"
+                "title": "Crontab Guru - Cron Schedule Expression Editor",
+                "url": "https://crontab.guru/"
               },
               {
-                "title": "TecAdmin - Crontab in Linux with 20 Examples",
-                "url": "https://tecadmin.net/crontab-in-linux-with-20-examples-of-cron-schedule/"
+                "title": "GeeksforGeeks - crontab Command",
+                "url": "https://www.geeksforgeeks.org/crontab-in-linux-with-examples/"
+              },
+              {
+                "title": "nixCraft - How to Use cron",
+                "url": "https://www.cyberciti.biz/faq/how-do-i-add-jobs-to-cron-under-linux-or-unix-oses/"
               }
             ]
           }
@@ -363,11 +370,16 @@
           "text": "time",
           "isCorrect": false,
           "explanation": {
-            "summary": "time measures how long a command takes to execute but does not schedule tasks.",
-            "why": "time is a utility that runs a command and reports resource usage statistics (real time, user CPU time, system CPU time). It's for performance measurement, not task scheduling. To schedule tasks, use at or crontab.",
+            "summary": "The time command measures how long a command takes to execute, displaying resource usage statistics. It does not schedule tasks or provide automation capabilities.",
+            "why": "time is a performance measurement tool that runs a command and reports execution duration, CPU usage, and system resource consumption. It's for profiling and benchmarking, not for scheduling future or recurring tasks. Use cron or at for task scheduling.",
+            "examples": [
+              "'time ls -R /' measures how long directory listing takes",
+              "'time ./script.sh' shows execution time for a script",
+              "Output: real 0m2.003s, user 0m0.002s, sys 0m0.004s"
+            ],
             "learnMore": [
               {
-                "title": "GeeksforGeeks - time Command in Linux",
+                "title": "GeeksforGeeks - time Command",
                 "url": "https://www.geeksforgeeks.org/time-command-linux-examples/"
               }
             ]
@@ -384,11 +396,11 @@
           "text": "-31 SIGSYS",
           "isCorrect": false,
           "explanation": {
-            "summary": "SIGSYS (signal 31) is sent when a process attempts to execute a bad system call, not for intentionally terminating processes.",
-            "why": "SIGSYS is triggered by the kernel when a process makes an invalid or unimplemented system call. It's a fault signal rather than a termination signal. It's not used for stopping processes; SIGKILL (-9) is the forceful termination signal.",
+            "summary": "SIGSYS (signal 31) is sent to processes that make invalid system calls. It's not used for intentionally terminating processes.",
+            "why": "SIGSYS is an error signal triggered when a process attempts to execute a bad or non-existent system call. It's generated automatically by the kernel, not typically sent manually by administrators. This signal indicates a programming error rather than serving as a process termination tool. For immediate process termination, use SIGKILL (-9).",
             "learnMore": [
               {
-                "title": "Linux Manual - signal man page",
+                "title": "Linux Manual - Signal",
                 "url": "https://man7.org/linux/man-pages/man7/signal.7.html"
               }
             ]
@@ -399,39 +411,40 @@
           "text": "-9 SIGKILL",
           "isCorrect": true,
           "explanation": {
-            "summary": "SIGKILL (signal 9) immediately and unconditionally terminates a process without allowing it any opportunity to clean up, save state, or perform shutdown procedures. It's the most powerful and forceful way to stop a process, bypassing all normal termination mechanisms.",
+            "summary": "SIGKILL (signal 9) forcefully and immediately terminates a process without allowing it to perform cleanup operations, close files, or execute shutdown procedures. This signal cannot be caught, blocked, or ignored by the process, making it the most powerful and dangerous termination signal.",
             "keyPoints": [
+              "Immediately terminates the process without cleanup",
               "Cannot be caught, blocked, or ignored by the process",
-              "Terminates the process instantly without any cleanup",
-              "No chance to close files, flush buffers, or save state",
-              "Should be used only as a last resort when other signals fail",
-              "Sent with 'kill -9 PID' or 'kill -SIGKILL PID'",
-              "May cause data loss or leave resources in inconsistent state",
-              "Guaranteed to work on any process (except kernel processes)"
+              "No opportunity for graceful shutdown or resource cleanup",
+              "Files may be left open, locks may remain held",
+              "Data corruption possible if process was writing data",
+              "Should be last resort after SIGTERM (-15) fails",
+              "Leaves parent process to clean up zombie children"
             ],
             "examples": [
-              "kill -9 1234 forcefully terminates process with PID 1234",
-              "kill -SIGKILL 5678 is equivalent to kill -9 5678",
-              "pkill -9 firefox kills all Firefox processes immediately",
-              "killall -9 apache2 terminates all Apache processes without cleanup"
+              "'kill -9 1234' immediately kills process 1234",
+              "'kill -KILL 5678' same effect using signal name",
+              "'killall -9 nginx' force-kills all nginx processes",
+              "'pkill -9 java' kills all processes matching 'java'",
+              "Use after 'kill -15' if process doesn't respond"
             ],
-            "additionalInfo": "SIGKILL is special because it's handled directly by the kernel, not by the process itself. When a process receives SIGKILL, the kernel immediately terminates it without giving it a chance to execute any code. This means open files may not be properly closed, temporary files may not be deleted, and databases may be left in inconsistent states. Always try SIGTERM (signal 15) first, which allows graceful shutdown. Use SIGKILL only when: a process is unresponsive to SIGTERM, the process is frozen or stuck, immediate termination is required for security reasons, or debugging requires preserving process state. Some processes in special states (uninterruptible sleep, zombie) cannot be killed even with SIGKILL. The command 'kill -l' lists all signals, where you'll see SIGKILL as signal number 9.",
+            "additionalInfo": "SIGKILL is the nuclear option of process termination. Unlike SIGTERM which politely asks a process to terminate and allows it to run cleanup code, SIGKILL gives the kernel immediate instruction to terminate the process with no negotiation. The process cannot intercept this signal through signal handlers, cannot block it, and cannot ignore it. The kernel simply removes the process from its scheduling queue and reclaims its resources. This immediate termination has consequences: files being written may be incompletely written or corrupted, database transactions may be left in inconsistent states, network connections are abruptly closed without proper shutdown handshakes, locks and semaphores remain held until the kernel releases them, temporary files may be left behind, and child processes may become orphaned. Best practice is always try SIGTERM first ('kill -15 PID'), wait 10-30 seconds, and only use SIGKILL if the process doesn't respond. SIGKILL should be reserved for truly unresponsive processes, runaway processes consuming excessive resources, or processes stuck in uninterruptible states.",
             "learnMore": [
               {
-                "title": "Komodor - What is SIGKILL Signal 9",
-                "url": "https://komodor.com/learn/what-is-sigkill-signal-9-fast-termination-of-linux-containers/"
+                "title": "Linuxize - How to Kill a Process",
+                "url": "https://linuxize.com/post/how-to-kill-a-process-in-linux/"
               },
               {
-                "title": "linuxvox - Understanding Signal 9 in Linux",
-                "url": "https://linuxvox.com/blog/signal-9-linux/"
+                "title": "nixCraft - Linux Kill Command",
+                "url": "https://www.cyberciti.biz/faq/how-force-kill-process-linux/"
               },
               {
-                "title": "Warp - Linux Kill Command Guide",
-                "url": "https://www.warp.dev/terminus/kill-command"
+                "title": "GeeksforGeeks - kill Command with Examples",
+                "url": "https://www.geeksforgeeks.org/kill-command-in-linux-with-examples/"
               },
               {
-                "title": "Liquid Web - How to Use Kill Commands in Linux",
-                "url": "https://www.liquidweb.com/blog/linux-kill-commands/"
+                "title": "How-To Geek - Linux Signals Explained",
+                "url": "https://www.howtogeek.com/814077/linux-kill-signals/"
               }
             ]
           }
@@ -441,16 +454,17 @@
           "text": "-15 SIGTERM",
           "isCorrect": false,
           "explanation": {
-            "summary": "SIGTERM (signal 15) is the default and polite termination signal that allows processes to shut down gracefully.",
-            "why": "SIGTERM asks a process to terminate but gives it time to clean up: close files, save state, free resources, and perform proper shutdown procedures. The process can catch this signal and decide how to respond. This is the opposite of immediate forceful termination. Use SIGKILL (-9) for immediate termination without cleanup.",
+            "summary": "SIGTERM (signal 15) is the default termination signal that allows graceful shutdown. Processes can catch this signal and perform cleanup before exiting.",
+            "why": "SIGTERM is the polite way to terminate a process. It requests termination but gives the process a chance to run cleanup code, close files properly, save state, release resources, and shut down gracefully. This is the default signal sent by the kill command when no signal number is specified. Because processes can handle SIGTERM, it may not immediately stop a process - the process must cooperate. For immediate forceful termination, use SIGKILL (-9).",
             "examples": [
-              "kill 1234 sends SIGTERM (default signal)",
-              "kill -15 5678 explicitly sends SIGTERM for graceful shutdown"
+              "'kill 1234' sends SIGTERM by default",
+              "'kill -15 1234' explicitly sends SIGTERM",
+              "Process can catch SIGTERM to perform cleanup before exiting"
             ],
             "learnMore": [
               {
-                "title": "SUSE Communities - SIGKILL vs SIGTERM",
-                "url": "https://www.suse.com/c/observability-sigkill-vs-sigterm-a-developers-guide-to-process-termination/"
+                "title": "Red Hat - Process Signals",
+                "url": "https://www.redhat.com/en/blog/linux-process-signals"
               }
             ]
           }
@@ -460,16 +474,17 @@
           "text": "-19 SIGSTOP",
           "isCorrect": false,
           "explanation": {
-            "summary": "SIGSTOP (signal 19) pauses (suspends) a process without terminating it. The process can later be resumed with SIGCONT.",
-            "why": "SIGSTOP freezes a process in place, stopping its execution but keeping it in memory. The process can be resumed later with SIGCONT (signal 18). This is used for job control, not for terminating processes. SIGKILL (-9) is for immediate termination.",
+            "summary": "SIGSTOP (signal 19) pauses a process, freezing it in place. It does not terminate the process. The process can be resumed later with SIGCONT.",
+            "why": "SIGSTOP suspends a process's execution without terminating it. The process remains in memory but doesn't run until it receives SIGCONT (signal 18). This is useful for temporarily pausing processes, not for stopping them permanently. Like SIGKILL, SIGSTOP cannot be caught or ignored. For immediate termination without graceful exit, use SIGKILL (-9).",
             "examples": [
-              "kill -STOP 1234 pauses process 1234",
-              "kill -CONT 1234 resumes the paused process"
+              "'kill -STOP 1234' pauses process 1234",
+              "'kill -CONT 1234' resumes the paused process",
+              "Process state shows as 'T' (stopped) in ps output"
             ],
             "learnMore": [
               {
-                "title": "Baeldung - When kill -9 Does Not Work",
-                "url": "https://www.baeldung.com/linux/kill-9-sigkill-not-working"
+                "title": "Linux Manual - Signal Types",
+                "url": "https://man7.org/linux/man-pages/man7/signal.7.html"
               }
             ]
           }
@@ -485,12 +500,17 @@
           "text": "Waiting",
           "isCorrect": false,
           "explanation": {
-            "summary": "In Linux terminology, 'Waiting' typically refers to sleeping states where a process waits for resources or events, not CPU assignment.",
-            "why": "A waiting or sleeping process is blocked waiting for I/O, resources, or events to occur. It's not actively competing for CPU time. The Ready state specifically indicates a process queued for CPU assignment, with all resources available except CPU time.",
+            "summary": "In process state terminology, 'Waiting' typically refers to a process that is blocked waiting for a resource or event (like I/O completion), not waiting for CPU assignment.",
+            "why": "The 'Waiting' or 'Blocked' state means a process cannot proceed until some external event occurs - such as disk I/O completing, network data arriving, or a user providing input. This is fundamentally different from being ready for CPU time. A waiting process isn't competing for CPU because it has something else to wait for first. The state for processes waiting for CPU assignment is called 'Ready'.",
+            "examples": [
+              "Process waiting for disk read to complete: Waiting/Blocked state",
+              "Process waiting for network packet: Waiting/Blocked state",
+              "Process ready to execute but CPU busy: Ready state"
+            ],
             "learnMore": [
               {
-                "title": "Baeldung - Linux Process States",
-                "url": "https://www.baeldung.com/linux/process-states"
+                "title": "GeeksforGeeks - States of a Process",
+                "url": "https://www.geeksforgeeks.org/states-of-a-process-in-operating-systems/"
               }
             ]
           }
@@ -500,39 +520,40 @@
           "text": "Ready",
           "isCorrect": true,
           "explanation": {
-            "summary": "The Ready state (also called Ready-to-Run or Runnable) indicates that a process has all the resources it needs to execute and is waiting in the run queue for the CPU scheduler to assign it CPU time. This state represents processes that are prepared to run but are waiting their turn for processor allocation.",
+            "summary": "The Ready state indicates that a process has all the resources it needs and is waiting in a queue to be assigned CPU time by the scheduler. Processes in this state are ready to execute immediately once the CPU becomes available to them. This is a fundamental state in process lifecycle management.",
             "keyPoints": [
-              "Process has all necessary resources except CPU time",
-              "Waiting in the scheduler's run queue for CPU assignment",
+              "Process is prepared to run and waiting for CPU time",
+              "Has all necessary resources except CPU allocation",
+              "Queued in the ready queue managed by the scheduler",
+              "Transitions to Running state when scheduler selects it",
               "Multiple processes can be in Ready state simultaneously",
-              "Scheduler uses priority and algorithms to determine execution order",
-              "Process moves from Ready to Running when scheduler dispatches it",
-              "Shown as 'R' state in ps output along with Running processes",
-              "Distinct from Sleeping states where processes wait for resources"
+              "Scheduler uses algorithms (round-robin, priority) to select next process",
+              "Critical state in multiprogramming and time-sharing systems"
             ],
             "examples": [
-              "Three processes in Ready state wait while one process runs on single-CPU system",
-              "High-priority Ready process gets CPU time before lower-priority ones",
-              "Process completes I/O operation and moves from Sleeping to Ready state",
-              "Running process gets preempted and returns to Ready state, allowing another to run"
+              "New process created and loaded into memory: enters Ready state",
+              "Running process time slice expires: returns to Ready state",
+              "Blocked process completes I/O: moves to Ready state",
+              "10 processes ready, 1 CPU: 9 processes wait in Ready queue",
+              "Process priority increased: moves up in Ready queue"
             ],
-            "additionalInfo": "The Ready state is fundamental to multitasking in Linux. The CPU scheduler maintains a run queue containing all Ready processes, selecting which process to run next based on scheduling algorithms and priorities. On a single-CPU system, only one process runs at a time while others remain Ready. Multi-core systems can run multiple processes simultaneously, but typically have more Ready processes than available cores. The transition cycle is: Ready → Running (when scheduled) → Ready (when preempted or time slice expires) or → Sleeping (when waiting for resources). Linux combines Ready and Running into a single 'R' state in ps output because processes transition between them frequently. The Ready state differs from Sleeping states (Interruptible Sleep 'S' or Uninterruptible Sleep 'D') where processes wait for external events like I/O completion.",
+            "additionalInfo": "The Ready state is one of the five fundamental process states in operating system theory (New, Ready, Running, Waiting/Blocked, Terminated). When a process is in the Ready state, it has everything it needs to execute: its program instructions are loaded, required memory is allocated, necessary resources are available. The only thing preventing execution is that another process is currently using the CPU. The operating system's scheduler maintains a ready queue containing all Ready processes and selects which process to run next based on scheduling algorithms. Common algorithms include First-Come-First-Served (FCFS), Shortest Job First (SJF), Round Robin, and Priority Scheduling. In multi-CPU systems, multiple processes can move from Ready to Running simultaneously. Processes frequently transition between Ready and Running states in time-sharing systems: a process runs for its time quantum, then returns to Ready to let other processes execute. Understanding the Ready state is crucial for performance tuning - a large number of processes stuck in Ready state may indicate CPU bottlenecks, while excessive Waiting states suggest I/O bottlenecks.",
             "learnMore": [
               {
-                "title": "Wikipedia - Process State",
-                "url": "https://en.wikipedia.org/wiki/Process_state"
+                "title": "GeeksforGeeks - States of a Process in Operating Systems",
+                "url": "https://www.geeksforgeeks.org/states-of-a-process-in-operating-systems/"
               },
               {
-                "title": "GeeksforGeeks - Process States in Unix",
-                "url": "https://www.geeksforgeeks.org/linux-unix/process-states-and-transitions-in-a-unix-process/"
+                "title": "JavaTpoint - Process States in OS",
+                "url": "https://www.javatpoint.com/os-process-states"
               },
               {
-                "title": "Scaler Topics - Linux Process States",
-                "url": "https://www.scaler.com/topics/linux-process-states/"
+                "title": "TutorialsPoint - Process Life Cycle",
+                "url": "https://www.tutorialspoint.com/what-is-the-life-cycle-of-a-process"
               },
               {
-                "title": "Baeldung - Linux Process States Explained",
-                "url": "https://www.baeldung.com/linux/process-states"
+                "title": "OpenGenus - Process State Diagram",
+                "url": "https://iq.opengenus.org/process-state-diagram/"
               }
             ]
           }
@@ -542,12 +563,17 @@
           "text": "Start",
           "isCorrect": false,
           "explanation": {
-            "summary": "Start is not a standard process state in Linux. It might refer to process creation/initialization, but this isn't a waiting state.",
-            "why": "Linux process states don't include a 'Start' state. Process creation involves the New/Created state briefly before moving to Ready. The Ready state is where processes wait for CPU assignment. Linux uses specific states: Running (R), Sleeping (S/D), Stopped (T), and Zombie (Z).",
+            "summary": "While 'Start' might seem logical, it's not a standard process state term. The initial state is typically called 'New' or 'Created', and it represents initialization, not waiting for CPU assignment.",
+            "why": "In formal operating system terminology, the initial state when a process is being created is called 'New' or 'Created'. In this state, the process is being set up - memory is being allocated, process control block is being initialized, but the process hasn't yet been admitted to the ready queue. After initialization completes, the process moves to the Ready state where it waits for CPU assignment. 'Start' is not a standard state name in process lifecycle models.",
+            "examples": [
+              "Standard states: New → Ready → Running → Waiting → Terminated",
+              "'New' state: Process being initialized",
+              "'Ready' state: Process waiting for CPU"
+            ],
             "learnMore": [
               {
-                "title": "TutorialsPoint - Process States in Unix",
-                "url": "https://www.tutorialspoint.com/what-are-the-process-states-in-unix"
+                "title": "GeeksforGeeks - Process States",
+                "url": "https://www.geeksforgeeks.org/states-of-a-process-in-operating-systems/"
               }
             ]
           }
@@ -557,16 +583,17 @@
           "text": "Running",
           "isCorrect": false,
           "explanation": {
-            "summary": "Running state means a process is actively executing on the CPU, not waiting for assignment.",
-            "why": "A Running process has already been assigned CPU time and is currently executing instructions. This is the opposite of waiting for assignment. The Ready state is where processes wait in the queue before being assigned CPU time and transitioning to Running.",
+            "summary": "The Running state indicates that a process is currently executing on a CPU. This is the opposite of waiting to be assigned - it means the process has already been assigned and is actively running.",
+            "why": "A process in the Running state has been selected by the scheduler, assigned to a CPU, and is currently executing instructions. It's not waiting for anything - it has the CPU resource it needs. The Running state is what processes in the Ready state are waiting to achieve. On a single-CPU system, only one process can be in Running state at a time, while many can be in Ready state.",
             "examples": [
-              "Running process is actively using CPU cycles",
-              "Ready process is in the queue waiting for its turn to run"
+              "Process executing instructions: Running state",
+              "Process selected by scheduler from Ready queue: transitions to Running",
+              "Single CPU: one process Running, others Ready or Waiting"
             ],
             "learnMore": [
               {
-                "title": "JavaTPoint - Process States in Operating System",
-                "url": "https://www.javatpoint.com/process-states-in-operating-system"
+                "title": "JavaTpoint - Process States",
+                "url": "https://www.javatpoint.com/os-process-states"
               }
             ]
           }
