@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KC Answer Keys - AWS Learning Dashboard</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <button id="themeToggle" class="theme-toggle">
@@ -19,6 +19,25 @@
 
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="🔍 Search knowledge checks..." oninput="filterKCs()">
+        </div>
+
+        <!-- Filter and Sort Controls -->
+        <div class="filter-controls">
+            <div class="filter-group">
+                <label for="topicFilter">Filter by Topic:</label>
+                <select id="topicFilter" onchange="filterKCs()">
+                    <option value="">All Topics</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="sortSelect">Sort by:</label>
+                <select id="sortSelect" onchange="sortKCs()">
+                    <option value="title-asc">Title (A-Z)</option>
+                    <option value="title-desc">Title (Z-A)</option>
+                    <option value="topic-asc">Topic (A-Z)</option>
+                    <option value="topic-desc">Topic (Z-A)</option>
+                </select>
+            </div>
         </div>
 
         <div id="kcListContainer" class="kc-list">
@@ -43,8 +62,9 @@
             localStorage.setItem('theme', newTheme);
         });
 
-        // Global variable to store KC data
+        // Global variables
         let kcData = [];
+        let filteredData = [];
 
         // Load KC list from JSON
         async function loadKCList() {
@@ -53,7 +73,10 @@
                 if (!response.ok) throw new Error('Failed to load JSON');
                 const data = await response.json();
                 kcData = data.knowledgeChecks;
-                renderKCList();
+                filteredData = [...kcData];
+                
+                populateTopicFilter();
+                sortKCs();
             } catch (error) {
                 console.error('Error loading KC list:', error);
                 document.getElementById('kcListContainer').innerHTML = `
@@ -66,15 +89,70 @@
             }
         }
 
+        // Populate topic filter dropdown
+        function populateTopicFilter() {
+            const topicFilter = document.getElementById('topicFilter');
+            const topics = [...new Set(kcData.map(kc => kc.topic))].sort();
+            
+            // Clear existing options except "All Topics"
+            topicFilter.innerHTML = '<option value="">All Topics</option>';
+            
+            topics.forEach(topic => {
+                const option = document.createElement('option');
+                option.value = topic;
+                option.textContent = topic;
+                topicFilter.appendChild(option);
+            });
+        }
+
+        // Sort KCs based on selected option
+        function sortKCs() {
+            const sortValue = document.getElementById('sortSelect').value;
+            
+            filteredData.sort((a, b) => {
+                switch(sortValue) {
+                    case 'title-asc':
+                        return a.title.localeCompare(b.title);
+                    case 'title-desc':
+                        return b.title.localeCompare(a.title);
+                    case 'topic-asc':
+                        return a.topic.localeCompare(b.topic) || a.title.localeCompare(b.title);
+                    case 'topic-desc':
+                        return b.topic.localeCompare(a.topic) || a.title.localeCompare(b.title);
+                    default:
+                        return 0;
+                }
+            });
+            
+            renderKCList();
+        }
+
+        // Filter KCs based on search and topic
+        function filterKCs() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const topicFilter = document.getElementById('topicFilter').value;
+            
+            filteredData = kcData.filter(kc => {
+                const matchesSearch = kc.title.toLowerCase().includes(searchTerm) || 
+                                     kc.topic.toLowerCase().includes(searchTerm);
+                const matchesTopic = !topicFilter || kc.topic === topicFilter;
+                
+                return matchesSearch && matchesTopic;
+            });
+            
+            sortKCs();
+        }
+
         // Render KC cards
         function renderKCList() {
             const container = document.getElementById('kcListContainer');
-            if (kcData.length === 0) {
-                container.innerHTML = '<div class="loading">No knowledge checks available.</div>';
+            
+            if (filteredData.length === 0) {
+                container.innerHTML = '<div class="loading">No knowledge checks found matching your criteria.</div>';
                 return;
             }
 
-            container.innerHTML = kcData.map(kc => `
+            container.innerHTML = filteredData.map(kc => `
                 <div class="kc-card" onclick="openKC('${kc.file}', '${kc.title.replace(/'/g, "\\'")}')">
                     <h3>${kc.title}</h3>
                     <p>📚 ${kc.topic}</p>
@@ -85,15 +163,6 @@
         function openKC(filename, title) {
             // Pass both filename and title via URL parameters
             window.location.href = `kc-answer.html?kc=${filename}&title=${encodeURIComponent(title)}`;
-        }
-
-        function filterKCs() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            const cards = document.querySelectorAll('.kc-card');
-            cards.forEach(card => {
-                const text = card.textContent.toLowerCase();
-                card.style.display = text.includes(term) ? 'block' : 'none';
-            });
         }
 
         // Initialize

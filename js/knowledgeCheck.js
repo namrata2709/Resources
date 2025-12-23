@@ -21,6 +21,10 @@ class KnowledgeCheckEngine {
             const response = await fetch(jsonUrl);
             if (!response.ok) throw new Error(`Failed to load: ${jsonUrl}`);
             this.data = await response.json();
+            
+            // Randomize question order
+            this.shuffleQuestions();
+            
             this.renderQuestions();
         } catch (error) {
             console.error('Error loading KC data:', error);
@@ -32,6 +36,24 @@ class KnowledgeCheckEngine {
                 </div>
             `;
         }
+    }
+
+    /**
+     * Shuffle questions randomly using Fisher-Yates algorithm
+     */
+    shuffleQuestions() {
+        if (!this.data || !this.data.questions) return;
+        
+        const questions = this.data.questions;
+        for (let i = questions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [questions[i], questions[j]] = [questions[j], questions[i]];
+        }
+        
+        // Reassign sequential display numbers after shuffling
+        questions.forEach((question, index) => {
+            question.displayNumber = index + 1;
+        });
     }
 
     /**
@@ -57,11 +79,12 @@ class KnowledgeCheckEngine {
     renderQuestion(question) {
         const isMultiSelect = question.multiSelect === true;
         const selectedAnswers = this.state.selectedAnswers[question.id];
+        const displayNum = question.displayNumber || question.id;
 
         return `
             <div class="question-card" data-question-id="${question.id}">
                 <div class="question-header">
-                    <div class="question-number">${question.id}</div>
+                    <div class="question-number">${displayNum}</div>
                     <div class="question-text">
                         ${question.question}
                         ${isMultiSelect ? '<br><small style="color: var(--text-muted); font-weight: normal;">(Select TWO)</small>' : ''}
