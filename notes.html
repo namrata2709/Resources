@@ -11,11 +11,11 @@
         <span class="theme-icon"></span>
     </button>
 
-    <div class="page-container">
+            <div class="page-container">
         <header class="page-header">
             <button class="back-btn" onclick="location.href='index.html'">← Back</button>
             <h1>📓 Daily Notes</h1>
-            <button class="back-btn" onclick="location.href='data/notes/images.html'" style="margin-left: auto;">🖼️ All Images Gallery</button>
+            <button class="back-btn" onclick="openGallery('all')" style="margin-left: auto;">🖼️ View All Images</button>
         </header>
 
         <div class="search-bar">
@@ -188,20 +188,38 @@
             if (!note.files || note.files.length === 0) {
                 modalBody.innerHTML = '<p class="note-description">No files in this folder yet.</p>';
             } else {
-                modalBody.innerHTML = `
-                    <div class="files-list">
-                        ${note.files.map(file => `
-                            <div class="file-item" onclick="openFile('${note.folder}', '${file.file}', '${file.type}')">
-                                <span class="file-icon">${file.icon}</span>
-                                <div class="file-info">
-                                    <span class="file-name">${file.name}</span>
-                                    <span class="file-type">${getFileTypeLabel(file.type)}</span>
-                                </div>
-                                <span class="file-arrow">→</span>
+                let filesHTML = '<div class="files-list">';
+                
+                // Add images gallery link first if images exist
+                if (note.hasImages && note.images && note.images.length > 0) {
+                    filesHTML += `
+                        <div class="file-item" onclick="openGallery('${note.folder}')">
+                            <span class="file-icon">🖼️</span>
+                            <div class="file-info">
+                                <span class="file-name">Images Gallery (${note.images.length})</span>
+                                <span class="file-type">View all images</span>
                             </div>
-                        `).join('')}
-                    </div>
-                `;
+                            <span class="file-arrow">→</span>
+                        </div>
+                    `;
+                }
+                
+                // Add other files
+                note.files.forEach(file => {
+                    filesHTML += `
+                        <div class="file-item" onclick="openFile('${note.folder}', '${file.file}', '${file.type}')">
+                            <span class="file-icon">${file.icon}</span>
+                            <div class="file-info">
+                                <span class="file-name">${file.name}</span>
+                                <span class="file-type">${getFileTypeLabel(file.type)}</span>
+                            </div>
+                            <span class="file-arrow">→</span>
+                        </div>
+                    `;
+                });
+                
+                filesHTML += '</div>';
+                modalBody.innerHTML = filesHTML;
             }
             
             document.getElementById('folderModal').classList.add('active');
@@ -217,26 +235,29 @@
             const labels = {
                 'html': 'HTML Document',
                 'pdf': 'PDF Document',
-                'image': 'Image File',
                 'txt': 'Text File',
                 'doc': 'Word Document',
-                'link': 'Video Links',
-                'gallery': 'Image Gallery'
+                'link': 'Video Links'
             };
             return labels[type] || 'File';
+        }
+
+        // Open gallery with folder parameter
+        function openGallery(folder) {
+            window.open(`data/notes/images.html?folder=${folder}`, '_blank');
         }
 
         // Open file (navigate or download)
         function openFile(folder, filename, type) {
             const filepath = `data/notes/${folder}/${filename}`;
             
-            if (type === 'html' || type === 'gallery') {
-                // Open HTML or gallery in new window
+            if (type === 'html') {
+                // Open HTML in new window
                 window.open(filepath, '_blank');
             } else if (type === 'link') {
                 // Open text file with links
                 window.open(filepath, '_blank');
-            } else if (type === 'image' || type === 'pdf' || type === 'txt') {
+            } else if (type === 'pdf' || type === 'txt') {
                 // Open in new tab
                 window.open(filepath, '_blank');
             } else if (type === 'doc') {

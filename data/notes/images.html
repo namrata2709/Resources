@@ -6,7 +6,7 @@
     <title>Images Gallery - AWS Learning Dashboard</title>
     <link rel="stylesheet" href="../../css/notes-template.css">
     <style>
-        /* Additional styles specific to gallery (extends notes-template.css) */
+        /* Additional gallery styles */
         .gallery-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -23,6 +23,7 @@
             color: var(--note-text-primary);
             margin-bottom: 1rem;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .back-btn:hover {
@@ -49,7 +50,6 @@
             gap: 1rem;
             margin-bottom: 2rem;
             flex-wrap: wrap;
-            align-items: center;
         }
 
         .search-box {
@@ -68,22 +68,6 @@
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .folder-filter {
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--note-border);
-            border-radius: 8px;
-            background: var(--note-card-bg);
-            color: var(--note-text-primary);
-            font-size: 1rem;
-            font-family: inherit;
-            min-width: 200px;
-        }
-
-        .folder-filter:focus {
-            outline: none;
-            border-color: #3b82f6;
         }
 
         .view-toggle {
@@ -143,7 +127,6 @@
             height: 200px;
             overflow: hidden;
             background: var(--note-table-header);
-            position: relative;
         }
 
         .gallery.list-view .image-wrapper {
@@ -163,18 +146,6 @@
             object-fit: cover;
         }
 
-        .folder-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: #3b82f6;
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
         .image-info {
             padding: 1rem;
             flex: 1;
@@ -191,7 +162,6 @@
             color: var(--note-text-muted);
         }
 
-        /* Lightbox */
         .lightbox {
             display: none;
             position: fixed;
@@ -336,18 +306,15 @@
     </button>
 
     <div class="gallery-container">
-        <a href="javascript:history.back()" class="back-btn">← Back</a>
+        <button class="back-btn" onclick="history.back()">← Back</button>
 
         <div class="gallery-header">
-            <h1 id="galleryTitle">🖼️ Images Gallery</h1>
+            <h1>🖼️ Images Gallery</h1>
             <p id="imageCount">Loading images...</p>
         </div>
 
         <div class="controls">
             <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search images..." oninput="filterImages()">
-            <select class="folder-filter" id="folderFilter" onchange="filterImages()">
-                <option value="">All Folders</option>
-            </select>
             <div class="view-toggle">
                 <button class="view-btn active" onclick="setView('grid')" title="Grid View">⊞</button>
                 <button class="view-btn" onclick="setView('list')" title="List View">☰</button>
@@ -359,7 +326,6 @@
         </div>
     </div>
 
-    <!-- Lightbox -->
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
         <div class="lightbox-content" onclick="event.stopPropagation()">
             <button class="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -368,7 +334,6 @@
             <img class="lightbox-image" id="lightboxImage" src="" alt="">
             <div class="lightbox-info">
                 <div class="image-name" id="lightboxName"></div>
-                <div class="image-meta" id="lightboxFolder"></div>
                 <button class="download-btn" onclick="downloadImage()">⬇ Download</button>
             </div>
         </div>
@@ -390,69 +355,67 @@
 
         // Get folder from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
-        const specificFolder = urlParams.get('folder');
+        const folderParam = urlParams.get('folder');
 
-        // ALL IMAGES FROM ALL FOLDERS
-        // Add your images here with folder names
-        const allImages = [
-            // 24-12-2025 folder
-            { name: 'EC2 Setup Screenshot', file: '24-12-2025/ec2-setup.png', folder: '24-12-2025', category: 'AWS' },
-            { name: 'VPC Configuration', file: '24-12-2025/vpc-config.png', folder: '24-12-2025', category: 'Networking' },
-            { name: 'Load Balancer Diagram', file: '24-12-2025/load-balancer.png', folder: '24-12-2025', category: 'Architecture' },
-            
-            // 23-12-2025 folder
-            { name: 'S3 Bucket Policy', file: '23-12-2025/cluster_architecture.jpeg', folder: '23-12-2025', category: 'Storage' },
-            { name: 'IAM Roles Diagram', file: '23-12-2025/iam-roles.png', folder: '23-12-2025', category: 'Security' },
-            
-            // 22-12-2025 folder
-            { name: 'Network Topology', file: '22-12-2025/network-topology.png', folder: '22-12-2025', category: 'Networking' },
-            { name: 'Subnet Configuration', file: '22-12-2025/subnets.png', folder: '22-12-2025', category: 'Networking' },
-            
-            // project_architecture folder
-            { name: 'System Architecture', file: 'project_architecture/system-arch.png', folder: 'project_architecture', category: 'Architecture' },
-            { name: 'Database Schema', file: 'project_architecture/db-schema.png', folder: 'project_architecture', category: 'Database' },
-            
-            // Add more images as needed
-        ];
-
+        let allImages = [];
         let currentImageIndex = 0;
         let filteredImages = [];
 
-        // Filter images based on URL parameter or show all
-        function initializeImages() {
-            const galleryTitle = document.getElementById('galleryTitle');
-            const folderFilter = document.getElementById('folderFilter');
-            
-            if (specificFolder) {
-                // Show only images from specific folder
-                filteredImages = allImages.filter(img => img.folder === specificFolder);
-                galleryTitle.textContent = `🖼️ Images Gallery - ${specificFolder}`;
-                folderFilter.style.display = 'none'; // Hide filter when showing specific folder
-            } else {
-                // Show all images
-                filteredImages = [...allImages];
-                galleryTitle.textContent = '🖼️ All Images Gallery';
+        // Load images from notes-list.json
+        async function loadImages() {
+            try {
+                const response = await fetch('notes-list.json');
+                const data = await response.json();
                 
-                // Populate folder filter
-                const folders = [...new Set(allImages.map(img => img.folder))].sort();
-                folders.forEach(folder => {
-                    const option = document.createElement('option');
-                    option.value = folder;
-                    option.textContent = folder;
-                    folderFilter.appendChild(option);
-                });
+                if (folderParam === 'all') {
+                    // Load all images from all folders
+                    document.querySelector('.gallery-header h1').textContent = '🖼️ All Images';
+                    data.notes.forEach(note => {
+                        if (note.hasImages && note.images) {
+                            note.images.forEach(img => {
+                                allImages.push({
+                                    name: img.name,
+                                    file: `${note.folder}/${img.file}`,
+                                    folder: note.title
+                                });
+                            });
+                        }
+                    });
+                } else {
+                    // Load images from specific folder
+                    const note = data.notes.find(n => n.folder === folderParam);
+                    if (note && note.hasImages && note.images) {
+                        document.querySelector('.gallery-header h1').textContent = `🖼️ Images - ${note.title}`;
+                        allImages = note.images.map(img => ({
+                            name: img.name,
+                            file: `${note.folder}/${img.file}`,
+                            folder: note.title
+                        }));
+                    }
+                }
+                
+                filteredImages = [...allImages];
+                loadGallery();
+            } catch (error) {
+                console.error('Error loading images:', error);
+                document.getElementById('gallery').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                        <p>Error loading images. Please ensure notes-list.json exists.</p>
+                    </div>
+                `;
             }
-            
-            loadGallery();
         }
 
-        // Load gallery
         function loadGallery() {
             const gallery = document.getElementById('gallery');
             const imageCount = document.getElementById('imageCount');
             
             if (filteredImages.length === 0) {
-                gallery.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--note-text-muted);">No images found in this folder.</p>';
+                gallery.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                        <p>No images found.</p>
+                    </div>
+                `;
                 imageCount.textContent = '0 images';
                 return;
             }
@@ -460,12 +423,11 @@
             gallery.innerHTML = filteredImages.map((img, index) => `
                 <div class="image-card" onclick="openLightbox(${index})">
                     <div class="image-wrapper">
-                        <img src="${img.file}" alt="${img.name}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect fill=%22%23ddd%22 width=%22200%22 height=%22200%22/><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>No Image</text></svg>'">
-                        ${!specificFolder ? `<div class="folder-badge">📁 ${img.folder}</div>` : ''}
+                        <img src="${img.file}" alt="${img.name}" loading="lazy">
                     </div>
                     <div class="image-info">
                         <div class="image-name">${img.name}</div>
-                        <div class="image-meta">📂 ${img.category}</div>
+                        <div class="image-meta">📁 ${img.folder}</div>
                     </div>
                 </div>
             `).join('');
@@ -473,25 +435,15 @@
             imageCount.textContent = `${filteredImages.length} image${filteredImages.length !== 1 ? 's' : ''}`;
         }
 
-        // Filter images
         function filterImages() {
             const search = document.getElementById('searchBox').value.toLowerCase();
-            const folderValue = document.getElementById('folderFilter').value;
-            
-            filteredImages = allImages.filter(img => {
-                const matchesSearch = img.name.toLowerCase().includes(search) || 
-                                     img.category.toLowerCase().includes(search) ||
-                                     img.folder.toLowerCase().includes(search);
-                const matchesFolder = !folderValue || img.folder === folderValue;
-                const matchesSpecific = !specificFolder || img.folder === specificFolder;
-                
-                return matchesSearch && matchesFolder && matchesSpecific;
-            });
-            
+            filteredImages = allImages.filter(img => 
+                img.name.toLowerCase().includes(search) || 
+                img.folder.toLowerCase().includes(search)
+            );
             loadGallery();
         }
 
-        // View toggle
         function setView(view) {
             const gallery = document.getElementById('gallery');
             const buttons = document.querySelectorAll('.view-btn');
@@ -506,14 +458,12 @@
             }
         }
 
-        // Lightbox functions
         function openLightbox(index) {
             currentImageIndex = index;
             const img = filteredImages[index];
             
             document.getElementById('lightboxImage').src = img.file;
             document.getElementById('lightboxName').textContent = img.name;
-            document.getElementById('lightboxFolder').textContent = `📁 ${img.folder} • 📂 ${img.category}`;
             document.getElementById('lightbox').classList.add('active');
         }
 
@@ -532,7 +482,6 @@
             const img = filteredImages[currentImageIndex];
             document.getElementById('lightboxImage').src = img.file;
             document.getElementById('lightboxName').textContent = img.name;
-            document.getElementById('lightboxFolder').textContent = `📁 ${img.folder} • 📂 ${img.category}`;
         }
 
         function downloadImage() {
@@ -543,7 +492,6 @@
             link.click();
         }
 
-        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             const lightbox = document.getElementById('lightbox');
             if (lightbox.classList.contains('active')) {
@@ -553,8 +501,7 @@
             }
         });
 
-        // Initialize
-        initializeImages();
+        loadImages();
     </script>
 </body>
 </html>
