@@ -3,286 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kubernetes & Container Orchestration - Comprehensive Overview</title>
-    <link rel="stylesheet" href="../../notes-template.css">
+    <title>Docker & Kubernetes - Comprehensive Overview (Part 1 of 3)</title>
+    <link rel="stylesheet" href="notes-template.css">
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle">
+        <span class="theme-icon"></span>
+    </button>
+
     <div class="note-container">
         <div class="note-header">
-            <h1>Kubernetes & Container Orchestration</h1>
+            <h1>Docker & Kubernetes Fundamentals - Part 1</h1>
             <p class="note-date">📅 December 23, 2025</p>
         </div>
 
         <div class="note-content">
             <h2>Executive Summary</h2>
-            <p>This comprehensive guide covers container orchestration with Kubernetes, Docker fundamentals, and AWS container services (ECS, EKS, ECR). Students will understand why containers alone are insufficient for production workloads and how orchestration tools like Kubernetes provide auto-scaling, load balancing, self-healing, and zero-downtime deployments. The session explores Docker architecture, containerization concepts, Kubernetes cluster components, and AWS-native container management solutions.</p>
+            <p>This comprehensive guide covers containerization and orchestration technologies essential for modern cloud infrastructure. You'll learn Docker for creating and managing containers, understand why container orchestration is necessary, explore Kubernetes architecture and components, and discover AWS container services (ECR, ECS, EKS, Fargate). By the end, you'll understand how to deploy, scale, and manage containerized applications in production environments.</p>
 
             <h2>Table of Contents</h2>
             <ol>
-                <li><a href="#docker-fundamentals">Docker Fundamentals & Architecture</a></li>
-                <li><a href="#containerization">Containerization Concepts</a></li>
-                <li><a href="#docker-networking">Docker Networking & Storage</a></li>
-                <li><a href="#orchestration-need">Why Container Orchestration is Essential</a></li>
-                <li><a href="#kubernetes-architecture">Kubernetes Architecture & Components</a></li>
-                <li><a href="#aws-container-services">AWS Container Services (ECR, ECS, EKS)</a></li>
-                <li><a href="#assessments">Comprehensive Assessments & Practice</a></li>
+                <li><a href="#introduction">Introduction to Containers</a></li>
+                <li><a href="#docker-fundamentals">Docker Fundamentals</a></li>
+                <li><a href="#docker-components">Docker Components & Architecture</a></li>
+                <li><a href="#docker-images">Docker Images & Registries</a></li>
+                <li><a href="#docker-compose">Docker Compose for Multi-Container Apps</a></li>
+                <li><a href="#docker-networking">Docker Networking</a></li>
+                <li><a href="#docker-volumes">Docker Volumes & Data Persistence</a></li>
+                <li><a href="#orchestration-need">Why Container Orchestration?</a></li>
+                <li><a href="#kubernetes-intro">Introduction to Kubernetes</a></li>
+                <li><a href="#kubernetes-architecture">Kubernetes Architecture</a></li>
+                <li><a href="#kubernetes-components">Kubernetes Components Deep Dive</a></li>
+                <li><a href="#aws-container-services">AWS Container Services</a></li>
             </ol>
 
-            <h2 id="docker-fundamentals">1. Docker Fundamentals & Architecture</h2>
+            <h2 id="introduction">1. Introduction to Containers</h2>
 
             <h3>Real-Life Analogy</h3>
             <div class="info-box">
-                <p>💡 <strong>Think of Docker like Shipping Containers:</strong></p>
+                <p>💡 <strong>Think of Containers like Shipping Containers:</strong></p>
                 <ul>
-                    <li><strong>Docker Container</strong> is like a standardized shipping container that can hold any cargo (your application)</li>
-                    <li><strong>Docker Image</strong> is like the blueprint/specification for what goes inside the container</li>
-                    <li><strong>Dockerfile</strong> is like the packing list that tells you exactly how to pack the container</li>
-                    <li><strong>Docker Hub</strong> is like a shipping port where containers are stored and distributed</li>
-                    <li><strong>Container Orchestration</strong> is like a port management system that decides which ship (server) carries which containers, handles loading/unloading, and manages traffic</li>
+                    <li><strong>Traditional Deployment (VM)</strong> is like shipping goods in different vehicles - cars, trucks, ships - each requiring different handling</li>
+                    <li><strong>Containers</strong> are like standardized shipping containers - same size, same handling, can be moved from ship to truck to train without unpacking</li>
+                    <li><strong>Container Contents</strong> are isolated - what's inside one container doesn't affect another</li>
+                    <li><strong>Efficiency</strong> - you can stack many containers on one ship (host machine) efficiently</li>
                 </ul>
-                <p><strong>For example:</strong> Just as shipping containers revolutionized global trade by standardizing cargo transport regardless of contents, Docker containers standardize application deployment regardless of the underlying infrastructure.</p>
+                <p><strong>For example:</strong> Just like a shipping container holds everything needed for transport (goods, packing materials, documentation), a Docker container holds everything needed to run an application (code, runtime, libraries, dependencies).</p>
+            </div>
+
+            <h3>What Are Containers?</h3>
+            <p>Containers are lightweight, standalone packages that contain everything needed to run an application: application code, runtime environment, system libraries, and dependencies. Unlike virtual machines that require a full operating system, containers share the host OS kernel, making them much more efficient.</p>
+
+            <h3>Why Use Containers?</h3>
+            <ul>
+                <li><strong>Consistency:</strong> "Works on my machine" problems disappear - if it runs in a container locally, it runs the same way in production</li>
+                <li><strong>Efficiency:</strong> No need to pre-allocate full OS or hardware resources - containers use only what they need</li>
+                <li><strong>Speed:</strong> Start in seconds (vs minutes for VMs)</li>
+                <li><strong>Isolation:</strong> Applications run independently without conflicts</li>
+                <li><strong>Portability:</strong> Run anywhere - laptop, data center, cloud</li>
+            </ul>
+
+            <h2 id="docker-fundamentals">2. Docker Fundamentals</h2>
+
+            <h3>Real-Life Analogy</h3>
+            <div class="info-box">
+                <p>💡 <strong>Think of Docker like a Restaurant Kitchen:</strong></p>
+                <ul>
+                    <li><strong>Recipe (Dockerfile)</strong> - Instructions for making a dish</li>
+                    <li><strong>Prepared Dish Template (Docker Image)</strong> - The standard version of the dish that can be replicated</li>
+                    <li><strong>Actual Served Dish (Container)</strong> - The running instance that customers consume</li>
+                    <li><strong>Kitchen Equipment (Docker Runtime)</strong> - What actually cooks/runs the dish</li>
+                </ul>
             </div>
 
             <h3>What is Docker?</h3>
-            <p>Docker is a containerization platform that enables developers to package applications with all their dependencies into standardized units called containers. Unlike virtual machines that require a full operating system, containers share the host OS kernel, making them lightweight and efficient.</p>
+            <p>Docker is a containerization platform that allows you to build, run, and manage containers. It's the main runtime environment that builds and runs containers. Docker makes it easy to create containers from blueprints (images) and manage their lifecycle.</p>
 
-            <p><strong>Key Characteristics:</strong></p>
-            <ul>
-                <li><strong>Lightweight:</strong> Containers share the host OS kernel instead of bundling a complete OS</li>
-                <li><strong>Isolated:</strong> Each container runs in its own isolated environment with dedicated resources</li>
-                <li><strong>Portable:</strong> "Build once, run anywhere" - works consistently across development, testing, and production</li>
-                <li><strong>Fast:</strong> Containers start in seconds compared to minutes for virtual machines</li>
-                <li><strong>Efficient:</strong> Multiple containers can run on a single host without overhead of full virtualization</li>
-            </ul>
-
-            <h3>Docker Architecture Components</h3>
-            <p>When you install Docker, you receive two critical components that work together:</p>
-
-            <h4>1. Docker CLI (Command Line Interface)</h4>
-            <p>The Docker CLI is the user-facing interface where developers and administrators issue commands to interact with Docker. It translates human-readable commands into API calls.</p>
-
-            <p><strong>Common Docker CLI Commands:</strong></p>
-            <pre><code># Run a container
-docker run [OPTIONS] IMAGE [COMMAND]
-
-# List running containers
-docker ps
-
-# List all containers (including stopped)
-docker ps -a
-
-# List images
-docker images
-
-# Build an image from Dockerfile
-docker build -t IMAGE_NAME:TAG .
-
-# Stop a container
-docker stop CONTAINER_ID
-
-# Remove a container
-docker rm CONTAINER_ID</code></pre>
-
-            <h4>2. Docker Daemon (Background Service)</h4>
-            <p>The Docker Daemon is the background service that actually performs the heavy lifting - building images, running containers, managing networks, and handling storage. It listens for Docker API requests from the CLI.</p>
-
-            <p><strong>Key Responsibilities:</strong></p>
-            <ul>
-                <li>Building Docker images from Dockerfiles</li>
-                <li>Managing container lifecycle (create, start, stop, destroy)</li>
-                <li>Handling container networking and communication</li>
-                <li>Managing storage volumes and data persistence</li>
-                <li>Pulling images from registries</li>
-            </ul>
-
-            <h3>Docker User Permissions & Security</h3>
-            <div class="highlight-box">
-                <p>⚠️ <strong>Important:</strong> By default, only the root user can run Docker commands. This is a critical security measure.</p>
-            </div>
-
-            <h4>Method 1: Adding User to Docker Group (Recommended)</h4>
-
-            <strong>Via CLI:</strong>
-            <pre><code># Add current user to docker group
-sudo usermod -aG docker $USER
-
-# Verify group membership
-groups $USER
-
-# Activate changes without logout
-newgrp docker
-
-# Test docker without sudo
-docker ps</code></pre>
-
-            <strong>Via Console:</strong>
+            <h3>Docker Workflow Overview</h3>
             <ol>
-                <li>Connect to your EC2 instance via SSH</li>
-                <li>Switch to root: <code>sudo su -</code></li>
-                <li>Add user to docker group: <code>usermod -aG docker ubuntu</code> (replace 'ubuntu' with your username)</li>
-                <li>Exit root shell: <code>exit</code></li>
-                <li>Reconnect to EC2 or run: <code>newgrp docker</code></li>
-                <li>Verify: <code>docker ps</code> should work without sudo</li>
+                <li><strong>Write Dockerfile:</strong> Create instructions for your container</li>
+                <li><strong>Build Image:</strong> Docker processes the Dockerfile to create a read-only template</li>
+                <li><strong>Run Container:</strong> Create running instances from the image</li>
+                <li><strong>Store Image:</strong> Push to registry (Docker Hub, ECR) for sharing and deployment</li>
             </ol>
 
-            <div class="info-box">
-                <p>💡 <strong>Tip:</strong> After adding user to docker group, you must either reconnect to the session or run <code>newgrp docker</code> for changes to take effect.</p>
-            </div>
+            <h2 id="docker-components">3. Docker Components & Architecture</h2>
 
-            <h4>Method 2: Using Sudo (Less Convenient)</h4>
-            <p>If you don't add the user to the docker group, you must prefix every Docker command with <code>sudo</code>:</p>
+            <h3>Docker Installation Components</h3>
+            <p>When you install Docker, you get two main components:</p>
 
-            <pre><code># Without docker group membership
-sudo docker ps
-sudo docker images
-sudo docker run nginx</code></pre>
-
-            <div class="error-box">
-                <p>❌ <strong>Common Mistake:</strong> Forgetting to restart session after adding user to docker group, then getting "permission denied" errors</p>
-                <p><strong>Impact:</strong> Docker commands fail even though user was added correctly</p>
-                <p><strong>Solution:</strong> Always run <code>newgrp docker</code> or reconnect to session after modifying group membership</p>
-            </div>
-
-            <h3>Multiple Scenarios: Docker Permission Management</h3>
-
-            <h4>Scenario 1: Best-Case (Proper Setup)</h4>
-            <p><strong>Context:</strong> DevOps engineer setting up Docker on new EC2 Ubuntu instance for development team</p>
-            <p><strong>Action:</strong></p>
-            <ol>
-                <li>Installed Docker: <code>sudo apt update && sudo apt install docker.io -y</code></li>
-                <li>Started Docker service: <code>sudo systemctl start docker && sudo systemctl enable docker</code></li>
-                <li>Added developer user to docker group: <code>sudo usermod -aG docker devuser</code></li>
-                <li>Verified service status: <code>sudo systemctl status docker</code></li>
-                <li>Developer reconnected to session</li>
-                <li>Tested: <code>docker run hello-world</code></li>
-            </ol>
-            <p><strong>Outcome:</strong> Docker runs smoothly without sudo, developers can work efficiently, proper security boundaries maintained</p>
-            <p><strong>Key Lesson:</strong> Following proper installation and permission setup prevents future authentication issues</p>
-
-            <h4>Scenario 2: Worst-Case (Docker Daemon Not Running)</h4>
-            <p><strong>Context:</strong> Production server restarted, Docker daemon failed to auto-start, containers offline</p>
-            <p><strong>Action:</strong> Developer tried <code>docker ps</code> and received error: "Cannot connect to the Docker daemon"</p>
-            <p><strong>Outcome:</strong> All containerized applications were down, causing service outage</p>
-            <p><strong>Root Cause:</strong> Docker daemon service was not enabled to start on boot</p>
-            <p><strong>Resolution:</strong></p>
-            <pre><code># Check daemon status
-sudo systemctl status docker
-
-# Start daemon if stopped
-sudo systemctl start docker
-
-# Enable auto-start on boot
-sudo systemctl enable docker
-
-# Restart all containers
-docker start $(docker ps -aq)</code></pre>
-            <p><strong>Key Lesson:</strong> Always enable Docker daemon to start automatically with <code>systemctl enable docker</code> to prevent service disruptions after reboots</p>
-
-            <h4>Scenario 3: Edge Case (Permission Denied After Group Addition)</h4>
-            <p><strong>Context:</strong> User added to docker group but still getting "permission denied" errors</p>
-            <p><strong>Action:</strong></p>
-            <ol>
-                <li>Admin ran: <code>sudo usermod -aG docker john</code></li>
-                <li>User 'john' immediately tried: <code>docker ps</code></li>
-                <li>Received error: "Got permission denied while trying to connect to the Docker daemon socket"</li>
-            </ol>
-            <p><strong>Explanation:</strong> Group membership changes don't apply to existing sessions - user must start new session</p>
-            <p><strong>Solution:</strong></p>
-            <pre><code># Option 1: Activate new group in current session
-newgrp docker
-
-# Option 2: Completely logout and login again
-exit  # then reconnect via SSH
-
-# Option 3: Check group membership
-groups  # should show 'docker' in the list</code></pre>
-            <p><strong>Key Lesson:</strong> Always refresh session or run <code>newgrp docker</code> after group modifications</p>
-
-            <h4>Scenario 4: Real-World Application (CI/CD Pipeline Setup)</h4>
-            <p><strong>Business Context:</strong> E-commerce company implementing automated deployment pipeline with Jenkins and Docker</p>
-            <p><strong>Requirements:</strong></p>
-            <ul>
-                <li>Jenkins must build Docker images automatically when code is pushed</li>
-                <li>Jenkins runs as 'jenkins' user, not root</li>
-                <li>Security policy prohibits running Jenkins as root</li>
-            </ul>
-            <p><strong>Implementation:</strong></p>
-            <ol>
-                <li>Installed Docker on Jenkins server</li>
-                <li>Added jenkins user to docker group: <code>sudo usermod -aG docker jenkins</code></li>
-                <li>Restarted Jenkins service: <code>sudo systemctl restart jenkins</code></li>
-                <li>Created Jenkins pipeline with Docker commands</li>
-                <li>Configured Docker socket permissions: <code>sudo chmod 666 /var/run/docker.sock</code> (temporary for testing)</li>
-            </ol>
-            <p><strong>Challenges:</strong></p>
-            <ul>
-                <li>Initial builds failed with permission errors</li>
-                <li>Had to restart Jenkins service, not just reload configuration</li>
-                <li>Security team required proper group-based permissions instead of chmod 666</li>
-            </ul>
-            <p><strong>Solutions:</strong></p>
-            <ul>
-                <li>Properly added jenkins user to docker group</li>
-                <li>Restarted Jenkins to pick up new group membership</li>
-                <li>Removed overly permissive socket permissions</li>
-                <li>Documented procedure for future Jenkins agents</li>
-            </ul>
-            <p><strong>Outcome:</strong> Automated CI/CD pipeline successfully builds and deploys containerized applications with proper security</p>
-            <p><strong>Key Lesson:</strong> In production CI/CD environments, service accounts (like jenkins) must be properly configured with docker group membership and services restarted to apply changes</p>
-
-            <h3>Scenario Comparison Table</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Scenario</th>
+                        <th>Component</th>
                         <th>Type</th>
-                        <th>Context</th>
-                        <th>Action</th>
-                        <th>Outcome</th>
-                        <th>Key Lesson</th>
+                        <th>Purpose</th>
+                        <th>Example</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Proper Docker Setup</td>
-                        <td>Best-Case</td>
-                        <td>New development environment</td>
-                        <td>Installed Docker, added user to group, restarted session</td>
-                        <td>Smooth operation without sudo</td>
-                        <td>Follow proper installation steps prevents issues</td>
+                        <td><strong>Docker CLI</strong></td>
+                        <td>User Interface</td>
+                        <td>Command-line tool where users type Docker commands</td>
+                        <td><code>docker run</code>, <code>docker ps</code>, <code>docker images</code></td>
                     </tr>
                     <tr>
-                        <td>Daemon Not Running</td>
-                        <td>Worst-Case</td>
-                        <td>Production server reboot</td>
-                        <td>Docker daemon didn't auto-start</td>
-                        <td>Service outage</td>
-                        <td>Always enable daemon auto-start</td>
-                    </tr>
-                    <tr>
-                        <td>Group Permission Issue</td>
-                        <td>Edge Case</td>
-                        <td>User added to group but still denied</td>
-                        <td>Didn't refresh session</td>
-                        <td>Permissions not applied</td>
-                        <td>Must restart session or use newgrp</td>
-                    </tr>
-                    <tr>
-                        <td>Jenkins CI/CD Pipeline</td>
-                        <td>Real-World</td>
-                        <td>Automated deployment system</td>
-                        <td>Configured service account permissions</td>
-                        <td>Successful automation</td>
-                        <td>Service accounts need group membership and service restart</td>
+                        <td><strong>Docker Daemon</strong></td>
+                        <td>Background Service</td>
+                        <td>Service that runs in background and executes Docker commands</td>
+                        <td>Manages containers, images, networks, volumes</td>
                     </tr>
                 </tbody>
             </table>
 
-            <h3>Docker Architecture Diagram</h3>
-            <img src="https://docs.docker.com/engine/images/architecture.svg" alt="Docker Architecture showing Docker Client, Docker Daemon, and Docker Registry interaction">
-            <p><em>Figure: Docker architecture showing the relationship between Docker CLI, Docker Daemon, and Docker Registry</em></p>
+            <h3>How Docker Components Communicate</h3>
+            <ol>
+                <li><strong>User types command:</strong> <code>docker run nginx</code></li>
+                <li><strong>Docker CLI receives command:</strong> Validates syntax</li>
+                <li><strong>Docker CLI sends to Docker Daemon:</strong> Via REST API</li>
+                <li><strong>Docker Daemon executes:</strong> Creates and starts container</li>
+                <li><strong>Response returns to user:</strong> Success or error message</li>
+            </ol>
 
-            <h3>Troubleshooting Docker Issues</h3>
+            <h3>Docker User and Permissions</h3>
+
+            <div class="highlight-box">
+                <p>⚠️ <strong>Important:</strong> By default, only the root user can run Docker commands. Non-root users must be added to the Docker group.</p>
+            </div>
+
+            <h4>Why User Permissions Matter</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Without Docker Group</th>
+                        <th>With Docker Group</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Running Docker commands</td>
+                        <td>Must use <code>sudo</code> every time</td>
+                        <td>Can run commands directly</td>
+                    </tr>
+                    <tr>
+                        <td>Security</td>
+                        <td>More secure but inconvenient</td>
+                        <td>Convenient but grants root-equivalent access</td>
+                    </tr>
+                    <tr>
+                        <td>Automation scripts</td>
+                        <td>Difficult to automate</td>
+                        <td>Easy to automate</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Adding User to Docker Group</h4>
+
+            <h5>Method 1: AWS CLI</h5>
+            <pre><code># Add ubuntu user to docker group
+sudo usermod -aG docker ubuntu
+
+# Activate the new group (without logging out)
+newgrp docker
+
+# Verify group membership
+groups ubuntu</code></pre>
+
+            <h5>Method 2: AWS Console (Not Applicable)</h5>
+            <p>User management in EC2 instances must be done via CLI/SSH as AWS Console doesn't provide direct Linux user group management.</p>
+
+            <div class="info-box">
+                <p>💡 <strong>Tip:</strong> After adding a user to the docker group, they need to log out and log back in, or run <code>newgrp docker</code> for the changes to take effect.</p>
+            </div>
+
+            <h3>Scenario 1: Docker Permission Error (Worst-Case)</h3>
+            <p><strong>Context:</strong> A DevOps engineer deployed an automation script that runs Docker commands. The script fails in production.</p>
+            <p><strong>Action:</strong> Reviewed logs and found: <code>permission denied while trying to connect to the Docker daemon socket</code></p>
+            <p><strong>Root Cause:</strong> The user account running the script wasn't added to the docker group</p>
+            <p><strong>Resolution:</strong> Added user to docker group: <code>sudo usermod -aG docker jenkins</code> and restarted the service</p>
+            <p><strong>Key Lesson:</strong> Always verify user permissions when setting up Docker, especially for service accounts used in automation.</p>
+
+            <h3>Scenario 2: Docker Service Not Running (Worst-Case)</h3>
+            <p><strong>Context:</strong> After server restart, developers report they cannot run any Docker commands</p>
+            <p><strong>Action:</strong> Attempted to run <code>docker ps</code> and received: <code>Cannot connect to the Docker daemon</code></p>
+            <p><strong>Root Cause:</strong> Docker daemon service wasn't set to auto-start on boot</p>
+            <p><strong>Resolution:</strong></p>
+            <pre><code># Check service status
+sudo systemctl status docker
+
+# Start Docker service
+sudo systemctl start docker
+
+# Enable auto-start on boot
+sudo systemctl enable docker</code></pre>
+            <p><strong>Key Lesson:</strong> Always enable Docker service to start automatically on system boot in production environments.</p>
+
+            <h3>Troubleshooting Docker Installation</h3>
             <table>
                 <thead>
                     <tr>
@@ -294,769 +213,145 @@ groups  # should show 'docker' in the list</code></pre>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>"Cannot connect to Docker daemon"</td>
+                        <td>Permission denied error</td>
+                        <td>User not in docker group</td>
+                        <td><code>sudo usermod -aG docker $USER</code></td>
+                        <td>Add all required users during initial setup</td>
+                    </tr>
+                    <tr>
+                        <td>Cannot connect to daemon</td>
                         <td>Docker service not running</td>
                         <td><code>sudo systemctl start docker</code></td>
-                        <td>Enable auto-start: <code>sudo systemctl enable docker</code></td>
+                        <td>Enable service: <code>sudo systemctl enable docker</code></td>
                     </tr>
                     <tr>
-                        <td>"Permission denied" on docker commands</td>
-                        <td>User not in docker group</td>
-                        <td><code>sudo usermod -aG docker $USER</code> then <code>newgrp docker</code></td>
-                        <td>Add users to docker group during onboarding</td>
+                        <td>Commands not found</td>
+                        <td>Docker not installed properly</td>
+                        <td>Reinstall Docker using official installation script</td>
+                        <td>Verify installation: <code>docker --version</code></td>
                     </tr>
                     <tr>
-                        <td>Docker commands hang indefinitely</td>
-                        <td>Daemon crashed or unresponsive</td>
-                        <td><code>sudo systemctl restart docker</code></td>
-                        <td>Monitor daemon logs: <code>journalctl -u docker -f</code></td>
-                    </tr>
-                    <tr>
-                        <td>"No space left on device"</td>
-                        <td>Docker images/containers consuming disk</td>
-                        <td><code>docker system prune -a</code> to clean unused resources</td>
-                        <td>Regularly clean unused images and containers</td>
-                    </tr>
-                    <tr>
-                        <td>Container immediately exits after start</td>
-                        <td>Application error or missing dependencies</td>
-                        <td>Check logs: <code>docker logs CONTAINER_ID</code></td>
-                        <td>Test application locally before containerizing</td>
+                        <td>Service fails to start</td>
+                        <td>Port conflict or corrupted installation</td>
+                        <td>Check logs: <code>journalctl -u docker</code></td>
+                        <td>Use standard ports, regular system updates</td>
                     </tr>
                 </tbody>
             </table>
 
-            <h3>Key Takeaways: Docker Fundamentals</h3>
-            <ul>
-                <li>Docker consists of Docker CLI (user interface) and Docker Daemon (background service)</li>
-                <li>Only root user can run Docker commands by default - add users to docker group for convenience</li>
-                <li>Always verify Docker daemon is running before executing commands</li>
-                <li>Group membership changes require session refresh with <code>newgrp docker</code> or reconnection</li>
-                <li>Enable Docker daemon auto-start to prevent service disruptions after reboots</li>
-                <li>In CI/CD environments, service accounts need proper docker group membership and service restarts</li>
-            </ul>
-
-            <h2 id="containerization">2. Containerization Concepts</h2>
+            <h2 id="docker-images">4. Docker Images & Registries</h2>
 
             <h3>Real-Life Analogy</h3>
             <div class="info-box">
-                <p>💡 <strong>Think of Docker Images and Containers like Building Apartments:</strong></p>
+                <p>💡 <strong>Think of Docker Images like Software Installation Files:</strong></p>
                 <ul>
-                    <li><strong>Dockerfile</strong> is like architectural blueprints showing how to construct the building</li>
-                    <li><strong>Docker Image</strong> is like the completed building template/model home</li>
-                    <li><strong>Container</strong> is like an actual occupied apartment where people live and work</li>
-                    <li><strong>Base Image</strong> is like the building foundation and structure</li>
-                    <li><strong>Layers</strong> are like floors being added one by one to the building</li>
+                    <li><strong>Image</strong> is like an .exe or .dmg file - contains everything needed to create the running application</li>
+                    <li><strong>Container</strong> is like the installed, running application</li>
+                    <li><strong>Docker Hub</strong> is like an app store where you download installation files</li>
+                    <li><strong>Building Image</strong> is like creating your own custom software installer</li>
                 </ul>
-                <p><strong>For example:</strong> You can create multiple apartments (containers) from one building design (image), and each apartment runs independently but shares the same basic structure.</p>
             </div>
 
             <h3>What is a Docker Image?</h3>
-            <p>A Docker image is a <strong>read-only template</strong> that contains everything needed to run an application: application code, runtime environment, system libraries, dependencies, and configuration files. Think of it as a blueprint or snapshot of your application and its environment.</p>
-
-            <p><strong>Image Characteristics:</strong></p>
+            <p>A Docker image is a read-only template that contains:</p>
             <ul>
-                <li><strong>Immutable:</strong> Once built, images cannot be changed (you create new versions instead)</li>
-                <li><strong>Layered:</strong> Built in layers, each representing a Dockerfile instruction</li>
-                <li><strong>Reusable:</strong> Can create unlimited containers from a single image</li>
-                <li><strong>Shareable:</strong> Can be stored in registries and distributed to teams</li>
-                <li><strong>Versioned:</strong> Tagged with versions (e.g., nginx:1.21, python:3.9-slim)</li>
+                <li>Application code</li>
+                <li>Runtime environment (Python, Node.js, Java, etc.)</li>
+                <li>System libraries</li>
+                <li>Dependencies</li>
+                <li>Configuration files</li>
+                <li>Environment variables</li>
             </ul>
 
-            <h3>What is a Container?</h3>
-            <p>A container is a <strong>running instance of an image</strong>. When you execute <code>docker run</code> on an image, Docker creates a container - a lightweight, isolated process with its own filesystem, networking, and resource allocation.</p>
+            <p>Images are immutable - once built, they don't change. If you need to modify an application, you build a new image.</p>
 
-            <p><strong>Container Characteristics:</strong></p>
-            <ul>
-                <li><strong>Ephemeral:</strong> Can be stopped, started, deleted without affecting the image</li>
-                <li><strong>Isolated:</strong> Each container has its own process space, network, and filesystem</li>
-                <li><strong>Lightweight:</strong> Shares host OS kernel, uses minimal resources</li>
-                <li><strong>Stateless (by default):</strong> Data is lost when container stops unless volumes are used</li>
-            </ul>
-
-            <div class="info-box">
-                <p>💡 <strong>Tip:</strong> Remember the relationship: Image is to Container as Class is to Object in programming. One image can create many container instances.</p>
-            </div>
-
-            <h3>Dockerfile: Infrastructure as Code for Containers</h3>
-            <p>A Dockerfile is a text file containing instructions to build a Docker image. Each instruction creates a layer in the image.</p>
+            <h3>Dockerfile: Blueprint for Images</h3>
+            <p>A Dockerfile is a text file containing instructions to build a Docker image. It's infrastructure as code for containers.</p>
 
             <h4>Common Dockerfile Instructions</h4>
             <table>
                 <thead>
                     <tr>
                         <th>Instruction</th>
-                        <th>Description</th>
+                        <th>Purpose</th>
                         <th>Example</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td><code>FROM</code></td>
-                        <td>Specifies base image to build upon</td>
+                        <td>Specify base image</td>
                         <td><code>FROM python:3.9-slim</code></td>
                     </tr>
                     <tr>
                         <td><code>WORKDIR</code></td>
-                        <td>Sets working directory inside container</td>
+                        <td>Set working directory</td>
                         <td><code>WORKDIR /app</code></td>
                     </tr>
                     <tr>
                         <td><code>COPY</code></td>
-                        <td>Copies files from host to container</td>
-                        <td><code>COPY . /app</code></td>
+                        <td>Copy files into image</td>
+                        <td><code>COPY . .</code></td>
                     </tr>
                     <tr>
                         <td><code>RUN</code></td>
-                        <td>Executes commands during image build</td>
+                        <td>Execute commands during build</td>
                         <td><code>RUN pip install -r requirements.txt</code></td>
                     </tr>
                     <tr>
                         <td><code>EXPOSE</code></td>
-                        <td>Documents which port container listens on</td>
+                        <td>Document port usage</td>
                         <td><code>EXPOSE 8080</code></td>
                     </tr>
                     <tr>
                         <td><code>CMD</code></td>
-                        <td>Default command to run when container starts</td>
+                        <td>Default command to run</td>
                         <td><code>CMD ["python", "app.py"]</code></td>
                     </tr>
-                    <tr>
-                        <td><code>ENV</code></td>
-                        <td>Sets environment variables</td>
-                        <td><code>ENV DATABASE_URL=postgres://...</code></td>
-                    </tr>
                 </tbody>
             </table>
 
-            <h3>Building and Running Containers: Complete Workflow</h3>
-
-            <h4>Method 1: AWS CLI</h4>
-
-            <strong>Step 1: Create Dockerfile</strong>
-            <pre><code># Create project directory
-mkdir myapp && cd myapp
-
-# Create Dockerfile
-cat > Dockerfile << 'EOF'
+            <h4>Sample Dockerfile for Python Application</h4>
+            <pre><code># Use lightweight Python base image
 FROM python:3.9-slim
 
+# Set working directory in container
 WORKDIR /app
 
+# Copy requirements file
 COPY requirements.txt .
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copy application code
+COPY app.py .
 
+# Expose port
 EXPOSE 5000
 
-CMD ["python", "app.py"]
-EOF</code></pre>
+# Run application
+CMD ["python", "app.py"]</code></pre>
 
-            <strong>Step 2: Build Docker Image</strong>
-            <pre><code># Build image with tag
+            <h4>Building Docker Image</h4>
+
+            <h5>Method 1: AWS CLI</h5>
+            <pre><code># Navigate to directory containing Dockerfile
+cd /path/to/your/project
+
+# Build image with tag
 docker build -t myapp:v1.0 .
 
-# Build with multiple tags
-docker build -t myapp:v1.0 -t myapp:latest .
+# View built images
+docker images
 
-# Verify image was created
-docker images | grep myapp</code></pre>
+# Run container from image
+docker run -d -p 8080:5000 --name myapp-container myapp:v1.0</code></pre>
 
-            <strong>Step 3: Run Container</strong>
-            <pre><code># Run container in detached mode with port mapping
-docker run -d \
-  --name myapp-container \
-  -p 8080:5000 \
-  -e DATABASE_URL=postgres://db:5432 \
-  myapp:v1.0
+            <h5>Method 2: AWS Console (Not Applicable)</h5>
+            <p>Docker image building must be done via CLI as it requires access to the Docker daemon on the host machine.</p>
 
-# Run interactively with terminal access
-docker run -it \
-  --name myapp-test \
-  myapp:v1.0 /bin/bash
-
-# Verify container is running
-docker ps
-
-# Check container logs
-docker logs myapp-container
-
-# Follow logs in real-time
-docker logs -f myapp-container</code></pre>
-
-            <h4>Method 2: AWS Console (Using EC2)</h4>
-            <ol>
-                <li><strong>Launch EC2 Instance:</strong>
-                    <ul>
-                        <li>Navigate to EC2 Dashboard → Click "Launch Instance"</li>
-                        <li>Choose Ubuntu 22.04 LTS AMI</li>
-                        <li>Select t2.micro (or larger for production)</li>
-                        <li>Configure Security Group: Allow SSH (22), HTTP (80), Custom TCP (8080)</li>
-                        <li>Create/select key pair</li>
-                        <li>Launch instance</li>
-                    </ul>
-                </li>
-                <li><strong>Connect to Instance:</strong>
-                    <ul>
-                        <li>Wait for instance state: Running</li>
-                        <li>Copy public IP address</li>
-                        <li>Connect via SSH: <code>ssh -i yourkey.pem ubuntu@PUBLIC_IP</code></li>
-                    </ul>
-                </li>
-                <li><strong>Install Docker:</strong>
-                    <ul>
-                        <li>Update system: <code>sudo apt update</code></li>
-                        <li>Install Docker: <code>sudo apt install docker.io -y</code></li>
-                        <li>Start Docker: <code>sudo systemctl start docker</code></li>
-                        <li>Enable auto-start: <code>sudo systemctl enable docker</code></li>
-                        <li>Add user to group: <code>sudo usermod -aG docker ubuntu</code></li>
-                        <li>Reconnect or run: <code>newgrp docker</code></li>
-                    </ul>
-                </li>
-                <li><strong>Create Application Files:</strong>
-                    <ul>
-                        <li>Create directory: <code>mkdir ~/myapp && cd ~/myapp</code></li>
-                        <li>Create Dockerfile using text editor: <code>nano Dockerfile</code></li>
-                        <li>Paste Dockerfile content and save (Ctrl+X, Y, Enter)</li>
-                        <li>Create application files (app.py, requirements.txt)</li>
-                    </ul>
-                </li>
-                <li><strong>Build Image:</strong>
-                    <ul>
-                        <li>Run build command: <code>docker build -t myapp:v1.0 .</code></li>
-                        <li>Wait for build to complete (watch output for errors)</li>
-                        <li>Verify: <code>docker images</code></li>
-                    </ul>
-                </li>
-                <li><strong>Run Container:</strong>
-                    <ul>
-                        <li>Start container: <code>docker run -d --name myapp -p 8080:5000 myapp:v1.0</code></li>
-                        <li>Check status: <code>docker ps</code></li>
-                        <li>Test application: Open browser to <code>http://PUBLIC_IP:8080</code></li>
-                    </ul>
-                </li>
-                <li><strong>Monitor and Manage:</strong>
-                    <ul>
-                        <li>View logs: <code>docker logs myapp</code></li>
-                        <li>Stop container: <code>docker stop myapp</code></li>
-                        <li>Restart container: <code>docker start myapp</code></li>
-                        <li>Remove container: <code>docker rm -f myapp</code></li>
-                    </ul>
-                </li>
-            </ol>
-            <h3>Multiple Scenarios: Docker Image and Container Lifecycle</h3>
-
-            <h4>Scenario 1: Best-Case (Successful Container Deployment)</h4>
-            <p><strong>Context:</strong> Developer building and deploying a Python Flask web application</p>
-            <p><strong>Action:</strong></p>
-            <ol>
-                <li>Created Dockerfile with Python 3.9 base image</li>
-                <li>Built image: <code>docker build -t flask-app:v1.0 .</code></li>
-                <li>Tested locally: <code>docker run -p 5000:5000 flask-app:v1.0</code></li>
-                <li>Verified application accessible at localhost:5000</li>
-                <li>Pushed to Docker Hub: <code>docker push username/flask-app:v1.0</code></li>
-                <li>Deployed to production server by pulling image</li>
-            </ol>
-            <p><strong>Outcome:</strong> Application deployed successfully with consistent behavior across environments</p>
-            <p><strong>Key Lesson:</strong> Following proper Dockerfile best practices ensures reliable container builds and deployments</p>
-
-            <h4>Scenario 2: Worst-Case (Container Build Fails)</h4>
-            <p><strong>Context:</strong> Production deployment blocked due to image build failure</p>
-            <p><strong>Action:</strong> Developer tried to build image but received error: "Unable to locate package xyz"</p>
-            <p><strong>Outcome:</strong> Deployment delayed, team blocked from testing new features</p>
-            <p><strong>Root Cause:</strong> Dockerfile referenced outdated package name or incorrect base image</p>
-            <p><strong>Resolution:</strong></p>
-            <pre><code># Check base image is correct
-FROM python:3.9-slim  # Verify version exists
-
-# Update package lists before installing
-RUN apt-get update && apt-get install -y \
-    package-name \
-    && rm -rf /var/lib/apt/lists/*
-
-# Use --no-cache-dir for pip to avoid caching issues
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Rebuild with verbose output
-docker build --no-cache -t myapp:v1.0 .</code></pre>
-            <p><strong>Key Lesson:</strong> Always test Dockerfiles locally before pushing to CI/CD pipelines; use <code>--no-cache</code> flag to debug build issues</p>
-
-            <h4>Scenario 3: Edge Case (Container Runs But App Fails)</h4>
-            <p><strong>Context:</strong> Container starts successfully but application crashes immediately</p>
-            <p><strong>Action:</strong></p>
-            <ol>
-                <li>Ran container: <code>docker run -d --name webapp myapp:v1.0</code></li>
-                <li>Container status showed "Exited (1)" after few seconds</li>
-                <li>Checked logs: <code>docker logs webapp</code></li>
-                <li>Found error: "ModuleNotFoundError: No module named 'flask'"</li>
-            </ol>
-            <p><strong>Explanation:</strong> Dependencies not properly installed during image build</p>
-            <p><strong>Solution:</strong></p>
-            <pre><code># Fix Dockerfile to ensure dependencies installed
-FROM python:3.9-slim
-
-WORKDIR /app
-
-# Copy requirements first for better caching
-COPY requirements.txt .
-
-# Install dependencies with error handling
-RUN pip install --no-cache-dir -r requirements.txt || exit 1
-
-# Then copy application code
-COPY . .
-
-# Verify installation
-RUN python -c "import flask; print(flask.__version__)"
-
-CMD ["python", "app.py"]</code></pre>
-            <p><strong>Key Lesson:</strong> Always check container logs when containers exit unexpectedly; verify all dependencies are installed in Dockerfile</p>
-
-            <h4>Scenario 4: Real-World Application (Microservices E-commerce Platform)</h4>
-            <p><strong>Business Context:</strong> Online retailer deploying microservices architecture with separate containers for frontend, backend, and database</p>
-            <p><strong>Requirements:</strong></p>
-            <ul>
-                <li>Frontend (React): Serves customer-facing website</li>
-                <li>Backend (Node.js): Handles API requests and business logic</li>
-                <li>Database (MongoDB): Stores product and order data</li>
-                <li>All services must communicate securely</li>
-            </ul>
-            <p><strong>Implementation:</strong></p>
-            <ol>
-                <li>Created separate Dockerfiles for each service</li>
-                <li>Built images with semantic versioning (frontend:v2.1.3)</li>
-                <li>Used Docker networks to enable inter-container communication</li>
-                <li>Configured environment variables for service discovery</li>
-                <li>Implemented health checks for each container</li>
-            </ol>
-            <p><strong>Challenges:</strong></p>
-            <ul>
-                <li>Frontend couldn't reach backend API - network misconfiguration</li>
-                <li>Backend database connection failures - incorrect connection string</li>
-                <li>Image sizes were too large (>1GB) - build times excessive</li>
-            </ul>
-            <p><strong>Solutions:</strong></p>
-            <ul>
-                <li>Created custom bridge network for all services</li>
-                <li>Used Docker DNS for service name resolution</li>
-                <li>Optimized Dockerfiles with multi-stage builds reducing images to <200MB</li>
-                <li>Implemented proper environment variable management</li>
-            </ul>
-            <p><strong>Outcome:</strong> Scalable microservices platform handling 10,000+ concurrent users with fast deployment cycles</p>
-            <p><strong>Key Lesson:</strong> Microservices architecture requires careful container networking and optimization; use multi-stage builds for smaller images</p>
-
-            <h3>Docker Image Registries</h3>
-
-            <h4>Public Registry: Docker Hub</h4>
-            <p>Docker Hub is the default public registry where developers share and distribute Docker images. It's like GitHub for container images.</p>
-
-            <h4>Using Docker Hub</h4>
-
-            <strong>Via CLI:</strong>
-            <pre><code># Search for images
-docker search nginx
-
-# Pull official nginx image
-docker pull nginx:latest
-
-# Pull specific version
-docker pull nginx:1.21-alpine
-
-# Login to Docker Hub
-docker login -u USERNAME
-
-# Tag your image for Docker Hub
-docker tag myapp:v1.0 username/myapp:v1.0
-
-# Push image to Docker Hub
-docker push username/myapp:v1.0
-
-# Pull your own image
-docker pull username/myapp:v1.0</code></pre>
-
-            <strong>Via Console (Web Browser):</strong>
-            <ol>
-                <li>Navigate to <a href="https://hub.docker.com" target="_blank">hub.docker.com</a></li>
-                <li>Create free account (or sign in)</li>
-                <li>Click "Create Repository"</li>
-                <li>Configure repository:
-                    <ul>
-                        <li><strong>Name:</strong> Enter repository name (e.g., myapp)</li>
-                        <li><strong>Visibility:</strong> Select Public or Private</li>
-                        <li><strong>Description:</strong> Add repository description</li>
-                    </ul>
-                </li>
-                <li>Click "Create"</li>
-                <li>View push/pull commands provided</li>
-                <li>Use CLI to push images as shown above</li>
-            </ol>
-
-            <div class="success-box">
-                <p>✅ <strong>Best Practice:</strong> Use semantic versioning for image tags (v1.0.0, v1.0.1) and always tag with 'latest' for production-ready versions</p>
-                <p><strong>Why:</strong> Provides clear version history and enables easy rollbacks</p>
-                <p><strong>Source:</strong> Learned from container versioning best practices</p>
-            </div>
-
-            <h4>Private Registry: AWS ECR (Elastic Container Registry)</h4>
-            <p>ECR is AWS's fully managed Docker registry for storing private container images securely within your AWS account.</p>
-
-            <h4>Creating ECR Repository</h4>
-
-            <strong>Via AWS CLI:</strong>
-            <pre><code># Create ECR repository
-aws ecr create-repository \
-    --repository-name myapp \
-    --region us-east-1 \
-    --image-scanning-configuration scanOnPush=true \
-    --encryption-configuration encryptionType=AES256
-
-# Get login command
-aws ecr get-login-password --region us-east-1 | \
-  docker login --username AWS \
-  --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com
-
-# Tag image for ECR
-docker tag myapp:v1.0 \
-  123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:v1.0
-
-# Push to ECR
-docker push \
-  123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:v1.0
-
-# Pull from ECR
-docker pull \
-  123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:v1.0</code></pre>
-
-            <strong>Via AWS Console:</strong>
-            <ol>
-                <li>Navigate to ECR service in AWS Console</li>
-                <li>Click "Create repository"</li>
-                <li>Configure repository settings:
-                    <ul>
-                        <li><strong>Visibility:</strong> Select Private</li>
-                        <li><strong>Repository name:</strong> Enter name (e.g., myapp)</li>
-                        <li><strong>Tag immutability:</strong> Enable to prevent tag overwrites</li>
-                        <li><strong>Scan on push:</strong> Enable for security scanning</li>
-                        <li><strong>Encryption:</strong> Choose AES256 or KMS</li>
-                    </ul>
-                </li>
-                <li>Add tags (optional): Name = MyApp, Environment = Production</li>
-                <li>Click "Create repository"</li>
-                <li>Click repository name to view details</li>
-                <li>Click "View push commands" to see CLI commands</li>
-                <li>Follow CLI commands to authenticate and push images</li>
-            </ol>
-
-            <div class="info-box">
-                <p>💡 <strong>Tip:</strong> ECR automatically scans images for vulnerabilities when "Scan on push" is enabled. Review scan results before deploying to production.</p>
-            </div>
-
-            <h3>Docker Compose: Managing Multiple Containers</h3>
-            <p>When your application requires multiple containers (frontend, backend, database), managing them individually becomes complex. Docker Compose simplifies this by defining all containers in a single YAML file.</p>
-
-            <h4>Why Docker Compose?</h4>
-            <ul>
-                <li><strong>Single Configuration:</strong> Define all services in one docker-compose.yml file</li>
-                <li><strong>Easy Management:</strong> Start all containers with one command: <code>docker-compose up</code></li>
-                <li><strong>Service Dependencies:</strong> Define startup order and dependencies</li>
-                <li><strong>Network Management:</strong> Automatic network creation for inter-service communication</li>
-                <li><strong>Environment Consistency:</strong> Same configuration across development, testing, production</li>
-            </ul>
-
-            <h4>Docker Compose File Example</h4>
-
-            <strong>Via CLI (Create docker-compose.yml):</strong>
-            <pre><code>cat > docker-compose.yml << 'EOF'
-version: '3.8'
-
-services:
-  frontend:
-    image: frontend:v1.0
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_API_URL=http://backend:5000
-    depends_on:
-      - backend
-    networks:
-      - app-network
-
-  backend:
-    image: backend:v1.0
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
-    environment:
-      - DATABASE_URL=mongodb://database:27017/myapp
-      - SECRET_KEY=mysecretkey123
-    depends_on:
-      - database
-    networks:
-      - app-network
-
-  database:
-    image: mongo:5.0
-    volumes:
-      - mongo-data:/data/db
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password123
-    networks:
-      - app-network
-
-volumes:
-  mongo-data:
-
-networks:
-  app-network:
-    driver: bridge
-EOF
-
-# Start all services
-docker-compose up -d
-
-# View running services
-docker-compose ps
-
-# View logs
-docker-compose logs -f
-
-# Stop all services
-docker-compose down
-
-# Stop and remove volumes
-docker-compose down -v</code></pre>
-
-            <strong>Via Console (On EC2):</strong>
-            <ol>
-                <li>Connect to EC2 instance</li>
-                <li>Create project directory: <code>mkdir ~/myproject && cd ~/myproject</code></li>
-                <li>Create directory structure:
-                    <pre><code>mkdir -p frontend backend
-cd ~/myproject</code></pre>
-                </li>
-                <li>Create docker-compose.yml: <code>nano docker-compose.yml</code></li>
-                <li>Paste Docker Compose configuration</li>
-                <li>Save file (Ctrl+X, Y, Enter)</li>
-                <li>Create Dockerfiles in frontend and backend directories</li>
-                <li>Build and start: <code>docker-compose up -d --build</code></li>
-                <li>Verify all services running: <code>docker-compose ps</code></li>
-                <li>Check logs: <code>docker-compose logs frontend</code></li>
-                <li>Access frontend: <code>http://EC2-PUBLIC-IP:3000</code></li>
-            </ol>
-
-            <div class="success-box">
-                <p>✅ <strong>Best Practice:</strong> Use <code>depends_on</code> to control startup order but implement application-level health checks since depends_on only waits for container start, not application readiness</p>
-                <p><strong>Why:</strong> Prevents connection failures when dependent services aren't fully initialized</p>
-                <p><strong>Source:</strong> Learned from microservices startup issues</p>
-            </div>
-
-            <h3>Key Takeaways: Containerization</h3>
-            <ul>
-                <li>Docker images are immutable templates; containers are running instances</li>
-                <li>Dockerfile defines how to build images using layered instructions</li>
-                <li>Use Docker Hub for public images and ECR for private enterprise images</li>
-                <li>Docker Compose simplifies multi-container application management</li>
-                <li>Always test Dockerfiles locally before pushing to production pipelines</li>
-                <li>Optimize images with multi-stage builds to reduce size and build time</li>
-                <li>Implement proper logging and health checks for production containers</li>
-            </ul>
-
-            <h2 id="docker-networking">3. Docker Networking & Storage</h2>
-
-            <h3>Real-Life Analogy</h3>
-            <div class="info-box">
-                <p>💡 <strong>Think of Docker Networking like a Corporate Office Building:</strong></p>
-                <ul>
-                    <li><strong>Bridge Network</strong> is like an internal office network where all employees (containers) can communicate privately</li>
-                    <li><strong>Host Network</strong> is like having your office directly connected to the public street - no internal network separation</li>
-                    <li><strong>Overlay Network</strong> is like a VPN connecting multiple office buildings across cities</li>
-                    <li><strong>Port Mapping</strong> is like a receptionist forwarding external calls to internal extensions</li>
-                    <li><strong>Volumes</strong> are like filing cabinets that persist even when employees (containers) leave</li>
-                </ul>
-                <p><strong>For example:</strong> Just as office networks allow employees to collaborate while keeping work separate from the outside world, Docker networks enable container communication while maintaining isolation.</p>
-            </div>
-
-            <h3>Docker Network Types</h3>
-
-            <h4>1. Bridge Network (Default)</h4>
-            <p>Bridge is the default network driver. Containers on the same bridge network can communicate with each other using container names or IP addresses.</p>
-
-            <p><strong>Characteristics:</strong></p>
-            <ul>
-                <li>Default network for containers unless specified otherwise</li>
-                <li>Provides internal DNS resolution between containers</li>
-                <li>Isolated from host network but can reach external networks</li>
-                <li>Best for single-host deployments</li>
-            </ul>
-
-            <strong>Via CLI:</strong>
-            <pre><code># Create custom bridge network
-docker network create my-bridge-network
-
-# Run containers on custom network
-docker run -d --name web --network my-bridge-network nginx
-docker run -d --name db --network my-bridge-network mongo
-
-# Containers can communicate using names
-docker exec web ping db
-
-# List networks
-docker network ls
-
-# Inspect network
-docker network inspect my-bridge-network
-
-# Remove network
-docker network rm my-bridge-network</code></pre>
-
-            <h4>2. Host Network</h4>
-            <p>Removes network isolation between container and host. Container shares host's network namespace directly.</p>
-
-            <p><strong>Characteristics:</strong></p>
-            <ul>
-                <li>Container uses host's IP address directly</li>
-                <li>No port mapping needed - container binds to host ports directly</li>
-                <li>Better network performance (no network overhead)</li>
-                <li>Less isolation - can cause port conflicts</li>
-                <li>Only works on Linux hosts</li>
-            </ul>
-
-            <strong>Via CLI:</strong>
-            <pre><code># Run container with host network
-docker run -d --name nginx-host --network host nginx
-
-# Container accessible directly on host port 80
-curl localhost:80</code></pre>
-
-            <div class="error-box">
-                <p>❌ <strong>Common Mistake:</strong> Using host network in production without considering port conflicts</p>
-                <p><strong>Impact:</strong> Multiple containers trying to bind to same port will fail</p>
-                <p><strong>Solution:</strong> Use bridge networks with port mapping for better isolation and flexibility</p>
-            </div>
-
-            <h4>3. Overlay Network</h4>
-            <p>Enables communication between containers running on different Docker hosts (multi-host networking). Used in Docker Swarm and Kubernetes.</p>
-
-            <p><strong>Characteristics:</strong></p>
-            <ul>
-                <li>Spans multiple Docker hosts</li>
-                <li>Requires orchestration platform (Swarm, Kubernetes)</li>
-                <li>Encrypted communication between hosts</li>
-                <li>Used for distributed applications</li>
-            </ul>
-
-            <h3>Port Mapping: Making Containers Accessible</h3>
-            <p>By default, containers are isolated from external traffic. Port mapping exposes container ports to the host or external network.</p>
-
-            <h4>Port Mapping Syntax</h4>
-
-            <strong>Via CLI:</strong>
-            <pre><code># Map host port 8080 to container port 80
-docker run -d -p 8080:80 nginx
-
-# Map all container ports to random host ports
-docker run -d -P nginx
-
-# Map specific host IP
-docker run -d -p 192.168.1.100:8080:80 nginx
-
-# Map multiple ports
-docker run -d \
-  -p 8080:80 \
-  -p 8443:443 \
-  nginx
-
-# Check port mappings
-docker port CONTAINER_NAME</code></pre>
-
-            <div class="info-box">
-                <p>💡 <strong>Tip:</strong> Format is always <code>HOST_PORT:CONTAINER_PORT</code>. External traffic → Host Port → Container Port</p>
-            </div>
-
-            <h3>Docker Volumes: Data Persistence</h3>
-            <p>By default, container data is ephemeral - lost when container stops. Volumes provide persistent storage that survives container lifecycle.</p>
-
-            <h4>Why Volumes?</h4>
-            <ul>
-                <li><strong>Data Persistence:</strong> Keep data even after container deletion</li>
-                <li><strong>Data Sharing:</strong> Share data between multiple containers</li>
-                <li><strong>Backup:</strong> Easier to backup volume data</li>
-                <li><strong>Performance:</strong> Better I/O performance than bind mounts</li>
-            </ul>
-
-            <h4>Volume Types</h4>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Description</th>
-                        <th>Use Case</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Named Volumes</strong></td>
-                        <td>Docker-managed volumes with friendly names</td>
-                        <td>Database storage, logs, application data</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Bind Mounts</strong></td>
-                        <td>Mount host directory/file into container</td>
-                        <td>Development (code changes reflected immediately)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>tmpfs</strong></td>
-                        <td>Temporary storage in host memory</td>
-                        <td>Sensitive data, cache (not persisted to disk)</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <strong>Via CLI:</strong>
-            <pre><code># Create named volume
-docker volume create my-data
-
-# Run container with volume
-docker run -d \
-  --name db \
-  -v my-data:/data/db \
-  mongo
-
-# List volumes
-docker volume ls
-
-# Inspect volume
-docker volume inspect my-data
-
-# Bind mount (development)
-docker run -d \
-  -v /home/ubuntu/app:/app \
-  -v /home/ubuntu/logs:/var/log \
-  myapp:v1.0
-
-# Remove unused volumes
-docker volume prune
-
-# Remove specific volume
-docker volume rm my-data</code></pre>
-
-            <div class="success-box">
-                <p>✅ <strong>Best Practice:</strong> Always use named volumes for production databases and important application data</p>
-                <p><strong>Why:</strong> Prevents accidental data loss and makes backup/restore easier</p>
-                <p><strong>Source:</strong> Production database management best practices</p>
-            </div>
-            <!-- Part 3 - Final -->
-<!-- DO NOT include DOCTYPE, head, body opening tags -->
-
-            <h3>Network and Volume Scenario Comparison</h3>
+            <h3>Scenario Comparison: Docker Image Building</h3>
             <table>
                 <thead>
                     <tr>
@@ -1070,624 +365,40 @@ docker volume rm my-data</code></pre>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Microservices Communication</td>
-                        <td>Best-Case</td>
-                        <td>Frontend needs to call backend API</td>
-                        <td>Created custom bridge network for all services</td>
-                        <td>Seamless inter-container communication</td>
-                        <td>Custom networks enable DNS-based service discovery</td>
+                        <td>Quick Development Build</td>
+                        <td>Best Case</td>
+                        <td>Developer testing new feature locally</td>
+                        <td>Created simple Dockerfile, built image, ran container</td>
+                        <td>Application ran successfully in 2 minutes</td>
+                        <td>Docker enables rapid development and testing</td>
                     </tr>
                     <tr>
-                        <td>Database Data Lost</td>
-                        <td>Worst-Case</td>
-                        <td>Container restart lost all database records</td>
-                        <td>Ran MongoDB without volume mount</td>
-                        <td>Production data permanently lost</td>
-                        <td>Always use volumes for stateful services</td>
+                        <td>Large Image Size</td>
+                        <td>Worst Case</td>
+                        <td>Production image taking 2GB, slow deployments</td>
+                        <td>Used full Ubuntu base image with many unnecessary packages</td>
+                        <td>Slow builds, expensive storage, slow container startup</td>
+                        <td>Always use minimal base images (alpine, slim variants)</td>
                     </tr>
                     <tr>
-                        <td>Port Conflict</td>
+                        <td>Missing Dependencies</td>
                         <td>Edge Case</td>
-                        <td>Two containers tried to bind port 8080</td>
-                        <td>Used host network for both containers</td>
-                        <td>Second container failed to start</td>
-                        <td>Use bridge network with different port mappings</td>
+                        <td>Container works locally but fails in production</td>
+                        <td>Forgot to include system library in Dockerfile</td>
+                        <td>Application crashed with "library not found" error</td>
+                        <td>Test images in clean environment before production</td>
                     </tr>
                     <tr>
-                        <td>Multi-Region Deployment</td>
+                        <td>E-commerce Deployment</td>
                         <td>Real-World</td>
-                        <td>App deployed across US and EU data centers</td>
-                        <td>Implemented overlay network with Docker Swarm</td>
-                        <td>Global load-balanced application</td>
-                        <td>Overlay networks enable cross-host container communication</td>
+                        <td>Deploying microservices for shopping website</td>
+                        <td>Created separate images for frontend, backend, payment service</td>
+                        <td>Scaled each service independently based on load</td>
+                        <td>Containers enable microservices architecture</td>
                     </tr>
                 </tbody>
             </table>
 
-            <h3>Key Takeaways: Docker Networking & Storage</h3>
-            <ul>
-                <li>Bridge network is default and best for most single-host applications</li>
-                <li>Port mapping format: <code>-p HOST_PORT:CONTAINER_PORT</code></li>
-                <li>Always use volumes for databases and persistent data</li>
-                <li>Custom networks provide better isolation and DNS-based discovery</li>
-                <li>Bind mounts are useful for development but volumes are better for production</li>
-                <li>Regular volume cleanup prevents disk space issues</li>
-            </ul>
-
-            <h2 id="orchestration-need">4. Why Container Orchestration is Essential</h2>
-
-            <h3>Real-Life Analogy</h3>
             <div class="info-box">
-                <p>💡 <strong>Think of Container Orchestration like Airport Traffic Control:</strong></p>
-                <ul>
-                    <li><strong>Docker alone</strong> is like a single airplane - you can fly it manually</li>
-                    <li><strong>Container Orchestration</strong> is like air traffic control managing hundreds of planes simultaneously</li>
-                    <li><strong>Auto-scaling</strong> is like adding more runways when traffic increases</li>
-                    <li><strong>Load balancing</strong> is like routing planes to less busy runways</li>
-                    <li><strong>Self-healing</strong> is like automatically rerouting a plane if one runway closes</li>
-                    <li><strong>Rolling updates</strong> is like upgrading planes one at a time without stopping airport operations</li>
-                </ul>
-                <p><strong>For example:</strong> Just as airports need sophisticated systems to handle thousands of flights safely, production applications need orchestration to manage hundreds of containers reliably.</p>
+                <p>📄 <strong>Continued in Part 2...</strong></p>
             </div>
-
-            <h3>Limitations of Docker Alone</h3>
-            <p>While Docker revolutionized application deployment, it lacks critical features needed for production environments:</p>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Production Requirement</th>
-                        <th>Docker Capability</th>
-                        <th>Why It's Insufficient</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Auto-scaling</strong></td>
-                        <td>❌ Not supported</td>
-                        <td>Can't automatically create containers based on traffic</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Load Balancing</strong></td>
-                        <td>❌ Not supported</td>
-                        <td>No built-in traffic distribution across containers</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Self-Healing</strong></td>
-                        <td>❌ Not supported</td>
-                        <td>Crashed containers stay down until manually restarted</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Zero-Downtime Deployments</strong></td>
-                        <td>❌ Not supported</td>
-                        <td>Updates require stopping and restarting containers</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Service Discovery</strong></td>
-                        <td>⚠️ Limited</td>
-                        <td>Only within single host using DNS</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Health Monitoring</strong></td>
-                        <td>⚠️ Basic</td>
-                        <td>Can check if container runs but not if app is healthy</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>What is Container Orchestration?</h3>
-            <p>Container orchestration is the <strong>automatic management of containers in production</strong>. It handles scheduling, scaling, networking, security, and lifecycle management of hundreds or thousands of containers across multiple hosts.</p>
-
-            <p><strong>Core Orchestration Features:</strong></p>
-            <ul>
-                <li><strong>Scheduling:</strong> Automatically decides which host runs which containers based on resource availability</li>
-                <li><strong>Scaling:</strong> Adds or removes container replicas based on demand (CPU, memory, custom metrics)</li>
-                <li><strong>Load Balancing:</strong> Distributes traffic across container replicas evenly</li>
-                <li><strong>Self-Healing:</strong> Automatically restarts failed containers and replaces unhealthy ones</li>
-                <li><strong>Rolling Updates:</strong> Updates containers gradually without downtime</li>
-                <li><strong>Rollback:</strong> Reverts to previous version if update fails</li>
-                <li><strong>Service Discovery:</strong> Containers can find and communicate with each other using names</li>
-                <li><strong>Configuration Management:</strong> Centrally manages secrets, config maps, environment variables</li>
-            </ul>
-
-            <h3>Multiple Scenarios: Need for Orchestration</h3>
-
-            <h4>Scenario 1: Best-Case (Properly Orchestrated Application)</h4>
-            <p><strong>Context:</strong> E-commerce site using Kubernetes during Black Friday sale</p>
-            <p><strong>Action:</strong></p>
-            <ul>
-                <li>Normal load: 10 web server containers running</li>
-                <li>CPU usage exceeds 70% threshold</li>
-                <li>Kubernetes automatically scales to 50 containers within 2 minutes</li>
-                <li>Load balancer distributes traffic across all containers</li>
-                <li>Sale ends, traffic drops, Kubernetes scales down to 10 containers</li>
-            </ul>
-            <p><strong>Outcome:</strong> Website handled 10x traffic spike without downtime or manual intervention. Cost-efficient as resources scaled down automatically.</p>
-            <p><strong>Key Lesson:</strong> Auto-scaling with orchestration prevents both crashes from overload and waste from over-provisioning</p>
-
-            <h4>Scenario 2: Worst-Case (No Orchestration - Manual Management)</h4>
-            <p><strong>Context:</strong> News website running Docker without orchestration during breaking news event</p>
-            <p><strong>Action:</strong></p>
-            <ul>
-                <li>Traffic suddenly increased 20x during major news event</li>
-                <li>Single container couldn't handle load - response times >30 seconds</li>
-                <li>DevOps team manually ran <code>docker run</code> to start more containers</li>
-                <li>Took 30 minutes to provision and configure new containers</li>
-                <li>By then, users had left; site reputation damaged</li>
-            </ul>
-            <p><strong>Outcome:</strong> Lost traffic, poor user experience, potential revenue loss, team burnout from emergency response</p>
-            <p><strong>Root Cause:</strong> No automated scaling, manual intervention too slow</p>
-            <p><strong>Resolution:</strong> Implemented Kubernetes with horizontal pod autoscaler (HPA) configured for CPU and memory thresholds</p>
-            <p><strong>Key Lesson:</strong> Manual container management cannot respond fast enough to sudden traffic changes in production</p>
-
-            <h4>Scenario 3: Edge Case (Container Crashes Silently)</h4>
-            <p><strong>Context:</strong> Backend API container crashed due to memory leak at 3 AM</p>
-            <p><strong>Action:</strong></p>
-            <ul>
-                <li>Running plain Docker without orchestration</li>
-                <li>Container exited due to out-of-memory error</li>
-                <li>No automatic restart configured</li>
-                <li>Frontend continued sending requests to dead container</li>
-                <li>Users received "Service Unavailable" errors</li>
-                <li>On-call engineer notified 2 hours later by monitoring alerts</li>
-                <li>Manual restart required: <code>docker start api-container</code></li>
-            </ul>
-            <p><strong>Explanation:</strong> Docker doesn't automatically restart containers unless explicitly configured, and even then, doesn't verify application health</p>
-            <p><strong>Solution:</strong> With Kubernetes, crashed pods are automatically restarted within seconds with proper health checks ensuring application is truly ready</p>
-            <p><strong>Key Lesson:</strong> Self-healing is critical for production systems; orchestration provides automatic recovery without human intervention</p>
-
-            <h4>Scenario 4: Real-World Application (Banking App Deployment)</h4>
-            <p><strong>Business Context:</strong> Major bank deploying new version of mobile banking API serving 2 million customers</p>
-            <p><strong>Requirements:</strong></p>
-            <ul>
-                <li>Zero downtime during deployment (24/7 availability required)</li>
-                <li>Ability to rollback instantly if issues detected</li>
-                <li>Gradual rollout to minimize risk</li>
-                <li>Health checks to verify each instance before receiving traffic</li>
-            </ul>
-            <p><strong>Implementation with Kubernetes:</strong></p>
-            <ol>
-                <li>Configured rolling update strategy: max surge 25%, max unavailable 25%</li>
-                <li>Set up readiness probes to check API health before routing traffic</li>
-                <li>Deployed new version - Kubernetes updated 25% of pods at a time</li>
-                <li>Each new pod passed health checks before old pods terminated</li>
-                <li>Monitored error rates and latency during rollout</li>
-                <li>Total deployment time: 10 minutes with zero customer impact</li>
-            </ol>
-            <p><strong>Challenges:</strong></p>
-            <ul>
-                <li>Initial deployment failed health checks - database connection issue</li>
-                <li>Kubernetes automatically stopped rollout</li>
-                <li>No customer traffic sent to unhealthy pods</li>
-                <li>Team fixed issue and redeployed</li>
-            </ul>
-            <p><strong>Outcome:</strong> Successful zero-downtime deployment protecting customer transactions worth millions. Previous manual deployments took 4 hours with scheduled downtime.</p>
-            <p><strong>Key Lesson:</strong> Orchestration enables continuous deployment with safety controls that protect production while maintaining velocity</p>
-
-            <h3>Available Orchestration Tools</h3>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tool</th>
-                        <th>Description</th>
-                        <th>Best For</th>
-                        <th>Complexity</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Kubernetes (K8s)</strong></td>
-                        <td>Open-source, cloud-agnostic, industry standard</td>
-                        <td>Enterprise production workloads, multi-cloud</td>
-                        <td>High (steep learning curve)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Docker Swarm</strong></td>
-                        <td>Native Docker orchestration, simpler than K8s</td>
-                        <td>Small to medium deployments, Docker-only</td>
-                        <td>Low (easy to learn)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>AWS ECS</strong></td>
-                        <td>AWS-native container orchestration</td>
-                        <td>AWS-only deployments, AWS integrations</td>
-                        <td>Medium (AWS-specific)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>AWS EKS</strong></td>
-                        <td>Managed Kubernetes on AWS</td>
-                        <td>Kubernetes on AWS without cluster management</td>
-                        <td>High (K8s complexity)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>K3s</strong></td>
-                        <td>Lightweight Kubernetes for edge/IoT</td>
-                        <td>Resource-constrained environments</td>
-                        <td>Medium</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>Key Takeaways: Need for Orchestration</h3>
-            <ul>
-                <li>Docker alone cannot handle production requirements like auto-scaling and self-healing</li>
-                <li>Container orchestration automates scheduling, scaling, and lifecycle management</li>
-                <li>Kubernetes is industry standard but has steep learning curve</li>
-                <li>Orchestration enables zero-downtime deployments and automatic recovery</li>
-                <li>Choose orchestration tool based on requirements: K8s for enterprise, Swarm for simplicity, ECS/EKS for AWS</li>
-            </ul>
-
-            <h2 id="kubernetes-architecture">5. Kubernetes Architecture & Components</h2>
-
-            <h3>Real-Life Analogy</h3>
-            <div class="info-box">
-                <p>💡 <strong>Think of Kubernetes like a Large Restaurant Chain:</strong></p>
-                <ul>
-                    <li><strong>Control Plane</strong> is like corporate headquarters making all decisions</li>
-                    <li><strong>API Server</strong> is like the head office reception receiving all requests</li>
-                    <li><strong>etcd</strong> is like the company database storing all records</li>
-                    <li><strong>Scheduler</strong> is like HR deciding which restaurant gets which chef</li>
-                    <li><strong>Controller Manager</strong> is like regional managers overseeing operations</li>
-                    <li><strong>Worker Nodes</strong> are like individual restaurants doing actual work</li>
-                    <li><strong>Kubelet</strong> is like the restaurant manager implementing orders</li>
-                    <li><strong>Pods</strong> are like kitchen stations where food (applications) is prepared</li>
-                    <li><strong>kubectl</strong> is like the CEO's phone used to give commands</li>
-                </ul>
-                <p><strong>For example:</strong> Just as a restaurant chain has central management and distributed locations, Kubernetes has control plane for decisions and worker nodes for execution.</p>
-            </div>
-
-            <h3>Kubernetes Cluster Architecture</h3>
-            <p>Kubernetes runs as a cluster consisting of two main components:</p>
-
-            <div class="highlight-box">
-                <p>⚠️ <strong>Important:</strong> Kubernetes is NOT a single service - it's a cluster-based architecture with multiple components working together.</p>
-            </div>
-
-            <h4>High-Level Architecture</h4>
-            <img src="https://d33wubrfki0l68.cloudfront.net/2475489eaf20163ec0f54ddc1d92aa8d4c87c96b/e7c81/images/docs/components-of-kubernetes.svg" alt="Kubernetes Architecture showing Control Plane and Worker Nodes">
-            <p><em>Figure: Kubernetes cluster architecture with Control Plane (brain) and Worker Nodes (execution)</em></p>
-
-            <h3>Control Plane Components (The Brain)</h3>
-            <p>The Control Plane makes global decisions about the cluster and responds to cluster events. It's the cluster's "brain" that makes all the decisions but doesn't run actual application workloads.</p>
-
-            <h4>1. API Server (kube-apiserver)</h4>
-            <p>The API Server is the <strong>front door</strong> to the Kubernetes cluster. All communication with the cluster goes through it.</p>
-
-            <p><strong>Responsibilities:</strong></p>
-            <ul>
-                <li>Exposes Kubernetes API as single entry point</li>
-                <li>Validates and processes REST requests</li>
-                <li>Authenticates users and authorizes requests (RBAC)</li>
-                <li>Updates etcd with cluster state changes</li>
-                <li>Serves as communication hub for all components</li>
-            </ul>
-
-            <div class="info-box">
-                <p>💡 <strong>Tip:</strong> Every kubectl command you run sends an HTTP request to the API Server. No direct access to other components is possible.</p>
-            </div>
-
-            <h4>2. etcd (Cluster Database)</h4>
-            <p>etcd is a <strong>consistent and highly-available key-value store</strong> that stores all cluster data. It's the "source of truth" for cluster state.</p>
-
-            <p><strong>What etcd Stores:</strong></p>
-            <ul>
-                <li>Cluster configuration</li>
-                <li>Current state of all resources (pods, services, deployments)</li>
-                <li>Secrets and ConfigMaps</li>
-                <li>Service discovery information</li>
-                <li>Node metadata</li>
-            </ul>
-
-            <div class="highlight-box">
-                <p>⚠️ <strong>Important:</strong> etcd is critical - if it fails, cluster cannot function. Always back up etcd in production.</p>
-            </div>
-
-            <h4>3. Scheduler (kube-scheduler)</h4>
-            <p>The Scheduler is the <strong>decision engine</strong> that assigns pods to worker nodes based on resource requirements and constraints.</p>
-
-            <p><strong>Scheduling Process:</strong></p>
-            <ol>
-                <li>Watches API Server for newly created pods with no assigned node</li>
-                <li>Evaluates available worker nodes based on:
-                    <ul>
-                        <li>CPU and memory requirements</li>
-                        <li>Node capacity and current utilization</li>
-                        <li>Affinity/anti-affinity rules</li>
-                        <li>Taints and tolerations</li>
-                        <li>Data locality</li>
-                    </ul>
-                </li>
-                <li>Selects best-fit node for the pod</li>
-                <li>Informs API Server of scheduling decision</li>
-                <li>Kubelet on selected node creates the pod</li>
-            </ol>
-
-            <h4>4. Controller Manager (kube-controller-manager)</h4>
-            <p>The Controller Manager runs multiple <strong>controllers</strong> that watch cluster state and make changes to move current state toward desired state.</p>
-
-            <p><strong>Key Controllers:</strong></p>
-            <ul>
-                <li><strong>Node Controller:</strong> Monitors node health and responds to node failures</li>
-                <li><strong>Replication Controller:</strong> Maintains correct number of pod replicas</li>
-                <li><strong>Endpoints Controller:</strong> Populates Endpoints object (joins Services & Pods)</li>
-                <li><strong>Service Account Controller:</strong> Creates default ServiceAccounts for namespaces</li>
-                <li><strong>Deployment Controller:</strong> Manages deployment rollouts and rollbacks</li>
-            </ul>
-
-            <h4>5. Cloud Controller Manager (cloud-controller-manager)</h4>
-            <p>Runs cloud-specific control loops that integrate Kubernetes with cloud provider APIs (AWS, Azure, GCP).</p>
-
-            <p><strong>Cloud-Specific Tasks:</strong></p>
-            <ul>
-                <li>Node management (creating/deleting cloud VMs)</li>
-                <li>Load balancer provisioning for Services</li>
-                <li>Volume provisioning (EBS, Azure Disk)</li>
-                <li>Network routing setup</li>
-            </ul>
-
-            <h3>Worker Node Components (The Execution)</h3>
-            <p>Worker Nodes are the machines that run containerized applications. Each node has components necessary to run pods and be managed by control plane.</p>
-
-            <h4>1. Kubelet (Node Agent)</h4>
-            <p>Kubelet is an <strong>agent</strong> running on every worker node that ensures containers are running in pods as expected.</p>
-
-            <p><strong>Responsibilities:</strong></p>
-            <ul>
-                <li>Communicates with API Server to receive pod specifications</li>
-                <li>Ensures containers described in PodSpecs are running and healthy</li>
-                <li>Mounts volumes specified in pods</li>
-                <li>Reports node and pod status back to control plane</li>
-                <li>Executes liveness and readiness probes</li>
-            </ul>
-
-            <div class="success-box">
-                <p>✅ <strong>Best Practice:</strong> Kubelet is the bridge between control plane and container runtime. If kubelet fails, that node cannot run new pods.</p>
-                <p><strong>Why:</strong> Control plane has no direct access to worker nodes - kubelet is the only communication channel</p>
-            </div>
-
-            <h4>2. Container Runtime</h4>
-            <p>The Container Runtime is the software responsible for actually running containers. Kubernetes supports multiple runtimes.</p>
-
-            <p><strong>Supported Runtimes:</strong></p>
-            <ul>
-                <li><strong>containerd:</strong> Industry-standard, lightweight (Docker's runtime)</li>
-                <li><strong>CRI-O:</strong> Lightweight alternative designed for Kubernetes</li>
-                <li><strong>Docker:</strong> Full Docker Engine (deprecated in K8s 1.20+)</li>
-            </ul>
-
-            <h4>3. kube-proxy (Network Proxy)</h4>
-            <p>kube-proxy maintains <strong>network rules</strong> on nodes that allow communication to pods from inside or outside the cluster.</p>
-
-            <p><strong>Functions:</strong></p>
-            <ul>
-                <li>Implements Service abstraction (load balancing)</li>
-                <li>Maintains iptables/IPVS rules for routing</li>
-                <li>Enables pod-to-pod communication</li>
-                <li>Forwards traffic to correct pod replicas</li>
-            </ul>
-
-            <h3>Core Kubernetes Objects</h3>
-
-            <h4>Pod (Smallest Deployable Unit)</h4>
-            <p>A Pod is the smallest and simplest unit in Kubernetes. It represents a single instance of a running process and can contain one or more containers that share storage and network.</p>
-
-            <p><strong>Pod Characteristics:</strong></p>
-            <ul>
-                <li>Containers in same pod share IP address and port space</li>
-                <li>Containers can communicate via localhost</li>
-                <li>Ephemeral - pods can be created, destroyed, recreated</li>
-                <li>Usually managed by higher-level controllers (Deployments, StatefulSets)</li>
-            </ul>
-
-            <strong>Create Pod via CLI:</strong>
-            <pre><code># Create pod from YAML
-kubectl apply -f pod.yaml
-
-# Create pod imperatively
-kubectl run nginx --image=nginx:latest
-
-# List pods
-kubectl get pods
-
-# Describe pod details
-kubectl describe pod nginx
-
-# View pod logs
-kubectl logs nginx
-
-# Execute command in pod
-kubectl exec -it nginx -- /bin/bash
-
-# Delete pod
-kubectl delete pod nginx</code></pre>
-
-            <strong>Example Pod YAML:</strong>
-            <pre><code>apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-pod
-  labels:
-    app: web
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.21
-    ports:
-    - containerPort: 80
-    resources:
-      requests:
-        memory: "64Mi"
-        CPU: "250m"
-      limits:
-        memory: "128Mi"
-        cpu: "500m"</code></pre>
-
-            <div class="info-box">
-                <p>💡 <strong>Continued in Final Section...</strong></p>
-            </div>
-
-            <h3>kubectl: The Kubernetes CLI</h3>
-            <p>kubectl is the command-line tool for interacting with Kubernetes clusters. It communicates with the API Server to execute operations.</p>
-
-            <h4>Essential kubectl Commands</h4>
-
-            <pre><code># Cluster information
-kubectl cluster-info
-kubectl get nodes
-kubectl get namespaces
-
-# Working with resources
-kubectl get pods
-kubectl get pods -n NAMESPACE
-kubectl get pods -o wide  # More details
-kubectl get all  # All resources
-
-# Create resources
-kubectl apply -f deployment.yaml
-kubectl create deployment nginx --image=nginx
-
-# Describe resources
-kubectl describe pod POD_NAME
-kubectl describe node NODE_NAME
-
-# Logs and debugging
-kubectl logs POD_NAME
-kubectl logs POD_NAME -f  # Follow logs
-kubectl logs POD_NAME -c CONTAINER_NAME  # Specific container
-
-# Execute commands in pods
-kubectl exec POD_NAME -- ls /
-kubectl exec -it POD_NAME -- /bin/bash
-
-# Port forwarding
-kubectl port-forward POD_NAME 8080:80
-
-# Scaling
-kubectl scale deployment nginx --replicas=5
-
-# Updating
-kubectl set image deployment/nginx nginx=nginx:1.22
-
-# Rollback
-kubectl rollout undo deployment/nginx
-
-# Delete resources
-kubectl delete pod POD_NAME
-kubectl delete deployment DEPLOYMENT_NAME
-kubectl delete -f deployment.yaml</code></pre>
-
-            <h3>Key Takeaways: Kubernetes Architecture</h3>
-            <ul>
-                <li>Kubernetes is a cluster with Control Plane (brain) and Worker Nodes (execution)</li>
-                <li>API Server is single entry point for all cluster communication</li>
-                <li>etcd stores all cluster state - back it up regularly</li>
-                <li>Scheduler assigns pods to nodes based on resources and constraints</li>
-                <li>Kubelet is node agent ensuring pods run correctly</li>
-                <li>Pods are smallest unit containing one or more containers</li>
-                <li>kubectl is CLI tool for cluster interaction</li>
-                <li>Controllers continuously work to match current state to desired state</li>
-            </ul>
-
-            <h2 id="aws-container-services">6. AWS Container Services</h2>
-
-            <h3>Overview of AWS Container Ecosystem</h3>
-            <p>AWS provides multiple container services for different use cases. Understanding when to use each is critical for cost optimization and operational efficiency.</p>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Service</th>
-                        <th>Purpose</th>
-                        <th>When to Use</th>
-                        <th>Management Level</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>ECR</strong></td>
-                        <td>Private container registry</td>
-                        <td>Store Docker images securely</td>
-                        <td>Fully managed</td>
-                    </tr>
-                    <tr>
-                        <td><strong>ECS</strong></td>
-                        <td>AWS-native orchestration</td>
-                        <td>Simple container orchestration on AWS</td>
-                        <td>Managed service</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Fargate</strong></td>
-                        <td>Serverless containers</td>
-                        <td>Run containers without managing servers</td>
-                        <td>Fully serverless</td>
-                    </tr>
-                    <tr>
-                        <td><strong>EKS</strong></td>
-                        <td>Managed Kubernetes</td>
-                        <td>Need Kubernetes features on AWS</td>
-                        <td>Managed control plane</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>ECR (Elastic Container Registry)</h3>
-            <p>ECR is AWS's fully managed Docker registry for storing, managing, and deploying container images privately within your AWS account.</p>
-
-            <p><strong>Key Features:</strong></p>
-            <ul>
-                <li>Private image storage (not public like Docker Hub)</li>
-                <li>Integrated with IAM for access control</li>
-                <li>Automatic image scanning for vulnerabilities</li>
-                <li>Encryption at rest (AES-256) and in transit (HTTPS)</li>
-                <li>Lifecycle policies for automated image cleanup</li>
-                <li>Cross-region replication</li>
-            </ul>
-
-            <h4>Creating and Using ECR Repository</h4>
-
-            <strong>Via AWS CLI:</strong>
-            <pre><code># Create repository
-aws ecr create-repository \
-    --repository-name myapp \
-    --region us-east-1 \
-    --image-scanning-configuration scanOnPush=true
-
-# Get login password and authenticate Docker
-aws ecr get-login-password --region us-east-1 | \
-  docker login --username AWS \
-  --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com
-
-# Tag local image for ECR
-docker tag myapp:latest \
-  123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:latest
-
-# Push to ECR
-docker push \
-  123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:latest
-
-# Pull from ECR
-docker pull \
-  123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:latest
-
-# List images in repository
-aws ecr list-images \
-    --repository-name myapp \
-    --region us-east-1</code></pre>
-
-            <strong>Via AWS Console:</strong>
-            <ol>
-                <li>Navigate to ECR service in AWS Console</li>
-                <li>Select "Private Registry" (left sidebar)</li>
-                <li>Click "Create repository"</li>
-                <li>Configure repository:
-                    <ul>
-                        <li><strong>Visibility settings:</strong> Select "Private"</li>
-                        <li><strong>Repository name:</strong> Enter "myapp"</li>
-                        <li><strong>Tag immutability:</strong> Enable (prevents tag overwrites)</li>
-                        <li><strong>Scan on push:</strong> Enable</li>
-                        <li><strong>KMS encryption:</strong> Enable for enhanced security</li>
-                    </ul>
-                </li>
-                <li>Add tags: Environment=Production, Application=
-           
