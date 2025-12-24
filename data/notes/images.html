@@ -49,6 +49,7 @@
             gap: 1rem;
             margin-bottom: 2rem;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .search-box {
@@ -67,6 +68,22 @@
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .folder-filter {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--note-border);
+            border-radius: 8px;
+            background: var(--note-card-bg);
+            color: var(--note-text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            min-width: 200px;
+        }
+
+        .folder-filter:focus {
+            outline: none;
+            border-color: #3b82f6;
         }
 
         .view-toggle {
@@ -126,6 +143,7 @@
             height: 200px;
             overflow: hidden;
             background: var(--note-table-header);
+            position: relative;
         }
 
         .gallery.list-view .image-wrapper {
@@ -143,6 +161,18 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        .folder-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #3b82f6;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
         .image-info {
@@ -309,12 +339,15 @@
         <a href="javascript:history.back()" class="back-btn">← Back</a>
 
         <div class="gallery-header">
-            <h1>🖼️ Images Gallery</h1>
+            <h1 id="galleryTitle">🖼️ Images Gallery</h1>
             <p id="imageCount">Loading images...</p>
         </div>
 
         <div class="controls">
             <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search images..." oninput="filterImages()">
+            <select class="folder-filter" id="folderFilter" onchange="filterImages()">
+                <option value="">All Folders</option>
+            </select>
             <div class="view-toggle">
                 <button class="view-btn active" onclick="setView('grid')" title="Grid View">⊞</button>
                 <button class="view-btn" onclick="setView('list')" title="List View">☰</button>
@@ -335,6 +368,7 @@
             <img class="lightbox-image" id="lightboxImage" src="" alt="">
             <div class="lightbox-info">
                 <div class="image-name" id="lightboxName"></div>
+                <div class="image-meta" id="lightboxFolder"></div>
                 <button class="download-btn" onclick="downloadImage()">⬇ Download</button>
             </div>
         </div>
@@ -354,33 +388,84 @@
             localStorage.setItem('theme', newTheme);
         });
 
-        // Image data - UPDATE THIS ARRAY WITH YOUR IMAGES
-        const images = [
-            { name: 'EC2 Architecture Diagram', file: 'ec2-architecture.png', category: 'AWS' },
-            { name: 'VPC Network Setup', file: 'vpc-network.png', category: 'Networking' },
-            { name: 'S3 Bucket Configuration', file: 's3-config.png', category: 'Storage' },
-            { name: 'IAM Policies', file: 'iam-policies.png', category: 'Security' },
-            { name: 'Lambda Function Flow', file: 'lambda-flow.png', category: 'Serverless' },
-            { name: 'CloudWatch Dashboard', file: 'cloudwatch.png', category: 'Monitoring' },
-            // Add more images here
+        // Get folder from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const specificFolder = urlParams.get('folder');
+
+        // ALL IMAGES FROM ALL FOLDERS
+        // Add your images here with folder names
+        const allImages = [
+            // 24-12-2025 folder
+            { name: 'EC2 Setup Screenshot', file: '24-12-2025/ec2-setup.png', folder: '24-12-2025', category: 'AWS' },
+            { name: 'VPC Configuration', file: '24-12-2025/vpc-config.png', folder: '24-12-2025', category: 'Networking' },
+            { name: 'Load Balancer Diagram', file: '24-12-2025/load-balancer.png', folder: '24-12-2025', category: 'Architecture' },
+            
+            // 23-12-2025 folder
+            { name: 'S3 Bucket Policy', file: '23-12-2025/s3-policy.png', folder: '23-12-2025', category: 'Storage' },
+            { name: 'IAM Roles Diagram', file: '23-12-2025/iam-roles.png', folder: '23-12-2025', category: 'Security' },
+            
+            // 22-12-2025 folder
+            { name: 'Network Topology', file: '22-12-2025/network-topology.png', folder: '22-12-2025', category: 'Networking' },
+            { name: 'Subnet Configuration', file: '22-12-2025/subnets.png', folder: '22-12-2025', category: 'Networking' },
+            
+            // project_architecture folder
+            { name: 'System Architecture', file: 'project_architecture/system-arch.png', folder: 'project_architecture', category: 'Architecture' },
+            { name: 'Database Schema', file: 'project_architecture/db-schema.png', folder: 'project_architecture', category: 'Database' },
+            
+            // Add more images as needed
         ];
 
         let currentImageIndex = 0;
-        let filteredImages = [...images];
+        let filteredImages = [];
+
+        // Filter images based on URL parameter or show all
+        function initializeImages() {
+            const galleryTitle = document.getElementById('galleryTitle');
+            const folderFilter = document.getElementById('folderFilter');
+            
+            if (specificFolder) {
+                // Show only images from specific folder
+                filteredImages = allImages.filter(img => img.folder === specificFolder);
+                galleryTitle.textContent = `🖼️ Images Gallery - ${specificFolder}`;
+                folderFilter.style.display = 'none'; // Hide filter when showing specific folder
+            } else {
+                // Show all images
+                filteredImages = [...allImages];
+                galleryTitle.textContent = '🖼️ All Images Gallery';
+                
+                // Populate folder filter
+                const folders = [...new Set(allImages.map(img => img.folder))].sort();
+                folders.forEach(folder => {
+                    const option = document.createElement('option');
+                    option.value = folder;
+                    option.textContent = folder;
+                    folderFilter.appendChild(option);
+                });
+            }
+            
+            loadGallery();
+        }
 
         // Load gallery
         function loadGallery() {
             const gallery = document.getElementById('gallery');
             const imageCount = document.getElementById('imageCount');
             
+            if (filteredImages.length === 0) {
+                gallery.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--note-text-muted);">No images found in this folder.</p>';
+                imageCount.textContent = '0 images';
+                return;
+            }
+            
             gallery.innerHTML = filteredImages.map((img, index) => `
                 <div class="image-card" onclick="openLightbox(${index})">
                     <div class="image-wrapper">
-                        <img src="${img.file}" alt="${img.name}" loading="lazy">
+                        <img src="${img.file}" alt="${img.name}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect fill=%22%23ddd%22 width=%22200%22 height=%22200%22/><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>No Image</text></svg>'">
+                        ${!specificFolder ? `<div class="folder-badge">📁 ${img.folder}</div>` : ''}
                     </div>
                     <div class="image-info">
                         <div class="image-name">${img.name}</div>
-                        <div class="image-meta">📁 ${img.category}</div>
+                        <div class="image-meta">📂 ${img.category}</div>
                     </div>
                 </div>
             `).join('');
@@ -391,10 +476,18 @@
         // Filter images
         function filterImages() {
             const search = document.getElementById('searchBox').value.toLowerCase();
-            filteredImages = images.filter(img => 
-                img.name.toLowerCase().includes(search) || 
-                img.category.toLowerCase().includes(search)
-            );
+            const folderValue = document.getElementById('folderFilter').value;
+            
+            filteredImages = allImages.filter(img => {
+                const matchesSearch = img.name.toLowerCase().includes(search) || 
+                                     img.category.toLowerCase().includes(search) ||
+                                     img.folder.toLowerCase().includes(search);
+                const matchesFolder = !folderValue || img.folder === folderValue;
+                const matchesSpecific = !specificFolder || img.folder === specificFolder;
+                
+                return matchesSearch && matchesFolder && matchesSpecific;
+            });
+            
             loadGallery();
         }
 
@@ -420,6 +513,7 @@
             
             document.getElementById('lightboxImage').src = img.file;
             document.getElementById('lightboxName').textContent = img.name;
+            document.getElementById('lightboxFolder').textContent = `📁 ${img.folder} • 📂 ${img.category}`;
             document.getElementById('lightbox').classList.add('active');
         }
 
@@ -438,13 +532,14 @@
             const img = filteredImages[currentImageIndex];
             document.getElementById('lightboxImage').src = img.file;
             document.getElementById('lightboxName').textContent = img.name;
+            document.getElementById('lightboxFolder').textContent = `📁 ${img.folder} • 📂 ${img.category}`;
         }
 
         function downloadImage() {
             const img = filteredImages[currentImageIndex];
             const link = document.createElement('a');
             link.href = img.file;
-            link.download = img.file;
+            link.download = img.file.split('/').pop();
             link.click();
         }
 
@@ -459,7 +554,7 @@
         });
 
         // Initialize
-        loadGallery();
+        initializeImages();
     </script>
 </body>
 </html>
