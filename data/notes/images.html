@@ -127,6 +127,10 @@
             height: 200px;
             overflow: hidden;
             background: var(--note-table-header);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
         .gallery.list-view .image-wrapper {
@@ -144,6 +148,13 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        .image-wrapper .image-error {
+            color: var(--note-text-muted);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 1rem;
         }
 
         .image-info {
@@ -169,7 +180,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--note-pre-bg);
+            background: rgba(0, 0, 0, 0.95);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -193,7 +204,7 @@
             max-height: 80vh;
             object-fit: contain;
             border-radius: 8px;
-            border: 2px solid var(--note-border);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .lightbox-info {
@@ -203,6 +214,13 @@
             margin-top: 1rem;
             text-align: center;
             border: 2px solid var(--note-border);
+            min-width: 300px;
+        }
+
+        .lightbox-counter {
+            font-size: 0.85rem;
+            color: var(--note-text-muted);
+            margin-top: 0.5rem;
         }
 
         .lightbox-close {
@@ -239,6 +257,9 @@
             cursor: pointer;
             color: var(--note-text-primary);
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .lightbox-nav:hover {
@@ -269,6 +290,8 @@
 
         .download-btn:hover {
             background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
 
         @media (max-width: 768px) {
@@ -297,6 +320,11 @@
             .lightbox-next {
                 right: 10px;
             }
+
+            .lightbox-info {
+                min-width: auto;
+                width: 90%;
+            }
         }
     </style>
 </head>
@@ -316,8 +344,8 @@
         <div class="controls">
             <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search images..." oninput="filterImages()">
             <div class="view-toggle">
-                <button class="view-btn active" onclick="setView('grid')" title="Grid View">⊞</button>
-                <button class="view-btn" onclick="setView('list')" title="List View">☰</button>
+                <button class="view-btn active" onclick="setView('grid', this)" title="Grid View">⊞</button>
+                <button class="view-btn" onclick="setView('list', this)" title="List View">☰</button>
             </div>
         </div>
 
@@ -334,6 +362,7 @@
             <img class="lightbox-image" id="lightboxImage" src="" alt="">
             <div class="lightbox-info">
                 <div class="image-name" id="lightboxName"></div>
+                <div class="lightbox-counter" id="lightboxCounter"></div>
                 <button class="download-btn" onclick="downloadImage()">⬇ Download</button>
             </div>
         </div>
@@ -423,7 +452,12 @@
             gallery.innerHTML = filteredImages.map((img, index) => `
                 <div class="image-card" onclick="openLightbox(${index})">
                     <div class="image-wrapper">
-                        <img src="${img.file}" alt="${img.name}" loading="lazy">
+                        <img 
+                            src="${img.file}" 
+                            alt="${img.name}" 
+                            loading="lazy"
+                            onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'image-error\\'>📷<br>Image not found</div>';"
+                        >
                     </div>
                     <div class="image-info">
                         <div class="image-name">${img.name}</div>
@@ -444,12 +478,13 @@
             loadGallery();
         }
 
-        function setView(view) {
+        // FIX 1: Fixed setView() to accept button parameter instead of using global event
+        function setView(view, button) {
             const gallery = document.getElementById('gallery');
             const buttons = document.querySelectorAll('.view-btn');
             
             buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            button.classList.add('active');
             
             if (view === 'list') {
                 gallery.classList.add('list-view');
@@ -458,12 +493,14 @@
             }
         }
 
+        // FIX 2: Added image counter in lightbox
         function openLightbox(index) {
             currentImageIndex = index;
             const img = filteredImages[index];
             
             document.getElementById('lightboxImage').src = img.file;
             document.getElementById('lightboxName').textContent = img.name;
+            document.getElementById('lightboxCounter').textContent = `Image ${index + 1} of ${filteredImages.length}`;
             document.getElementById('lightbox').classList.add('active');
         }
 
@@ -473,6 +510,7 @@
             }
         }
 
+        // FIX 2: Updated navigateImage to also update counter
         function navigateImage(direction) {
             currentImageIndex += direction;
             
@@ -482,6 +520,7 @@
             const img = filteredImages[currentImageIndex];
             document.getElementById('lightboxImage').src = img.file;
             document.getElementById('lightboxName').textContent = img.name;
+            document.getElementById('lightboxCounter').textContent = `Image ${currentImageIndex + 1} of ${filteredImages.length}`;
         }
 
         function downloadImage() {
@@ -492,6 +531,7 @@
             link.click();
         }
 
+        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             const lightbox = document.getElementById('lightbox');
             if (lightbox.classList.contains('active')) {
@@ -501,6 +541,7 @@
             }
         });
 
+        // Initialize gallery
         loadImages();
     </script>
 </body>
