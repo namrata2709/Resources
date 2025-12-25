@@ -136,7 +136,7 @@
             // Add images gallery link first if images exist
             if (note.hasImages && note.images && note.images.length > 0) {
                 filesHTML += `
-                    <div class="file-item" onclick="openGallery('${note.folder}')">
+                    <div class="file-item" data-action="gallery" data-folder="${note.folder}">
                         <span class="file-icon">🖼️</span>
                         <div class="file-info">
                             <span class="file-name">Images Gallery (${note.images.length})</span>
@@ -148,11 +148,9 @@
             }
             
             // Add other files
-            note.files.forEach(file => {
-                // Escape single quotes in file properties
-                const escapedFile = file.file.replace(/'/g, "\\'");
+            note.files.forEach((file, index) => {
                 filesHTML += `
-                    <div class="file-item" onclick="openFile('${note.folder}', '${escapedFile}', '${file.type}')">
+                    <div class="file-item" data-action="file" data-index="${index}">
                         <span class="file-icon">${file.icon}</span>
                         <div class="file-info">
                             <span class="file-name">${file.name}</span>
@@ -165,9 +163,32 @@
             
             filesHTML += '</div>';
             modalBody.innerHTML = filesHTML;
+            
+            // Add click handlers to file items
+            attachFileClickHandlers(note);
         }
         
         document.getElementById('folderModal').classList.add('active');
+    }
+
+    // Attach click handlers to file items
+    function attachFileClickHandlers(note) {
+        const fileItems = document.querySelectorAll('.file-item');
+        
+        fileItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                
+                if (action === 'gallery') {
+                    const folder = this.getAttribute('data-folder');
+                    openGallery(folder);
+                } else if (action === 'file') {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const file = note.files[index];
+                    openFile(note.folder, file.file, file.type);
+                }
+            });
+        });
     }
 
     // Close modal
@@ -196,6 +217,7 @@
     function openFile(folder, filename, type) {
         // Special handling for external links
         if (type === 'link') {
+            // filename is actually the full URL for link types
             window.open(filename, '_blank');
             return;
         }
@@ -231,5 +253,4 @@
     window.openFolder = openFolder;
     window.closeModal = closeModal;
     window.openGallery = openGallery;
-    window.openFile = openFile;
 })();
