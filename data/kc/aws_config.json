@@ -1,0 +1,557 @@
+{
+  "title": "AWS Config",
+  "topic": "AWS Configuration Management and Compliance",
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is AWS Config?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A tool that helps reduce cost",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Cost reduction is the function of AWS Cost Explorer, Cost and Usage Reports, and cost optimization tools, not AWS Config.",
+            "why": "AWS provides dedicated cost management services including Cost Explorer for visualizing spending trends, Cost and Usage Reports for detailed billing analysis, AWS Budgets for cost threshold alerts, and Trusted Advisor for cost optimization recommendations. While AWS Config can indirectly support cost management by identifying unused or misconfigured resources that waste money, cost reduction is not its primary purpose. Config focuses on configuration tracking, compliance monitoring, and resource inventory. An organization might use Config data to find orphaned resources contributing to costs, but the service itself doesn't provide cost analysis, recommendations, or optimization features. Cost management requires different data sources like billing records, usage metrics, and pricing information that Config doesn't handle.",
+            "learnMore": [
+              {
+                "title": "AWS - Cost Management Tools",
+                "url": "https://aws.amazon.com/aws-cost-management/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "A tool that provides advice on how to secure networks on Amazon Web Services (AWS)",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Providing security advice is the function of AWS Trusted Advisor and AWS Security Hub, not AWS Config's configuration tracking purpose.",
+            "why": "AWS Trusted Advisor provides real-time guidance on security best practices including exposed access keys, overly permissive security groups, S3 bucket permissions, and MFA usage on root accounts. Security Hub aggregates security findings and provides continuous security best practice checks against standards like CIS AWS Foundations Benchmark. While AWS Config Rules can evaluate security configurations against compliance requirements, Config itself doesn't provide advisory recommendations or guidance. Config answers 'what is the current configuration' and 'does it comply with defined rules', while Trusted Advisor answers 'what should you change to improve security'. Organizations use both complementarily: Trusted Advisor for proactive recommendations, Config for continuous compliance monitoring and configuration tracking.",
+            "learnMore": [
+              {
+                "title": "AWS - Trusted Advisor",
+                "url": "https://aws.amazon.com/premiumsupport/technology/trusted-advisor/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "A tool that tracks changes to resources",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS Config is a configuration management and compliance service that continuously monitors and records configuration changes to AWS resources, maintaining detailed configuration history and enabling assessment, auditing, and evaluation of resource configurations over time.",
+            "keyPoints": [
+              "Continuously monitors and records configuration changes to AWS resources in near real-time",
+              "Maintains complete configuration history showing how resources were configured at any point in time",
+              "Creates Configuration Items (CI) that capture resource configuration, relationships, and metadata snapshots",
+              "Enables configuration compliance evaluation through Config Rules that assess resource configurations",
+              "Provides timeline view showing when configurations changed, who changed them, and what changed",
+              "Tracks resource relationships showing dependencies and associations between AWS resources",
+              "Supports configuration snapshots delivering periodic complete inventory of all tracked resources"
+            ],
+            "examples": [
+              "Tracking security group rule changes showing who added permissive rule allowing 0.0.0.0/0 access and when",
+              "Viewing EC2 instance configuration history to identify when instance type was changed causing performance issues",
+              "Monitoring S3 bucket policy modifications to ensure encryption requirements remain enforced over time",
+              "Discovering all EC2 instances associated with specific security group through relationship tracking"
+            ],
+            "additionalInfo": "AWS Config addresses the critical challenge of configuration management in dynamic cloud environments where resources change frequently through multiple administrators, automation tools, and application deployments. The service continuously discovers AWS resources in your account, records their current configuration as Configuration Items, and tracks every configuration change over time. Each CI is a point-in-time snapshot containing resource type, ID, ARN, tags, configuration details, relationships to other resources, and metadata about when the configuration was recorded. When configurations change—like modifying security group rules, changing instance types, updating IAM policies, or altering S3 bucket encryption—Config records the new state and maintains historical versions enabling time-based queries like 'show me this security group's configuration on December 1st' or 'when did encryption get disabled on this EBS volume'. This configuration history is invaluable for multiple use cases: troubleshooting by identifying what changed before issues started, security incident investigation by reconstructing how attackers modified resources, compliance auditing by demonstrating resource configurations met requirements at audit time, change management by tracking all modifications with timestamps and relationships, and operational analysis by understanding configuration drift. Config also tracks resource relationships, showing which network interfaces are attached to which EC2 instances, which security groups are associated with resources, or which IAM roles are assumed by services. The Configuration Recorder is the component that discovers resources and records configurations, initially performing complete discovery then continuously monitoring for changes through CloudTrail events and periodic scans. Configuration data is stored in S3 buckets as JSON-formatted files, and Config delivers configuration snapshots on schedule (hourly, daily) containing complete current state. The service integrates with other AWS tools: Config Rules for compliance evaluation, Systems Manager for automated remediation, CloudTrail for correlating configuration changes with API calls, and Security Hub for security posture management. Organizations use Config across compliance scenarios (PCI-DSS, HIPAA, SOC 2 requiring configuration auditing), security monitoring (detecting misconfigurations), operational troubleshooting (root cause analysis of issues), and resource inventory management (knowing what exists and how it's configured).",
+            "learnMore": [
+              {
+                "title": "AWS - What is AWS Config",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html"
+              },
+              {
+                "title": "AWS - Configuration Items",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/config-item-table.html"
+              },
+              {
+                "title": "AWS - Config Best Practices",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/best-practices.html"
+              },
+              {
+                "title": "AWS - Resource Relationships",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/resource-config-reference.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "A tool that logs application programming interface (API) calls to Amazon Web Services (AWS) services in log files",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Logging API calls is the function of AWS CloudTrail, not AWS Config which tracks resource configuration changes.",
+            "why": "AWS CloudTrail records API activity as audit logs showing who made calls, when, from where, and with what parameters. CloudTrail captures the actions being performed (API calls), while Config captures the resulting state of resources after those actions complete. For example, CloudTrail logs the 'ModifySecurityGroupRules' API call with details about the caller and parameters, while Config records the resulting security group configuration showing the new rules. Both services are complementary: CloudTrail provides 'who did what' for accountability, Config provides 'what is the current and historical configuration' for compliance. Organizations typically use both together—CloudTrail for audit trails of activity, Config for tracking configuration state and compliance. Config does use CloudTrail events as triggers to know when to record new configuration snapshots, but Config itself doesn't log API calls.",
+            "learnMore": [
+              {
+                "title": "AWS - CloudTrail Overview",
+                "url": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "What are features of AWS Config? (Select TWO.)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "Check for service usage to see the limits of the service.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Checking service usage limits is the function of AWS Service Quotas and Trusted Advisor, not AWS Config.",
+            "why": "AWS Service Quotas is the dedicated service for viewing and managing service limits (quotas) like maximum number of EC2 instances, VPCs per region, or S3 buckets per account. Trusted Advisor also checks against service limits and warns when approaching thresholds. AWS Config tracks resource configurations and compliance, not service quota utilization. While you could theoretically count resources using Config inventory data and compare to known limits manually, this isn't a Config feature. Service Quotas provides current usage versus limits with request increase capabilities. Organizations monitor quotas through Service Quotas dashboard, CloudWatch metrics, and Trusted Advisor checks, not through Config.",
+            "learnMore": [
+              {
+                "title": "AWS - Service Quotas",
+                "url": "https://docs.aws.amazon.com/servicequotas/latest/userguide/intro.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Send a notification when a threat to Amazon Web Services (AWS) resources is detected.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Threat detection is the function of Amazon GuardDuty, AWS Security Hub, and threat intelligence services, not AWS Config.",
+            "why": "Amazon GuardDuty continuously monitors for malicious activity and unauthorized behavior by analyzing CloudTrail events, VPC Flow Logs, and DNS logs using machine learning and threat intelligence. Security Hub aggregates security findings from GuardDuty, Inspector, Macie, and other services to provide comprehensive threat visibility. AWS Config focuses on configuration compliance, not threat detection. Config evaluates whether resource configurations violate defined rules (like 'S3 buckets must have encryption enabled'), which is compliance checking, not threat detection. A configuration violation like missing encryption is a misconfiguration, not an active threat like malware or unauthorized access. While Config can detect security-relevant misconfigurations that could enable threats, it doesn't detect actual malicious activity, anomalous behavior, or active attacks.",
+            "learnMore": [
+              {
+                "title": "AWS - Amazon GuardDuty",
+                "url": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Send notifications when a configuration change has occurred in an Amazon Web Services (AWS) resource.",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS Config sends notifications through Amazon SNS when configuration changes occur on monitored resources, enabling real-time awareness of infrastructure modifications for change management, security monitoring, and compliance tracking.",
+            "keyPoints": [
+              "Publishes configuration change notifications to SNS topics for real-time alerting and integration",
+              "Notifies when any tracked resource configuration changes, providing immediate visibility into modifications",
+              "Enables integration with incident management, ITSM tools, or custom workflows through SNS subscriptions",
+              "Supports filtering notifications to specific resource types or configuration attributes of interest",
+              "Can trigger automated workflows through SNS-subscribed Lambda functions, email, SMS, or other endpoints",
+              "Provides change notification even before compliance evaluation completes, enabling rapid response",
+              "Includes configuration snapshot details in notifications showing what changed and current state"
+            ],
+            "examples": [
+              "SNS notification sent immediately when security group rules are modified, alerting security team to review changes",
+              "Email notification triggered when S3 bucket policy changes, enabling compliance team to verify access remains appropriate",
+              "Lambda function invoked via SNS when IAM policy is modified, automatically logging change to ITSM ticketing system",
+              "SMS alert sent to on-call engineer when production RDS database configuration changes outside maintenance window"
+            ],
+            "additionalInfo": "Configuration change notifications through SNS form a critical real-time monitoring layer in AWS Config, transforming passive configuration tracking into active change awareness. When Config detects configuration changes—through CloudTrail API call monitoring or periodic resource scans—it publishes events to configured SNS topics containing details about the changed resource, what configuration attributes changed, and the new configuration state. Organizations subscribe various endpoints to these topics: email addresses for human notification, SMS for urgent alerts, HTTPS endpoints for webhook integration with external systems, SQS queues for reliable message processing, or Lambda functions for automated response workflows. This enables diverse use cases: change management processes where configuration changes automatically create change tickets in ServiceNow or Jira, security monitoring where unauthorized changes trigger immediate investigation by SOC teams, compliance workflows where changes to sensitive resources route to approval queues, operational awareness where engineers receive notifications about infrastructure modifications, and automated remediation where Lambda functions evaluate changes and potentially revert unauthorized modifications. The notifications occur independently of Config Rules evaluation, providing immediate change awareness before compliance assessment completes. Organizations can configure notification granularity—all changes versus specific resource types—though filtering typically happens at the SNS subscription level using subscription filter policies. SNS integration also enables fan-out patterns where single configuration change triggers multiple parallel workflows: creating audit log entries, updating CMDB records, notifying stakeholders, and initiating compliance checks simultaneously. Best practices include subscribing security teams to critical resource changes like IAM policies or security groups, integrating with ITSM platforms for change tracking, implementing Lambda-based automated response for policy violations, using SNS filter policies to reduce noise by filtering to relevant resource types, and ensuring SNS topics have appropriate access controls preventing unauthorized subscription. Configuration snapshot details in notifications enable recipients to understand changes without querying Config APIs separately. Organizations should design notification strategies balancing visibility with alert fatigue, perhaps routing routine changes to logging systems while sending high-priority changes like security group or IAM modifications to security teams.",
+            "learnMore": [
+              {
+                "title": "AWS - Config SNS Notifications",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/notifications-for-AWS-Config.html"
+              },
+              {
+                "title": "AWS - SNS Subscriptions",
+                "url": "https://docs.aws.amazon.com/sns/latest/dg/sns-create-subscribe-endpoint-to-topic.html"
+              },
+              {
+                "title": "AWS - Config Change Notifications",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/example-sns-notification.html"
+              },
+              {
+                "title": "AWS - Config Automation",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/remediation.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Retrieve inventory of Amazon Web Services (AWS) resources.",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS Config maintains a comprehensive, queryable inventory of all AWS resources in your account, providing detailed information about resource types, configurations, tags, and relationships that enables asset management, security analysis, and operational visibility.",
+            "keyPoints": [
+              "Automatically discovers and catalogs all supported AWS resources across regions in your account",
+              "Provides detailed resource metadata including type, ID, ARN, tags, configuration details, and current state",
+              "Enables querying inventory using SQL through advanced queries to find resources matching specific criteria",
+              "Tracks resource relationships showing dependencies and associations between resources",
+              "Supports aggregation across multiple accounts and regions for enterprise-wide inventory visibility",
+              "Updates inventory continuously as resources are created, modified, or deleted maintaining current state",
+              "Includes compliance status in inventory showing which resources violate Config Rules"
+            ],
+            "examples": [
+              "Querying Config to find all EC2 instances with 'Environment=Production' tag across all regions",
+              "Using advanced queries to identify unencrypted EBS volumes requiring remediation for compliance",
+              "Discovering all resources associated with specific VPC to understand blast radius before changes",
+              "Generating inventory report of all S3 buckets with public access for security assessment"
+            ],
+            "additionalInfo": "AWS Config's resource inventory capability addresses the fundamental cloud challenge of knowing what assets exist, how they're configured, and how they relate to each other across dynamic, distributed environments. Unlike manual asset tracking or periodic scans, Config maintains continuously updated inventory through automatic resource discovery and change tracking. The Configuration Recorder discovers existing resources during initial setup then monitors for new resource creation through CloudTrail events and periodic scans. Each discovered resource becomes a Configuration Item in the inventory containing comprehensive details: resource type (EC2 instance, S3 bucket, IAM role), unique identifiers (resource ID, ARN), configuration attributes (instance type, bucket policies, role trust relationships), tags for organizational metadata, creation timestamp, region and availability zone, and relationships to other resources. This inventory enables powerful queries using AWS Config advanced query feature with SQL-like syntax: find all resources with specific tags, identify resources in particular states (stopped EC2 instances, disabled CloudTrail trails), locate resources matching security criteria (publicly accessible S3 buckets, security groups allowing 0.0.0.0/0), or discover resources of specific types (all Lambda functions, all DynamoDB tables). The resource relationships tracked by Config show which resources depend on or associate with others: EC2 instances attached to specific security groups, EBS volumes attached to instances, network interfaces associated with subnets, IAM roles assumed by services. This relationship mapping is invaluable for impact analysis before changes, security investigations tracking resource connections, and understanding architecture dependencies. Config supports multi-account aggregation where organization-wide inventory is viewable from central account, essential for enterprises managing hundreds of accounts needing unified asset visibility. The inventory integrates with other AWS services: Systems Manager for software inventory correlation, Security Hub for security posture assessment based on resource configurations, Resource Groups for organizing related resources, and Cost Explorer for cost analysis by resource tags. Use cases span asset management (knowing what exists and where), security assessment (finding misconfigured or vulnerable resources), compliance reporting (demonstrating inventory of regulated systems), cost optimization (identifying unused or oversized resources), and operational troubleshooting (understanding resource dependencies). Organizations should enable Config across all regions and accounts, use consistent tagging strategies to enhance inventory usefulness, regularly query inventory for security and compliance assessments, integrate inventory data with CMDB systems, and leverage advanced queries for automated discovery and reporting.",
+            "learnMore": [
+              {
+                "title": "AWS - Querying Config Resources",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/querying-AWS-resources.html"
+              },
+              {
+                "title": "AWS - Config Advanced Queries",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/example-query.html"
+              },
+              {
+                "title": "AWS - Multi-Account Aggregation",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/aggregate-data.html"
+              },
+              {
+                "title": "AWS - Resource Relationships",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/resource-config-reference.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "Provide users the ability to set up more secure security groups.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Setting up security groups is done through VPC console, CLI, or infrastructure-as-code tools, not AWS Config which only monitors configurations.",
+            "why": "Security groups are configured through Amazon VPC service using Management Console, AWS CLI, SDKs, or infrastructure-as-code tools like CloudFormation and Terraform. AWS Config monitors security group configurations and can evaluate whether they comply with security rules (like 'security groups must not allow 0.0.0.0/0 on port 22'), but Config doesn't provide interfaces for creating or modifying security groups. Config is passive monitoring and compliance checking, not active configuration management. Organizations define secure security groups through VPC tools, then use Config Rules to verify those groups remain properly configured. Config can trigger remediation actions through Systems Manager that modify security groups back to compliant states, but the remediation is separate from Config's core monitoring function.",
+            "learnMore": [
+              {
+                "title": "AWS - Security Groups",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which tool can customers use to define custom rules for AWS Config?",
+      "options": [
+        {
+          "id": "A",
+          "text": "AWS CloudFormation",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "CloudFormation is infrastructure-as-code for provisioning AWS resources, not for defining Config rule logic, though it can deploy Config rules.",
+            "why": "AWS CloudFormation uses templates (JSON or YAML) to define and provision AWS infrastructure resources including EC2 instances, S3 buckets, IAM roles, and yes, Config rules themselves. You can use CloudFormation to deploy Config rules as resources in your template, but the actual compliance evaluation logic for custom rules must be defined in Lambda functions. CloudFormation handles the infrastructure deployment and configuration, while Lambda contains the business logic that evaluates resource compliance. A CloudFormation template might create a custom Config rule resource that references a Lambda function, but the rule's evaluation logic lives in the Lambda code, not in CloudFormation. Organizations use CloudFormation for repeatable Config rule deployment across accounts and regions, but not for writing the rule evaluation logic itself.",
+            "learnMore": [
+              {
+                "title": "AWS - CloudFormation Config Resources",
+                "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_Config.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Amazon API Gateway",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "API Gateway creates, publishes, and manages REST and WebSocket APIs, unrelated to Config rule evaluation logic.",
+            "why": "Amazon API Gateway is a service for building APIs that act as front doors to applications, handling request routing, authentication, throttling, and integration with backend services like Lambda, EC2, or HTTP endpoints. It has no relationship to AWS Config rule evaluation. Config rules evaluate resource compliance through either AWS-managed rule logic or customer-defined Lambda functions. API Gateway doesn't execute compliance checks, analyze resource configurations, or integrate with Config's evaluation framework. The confusion might arise because both API Gateway and Config can trigger Lambda functions, but for completely different purposes: API Gateway invokes Lambda to process API requests, while Config invokes Lambda to evaluate resource compliance.",
+            "learnMore": [
+              {
+                "title": "AWS - API Gateway Overview",
+                "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "AWS Lambda",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS Lambda functions contain the custom evaluation logic for AWS Config rules, enabling organizations to define specific compliance requirements beyond AWS-managed rules by writing code that assesses resource configurations and returns compliance verdicts.",
+            "keyPoints": [
+              "Lambda functions execute custom compliance evaluation logic when Config rule triggers occur",
+              "Receives resource configuration snapshot as input parameter from Config for evaluation",
+              "Returns compliance status (COMPLIANT, NON_COMPLIANT, NOT_APPLICABLE) with optional annotations explaining the verdict",
+              "Supports any programming language Lambda supports (Python, Node.js, Java, Go, .NET) for rule logic",
+              "Can implement complex compliance requirements like business-specific policies or regulatory requirements",
+              "Triggered by configuration changes (change-triggered rules) or on periodic schedule (periodic rules)",
+              "Enables reusable rule logic deployable across multiple accounts and regions"
+            ],
+            "examples": [
+              "Python Lambda function evaluating whether EC2 instances have approved AMI IDs from organization's golden image list",
+              "Node.js Lambda checking that RDS databases use specific parameter groups required by corporate standards",
+              "Lambda function verifying S3 buckets follow naming convention and tag requirements for cost allocation",
+              "Custom rule using Lambda to ensure DynamoDB tables have point-in-time recovery enabled per compliance requirements"
+            ],
+            "additionalInfo": "AWS Lambda serves as the execution environment for custom Config rules, enabling organizations to implement compliance requirements that AWS-managed rules don't cover. While AWS provides 200+ managed rules for common compliance checks (like encrypted storage, MFA on root account, or approved AMIs), many organizations have specific requirements unique to their industry, regulatory environment, or internal policies that require custom evaluation logic. Custom Config rules work through Lambda functions that receive configuration data as input, execute evaluation logic, and return compliance verdicts. When a resource configuration changes or on a defined schedule, Config invokes the Lambda function passing the Configuration Item (resource configuration snapshot) as input. The Lambda code examines configuration attributes, tags, relationships, or external data sources to determine compliance. For example, checking if an EC2 instance's AMI ID matches an approved list, verifying S3 bucket names follow organizational conventions, ensuring DynamoDB tables are in specific regions, or validating that security groups don't violate network segmentation policies. The Lambda function returns compliance results using Config's putEvaluations API: COMPLIANT if resource meets requirements, NON_COMPLIANT if it violates rules with optional annotation explaining why, or NOT_APPLICABLE if rule doesn't apply to this resource type. Organizations write Lambda functions in preferred languages, often using AWS SDKs for additional AWS API calls if rule logic needs external data like checking against DynamoDB tables of approved values or calling third-party compliance APIs. Config provides a Python library (RDK - Rule Development Kit) and several sample Lambda functions as starting points. Custom rules can be change-triggered (evaluate when specific resource types change) or periodic (evaluate all resources on schedule like daily). The Lambda execution model enables sophisticated rules: querying multiple AWS services for context, calling external compliance databases, implementing complex conditional logic, or checking relationships between resources. Organizations deploy custom rules using Config console, CLI, or CloudFormation for infrastructure-as-code. Best practices include implementing error handling for Lambda failures, keeping rule logic simple and focused on single compliance check, using environment variables for configuration parameters like approved value lists, tagging Lambda functions for organization, implementing logging for troubleshooting, testing rules thoroughly before production deployment, and documenting rule intent and remediation steps. Lambda-based custom rules incur Lambda execution costs, but these are typically minimal for compliance checking workloads. The flexibility of Lambda enables Config to address virtually any compliance requirement through custom rules.",
+            "learnMore": [
+              {
+                "title": "AWS - Custom Config Rules with Lambda",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_develop-rules_nodejs.html"
+              },
+              {
+                "title": "AWS - Config Rules Development Kit",
+                "url": "https://github.com/awslabs/aws-config-rdk"
+              },
+              {
+                "title": "AWS - Lambda Function Examples for Config",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_develop-rules_example-events.html"
+              },
+              {
+                "title": "AWS - Building Custom Rules",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_develop-rules.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "AWS Elastic Beanstalk",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Elastic Beanstalk is a platform-as-a-service for deploying web applications, unrelated to Config rule definition.",
+            "why": "AWS Elastic Beanstalk simplifies application deployment by automatically handling infrastructure provisioning (EC2 instances, load balancers, auto-scaling groups), platform management (application server, runtime), and monitoring. Developers upload application code and Beanstalk manages the deployment. This has no relationship to AWS Config rules or compliance evaluation. Beanstalk focuses on application hosting, not configuration compliance checking. While Beanstalk-deployed resources would be monitored by Config like any AWS resources, Beanstalk itself doesn't define or execute Config rule logic. Organizations might run Lambda functions on Beanstalk for various purposes, but Config custom rules specifically use Lambda service directly, not through Beanstalk deployment.",
+            "learnMore": [
+              {
+                "title": "AWS - Elastic Beanstalk Overview",
+                "url": "https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "What are actions that AWS Config takes when a configuration change occurs on an Amazon Web Services (AWS) service? (Select TWO.)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "AWS Config calls AWS Trusted Advisor to assess the security level of applications.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Config does not call Trusted Advisor; these are independent services that operate separately, though both contribute to AWS governance.",
+            "why": "AWS Trusted Advisor and AWS Config are separate services with different purposes. Trusted Advisor provides best practice recommendations across cost optimization, performance, security, fault tolerance, and service limits. Config tracks resource configurations and evaluates compliance against rules. They don't directly integrate or call each other. When configuration changes occur, Config records the change, stores it, evaluates compliance rules, and sends notifications—it doesn't invoke Trusted Advisor. Organizations use both independently: Trusted Advisor for proactive recommendations, Config for continuous compliance monitoring. There's no automatic linkage where configuration changes trigger Trusted Advisor assessments. Both services might identify similar issues (like overly permissive security groups) but through independent analysis, not through integrated workflows.",
+            "learnMore": [
+              {
+                "title": "AWS - Trusted Advisor",
+                "url": "https://aws.amazon.com/premiumsupport/technology/trusted-advisor/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "AWS Config logs and then stores the change in an Amazon Simple Storage Service (Amazon S3) bucket.",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS Config records configuration changes as Configuration Items and delivers them to a designated S3 bucket for durable storage, creating a persistent configuration history that enables auditing, compliance reporting, and historical analysis.",
+            "keyPoints": [
+              "Records each configuration change as a Configuration Item containing complete resource configuration snapshot",
+              "Delivers Configuration Items to designated S3 bucket within minutes of detecting changes",
+              "Stores configuration history as JSON-formatted files in S3 for long-term retention and analysis",
+              "Enables point-in-time configuration queries by maintaining historical snapshots",
+              "Supports compliance requirements for configuration audit trail retention (often years)",
+              "Configuration snapshots delivered on schedule (hourly, daily) containing complete current inventory",
+              "S3 bucket can have lifecycle policies for cost-effective long-term storage using Glacier"
+            ],
+            "examples": [
+              "Config storing EC2 instance Configuration Item in S3 showing instance type was changed from t3.micro to t3.large",
+              "S3 bucket containing years of security group configuration history for compliance audit trail",
+              "Configuration snapshot file in S3 showing complete inventory of all resources at end of fiscal quarter",
+              "JSON file in S3 bucket capturing S3 bucket policy change with before and after configuration details"
+            ],
+            "additionalInfo": "Storing configuration changes in S3 is fundamental to AWS Config's value proposition, transforming transient configuration states into durable, queryable historical records. When Config detects configuration changes through CloudTrail events or resource scans, it creates Configuration Items—JSON-formatted documents containing complete resource configuration snapshots including resource type, unique identifiers, configuration attributes, tags, relationships, and metadata. These CIs are delivered to the designated S3 bucket, organized by resource type, account ID, region, and timestamp in a hierarchical folder structure. The S3 storage provides multiple benefits: durable long-term retention meeting compliance requirements for years of configuration history, cost-effective storage using S3 storage classes and lifecycle policies to transition older configurations to Glacier, scalable storage handling millions of configuration changes across large environments, and integration with analysis tools like Amazon Athena for SQL-based querying of configuration history. Organizations query historical configurations to answer questions like 'what was this security group's configuration on December 1st' or 'when did encryption get disabled on this database'. The S3 bucket also receives configuration snapshots—periodic complete inventories of all tracked resources delivered on schedule (hourly, daily). These snapshots are useful for backup and recovery scenarios or generating complete configuration reports at specific points in time. S3 bucket policies should restrict access to authorized personnel only as configuration data reveals infrastructure details. Bucket versioning protects against accidental deletion, and encryption at rest protects sensitive configuration information. Organizations can use S3 event notifications to trigger additional processing when Config delivers files, such as ingesting into data lakes or SIEM systems. The JSON format enables programmatic analysis, automated compliance checking, and integration with custom tools. Athena queries against Config S3 data enable powerful analysis like identifying all times a specific security group rule existed across history or finding when resources with certain tags were created. For multi-account deployments, Config can deliver logs from multiple accounts to central S3 bucket for consolidated configuration management. Best practices include enabling S3 bucket logging to audit access to configuration data, implementing lifecycle policies to manage storage costs, using encryption for sensitive configurations, restricting bucket access with least-privilege policies, and regularly testing restore procedures to ensure configuration history remains accessible.",
+            "learnMore": [
+              {
+                "title": "AWS - Config S3 Bucket Delivery",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/deliver-config-items-to-s3.html"
+              },
+              {
+                "title": "AWS - Configuration Item Structure",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/config-item-table.html"
+              },
+              {
+                "title": "AWS - Querying Config with Athena",
+                "url": "https://docs.aws.amazon.com/athena/latest/ug/config.html"
+              },
+              {
+                "title": "AWS - Config S3 Bucket Policy",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/s3-bucket-policy.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "AWS Config calls AWS CloudTrail to log the change into log files.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Config does not call CloudTrail; instead, Config uses CloudTrail events as triggers to know when to record configuration changes.",
+            "why": "The relationship between Config and CloudTrail is opposite of what this option suggests. CloudTrail automatically logs all API calls across AWS services, and Config subscribes to CloudTrail events to detect when API calls modify resource configurations. When CloudTrail records an API call like 'ModifySecurityGroupRules', Config sees that event and knows to capture the security group's new configuration. Config doesn't call or trigger CloudTrail—CloudTrail operates independently logging all API activity, and Config consumes those logs. CloudTrail records 'who did what' (the API call), while Config records 'what is the resulting state' (the configuration after the API call). Both services store their data independently: CloudTrail logs go to CloudTrail's S3 bucket, Config configuration items go to Config's S3 bucket. Organizations enable both services separately but they work together providing complementary visibility.",
+            "learnMore": [
+              {
+                "title": "AWS - How Config Uses CloudTrail",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/how-does-config-work.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "AWS Config corrects the change if it violates an Amazon Web Services (AWS) rule.",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Config itself does not automatically correct configuration violations; it only detects and reports non-compliance, though remediation actions can be configured separately.",
+            "why": "AWS Config is fundamentally a monitoring and compliance assessment service, not an auto-remediation tool. When Config evaluates a resource against rules and finds non-compliance, it records the violation status and can send notifications, but doesn't automatically change the resource back to compliance. However, Config does support remediation through integration with AWS Systems Manager Automation documents. Organizations can configure Config rules to have associated remediation actions that trigger SSM Automation to correct violations, but this requires explicit configuration and the remediation happens through Systems Manager, not Config itself. The distinction is important: Config detects violations, Systems Manager performs remediation. Auto-remediation must be explicitly enabled per rule and organizations should carefully consider implications before enabling automated changes. Many organizations prefer manual remediation to avoid unintended consequences from automated changes.",
+            "learnMore": [
+              {
+                "title": "AWS - Config Remediation Actions",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/remediation.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "AWS Config uses Amazon Simple Notification Service (Amazon SNS) to send a notification.",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS Config publishes notifications to Amazon SNS topics when configuration changes occur, enabling real-time alerting to administrators, integration with incident management systems, and triggering automated workflows in response to infrastructure modifications.",
+            "keyPoints": [
+              "Publishes configuration change events to designated SNS topics for immediate notification",
+              "Enables multiple notification channels through SNS: email, SMS, HTTPS endpoints, Lambda functions, SQS queues",
+              "Sends notifications for both configuration changes and compliance status changes",
+              "Provides event details including resource identifier, configuration attributes that changed, and compliance status",
+              "Supports fan-out pattern where single change triggers multiple parallel notification workflows",
+              "Integrates with incident management, ITSM tools, and monitoring systems through SNS subscriptions",
+              "Can filter notifications using SNS subscription filter policies to reduce noise"
+            ],
+            "examples": [
+              "SNS email notification sent to security team when IAM policy is modified",
+              "SMS alert to on-call engineer when production RDS instance configuration changes",
+              "Lambda function invoked via SNS to create ServiceNow ticket when Config rule evaluation changes to non-compliant",
+              "Slack notification via SNS HTTPS subscription when S3 bucket public access settings are changed"
+            ],
+            "additionalInfo": "SNS integration is critical to making AWS Config actionable by transforming passive configuration monitoring into active change awareness and response. When Config detects configuration changes or completes compliance evaluations, it publishes events to configured SNS topics containing detailed information about what changed, which resource was affected, and current compliance status. Organizations subscribe various endpoints to these SNS topics to enable diverse workflows: email subscriptions send human-readable notifications to administrators for awareness, SMS subscriptions provide urgent alerts to on-call personnel for critical changes, HTTPS subscriptions integrate with incident management platforms like PagerDuty or Opsgenie, SQS subscriptions provide reliable message queuing for asynchronous processing, and Lambda subscriptions enable automated response workflows. Common use cases include change management where configuration changes automatically create change tickets in ServiceNow or Jira with complete change details, security monitoring where unauthorized security-sensitive changes trigger immediate investigation, compliance workflows where non-compliant resources route to remediation queues, operational dashboards receiving real-time configuration change metrics, and automated remediation where Lambda functions evaluate changes and potentially revert unauthorized modifications or apply automatic fixes. Config publishes two types of SNS notifications: configuration change notifications when resource configurations change, and compliance change notifications when Config rule evaluation status changes from compliant to non-compliant or vice versa. This enables organizations to respond differently to actual configuration changes versus compliance status changes. SNS filter policies allow fine-grained control over which notifications reach which subscribers, reducing alert fatigue by filtering to specific resource types, compliance statuses, or change attributes of interest. For example, security teams might subscribe only to notifications about IAM, security group, and S3 bucket policy changes while operations teams subscribe to EC2 and RDS changes. Best practices include using dedicated SNS topics for different notification types or severity levels, implementing subscription filter policies to reduce noise, ensuring SNS topics have appropriate access controls, integrating with multiple notification channels for redundancy, documenting notification handling procedures, and regularly reviewing notification volume to optimize filtering. Organizations should consider notification storm scenarios where large-scale changes generate massive notification volumes and implement throttling or batching strategies. The combination of Config's comprehensive change tracking with SNS's flexible notification capabilities creates powerful change awareness and automated response possibilities.",
+            "learnMore": [
+              {
+                "title": "AWS - Config SNS Notifications",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/notifications-for-AWS-Config.html"
+              },
+              {
+                "title": "AWS - SNS Message Filtering",
+                "url": "https://docs.aws.amazon.com/sns/latest/dg/sns-message-filtering.html"
+              },
+              {
+                "title": "AWS - Config Event Examples",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/example-sns-notification.html"
+              },
+              {
+                "title": "AWS - SNS Integration Patterns",
+                "url": "https://docs.aws.amazon.com/sns/latest/dg/sns-common-scenarios.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "When is an AWS Config rule associated with a resource evaluated?",
+      "options": [
+        {
+          "id": "A",
+          "text": "When the resource is started",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Config rules evaluate based on configuration changes or schedule, not specifically when resources start or stop.",
+            "why": "Starting a resource (like starting a stopped EC2 instance) is a state change, not a configuration change in Config's context. Config rules trigger on configuration changes—modifications to resource attributes, tags, relationships, or settings. Simply transitioning from stopped to running state without configuration changes typically doesn't trigger Config rule evaluation. However, if starting the resource involves configuration changes (like attaching a network interface), those changes would trigger evaluation. Config rules use two trigger types: change-triggered rules that evaluate when specific resource type configurations change, and periodic rules that evaluate on schedule (hourly, daily) regardless of resource state. Resource operational state (started, stopped) is less relevant than configuration state (what settings, policies, and attributes are configured).",
+            "learnMore": [
+              {
+                "title": "AWS - Config Rule Trigger Types",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config-rules.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "When an AWS Lambda function initiates the evaluation",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "While Lambda functions execute custom rule logic, rules are triggered by Config based on configuration changes or schedule, not initiated by Lambda.",
+            "why": "The invocation direction is Config triggering Lambda, not Lambda initiating Config evaluations. Config rules have triggers (configuration change or schedule), and when these triggers fire, Config invokes associated Lambda functions (for custom rules) or executes managed rule logic. Lambda functions don't independently decide when to run evaluations—they respond to Config's invocations. Organizations can't arbitrarily call Lambda functions to force Config rule evaluations outside of Config's triggering mechanisms. However, Config does provide APIs to programmatically trigger rule evaluations (StartConfigRulesEvaluation API), but this is direct Config API invocation, not Lambda-initiated. The Lambda function's role is executing compliance logic when Config invokes it, not controlling when evaluation occurs.",
+            "learnMore": [
+              {
+                "title": "AWS - Custom Config Rules",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_develop-rules.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "When the resource is stopped",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Stopping resources is a state change, not necessarily a configuration change that triggers Config rule evaluation.",
+            "why": "Similar to starting resources, stopping an EC2 instance or RDS database changes operational state but not necessarily configuration. Config monitors configuration attributes like security group associations, IAM roles, encryption settings, tags, and policies—the 'how it's configured' rather than 'whether it's running'. A stopped EC2 instance retains its configuration (instance type, security groups, attached volumes) and Config rules evaluate that configuration regardless of running state. If stopping involves configuration changes (like detaching volumes), those changes trigger evaluation. Otherwise, stopping doesn't trigger change-based rules, though periodic rules would still evaluate the resource on schedule. Config's focus is configuration compliance, not operational state monitoring which would be handled by CloudWatch or other monitoring services.",
+            "learnMore": [
+              {
+                "title": "AWS - Config Configuration Items",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/config-item-table.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "When the resource's configuration is changed",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS Config rules evaluate resources when their configuration changes, with change-triggered rules automatically assessing compliance whenever monitored resource attributes, settings, tags, or relationships are modified, ensuring continuous compliance monitoring.",
+            "keyPoints": [
+              "Change-triggered rules automatically evaluate when specific resource type configurations change",
+              "Configuration changes include modifications to resource attributes, tags, policies, associations, or settings",
+              "Evaluation occurs shortly after Config records the configuration change in Configuration Item",
+              "Enables near real-time compliance assessment as infrastructure modifications occur",
+              "Supports scope definition specifying which resource types and change attributes trigger evaluation",
+              "Multiple rules can evaluate same resource change, each checking different compliance requirements",
+              "Failed evaluations generate non-compliant findings with details about violations"
+            ],
+            "examples": [
+              "Config rule evaluating S3 bucket immediately after bucket policy is modified to check if encryption requirement maintained",
+              "Security group rule evaluation triggered when new ingress rule is added checking if it violates 0.0.0.0/0 restrictions",
+              "IAM policy compliance check occurring automatically when policy document is updated",
+              "RDS instance evaluation when backup retention period is changed verifying it meets minimum requirement"
+            ],
+            "additionalInfo": "Configuration change-based evaluation is the primary trigger mechanism for AWS Config rules, enabling continuous, automated compliance monitoring that responds to infrastructure modifications in near real-time. Change-triggered rules specify which resource types they monitor and optionally which configuration attributes trigger evaluation. When Config detects configuration changes through CloudTrail event monitoring or resource scans—such as security group rule modifications, IAM policy updates, S3 bucket setting changes, or tag modifications—it records the new configuration as a Configuration Item then triggers evaluation of all relevant rules. The evaluation happens within minutes of the change, providing rapid feedback on compliance status. For AWS-managed rules, Config executes built-in evaluation logic; for custom rules, Config invokes the associated Lambda function passing the new Configuration Item as input. The rule logic examines configuration attributes, compares against compliance requirements, and returns verdict: COMPLIANT if resource meets requirements, NON_COMPLIANT if it violates rules with annotation explaining the violation, or NOT_APPLICABLE if rule doesn't apply. This change-based evaluation model enables several critical capabilities: immediate detection of configuration drift where resources diverge from desired state, rapid identification of security misconfigurations before they're exploited, automated compliance monitoring without manual audits, and enforcement of organizational standards through continuous checking. Organizations can scope rules narrowly to evaluate only specific resource types or configuration attributes of interest, reducing unnecessary evaluations and costs. For example, a rule checking S3 bucket encryption might trigger only on bucket policy or encryption setting changes, not on tagging changes. Some configuration changes naturally trigger multiple rule evaluations simultaneously—changing security group rules might trigger rules checking for 0.0.0.0/0 access, rules verifying minimum port restrictions, and rules ensuring proper tagging. Config handles these efficiently through parallel evaluation. Best practices include implementing rules for all security-relevant configurations like encryption, access controls, and network settings, scoping rules appropriately to balance coverage with evaluation costs, configuring remediation actions for rules where automatic correction is safe, combining change-triggered rules with periodic rules for comprehensive coverage, and regularly reviewing rule effectiveness and tuning to reduce false positives. Organizations should understand that not every resource state change triggers configuration change events—starting or stopping instances might not trigger rules unless configuration attributes actually change. The change-based model assumes configuration changes are the primary compliance concern, which is appropriate for infrastructure compliance monitoring.",
+            "learnMore": [
+              {
+                "title": "AWS - Config Rule Evaluation",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config-rules.html"
+              },
+              {
+                "title": "AWS - Change-Triggered Rules",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_develop-rules.html"
+              },
+              {
+                "title": "AWS - Config Rule Scope",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/config-rule-multi-account-deployment.html"
+              },
+              {
+                "title": "AWS - Managed Config Rules",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/managed-rules-by-aws-config.html"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
