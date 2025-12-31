@@ -1,0 +1,1280 @@
+{
+  "title": "Amazon Virtual Private Cloud (VPC) Quiz",
+  "topic": "AWS Networking - Amazon VPC",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which AWS networking service enables a company to create a virtual network within AWS?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Amazon Route 53",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Amazon Route 53 is a DNS and traffic routing service, not a virtual networking service.",
+            "why": "Route 53 is used to translate domain names into IP addresses and to route traffic based on routing policies such as latency, geolocation, or failover. It does not create or manage isolated networks, IP address ranges, subnets, or routing boundaries. While Route 53 plays an important role in directing traffic to resources inside a VPC, it operates outside the VPC itself and cannot define network topology or isolation.",
+            "examples": [
+              "Using Route 53 to route users to an Application Load Balancer that runs inside a VPC"
+            ],
+            "learnMore": [
+              {
+                "title": "Amazon Route 53 – What is DNS Routing?",
+                "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "AWS Config",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS Config is a configuration tracking and compliance service, not a networking service.",
+            "why": "AWS Config records configuration changes of AWS resources and evaluates them against rules for compliance and governance. It does not create networks, subnets, or routing components. While it can track changes made to VPC resources, it plays an observational role rather than an infrastructure provisioning role.",
+            "examples": [
+              "Tracking whether a VPC has internet gateways attached using AWS Config rules"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS Config – Monitoring Resource Configurations",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "AWS Direct Connect",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS Direct Connect provides a dedicated physical connection to AWS, not a virtual network.",
+            "why": "Direct Connect establishes a private, high-bandwidth connection between an on-premises data center and AWS. It improves consistency and reduces latency compared to internet-based connections, but it does not define IP ranges, subnets, or routing inside AWS. Direct Connect connects to a VPC but does not replace or create one.",
+            "examples": [
+              "Using Direct Connect to link an on-premises network to an existing VPC"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS Direct Connect – Overview",
+                "url": "https://docs.aws.amazon.com/directconnect/latest/UserGuide/Welcome.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Amazon Virtual Private Cloud (Amazon VPC)",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Amazon VPC is the AWS service that allows customers to create a logically isolated virtual network within the AWS cloud.",
+            "keyPoints": [
+              "Provides a logically isolated network environment within AWS",
+              "Allows full control over IPv4 and IPv6 address ranges using CIDR blocks",
+              "Enables creation of subnets, route tables, gateways, and network interfaces",
+              "Supports both public and private networking architectures",
+              "Integrates with security controls such as security groups and network ACLs",
+              "Forms the foundation for nearly all AWS network designs"
+            ],
+            "examples": [
+              "Creating a VPC with a /16 CIDR block and dividing it into public and private subnets",
+              "Deploying EC2 instances into private subnets with outbound internet access via a NAT Gateway",
+              "Connecting multiple VPCs using VPC peering or Transit Gateway",
+              "Using VPC endpoints to access AWS services without internet exposure"
+            ],
+            "additionalInfo": "Amazon Virtual Private Cloud is the core networking service in AWS that enables customers to define and control their own virtual network environment. When you create a VPC, you specify an IP address range using CIDR notation, which becomes the address space for all resources deployed inside that VPC. Within this address space, you create subnets that reside in specific Availability Zones, allowing for high availability and fault tolerance. VPCs support both public architectures, where resources can communicate directly with the internet through an Internet Gateway, and private architectures, where resources remain isolated and use NAT Gateways or VPC endpoints for outbound access. Amazon VPC also integrates tightly with AWS security mechanisms. Security groups act as stateful firewalls at the instance level, while network ACLs provide stateless filtering at the subnet level. Advanced networking features such as VPC peering, Transit Gateway, PrivateLink, and VPN connections allow organizations to build complex hybrid and multi-VPC architectures. Because VPCs are isolated by default, they provide strong network-level separation between workloads, making them suitable for production, regulated, and multi-tenant environments. Nearly every AWS workload runs inside a VPC, even if the networking details are abstracted away by managed services.",
+            "learnMore": [
+              {
+                "title": "Amazon VPC – What Is a VPC?",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html"
+              },
+              {
+                "title": "AWS VPC Concepts and Components",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Introduction.html"
+              },
+              {
+                "title": "AWS Networking Fundamentals",
+                "url": "https://aws.amazon.com/vpc/faqs/"
+              },
+              {
+                "title": "VPC Security Best Practices",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "What is the minimum size subnet you can have in an Amazon VPC?",
+      "options": [
+        {
+          "id": "A",
+          "text": "/26",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A /26 subnet is larger than the minimum required size in Amazon VPC.",
+            "why": "A /26 subnet provides 64 IP addresses, which exceeds AWS minimum requirements. While valid, it is not the smallest subnet size allowed. AWS enforces a minimum of /28 to ensure sufficient addresses after reserving system IPs.",
+            "learnMore": [
+              {
+                "title": "VPC Subnet Sizing",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "/28",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "A /28 is the smallest subnet size allowed in Amazon VPC, providing the minimum number of IP addresses required by AWS.",
+            "keyPoints": [
+              "A /28 subnet contains 16 total IPv4 addresses",
+              "AWS reserves 5 IP addresses in every subnet",
+              "Leaves 11 usable IP addresses for resources",
+              "Smaller subnets than /28 are not permitted",
+              "Applies to both public and private subnets"
+            ],
+            "examples": [
+              "Creating a /28 subnet for a small utility workload",
+              "Using /28 subnets for tightly scoped environments like bastion hosts",
+              "Allocating /28 subnets for isolated testing resources"
+            ],
+            "additionalInfo": "Amazon VPC enforces a minimum subnet size of /28 to ensure adequate space for both AWS-managed networking functions and customer resources. Every subnet, regardless of size, has five IP addresses reserved by AWS. These addresses are used for the network address, the VPC router, DNS resolution, future use, and the broadcast address. In a /28 subnet, which contains 16 total IP addresses, this reservation leaves 11 usable addresses. AWS does not allow smaller subnet sizes such as /29 or /30 because they would leave too few usable addresses after these reservations. Understanding subnet sizing is critical for network planning, especially in environments that require many small subnets across multiple Availability Zones. While /28 is technically allowed, most production workloads use larger subnet sizes such as /24 to allow for scaling. However, knowing the minimum is important for exam scenarios and for designing tightly controlled network segments where IP exhaustion is not a concern.",
+            "learnMore": [
+              {
+                "title": "AWS Subnet CIDR Restrictions",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html"
+              },
+              {
+                "title": "CIDR Notation Explained",
+                "url": "https://www.cloudflare.com/learning/network-layer/what-is-cidr/"
+              },
+              {
+                "title": "VPC IP Addressing",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "/24",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A /24 subnet is commonly used but not the minimum allowed size.",
+            "why": "A /24 provides 256 IP addresses, which is far larger than the minimum requirement. It is popular in production because it simplifies scaling, but it is not the smallest subnet AWS allows.",
+            "learnMore": [
+              {
+                "title": "Designing VPC Subnets",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/design-your-vpc.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "/30",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A /30 subnet is not allowed in Amazon VPC.",
+            "why": "A /30 subnet contains only 4 IP addresses. Since AWS reserves 5 IPs in every subnet, a /30 cannot function and is therefore invalid in Amazon VPC. This is a common exam trap.",
+            "learnMore": [
+              {
+                "title": "AWS Reserved IP Addresses",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "What is the maximum IPv4 address range size you can have in an Amazon VPC?",
+      "options": [
+        {
+          "id": "A",
+          "text": "/28",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A /28 is the minimum subnet size, not the maximum VPC CIDR size.",
+            "why": "A /28 is far too small for a VPC-level CIDR block and is used only for subnets. VPC CIDR blocks have a different sizing range.",
+            "learnMore": [
+              {
+                "title": "VPC CIDR Block Rules",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-cidr-blocks.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "/24",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A /24 CIDR block is valid for a VPC but not the maximum size.",
+            "why": "A /24 provides only 256 IP addresses. AWS allows much larger VPC CIDR ranges to support large-scale environments.",
+            "learnMore": [
+              {
+                "title": "Amazon VPC IP Addressing",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "/16",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "A /16 is the largest IPv4 CIDR block that can be assigned to a single Amazon VPC.",
+            "keyPoints": [
+              "A /16 provides 65,536 total IPv4 addresses",
+              "Represents the maximum size for a single VPC CIDR block",
+              "Allows creation of many subnets across multiple Availability Zones",
+              "Commonly used for enterprise-scale VPC designs",
+              "Additional CIDR blocks can be added if needed"
+            ],
+            "examples": [
+              "Creating a VPC with 10.0.0.0/16 for large multi-tier applications",
+              "Dividing a /16 into multiple /24 subnets per Availability Zone",
+              "Expanding a VPC by adding secondary CIDR blocks later"
+            ],
+            "additionalInfo": "Amazon VPC allows IPv4 CIDR blocks ranging from /28 to /16 when creating a VPC. A /16 CIDR block provides 65,536 IP addresses, making it the largest possible single CIDR allocation for a VPC. This size is commonly used in production environments that require extensive subnetting across multiple Availability Zones, tiers, and environments such as public, private, and database subnets. Proper planning of VPC CIDR ranges is critical because overlapping CIDR blocks prevent connectivity options like VPC peering and hybrid networking. While AWS allows adding secondary IPv4 CIDR blocks to a VPC after creation, the original block cannot be changed. This makes initial CIDR planning an important architectural decision. A /16 provides enough address space for most workloads, but overly large CIDR blocks should still be planned carefully to avoid IP waste and routing complexity. Understanding the maximum VPC size is a frequent exam topic and a practical requirement for scalable AWS network design.",
+            "learnMore": [
+              {
+                "title": "VPC CIDR Block Size Rules",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-cidr-blocks.html"
+              },
+              {
+                "title": "Planning VPC IP Addressing",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/design-your-vpc.html"
+              },
+              {
+                "title": "AWS VPC Best Practices",
+                "url": "https://aws.amazon.com/architecture/well-architected/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "/30",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A /30 is not valid for VPC CIDR allocation.",
+            "why": "A /30 is too small and cannot accommodate AWS reserved IP addresses. It is neither valid for VPCs nor practical for subnetting in AWS.",
+            "learnMore": [
+              {
+                "title": "AWS VPC CIDR Requirements",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "You must allow resources in a private subnet to access the internet. Which of the following provides this capability?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Route tables",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Route tables define traffic paths but do not provide internet access on their own.",
+            "why": "Route tables control how traffic is routed within a VPC by specifying destination CIDR blocks and targets, such as internet gateways or NAT gateways. However, they do not perform network address translation or enable connectivity by themselves. A route table entry pointing to the internet is meaningless unless the target resource, such as a NAT Gateway or Internet Gateway, actually exists and can handle the traffic.",
+            "examples": [
+              "Adding a 0.0.0.0/0 route without a NAT Gateway does not enable outbound internet access"
+            ],
+            "learnMore": [
+              {
+                "title": "VPC Route Tables",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "NAT Gateway",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "A NAT Gateway allows instances in a private subnet to initiate outbound connections to the internet while preventing inbound connections from the internet.",
+            "keyPoints": [
+              "Enables outbound-only internet access for private subnet resources",
+              "Performs network address translation from private to public IPs",
+              "Requires placement in a public subnet",
+              "Uses an Elastic IP address for internet connectivity",
+              "Scales automatically and is highly available within an Availability Zone",
+              "Does not allow unsolicited inbound connections"
+            ],
+            "examples": [
+              "Private EC2 instances downloading security patches from the internet",
+              "Backend application servers calling third-party APIs",
+              "Containers in private subnets accessing external package repositories",
+              "Databases sending logs to external monitoring services"
+            ],
+            "additionalInfo": "A NAT Gateway is the standard AWS solution for enabling internet access from private subnets without exposing those resources directly to inbound internet traffic. It works by translating the private IP addresses of instances into a public IP address when traffic leaves the VPC. The NAT Gateway itself must be deployed in a public subnet and associated with an Elastic IP address so it can communicate with the internet via an Internet Gateway. Private subnet route tables are configured to send all outbound internet traffic, typically 0.0.0.0/0, to the NAT Gateway. This architecture preserves security by keeping private resources unreachable from the internet while still allowing necessary outbound communication. NAT Gateways are managed services that automatically scale to handle traffic bursts and are more reliable than self-managed NAT instances. However, they are Availability Zone–specific, so high availability designs typically deploy one NAT Gateway per AZ and update route tables accordingly. Understanding NAT Gateway behavior is critical for designing secure and functional private subnet architectures in AWS.",
+            "learnMore": [
+              {
+                "title": "NAT Gateways Explained",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html"
+              },
+              {
+                "title": "Private Subnet Internet Access",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT.html"
+              },
+              {
+                "title": "NAT Gateway vs NAT Instance",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-comparison.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Network ACLs",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Network ACLs control traffic flow but do not enable internet connectivity.",
+            "why": "Network ACLs are stateless filters that allow or deny traffic at the subnet boundary. They do not route traffic or provide address translation. Even if a network ACL allows outbound internet traffic, a NAT Gateway or Internet Gateway is still required to actually reach the internet.",
+            "examples": [
+              "Allowing outbound HTTP traffic in a NACL without a NAT Gateway still results in no internet access"
+            ],
+            "learnMore": [
+              {
+                "title": "Network ACL Basics",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Security groups",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Security groups permit traffic but do not provide routing or internet connectivity.",
+            "why": "Security groups are stateful firewalls that control allowed inbound and outbound traffic at the instance level. They cannot perform network address translation or connect a subnet to the internet. They only define what traffic is permitted once connectivity exists.",
+            "examples": [
+              "Allowing outbound HTTPS in a security group does not enable internet access without a NAT Gateway"
+            ],
+            "learnMore": [
+              {
+                "title": "Security Groups Overview",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "True or False? Private subnets have direct access to the internet.",
+      "options": [
+        {
+          "id": "A",
+          "text": "True",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Private subnets do not have direct internet access by design.",
+            "why": "Private subnets lack a route to an Internet Gateway. Without such a route, instances cannot communicate directly with the internet. This isolation is intentional to protect backend resources from exposure.",
+            "learnMore": [
+              {
+                "title": "Public vs Private Subnets",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "False",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Private subnets do not have direct internet access and require a NAT-based solution for outbound connectivity.",
+            "keyPoints": [
+              "Private subnets do not route traffic directly to an Internet Gateway",
+              "Instances do not receive public IPv4 addresses",
+              "Outbound internet access requires a NAT Gateway or NAT instance",
+              "Inbound internet connections are blocked by default",
+              "Used for backend services and sensitive workloads"
+            ],
+            "examples": [
+              "Application servers in private subnets accessing APIs via a NAT Gateway",
+              "Databases remaining isolated while still receiving software updates",
+              "Internal services communicating outbound without public exposure"
+            ],
+            "additionalInfo": "Private subnets are a fundamental security construct in Amazon VPC design. By definition, a private subnet does not have a route to an Internet Gateway and therefore cannot communicate directly with the internet. Resources in these subnets typically do not have public IP addresses and are unreachable from external networks. This design reduces attack surface and is commonly used for application tiers, databases, and internal services. When outbound internet access is required, such as for patching, API calls, or updates, a NAT Gateway is introduced in a public subnet. The private subnet’s route table forwards outbound traffic to the NAT Gateway, which then communicates with the internet on behalf of the private resources. This preserves isolation while enabling necessary connectivity. Understanding this distinction is essential for both secure architecture design and AWS certification exams, as private subnet behavior is a frequent source of confusion.",
+            "learnMore": [
+              {
+                "title": "Private Subnets in Amazon VPC",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html"
+              },
+              {
+                "title": "NAT Gateway Concepts",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html"
+              },
+              {
+                "title": "VPC Routing Fundamentals",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "question": "Which component of the AWS global infrastructure does Amazon CloudFront use to ensure low-latency delivery?",
+      "options": [
+        {
+          "id": "A",
+          "text": "AWS Regions",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS Regions host resources but are not optimized for global content caching.",
+            "why": "Regions are designed for deploying applications and data, not for edge caching. Serving global users directly from Regions can introduce latency due to geographic distance.",
+            "learnMore": [
+              {
+                "title": "AWS Regions Explained",
+                "url": "https://docs.aws.amazon.com/general/latest/gr/rande.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "AWS Availability Zones",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Availability Zones provide fault isolation, not global low-latency delivery.",
+            "why": "Availability Zones improve resilience within a Region but do not reduce latency for geographically distant users. They are not part of CloudFront’s delivery mechanism.",
+            "learnMore": [
+              {
+                "title": "AWS Availability Zones",
+                "url": "https://docs.aws.amazon.com/general/latest/gr/aws-azs.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Amazon VPC",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Amazon VPC provides network isolation, not global content distribution.",
+            "why": "A VPC defines private networking boundaries but does not cache or accelerate content delivery to users worldwide. CloudFront operates independently of VPC boundaries.",
+            "learnMore": [
+              {
+                "title": "Amazon VPC Overview",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "AWS Edge Locations",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Amazon CloudFront uses AWS Edge Locations to cache and deliver content close to end users, minimizing latency.",
+            "keyPoints": [
+              "Edge locations are globally distributed points of presence",
+              "Cache content closer to users geographically",
+              "Reduce round-trip time to origin servers",
+              "Improve performance for static and dynamic content",
+              "Integral to CloudFront and other edge services"
+            ],
+            "examples": [
+              "Delivering images from an edge location near a user instead of a distant Region",
+              "Reducing page load times for international customers",
+              "Caching API responses closer to end users"
+            ],
+            "additionalInfo": "AWS Edge Locations form the backbone of Amazon CloudFront’s global content delivery capabilities. These locations are strategically placed around the world to ensure that content can be served from a location physically close to end users. When a user requests content, CloudFront checks the nearest edge location for a cached copy. If present, the content is delivered immediately, significantly reducing latency. If not, CloudFront retrieves the content from the origin, such as an S3 bucket or application load balancer, and caches it at the edge for future requests. This model offloads traffic from origin servers, improves scalability, and enhances user experience. Edge locations are distinct from Regions and Availability Zones and are purpose-built for content delivery rather than application hosting. Understanding the role of edge locations is essential when designing globally distributed applications and is a common focus in AWS exams.",
+            "learnMore": [
+              {
+                "title": "Amazon CloudFront Edge Locations",
+                "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html"
+              },
+              {
+                "title": "How CloudFront Works",
+                "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/HowCloudFrontWorks.html"
+              },
+              {
+                "title": "AWS Global Infrastructure",
+                "url": "https://docs.aws.amazon.com/general/latest/gr/aws-global-infrastructure.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "question": "Which of the following is an optional security control that can be applied at the subnet layer of a VPC?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Web Application Firewall (WAF)",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS WAF operates at the application layer, not at the subnet level.",
+            "why": "AWS WAF is designed to protect web applications by filtering HTTP and HTTPS requests at Layer 7. It integrates with services like CloudFront, Application Load Balancer, and API Gateway, not directly with VPC subnets. It cannot be applied to control traffic entering or leaving a subnet.",
+            "examples": [
+              "Using AWS WAF to block SQL injection attempts on a public-facing web application"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS WAF Overview",
+                "url": "https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Security group",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Security groups are applied at the instance or ENI level, not at the subnet level.",
+            "why": "Security groups act as stateful firewalls attached to elastic network interfaces. They control traffic to and from individual resources, such as EC2 instances, rather than entire subnets. Because they are mandatory and instance-scoped, they are not considered subnet-level controls.",
+            "examples": [
+              "Applying a security group to allow HTTPS traffic to an EC2 instance"
+            ],
+            "learnMore": [
+              {
+                "title": "Security Groups in Amazon VPC",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Firewall",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Firewall is a generic term and not a specific AWS VPC subnet-level feature.",
+            "why": "While firewalls exist in AWS, such as AWS Network Firewall, the generic term \"firewall\" does not refer to a specific subnet-level control in Amazon VPC. Exam questions require precise service names and scopes.",
+            "examples": [
+              "Deploying AWS Network Firewall as a managed service within a VPC"
+            ],
+            "learnMore": [
+              {
+                "title": "AWS Network Firewall",
+                "url": "https://docs.aws.amazon.com/network-firewall/latest/developerguide/what-is-aws-network-firewall.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Network ACL",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Network ACLs are optional, stateless security controls that operate at the subnet level in an Amazon VPC.",
+            "keyPoints": [
+              "Applied at the subnet boundary",
+              "Stateless, requiring explicit inbound and outbound rules",
+              "Optional and configurable per subnet",
+              "Evaluate rules in numerical order",
+              "Provide an additional layer of defense beyond security groups",
+              "Can allow or deny traffic explicitly"
+            ],
+            "examples": [
+              "Blocking a specific IP range from accessing an entire subnet",
+              "Allowing only HTTPS traffic into a public subnet",
+              "Restricting outbound traffic from a subnet to specific ports",
+              "Implementing coarse-grained network controls across multiple instances"
+            ],
+            "additionalInfo": "Network Access Control Lists are one of the two primary security mechanisms in Amazon VPC, the other being security groups. Unlike security groups, which are stateful and mandatory, network ACLs are stateless and optional. They are applied at the subnet level, meaning every resource within the subnet is subject to the same rules. Because they are stateless, return traffic must be explicitly allowed, which requires careful rule design. Network ACLs are evaluated in ascending order based on rule number, and the first matching rule determines whether traffic is allowed or denied. This makes rule ordering critical. NACLs are commonly used to implement broad security controls, such as blocking known malicious IP ranges, enforcing subnet-wide restrictions, or adding an extra security layer for compliance-driven environments. While they are not always required, understanding when and how to use network ACLs is essential for layered security architecture and frequently tested in AWS exams.",
+            "learnMore": [
+              {
+                "title": "Network ACLs in Amazon VPC",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html"
+              },
+              {
+                "title": "Security Groups vs Network ACLs",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"
+              },
+              {
+                "title": "AWS VPC Security Best Practices",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "question": "What happens when you create a new VPC with Amazon VPC?",
+      "options": [
+        {
+          "id": "A",
+          "text": "An internet gateway is created by default",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Internet gateways are not created automatically when a VPC is created.",
+            "why": "AWS requires explicit action to create and attach an Internet Gateway to a VPC. This prevents accidental internet exposure of newly created networks.",
+            "learnMore": [
+              {
+                "title": "Internet Gateways in Amazon VPC",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Three subnets are created by default, one per AZ",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Subnets are not created automatically when a VPC is created.",
+            "why": "Subnets must be created manually or through automation. AWS does not assume how you want to divide your VPC across Availability Zones.",
+            "learnMore": [
+              {
+                "title": "Creating Subnets",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "A main route table is created by default",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS automatically creates a main route table when a new VPC is created.",
+            "keyPoints": [
+              "Main route table is created automatically",
+              "Initially contains only a local route",
+              "Routes traffic within the VPC CIDR block",
+              "Can be replaced or modified",
+              "Used by subnets not explicitly associated with other route tables"
+            ],
+            "examples": [
+              "Default local route enabling communication between subnets",
+              "Associating custom route tables with specific subnets",
+              "Using the main route table as a fallback routing mechanism"
+            ],
+            "additionalInfo": "When a VPC is created, AWS automatically provisions a main route table to handle internal routing. This route table includes a local route that allows all subnets within the VPC to communicate with each other. Subnets that are not explicitly associated with a custom route table automatically use the main route table. While the main route table can be modified, best practice is often to leave it unmodified and instead associate subnets with custom route tables for clearer network segmentation. The automatic creation of the main route table ensures that basic internal connectivity exists immediately after VPC creation, even before additional networking components such as Internet Gateways or NAT Gateways are added. This behavior is consistent across all Regions and is frequently tested in AWS certification exams.",
+            "learnMore": [
+              {
+                "title": "Main Route Table Behavior",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+              },
+              {
+                "title": "VPC Routing Basics",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#RouteTables"
+              },
+              {
+                "title": "Designing VPC Route Tables",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/design-your-vpc.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Three subnets are created in one AZ",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS does not automatically create subnets during VPC creation.",
+            "why": "Subnet creation requires explicit CIDR planning and Availability Zone selection by the user. AWS does not assume subnet structure.",
+            "learnMore": [
+              {
+                "title": "Subnet Creation in VPC",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "question": "How many internet gateways (IGWs) can you attach to an Amazon VPC at any one time?",
+      "options": [
+        {
+          "id": "A",
+          "text": "4",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A VPC cannot have multiple internet gateways attached simultaneously.",
+            "why": "AWS enforces a strict one-to-one relationship between a VPC and an Internet Gateway to maintain predictable routing behavior.",
+            "learnMore": [
+              {
+                "title": "Internet Gateway Limits",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "2",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A VPC supports only a single Internet Gateway attachment.",
+            "why": "Multiple IGWs would introduce routing ambiguity and are not supported by AWS.",
+            "learnMore": [
+              {
+                "title": "Amazon VPC Internet Gateway",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "1",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "An Amazon VPC can have only one Internet Gateway attached at any given time.",
+            "keyPoints": [
+              "One Internet Gateway per VPC",
+              "Internet Gateway enables direct internet access",
+              "Required for public subnets",
+              "Supports IPv4 and IPv6 traffic",
+              "Acts as a horizontally scaled, redundant component"
+            ],
+            "examples": [
+              "Attaching one IGW to enable internet access for public subnets",
+              "Detaching an IGW before attaching it to another VPC",
+              "Routing 0.0.0.0/0 traffic to the IGW from public subnets"
+            ],
+            "additionalInfo": "An Internet Gateway is the component that allows communication between a VPC and the public internet. AWS enforces a one-to-one relationship between a VPC and an Internet Gateway, meaning only one IGW can be attached to a VPC at any time. This design ensures clear and deterministic routing behavior. Internet Gateways are managed, highly available, and horizontally scaled by AWS, so a single IGW does not represent a bottleneck or single point of failure. Public subnets rely on the IGW combined with appropriate route table entries and public IP addressing to enable inbound and outbound internet connectivity. If an IGW needs to be reused, it must first be detached from the existing VPC before being attached to another one. This constraint is commonly tested in AWS exams and is a key foundational rule in VPC networking.",
+            "learnMore": [
+              {
+                "title": "Internet Gateway Concepts",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+              },
+              {
+                "title": "Public Subnet Design",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario1.html"
+              },
+              {
+                "title": "AWS VPC Networking Basics",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "3",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS does not support attaching more than one Internet Gateway to a VPC.",
+            "why": "The Internet Gateway is a singular entry point for internet connectivity in a VPC, and AWS restricts attachment to one per VPC.",
+            "learnMore": [
+              {
+                "title": "VPC Internet Gateway Rules",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "question": "How many subnets should you have to maintain high availability?",
+      "options": [
+        {
+          "id": "A",
+          "text": "3",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Three subnets do not provide balanced high availability across Availability Zones.",
+            "why": "High availability in AWS networking requires redundancy across multiple Availability Zones. Using three subnets often results in uneven architecture where one tier lacks redundancy, creating a potential single point of failure.",
+            "learnMore": [
+              {
+                "title": "High Availability Architecture on AWS",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-overview/high-availability.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "1",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A single subnet cannot provide high availability.",
+            "why": "A single subnet exists in only one Availability Zone. If that AZ experiences issues, all resources in the subnet are impacted, eliminating fault tolerance.",
+            "learnMore": [
+              {
+                "title": "AWS Availability Zones Explained",
+                "url": "https://docs.aws.amazon.com/general/latest/gr/aws-azs.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "4",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Four subnets enable a highly available design by distributing public and private resources across two Availability Zones.",
+            "keyPoints": [
+              "High availability requires at least two Availability Zones",
+              "Each Availability Zone should have both public and private subnets",
+              "Public subnets host internet-facing components",
+              "Private subnets host backend and database resources",
+              "This design removes single points of failure at the AZ level"
+            ],
+            "examples": [
+              "Two public subnets for load balancers across two AZs",
+              "Two private subnets for application servers across two AZs",
+              "Backend services remaining available during AZ failure",
+              "Load balancer routing traffic only to healthy AZs"
+            ],
+            "additionalInfo": "High availability in Amazon VPC architectures is achieved by designing for failure at the Availability Zone level. AWS Regions consist of multiple isolated Availability Zones, and resilient designs distribute resources across at least two of them. To properly support this model, each AZ typically contains a public subnet and a private subnet. Public subnets host internet-facing components such as Application Load Balancers or bastion hosts, while private subnets host application servers and databases. This results in a minimum of four subnets for a standard highly available architecture. If one AZ becomes unavailable, traffic can be routed to resources in the remaining AZ without service interruption. While more subnets can be added for additional tiers or scaling, four subnets represent the foundational minimum for a resilient two-AZ design. This pattern is widely used in reference architectures and is frequently tested in AWS certification exams.",
+            "learnMore": [
+              {
+                "title": "Building Resilient Architectures",
+                "url": "https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/welcome.html"
+              },
+              {
+                "title": "VPC Architecture Best Practices",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/design-your-vpc.html"
+              },
+              {
+                "title": "AWS Multi-AZ Design",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-overview/availability-and-reliability.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "2",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Two subnets alone do not support full high availability for multi-tier architectures.",
+            "why": "While two subnets across two Availability Zones provide some redundancy, they typically represent only one tier. A complete highly available design requires separation of public and private tiers in each AZ.",
+            "learnMore": [
+              {
+                "title": "AWS Multi-Tier Architecture",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-overview/architectural-best-practices.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "question": "What is used to divide an Amazon VPC?",
+      "options": [
+        {
+          "id": "A",
+          "text": "CIDR block",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "CIDR blocks define IP ranges but do not divide a VPC into smaller segments.",
+            "why": "The CIDR block defines the overall address space of a VPC, but subdivision within the VPC is done using subnets.",
+            "learnMore": [
+              {
+                "title": "CIDR Blocks in Amazon VPC",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-cidr-blocks.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Subnet",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Subnets are used to divide an Amazon VPC into smaller, manageable network segments.",
+            "keyPoints": [
+              "Subnets segment a VPC into smaller IP ranges",
+              "Each subnet resides in a single Availability Zone",
+              "Enable isolation of resources by tier or function",
+              "Allow independent routing and security controls",
+              "Fundamental building block of VPC architecture"
+            ],
+            "examples": [
+              "Creating separate subnets for web, application, and database tiers",
+              "Isolating workloads across Availability Zones",
+              "Applying different route tables to public and private subnets",
+              "Restricting access using subnet-level security controls"
+            ],
+            "additionalInfo": "Subnets are the mechanism used to divide an Amazon VPC into smaller address ranges and logical network segments. Each subnet is associated with a single Availability Zone, which enforces physical isolation and supports fault tolerance. By dividing a VPC into subnets, architects can separate workloads by function, security requirements, or exposure level. For example, public subnets host internet-facing components, while private subnets host backend services that should not be directly accessible from the internet. Subnets also allow different routing behavior by associating them with different route tables, and they support additional security layering through network ACLs. Without subnets, all resources would exist in a single flat network, making security, scalability, and high availability difficult to achieve. Subnetting is therefore a foundational concept in AWS networking and appears frequently in certification exams.",
+            "learnMore": [
+              {
+                "title": "Amazon VPC Subnets",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html"
+              },
+              {
+                "title": "Subnet Design Best Practices",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/design-your-vpc.html"
+              },
+              {
+                "title": "AWS Networking Fundamentals",
+                "url": "https://aws.amazon.com/vpc/faqs/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Availability Zones",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Availability Zones provide fault isolation but do not divide a VPC.",
+            "why": "Availability Zones are physical locations within a Region. Subnets are created within AZs, not the other way around.",
+            "learnMore": [
+              {
+                "title": "Availability Zones Overview",
+                "url": "https://docs.aws.amazon.com/general/latest/gr/aws-azs.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Route table",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Route tables control traffic flow but do not divide the VPC.",
+            "why": "Route tables define how traffic is routed but apply to subnets rather than dividing the network structure itself.",
+            "learnMore": [
+              {
+                "title": "VPC Route Tables",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "question": "What defines a subnet?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Availability Zones",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Availability Zones host subnets but do not define them.",
+            "why": "A subnet is placed in an Availability Zone, but its identity and size are determined by its CIDR block.",
+            "learnMore": [
+              {
+                "title": "Subnets and Availability Zones",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Instance",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Instances are deployed into subnets, not used to define them.",
+            "why": "A subnet exists independently of the resources placed within it.",
+            "learnMore": [
+              {
+                "title": "Launching Instances in a Subnet",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-subnets.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Route table",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Route tables influence subnet behavior but do not define subnet boundaries.",
+            "why": "The subnet’s size and IP range are independent of routing configuration.",
+            "learnMore": [
+              {
+                "title": "Route Tables and Subnets",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "CIDR block",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "A subnet is defined by its CIDR block, which determines the IP address range it contains.",
+            "keyPoints": [
+              "CIDR block specifies subnet size and IP range",
+              "Must be a subset of the VPC CIDR block",
+              "Determines number of usable IP addresses",
+              "Cannot overlap with other subnets",
+              "Immutable once the subnet is created"
+            ],
+            "examples": [
+              "Creating a subnet with CIDR 10.0.1.0/24",
+              "Designing smaller /26 subnets for specific workloads",
+              "Planning IP ranges to avoid overlap across AZs",
+              "Reserving address space for future subnet expansion"
+            ],
+            "additionalInfo": "The defining characteristic of a subnet in Amazon VPC is its CIDR block. The CIDR block determines the range of IP addresses available within the subnet and must be a subset of the VPC’s CIDR range. Once a subnet is created, its CIDR block cannot be modified, making careful planning essential. The CIDR block directly impacts how many resources can be placed in the subnet, since AWS reserves five IP addresses in every subnet regardless of size. Subnet CIDR blocks must not overlap with each other, ensuring clear routing and isolation within the VPC. Because each subnet exists in exactly one Availability Zone, architects often design matching CIDR sizes across AZs to maintain symmetry and simplify scaling. Understanding that CIDR blocks define subnets is a foundational networking concept and frequently tested in AWS certification exams.",
+            "learnMore": [
+              {
+                "title": "Subnet CIDR Blocks",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html#subnet-sizing"
+              },
+              {
+                "title": "VPC IP Addressing Guide",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html"
+              },
+              {
+                "title": "CIDR Notation Basics",
+                "url": "https://www.cloudflare.com/learning/network-layer/what-is-cidr/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "question": "How many IP addresses in a subnet are reserved by AWS?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Five",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS reserves five IP addresses in every subnet for internal networking purposes.",
+            "keyPoints": [
+              "Reserved regardless of subnet size",
+              "Used for network identification and routing",
+              "Includes DNS and router functionality",
+              "Reduces usable IP count in every subnet",
+              "Applies to both IPv4 public and private subnets"
+            ],
+            "examples": [
+              "In a /28 subnet with 16 IPs, only 11 are usable",
+              "A /24 subnet provides 251 usable IP addresses",
+              "Subnet planning accounting for reserved addresses",
+              "Avoiding IP exhaustion in small subnets"
+            ],
+            "additionalInfo": "Amazon VPC reserves five IP addresses in each subnet to support core networking functions. These addresses are used for the network address, the VPC router, DNS resolution, future use, and the broadcast address. This reservation occurs regardless of subnet size, which means the impact is more significant in smaller subnets. For example, in a /28 subnet, nearly one third of the available addresses are reserved, leaving only 11 usable IPs for resources. This behavior often appears in certification exams and is a common source of confusion for new AWS users. Understanding reserved IPs is critical for accurate subnet sizing, especially in environments with tight IP constraints or many small subnets. Poor planning can quickly lead to IP exhaustion, requiring redesign or the addition of secondary CIDR blocks. AWS does not allow modification of this reservation behavior, so architects must always plan with these reserved addresses in mind.",
+            "learnMore": [
+              {
+                "title": "AWS Reserved IP Addresses in Subnets",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
+              },
+              {
+                "title": "VPC Subnet IP Addressing",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html"
+              },
+              {
+                "title": "Designing VPC Subnets",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/design-your-vpc.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Two",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS reserves more than two IP addresses per subnet.",
+            "why": "Two reserved addresses would be insufficient to support AWS networking features such as routing and DNS. AWS consistently reserves five IPs in every subnet.",
+            "learnMore": [
+              {
+                "title": "Subnet Sizing Rules",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Three",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS reserves more than three IP addresses per subnet.",
+            "why": "Although traditional networking often reserves fewer addresses, AWS explicitly reserves five to support managed routing, DNS, and future use.",
+            "learnMore": [
+              {
+                "title": "VPC Networking Basics",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Four",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Four reserved IPs is a common misconception but incorrect in AWS.",
+            "why": "AWS reserves five addresses, not four. Exams often include this option as a distractor to test attention to detail.",
+            "learnMore": [
+              {
+                "title": "AWS Subnet Reserved Addresses",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "question": "Which statement describes an elastic network interface?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A virtual network interface you can attach to an instance in a VPC",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "An elastic network interface is a virtual network interface that can be attached to EC2 instances within a VPC.",
+            "keyPoints": [
+              "Represents a virtual NIC in a VPC",
+              "Has its own MAC address and IP addresses",
+              "Can be attached and detached from instances",
+              "Supports multiple private IP addresses",
+              "Associated with security groups",
+              "Used for network isolation and failover designs"
+            ],
+            "examples": [
+              "Attaching a secondary ENI to an EC2 instance for multi-homed networking",
+              "Moving an ENI between instances during failover",
+              "Assigning multiple IP addresses to a single ENI",
+              "Using ENIs to separate management and data traffic"
+            ],
+            "additionalInfo": "Elastic Network Interfaces are the fundamental networking abstraction for EC2 instances in a VPC. Every EC2 instance has at least one ENI, known as the primary network interface, which provides connectivity to the VPC. ENIs can also be created independently and attached to or detached from instances, enabling advanced networking patterns such as failover, traffic separation, and network appliances. Each ENI has its own MAC address, private IP addresses, optional public IPs, and associated security groups. Because security groups are applied at the ENI level, ENIs allow granular control over network access. ENIs are bound to a specific Availability Zone, which means they cannot be attached across AZs. Understanding ENIs is critical for troubleshooting networking issues, designing high availability systems, and answering AWS exam questions that focus on instance-level networking behavior.",
+            "learnMore": [
+              {
+                "title": "Elastic Network Interfaces Explained",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-eni.html"
+              },
+              {
+                "title": "EC2 Networking Concepts",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-networking.html"
+              },
+              {
+                "title": "Security Groups and ENIs",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "A managed NAT-like resource",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This description matches a NAT Gateway, not an ENI.",
+            "why": "A NAT Gateway provides outbound internet access for private subnets. An ENI does not perform network address translation or act as a gateway.",
+            "learnMore": [
+              {
+                "title": "NAT Gateway Overview",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "A private connection between VPCs",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Private connections between VPCs are provided by peering or Transit Gateway.",
+            "why": "Elastic Network Interfaces operate within a single VPC and do not connect multiple VPCs together.",
+            "learnMore": [
+              {
+                "title": "VPC Peering",
+                "url": "https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "A static IPv4 address for cloud computing",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This describes an Elastic IP address, not an ENI.",
+            "why": "Elastic IPs are static public IPv4 addresses. ENIs are network interfaces that may have IPs assigned but are not IP addresses themselves.",
+            "learnMore": [
+              {
+                "title": "Elastic IP Addresses",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "question": "True or False. Within a Region, you can create multiple VPCs and have complete control of the network configuration for each.",
+      "options": [
+        {
+          "id": "A",
+          "text": "True",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS allows multiple VPCs per Region, each with fully independent networking configurations.",
+            "keyPoints": [
+              "Multiple VPCs can exist within a single Region",
+              "Each VPC has its own CIDR blocks and subnets",
+              "Networking resources are isolated by default",
+              "Security and routing are configured independently",
+              "Supports environment and workload separation"
+            ],
+            "examples": [
+              "Separate VPCs for production and development",
+              "Isolating regulated workloads in a dedicated VPC",
+              "Using VPC peering to connect multiple VPCs",
+              "Running different network architectures in the same Region"
+            ],
+            "additionalInfo": "Amazon VPC is designed to provide complete network isolation and flexibility within a Region. Customers can create multiple VPCs in the same Region, each with its own IP address ranges, subnets, route tables, gateways, and security controls. This capability is commonly used to separate environments such as development, staging, and production, or to isolate workloads with different compliance requirements. By default, VPCs are completely isolated from each other, even within the same account and Region. Connectivity between VPCs must be explicitly configured using services such as VPC peering, Transit Gateway, or VPN connections. This design gives organizations full control over network topology while maintaining strong isolation boundaries. Understanding this flexibility is essential for scalable AWS architecture design and is frequently tested in certification exams.",
+            "learnMore": [
+              {
+                "title": "Amazon VPC Limits and Quotas",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/amazon-vpc-limits.html"
+              },
+              {
+                "title": "Multiple VPC Design Patterns",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-overview/networking.html"
+              },
+              {
+                "title": "VPC Connectivity Options",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Introduction.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "False",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS does not restrict customers to a single VPC per Region.",
+            "why": "AWS explicitly supports multiple VPCs per Region, and limiting designs to one VPC would reduce flexibility and isolation.",
+            "learnMore": [
+              {
+                "title": "Amazon VPC Overview",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

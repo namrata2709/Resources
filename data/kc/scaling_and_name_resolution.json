@@ -1,0 +1,576 @@
+{
+  "title": "Scaling and Name Resolution Quiz",
+  "topic": "AWS Scaling and Name Resolution",
+  "questions": [
+    {
+      "id": 1,
+      "question": "A systems administrator wants to create a blue/green deployment infrastructure by using Amazon Route 53 to gradually phase out the blue environment. Which Route 53 routing policy should the administrator use?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Failover routing policy",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Failover routing is designed for active-passive architectures, not gradual traffic shifting.",
+            "keyPoints": [
+              "Routes traffic based on health checks",
+              "Supports primary and secondary endpoints",
+              "Used mainly for disaster recovery",
+              "Does not support percentage-based traffic control"
+            ],
+            "examples": [
+              "Failing over from a primary to backup region"
+            ],
+            "additionalInfo": "Failover routing policies are useful when you want traffic to switch only after a failure is detected. In a blue/green deployment, both environments are healthy, and traffic must be shifted gradually. Failover routing cannot control traffic percentages and therefore does not meet the gradual rollout requirement.",
+            "learnMore": [
+              {
+                "title": "Route 53 Failover Routing",
+                "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy-failover.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Simple routing policy",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Simple routing does not provide traffic control mechanisms.",
+            "keyPoints": [
+              "Returns a single DNS record",
+              "No health-based or weighted logic",
+              "Cannot split traffic",
+              "Basic DNS routing only"
+            ],
+            "examples": [
+              "Single web server endpoint"
+            ],
+            "additionalInfo": "Simple routing is used when there is only one resource or when traffic management is not required. It cannot distribute or gradually shift traffic between environments.",
+            "learnMore": [
+              {
+                "title": "Route 53 Simple Routing",
+                "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy-simple.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Multivalue answer routing policy",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Multivalue routing improves availability, not traffic weighting.",
+            "keyPoints": [
+              "Returns multiple healthy records",
+              "Uses health checks",
+              "No control over traffic percentages",
+              "Not designed for deployment strategies"
+            ],
+            "examples": [
+              "DNS-based load distribution for redundancy"
+            ],
+            "additionalInfo": "Multivalue routing helps with fault tolerance by returning multiple healthy IP addresses, but it does not allow precise control over how much traffic goes to each endpoint.",
+            "learnMore": [
+              {
+                "title": "Route 53 Multivalue Routing",
+                "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy-multivalue.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Weighted routing policy",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Weighted routing allows gradual traffic shifting using configurable percentages.",
+            "keyPoints": [
+              "Distributes traffic based on assigned weights",
+              "Ideal for blue/green deployments",
+              "Supports controlled rollouts",
+              "Can shift traffic incrementally",
+              "Does not require application changes",
+              "Common for canary releases"
+            ],
+            "examples": [
+              "Shifting 10% traffic to green environment",
+              "Gradually increasing green to 100%",
+              "Rolling back by adjusting weights"
+            ],
+            "additionalInfo": "Weighted routing policies in Amazon Route 53 allow administrators to assign numerical weights to multiple DNS records. Traffic is distributed proportionally based on these weights, making it possible to slowly transition users from one environment to another. This capability is essential for blue/green and canary deployments, where risk must be minimized during releases. Because the change happens at the DNS level, no application or infrastructure reconfiguration is required. For exam scenarios involving gradual traffic shifting, weighted routing is always the correct choice.",
+            "learnMore": [
+              {
+                "title": "Route 53 Weighted Routing",
+                "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy-weighted.html"
+              },
+              {
+                "title": "Blue/Green Deployments on AWS",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/blue-green-deployments/welcome.html"
+              },
+              {
+                "title": "DNS-Based Traffic Management",
+                "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "Which type of scaling policy uses an Amazon CloudWatch alarm and varies the scaling response based on the size of the alarm breach?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Target tracking scaling",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Target tracking maintains a target metric rather than reacting to breach size.",
+            "keyPoints": [
+              "Maintains a steady metric value",
+              "Automatically adjusts capacity",
+              "Does not define multiple scaling steps",
+              "Simplified scaling model"
+            ],
+            "examples": [
+              "Keeping CPU utilization at 50%"
+            ],
+            "additionalInfo": "Target tracking scaling focuses on maintaining a target metric value, not responding differently to varying alarm severity.",
+            "learnMore": [
+              {
+                "title": "Target Tracking Scaling",
+                "url": "https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-target-tracking.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Step scaling",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Step scaling adjusts capacity based on how far a metric exceeds a threshold.",
+            "keyPoints": [
+              "Uses CloudWatch alarms",
+              "Defines multiple scaling steps",
+              "Responds proportionally to metric breaches",
+              "Supports fine-grained control",
+              "Better than simple scaling for burst traffic",
+              "Exam-favored scaling policy"
+            ],
+            "examples": [
+              "Add 1 instance at 70% CPU",
+              "Add 3 instances at 90% CPU",
+              "Scale differently for mild vs severe spikes"
+            ],
+            "additionalInfo": "Step scaling policies allow Auto Scaling groups to respond more intelligently to load changes. Instead of a single fixed response, step scaling defines multiple thresholds and corresponding scaling actions. This enables proportional scaling based on how much a CloudWatch metric breaches its alarm threshold. Step scaling is ideal when workloads experience variable or bursty traffic patterns. In AWS exams, any mention of scaling actions varying based on alarm severity clearly indicates step scaling.",
+            "learnMore": [
+              {
+                "title": "Step Scaling Policies",
+                "url": "https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-simple-step.html"
+              },
+              {
+                "title": "CloudWatch Alarms with Auto Scaling",
+                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html"
+              },
+              {
+                "title": "Auto Scaling Policy Types",
+                "url": "https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scale-based-on-demand.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Simple scaling",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Simple scaling performs a fixed action for each alarm.",
+            "keyPoints": [
+              "Single scaling adjustment",
+              "No proportional response",
+              "Cooldown-based",
+              "Legacy approach"
+            ],
+            "examples": [
+              "Always add two instances on alarm"
+            ],
+            "additionalInfo": "Simple scaling does not vary scaling actions based on the size of the alarm breach.",
+            "learnMore": [
+              {
+                "title": "Simple Scaling Policies",
+                "url": "https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-simple-step.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Scheduled scaling",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Scheduled scaling adjusts capacity at predefined times.",
+            "keyPoints": [
+              "Time-based scaling",
+              "No CloudWatch alarms",
+              "Predictable workloads only",
+              "Not reactive"
+            ],
+            "examples": [
+              "Scaling up every weekday morning"
+            ],
+            "additionalInfo": "Scheduled scaling is proactive and time-based, not metric-driven.",
+            "learnMore": [
+              {
+                "title": "Scheduled Scaling",
+                "url": "https://docs.aws.amazon.com/autoscaling/ec2/userguide/schedule_time.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which Amazon Web Services (AWS) service is a content delivery network (CDN)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Amazon EC2 Auto Scaling",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Auto Scaling manages compute capacity, not content delivery.",
+            "keyPoints": [
+              "Scales EC2 instances",
+              "Not an edge service",
+              "No caching capability",
+              "Compute-focused"
+            ],
+            "examples": [
+              "Scaling web servers"
+            ],
+            "additionalInfo": "Auto Scaling ensures capacity availability but does not distribute content globally.",
+            "learnMore": [
+              {
+                "title": "Amazon EC2 Auto Scaling",
+                "url": "https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Elastic Load Balancing (ELB)",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "ELB distributes traffic but does not cache content at edge locations.",
+            "keyPoints": [
+              "Regional service",
+              "Balances traffic across targets",
+              "No global edge caching",
+              "Not a CDN"
+            ],
+            "examples": [
+              "Distributing traffic across EC2 instances"
+            ],
+            "additionalInfo": "ELB improves availability within a region but does not provide CDN functionality.",
+            "learnMore": [
+              {
+                "title": "Elastic Load Balancing Overview",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Amazon CloudFront",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Amazon CloudFront is AWS’s global content delivery network service.",
+            "keyPoints": [
+              "Uses global edge locations",
+              "Caches static and dynamic content",
+              "Reduces latency for end users",
+              "Integrates with S3 and ALB",
+              "Supports security features",
+              "Scales automatically"
+            ],
+            "examples": [
+              "Serving static website assets",
+              "Video streaming distribution",
+              "API acceleration"
+            ],
+            "additionalInfo": "Amazon CloudFront is AWS’s native CDN service. It delivers content to users with low latency by caching data at edge locations around the world. CloudFront supports static files, dynamic content, streaming media, and APIs. It integrates tightly with other AWS services such as S3, ALB, and Route 53. In AWS exams, any reference to CDN functionality or edge delivery always maps to CloudFront.",
+            "learnMore": [
+              {
+                "title": "Amazon CloudFront Overview",
+                "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html"
+              },
+              {
+                "title": "CloudFront Use Cases",
+                "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-use-cases.html"
+              },
+              {
+                "title": "Edge Locations Explained",
+                "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Amazon Route 53",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Route 53 is a DNS service, not a CDN.",
+            "keyPoints": [
+              "Provides name resolution",
+              "Routes traffic using DNS",
+              "No content caching",
+              "Works with CloudFront"
+            ],
+            "examples": [
+              "Resolving domain names"
+            ],
+            "additionalInfo": "Route 53 complements CloudFront but does not deliver content itself.",
+            "learnMore": [
+              {
+                "title": "Amazon Route 53 Overview",
+                "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which type of Elastic Load Balancing (ELB) load balancer should a network engineer use to distribute requests to a website running on an Amazon EC2 instance in a virtual private cloud (VPC)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Application Load Balancer",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Application Load Balancers operate at Layer 7 and are optimized for HTTP and HTTPS traffic in a VPC.",
+            "keyPoints": [
+              "Operates at the application layer",
+              "Supports HTTP and HTTPS protocols",
+              "Provides host- and path-based routing",
+              "Integrates tightly with EC2 and Auto Scaling",
+              "Designed for modern web applications",
+              "Native support for containers and microservices"
+            ],
+            "examples": [
+              "Routing /api traffic to backend services",
+              "Hosting a web application with HTTPS",
+              "Distributing traffic across EC2 instances in multiple AZs"
+            ],
+            "additionalInfo": "The Application Load Balancer is the recommended choice for web applications running on EC2 instances within a VPC. It operates at Layer 7, which allows it to understand HTTP and HTTPS requests and make routing decisions based on request content such as URL paths, host headers, or query strings. This makes it ideal for modern, content-aware applications. ALB integrates seamlessly with Auto Scaling groups and supports health checks at the application level, improving availability and fault tolerance. In exam scenarios involving websites, HTTP traffic, or advanced routing within a VPC, the Application Load Balancer is the correct and most specific answer.",
+            "learnMore": [
+              {
+                "title": "Application Load Balancer Overview",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html"
+              },
+              {
+                "title": "Elastic Load Balancing Concepts",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html"
+              },
+              {
+                "title": "Choosing an ELB Type",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Gateway Load Balancer",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Gateway Load Balancers are designed for network appliances, not web traffic.",
+            "keyPoints": [
+              "Operates at Layer 3 and 4",
+              "Used for firewalls and inspection appliances",
+              "Not HTTP-aware",
+              "Specialized networking use case"
+            ],
+            "examples": [
+              "Deploying third-party firewalls"
+            ],
+            "additionalInfo": "Gateway Load Balancers are intended for integrating virtual appliances such as firewalls or intrusion detection systems. They are not used to serve web applications.",
+            "learnMore": [
+              {
+                "title": "Gateway Load Balancer",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/introduction.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Classic Load Balancer",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Classic Load Balancers are legacy and lack advanced routing features.",
+            "keyPoints": [
+              "Supports limited Layer 4 and 7 features",
+              "Older generation ELB",
+              "Not recommended for new workloads",
+              "Superseded by ALB and NLB"
+            ],
+            "examples": [
+              "Legacy EC2 deployments"
+            ],
+            "additionalInfo": "Classic Load Balancers are maintained for backward compatibility but are not the preferred choice for modern VPC-based web applications.",
+            "learnMore": [
+              {
+                "title": "Classic Load Balancer",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/introduction.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Network Load Balancer",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Network Load Balancers focus on high-performance Layer 4 traffic, not application-level routing.",
+            "keyPoints": [
+              "Operates at Layer 4",
+              "Handles TCP and UDP traffic",
+              "Ultra-low latency",
+              "No content-based routing"
+            ],
+            "examples": [
+              "High-throughput TCP services"
+            ],
+            "additionalInfo": "Network Load Balancers are ideal for extreme performance needs but do not provide HTTP-aware routing required for most websites.",
+            "learnMore": [
+              {
+                "title": "Network Load Balancer",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "Which component of an Application Load Balancer checks for connection requests from clients?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Rule",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Rules define how traffic is routed after it is received.",
+            "keyPoints": [
+              "Evaluated after listener receives traffic",
+              "Match conditions like paths or headers",
+              "Do not accept connections",
+              "Routing logic only"
+            ],
+            "examples": [
+              "Routing /images to a specific target group"
+            ],
+            "additionalInfo": "Rules are used by listeners to decide where to send traffic, but they do not accept client connections themselves.",
+            "learnMore": [
+              {
+                "title": "ALB Listener Rules",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Target group",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Target groups contain registered backend targets.",
+            "keyPoints": [
+              "Receive forwarded traffic",
+              "Contain EC2 instances or IPs",
+              "Do not listen for client connections",
+              "Backend component only"
+            ],
+            "examples": [
+              "Group of EC2 instances behind ALB"
+            ],
+            "additionalInfo": "Target groups receive traffic from listeners but do not directly interact with clients.",
+            "learnMore": [
+              {
+                "title": "Target Groups",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Listener",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Listeners are the entry point that accepts client connection requests.",
+            "keyPoints": [
+              "Listens on a specific protocol and port",
+              "Checks for incoming client connections",
+              "Applies rules to route traffic",
+              "Required for ALB operation",
+              "Supports HTTP and HTTPS",
+              "First component in request flow"
+            ],
+            "examples": [
+              "Listening on port 443 for HTTPS",
+              "Forwarding traffic based on host headers",
+              "Handling client requests at the edge of ALB"
+            ],
+            "additionalInfo": "A listener is the component of an Application Load Balancer that checks for and accepts incoming client connection requests. It is configured with a protocol and port, such as HTTP on port 80 or HTTPS on port 443. Once a listener receives a request, it evaluates listener rules to determine which target group should handle the request. Without a listener, an ALB cannot receive traffic. In exam questions, any reference to accepting or listening for client connections always maps directly to the listener.",
+            "learnMore": [
+              {
+                "title": "Application Load Balancer Listeners",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html"
+              },
+              {
+                "title": "How ALB Works",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/how-elastic-load-balancing-works.html"
+              },
+              {
+                "title": "ALB Request Routing",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html#listener-rules"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Health check",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Health checks monitor target availability, not client connections.",
+            "keyPoints": [
+              "Used to detect unhealthy targets",
+              "Runs periodically",
+              "Backend-focused",
+              "Not part of request acceptance"
+            ],
+            "examples": [
+              "Checking /health endpoint on instances"
+            ],
+            "additionalInfo": "Health checks ensure traffic is sent only to healthy targets, but they do not handle client requests.",
+            "learnMore": [
+              {
+                "title": "Health Checks for ALB",
+                "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,579 @@
+{
+  "title": "Amazon DynamoDB Quiz",
+  "topic": "AWS Amazon DynamoDB",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which type of database is Amazon DynamoDB?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Relational database",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Relational databases rely on fixed schemas and table relationships, which DynamoDB does not use.",
+            "keyPoints": [
+              "Requires predefined schema",
+              "Uses joins and foreign keys",
+              "Optimized for complex SQL queries",
+              "Not designed for massive horizontal scaling"
+            ],
+            "examples": [
+              "MySQL tables with foreign key constraints",
+              "PostgreSQL schemas with normalized data"
+            ],
+            "additionalInfo": "Relational databases are built around structured tables with fixed schemas and relationships enforced through constraints and joins. While they are excellent for transactional workloads and complex queries, they scale vertically more naturally and require careful planning for horizontal scaling. DynamoDB avoids these constraints entirely by design. Treating DynamoDB like a relational database often leads to inefficient access patterns and poor performance.",
+            "learnMore": [
+              {
+                "title": "Relational vs NoSQL Databases",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-overview/sql-and-nosql.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "In-memory database",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "DynamoDB persists data to disk and is not purely in-memory.",
+            "keyPoints": [
+              "Data durability is guaranteed",
+              "Survives instance restarts",
+              "Uses SSD-backed storage",
+              "Different from caching systems"
+            ],
+            "examples": [
+              "Redis used for session caching",
+              "Memcached for transient data"
+            ],
+            "additionalInfo": "In-memory databases prioritize speed over durability and typically lose data if not backed by persistent storage. DynamoDB is designed for durability and availability, storing data redundantly across infrastructure. While it offers low latency, it is not an in-memory-only system.",
+            "learnMore": [
+              {
+                "title": "Amazon DynamoDB Overview",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Hierarchical database",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Hierarchical databases organize data in parent-child tree structures.",
+            "keyPoints": [
+              "Single root structure",
+              "Rigid access paths",
+              "Legacy database model",
+              "Not schema-flexible"
+            ],
+            "examples": [
+              "IMS hierarchical databases",
+              "XML tree-based storage"
+            ],
+            "additionalInfo": "Hierarchical databases were common in early enterprise systems but lack flexibility and scalability. DynamoDB does not enforce parent-child relationships and allows flexible item structures within tables.",
+            "learnMore": [
+              {
+                "title": "Database Models Overview",
+                "url": "https://www.geeksforgeeks.org/types-of-databases/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "NoSQL database",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Amazon DynamoDB is a fully managed NoSQL database designed for scalability and low latency.",
+            "keyPoints": [
+              "Supports key-value and document models",
+              "Schema-less design",
+              "Horizontally scalable",
+              "Single-digit millisecond latency",
+              "Fully managed by AWS",
+              "Highly available by default"
+            ],
+            "examples": [
+              "User session storage",
+              "IoT device state tracking",
+              "Gaming leaderboards"
+            ],
+            "additionalInfo": "DynamoDB is classified as a NoSQL database because it does not use fixed schemas or relational joins. Instead, it stores data as items identified by primary keys and scales automatically by partitioning data across infrastructure. This design enables DynamoDB to deliver consistent low-latency performance at virtually any scale. It is especially well suited for cloud-native applications that require massive throughput, elastic scaling, and minimal operational overhead. DynamoDB’s NoSQL model encourages access-pattern-driven design rather than schema-driven design, which is a fundamental shift from traditional relational databases.",
+            "learnMore": [
+              {
+                "title": "What Is Amazon DynamoDB",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html"
+              },
+              {
+                "title": "Key-Value and Document Data Models",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html"
+              },
+              {
+                "title": "Choosing NoSQL on AWS",
+                "url": "https://docs.aws.amazon.com/decision-guides/latest/databases-on-aws-how-to-choose/databases-on-aws-how-to-choose.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "How does Amazon DynamoDB achieve high availability and scalability across Regions?",
+      "options": [
+        {
+          "id": "A",
+          "text": "By using a collection of multiple replica tables",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "DynamoDB uses Global Tables to replicate data across Regions for high availability.",
+            "keyPoints": [
+              "Active-active multi-Region replication",
+              "Automatic conflict resolution",
+              "Low-latency global access",
+              "Improved disaster recovery",
+              "Fully managed replication",
+              "Region-level fault tolerance"
+            ],
+            "examples": [
+              "Global user profile storage",
+              "Multi-Region gaming backend",
+              "Disaster recovery across continents"
+            ],
+            "additionalInfo": "Amazon DynamoDB achieves global scalability and availability through Global Tables. Global Tables create replica tables in multiple AWS Regions and keep them synchronized automatically. This allows applications to perform reads and writes locally while DynamoDB handles replication behind the scenes. In the event of a Regional outage, applications can continue operating using another replica without manual intervention. This architecture supports active-active workloads, reduces latency for global users, and simplifies disaster recovery strategies. Global Tables are a key differentiator for DynamoDB compared to traditional databases that require complex replication setups.",
+            "learnMore": [
+              {
+                "title": "DynamoDB Global Tables",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GlobalTables.html"
+              },
+              {
+                "title": "Multi-Region Applications with DynamoDB",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-database-best-practices/dynamodb.html"
+              },
+              {
+                "title": "Global Resilience on AWS",
+                "url": "https://docs.aws.amazon.com/architecture-diagrams/latest/multi-region-applications/multi-region-applications.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "By using a collection of multiple partition keys",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Partition keys control data distribution, not cross-Region availability.",
+            "keyPoints": [
+              "Used within a single Region",
+              "Does not replicate data globally",
+              "Affects throughput distribution",
+              "Misinterprets scalability concepts"
+            ],
+            "examples": [
+              "Hot partition issues"
+            ],
+            "additionalInfo": "Partition keys help DynamoDB scale within a Region but do not provide multi-Region replication or disaster recovery capabilities.",
+            "learnMore": [
+              {
+                "title": "DynamoDB Partition Keys",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.Partitions.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "By using a collection of multiple items",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Items are individual records and do not provide scalability mechanisms.",
+            "keyPoints": [
+              "Items store data",
+              "No impact on availability",
+              "Does not influence replication",
+              "Incorrect abstraction level"
+            ],
+            "examples": [
+              "Storing multiple user records"
+            ],
+            "additionalInfo": "The number of items stored does not directly control DynamoDB scalability or availability across Regions.",
+            "learnMore": [
+              {
+                "title": "DynamoDB Core Components",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "By using a collection of one or more attributes",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Attributes define item structure, not availability.",
+            "keyPoints": [
+              "Attributes are item properties",
+              "Do not control scaling",
+              "Do not enable replication",
+              "Misunderstands DynamoDB architecture"
+            ],
+            "examples": [
+              "UserId, Email, Timestamp attributes"
+            ],
+            "additionalInfo": "Attributes describe data fields within items. They have no role in availability or multi-Region scalability.",
+            "learnMore": [
+              {
+                "title": "DynamoDB Items and Attributes",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which statement describes the concept of partitioning in Amazon DynamoDB?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Partitioning is the allocation of storage for a table",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Partitioning refers to how DynamoDB allocates data and throughput across internal partitions.",
+            "keyPoints": [
+              "Automatic process managed by AWS",
+              "Scales storage and throughput",
+              "Based on table size and access patterns",
+              "Invisible to the user",
+              "Enables horizontal scaling",
+              "Avoids manual sharding"
+            ],
+            "examples": [
+              "Table growing beyond 10 GB",
+              "Increasing write throughput automatically"
+            ],
+            "additionalInfo": "In DynamoDB, partitioning is the mechanism AWS uses to distribute table data and workload across multiple internal partitions. As table size or throughput increases, DynamoDB transparently adds partitions to maintain performance. Each partition has fixed limits for storage and throughput, and DynamoDB automatically balances data across them. Users do not manage or even see these partitions directly. Understanding partitioning is crucial for designing effective partition keys and avoiding hot partitions that can throttle performance.",
+            "learnMore": [
+              {
+                "title": "How DynamoDB Partitions Data",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.Partitions.html"
+              },
+              {
+                "title": "Designing Partition Keys",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html"
+              },
+              {
+                "title": "DynamoDB Scaling Behavior",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/CapacityMode.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "As data grows, table data is partitioned and indexed by a composite key",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Partitioning is not based on composite keys alone.",
+            "keyPoints": [
+              "Composite keys define item uniqueness",
+              "Partitioning is infrastructure-level",
+              "Indexes are separate structures",
+              "Mixes logical and physical concepts"
+            ],
+            "examples": [
+              "Partition key and sort key usage"
+            ],
+            "additionalInfo": "Composite keys define how items are identified, but partitioning is an internal storage mechanism handled by DynamoDB independently of index definitions.",
+            "learnMore": [
+              {
+                "title": "Primary Keys in DynamoDB",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Each partition has a maximum size of about 10MB",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The partition size limit is much larger than 10MB.",
+            "keyPoints": [
+              "Partition limit is around 10GB",
+              "Incorrect magnitude",
+              "Leads to wrong scaling assumptions",
+              "Factually incorrect"
+            ],
+            "examples": [
+              "Large DynamoDB tables"
+            ],
+            "additionalInfo": "DynamoDB partitions can store significantly more data than 10MB. Misunderstanding partition limits can lead to incorrect capacity planning.",
+            "learnMore": [
+              {
+                "title": "DynamoDB Partition Limits",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ServiceQuotas.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Partitioning is the manual replication of table across multiple Availability Zones within an AWS Region",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Replication across AZs is automatic and not user-managed partitioning.",
+            "keyPoints": [
+              "DynamoDB replicates automatically",
+              "Partitioning is not replication",
+              "Users do not control AZ placement",
+              "Confuses durability with partitioning"
+            ],
+            "examples": [
+              "Multi-AZ durability"
+            ],
+            "additionalInfo": "DynamoDB automatically replicates data across Availability Zones for durability. This is separate from partitioning, which focuses on scaling and throughput.",
+            "learnMore": [
+              {
+                "title": "DynamoDB Durability",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.AvailabilityDurability.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which statement about Amazon DynamoDB partition keys is true?",
+      "options": [
+        {
+          "id": "A",
+          "text": "A primary key is composed of two partition keys",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A DynamoDB primary key never contains two partition keys.",
+            "keyPoints": [
+              "Primary key can be simple or composite",
+              "Composite keys use one partition key and one sort key",
+              "Multiple partition keys are not supported",
+              "Terminology is commonly misunderstood"
+            ],
+            "examples": [
+              "UserId as a single partition key",
+              "OrderId as partition key with timestamp sort key"
+            ],
+            "additionalInfo": "DynamoDB supports only one partition key per table. When a composite primary key is used, it consists of exactly one partition key and one sort key. The idea of having two partition keys is not supported in DynamoDB’s data model. This option often appears in exams to test understanding of DynamoDB primary key structure.",
+            "learnMore": [
+              {
+                "title": "Primary Key Structure in DynamoDB",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "A table can have two partition keys",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Each DynamoDB table supports only one partition key.",
+            "keyPoints": [
+              "Partition key uniquely identifies items",
+              "Only one partition key allowed per table",
+              "Additional uniqueness comes from sort key",
+              "Design driven by access patterns"
+            ],
+            "examples": [
+              "CustomerId as the single partition key"
+            ],
+            "additionalInfo": "DynamoDB tables are limited to a single partition key. Attempting to model multiple partition keys usually indicates a need to redesign the data model or use composite keys appropriately.",
+            "learnMore": [
+              {
+                "title": "Designing DynamoDB Primary Keys",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Partition keys uniquely identify each item in the table",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Partition keys uniquely identify items in tables that use a simple primary key.",
+            "keyPoints": [
+              "Simple primary key uses only a partition key",
+              "Each item must have a unique partition key value",
+              "Composite keys use partition key plus sort key",
+              "Multiple items can share partition key when sort key exists",
+              "Fundamental to item lookup",
+              "Drives data distribution"
+            ],
+            "examples": [
+              "UserId uniquely identifying each user item",
+              "SessionId as a unique key in a table",
+              "AccountId with no sort key defined"
+            ],
+            "additionalInfo": "In DynamoDB tables that use a simple primary key, the partition key alone uniquely identifies each item. No two items can share the same partition key value in such tables. When a composite primary key is used, uniqueness is defined by the combination of the partition key and sort key, allowing multiple items to share the same partition key while remaining unique. This distinction is critical for correct data modeling and is frequently tested in AWS exams. Understanding how partition keys affect uniqueness, distribution, and access patterns is essential for designing scalable DynamoDB applications.",
+            "learnMore": [
+              {
+                "title": "DynamoDB Primary Keys Explained",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html"
+              },
+              {
+                "title": "Best Practices for DynamoDB Keys",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-general-nosql-design.html"
+              },
+              {
+                "title": "Avoiding Hot Partitions",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "No two items in a table can use the same partition keys",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This is only true for tables without a sort key.",
+            "keyPoints": [
+              "Composite keys allow shared partition keys",
+              "Sort key ensures item uniqueness",
+              "Statement is incomplete",
+              "Common exam trap"
+            ],
+            "examples": [
+              "Multiple orders under the same customerId"
+            ],
+            "additionalInfo": "In tables with a sort key, multiple items can share the same partition key as long as the sort key values differ. This option ignores that distinction and is therefore incorrect.",
+            "learnMore": [
+              {
+                "title": "Composite Primary Keys in DynamoDB",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "How many ways can Amazon DynamoDB retrieve data from a DynamoDB table?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Four ways",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "DynamoDB does not provide four primary table-level retrieval operations.",
+            "keyPoints": [
+              "Only Query and Scan operate on tables",
+              "Other operations are item-level",
+              "Inflates the API surface incorrectly",
+              "Misunderstands retrieval concepts"
+            ],
+            "examples": [
+              "Assuming PutItem or UpdateItem are retrieval methods"
+            ],
+            "additionalInfo": "DynamoDB provides many APIs, but only Query and Scan are considered table-level retrieval methods. Counting other operations leads to incorrect conclusions.",
+            "learnMore": [
+              {
+                "title": "DynamoDB API Overview",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Operations.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "One way",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "DynamoDB provides more than one method to retrieve data.",
+            "keyPoints": [
+              "Query and Scan are distinct",
+              "Different performance characteristics",
+              "Support different access patterns",
+              "Single-method assumption is incorrect"
+            ],
+            "examples": [
+              "Key-based access versus full table scan"
+            ],
+            "additionalInfo": "Relying on a single retrieval method would limit DynamoDB’s flexibility. AWS clearly defines two retrieval approaches with different tradeoffs.",
+            "learnMore": [
+              {
+                "title": "Query vs Scan in DynamoDB",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/QueryAndScan.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Two ways",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "DynamoDB retrieves table data using Query and Scan operations.",
+            "keyPoints": [
+              "Query uses partition key values",
+              "Scan reads every item in the table",
+              "Query is efficient and targeted",
+              "Scan is resource-intensive",
+              "Both are table-level operations",
+              "Central to DynamoDB data access"
+            ],
+            "examples": [
+              "Querying orders for a specific customer",
+              "Scanning a table for analytics",
+              "Filtering items after a scan"
+            ],
+            "additionalInfo": "Amazon DynamoDB provides two primary table-level data retrieval operations: Query and Scan. Query retrieves items efficiently by specifying a partition key value and optional sort key conditions. It is the preferred method for most access patterns. Scan reads every item in the table and should be used sparingly due to its high cost and latency. While DynamoDB also offers GetItem, that operation retrieves a single item by primary key and is not considered a table-level retrieval method in many AWS exam contexts. Understanding the difference between Query and Scan is essential for both performance optimization and correct exam answers.",
+            "learnMore": [
+              {
+                "title": "Query and Scan Operations",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/QueryAndScan.html"
+              },
+              {
+                "title": "Best Practices for DynamoDB Queries",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-query-scan.html"
+              },
+              {
+                "title": "Optimizing DynamoDB Performance",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-general-nosql-design.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Three ways",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "There are not three table-level retrieval methods.",
+            "keyPoints": [
+              "GetItem is item-level",
+              "BatchGetItem is batch item-level",
+              "Query and Scan remain the only table-level options",
+              "Exam distinction matters"
+            ],
+            "examples": [
+              "Using GetItem for single record lookup"
+            ],
+            "additionalInfo": "Although DynamoDB has multiple read APIs, AWS exam questions typically classify only Query and Scan as table-level retrieval mechanisms. Counting item-level APIs leads to incorrect answers.",
+            "learnMore": [
+              {
+                "title": "DynamoDB Read Operations",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadConsistency.html"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

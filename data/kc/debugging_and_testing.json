@@ -1,0 +1,509 @@
+{
+  "title": "Debugging and Testing Quiz",
+  "topic": "Debugging Techniques, Code Analysis, and Assertions",
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is an efficient way to find and fix errors in a running application?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Use a debugging tool for static analysis",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Static analysis examines code without executing it.",
+            "why": "Static analysis tools inspect source code to identify potential issues such as syntax errors, code smells, or rule violations. However, they do not observe real execution paths, runtime values, or live system behavior, which limits their effectiveness for debugging running applications.",
+            "examples": [
+              "Linters finding unused variables before execution"
+            ],
+            "learnMore": [
+              {
+                "title": "Static Code Analysis Explained",
+                "url": "https://www.synopsys.com/glossary/what-is-static-code-analysis.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Log as many messages as possible in files",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Excessive logging can make issues harder to isolate.",
+            "why": "Logging is valuable, but logging everything creates noise and makes root-cause analysis difficult. Logs lack the interactive inspection and control offered by debuggers, especially during live execution.",
+            "examples": [
+              "Large log files obscuring the actual error"
+            ],
+            "learnMore": [
+              {
+                "title": "Logging Best Practices",
+                "url": "https://realpython.com/python-logging/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Use a debugging tool for dynamic analysis",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Dynamic analysis tools inspect and control an application while it is running.",
+            "keyPoints": [
+              "Analyzes application behavior during execution",
+              "Allows step-by-step code inspection",
+              "Shows real runtime values and states",
+              "Helps identify timing and state-related bugs",
+              "Supports breakpoints and variable inspection"
+            ],
+            "examples": [
+              "Using pdb to pause execution and inspect variables",
+              "Debugging a running service with breakpoints"
+            ],
+            "additionalInfo": "Dynamic analysis is one of the most effective debugging techniques because it observes how an application behaves while it is running. Debuggers allow developers to pause execution, inspect variables, follow control flow, and evaluate expressions in real time. This makes it easier to identify issues caused by incorrect logic, unexpected input, or state changes that cannot be detected by simply reading code. Dynamic debugging is especially valuable for complex applications where bugs depend on execution order, timing, or external interactions. While logging and static analysis play important roles, dynamic analysis provides direct visibility into runtime behavior, making it the most efficient approach for fixing errors in running systems.",
+            "learnMore": [
+              {
+                "title": "Python Debugging with pdb",
+                "url": "https://docs.python.org/3/library/pdb.html"
+              },
+              {
+                "title": "Dynamic Analysis Explained",
+                "url": "https://www.synopsys.com/glossary/what-is-dynamic-analysis.html"
+              },
+              {
+                "title": "Real Python – Debugging Techniques",
+                "url": "https://realpython.com/python-debugging-pdb/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Use the print() method to display how the application is running",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "print statements offer limited insight and poor control.",
+            "why": "While print debugging can show values at specific points, it lacks interactivity, scalability, and precision. It becomes impractical in large or concurrent applications.",
+            "examples": [
+              "Manually adding print statements throughout code"
+            ],
+            "learnMore": [
+              {
+                "title": "Why Print Debugging Falls Short",
+                "url": "https://realpython.com/python-debugging-pdb/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "What are the advantages of performing static code analysis instead of dynamic analysis? (Select TWO)",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "The exact location of code issues can be identified",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Static analysis pinpoints issues directly in source code.",
+            "keyPoints": [
+              "Maps findings to specific files and line numbers",
+              "Highlights problematic patterns early",
+              "Supports IDE integration",
+              "Improves code readability and maintainability",
+              "Provides actionable feedback before execution"
+            ],
+            "examples": [
+              "Linting tools highlighting unsafe function usage"
+            ],
+            "additionalInfo": "Static analysis tools scan source code without executing it, allowing them to precisely identify the location of potential issues. This includes syntax errors, unreachable code, security vulnerabilities, and style violations. Because analysis happens directly on the codebase, developers can fix problems quickly before runtime. Static analysis integrates well with development workflows and continuous integration pipelines, making it an effective early-quality gate.",
+            "learnMore": [
+              {
+                "title": "Static Analysis Benefits",
+                "url": "https://www.sonarsource.com/learn/static-code-analysis/"
+              },
+              {
+                "title": "Linting in Python",
+                "url": "https://realpython.com/python-code-quality/"
+              },
+              {
+                "title": "Static vs Dynamic Analysis",
+                "url": "https://www.synopsys.com/glossary/static-vs-dynamic-analysis.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "It can be done at runtime",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Static analysis does not execute code.",
+            "why": "Static analysis explicitly avoids runtime execution. Running code is a characteristic of dynamic analysis.",
+            "examples": [
+              "Code scanning without launching the application"
+            ],
+            "learnMore": [
+              {
+                "title": "Static Code Analysis Definition",
+                "url": "https://www.synopsys.com/glossary/what-is-static-code-analysis.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Bugs can be detected early in the development process",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Static analysis catches issues before the code runs.",
+            "keyPoints": [
+              "Finds errors during development",
+              "Reduces cost of fixing defects",
+              "Improves overall code quality",
+              "Prevents defective code from reaching production",
+              "Supports shift-left testing strategies"
+            ],
+            "examples": [
+              "Detecting security flaws before deployment"
+            ],
+            "additionalInfo": "One of the biggest advantages of static code analysis is its ability to detect issues early in the development lifecycle. By identifying problems before execution, developers can fix bugs when they are cheaper and easier to resolve. Early detection also prevents faulty code from entering later stages such as integration or production, reducing risk and rework. Static analysis supports continuous feedback, which is critical for maintaining high-quality software.",
+            "learnMore": [
+              {
+                "title": "Shift-Left Testing Explained",
+                "url": "https://www.ibm.com/topics/shift-left-testing"
+              },
+              {
+                "title": "Early Bug Detection",
+                "url": "https://www.geeksforgeeks.org/software-testing-early-defect-detection/"
+              },
+              {
+                "title": "Static Analysis Tools Overview",
+                "url": "https://www.sonarsource.com/products/sonarlint/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Compiled applications can be reviewed even if code is not accessible",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Static analysis requires access to source code.",
+            "why": "Without source code, static analysis tools cannot inspect logic or structure. Binary analysis is a separate discipline.",
+            "examples": [
+              "Compiled binaries require reverse engineering"
+            ],
+            "learnMore": [
+              {
+                "title": "Source Code Requirements",
+                "url": "https://www.synopsys.com/glossary/what-is-static-code-analysis.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "It offers a step-by-step analysis of the code runtime",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Step-by-step execution is a dynamic analysis feature.",
+            "why": "Runtime stepping requires executing the program, which static analysis deliberately avoids.",
+            "examples": [
+              "Breakpoints only exist in dynamic debugging"
+            ],
+            "learnMore": [
+              {
+                "title": "Dynamic Debugging Explained",
+                "url": "https://docs.python.org/3/library/pdb.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "What is the purpose of assertions?",
+      "options": [
+        {
+          "id": "A",
+          "text": "To raise errors under certain conditions at runtime",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Assertions validate assumptions during runtime and raise errors if conditions fail.",
+            "keyPoints": [
+              "Used to check internal assumptions",
+              "Raise AssertionError when conditions are false",
+              "Helpful during development and testing",
+              "Document developer intent",
+              "Can be disabled in optimized execution"
+            ],
+            "examples": [
+              "assert x > 0 ensures positive values",
+              "assert user is not None validates state"
+            ],
+            "additionalInfo": "Assertions are a debugging aid used to verify that assumptions in the code remain true during execution. When an assertion fails, Python raises an AssertionError, immediately alerting developers to unexpected conditions. Assertions are especially useful during development and testing to catch logic errors early. They are not intended for handling external errors such as user input or network failures. In optimized execution mode, assertions can be disabled, reinforcing their role as development-time checks rather than production error-handling mechanisms. Proper use of assertions improves code clarity by explicitly stating expectations and invariants.",
+            "learnMore": [
+              {
+                "title": "Python assert Statement",
+                "url": "https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement"
+              },
+              {
+                "title": "Real Python – Assertions",
+                "url": "https://realpython.com/python-assert-statement/"
+              },
+              {
+                "title": "Assertions Best Practices",
+                "url": "https://www.geeksforgeeks.org/python-assert-keyword/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "To log a message when an issue occurs",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Logging and assertions serve different purposes.",
+            "why": "Assertions raise errors, while logging records events without stopping execution. Assertions are not designed for logging behavior.",
+            "examples": [
+              "Logging records issues without interrupting flow"
+            ],
+            "learnMore": [
+              {
+                "title": "Python Logging Module",
+                "url": "https://docs.python.org/3/library/logging.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "To provide optimization techniques so that code runs faster",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Assertions do not optimize performance.",
+            "why": "Assertions are checks, not performance enhancements. In fact, they may slightly slow execution when enabled.",
+            "examples": [
+              "Assertions add validation overhead"
+            ],
+            "learnMore": [
+              {
+                "title": "Python Performance Considerations",
+                "url": "https://realpython.com/python-performance/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "To provide a method for writing if statements in a different way",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Assertions are not substitutes for control flow.",
+            "why": "if statements control program logic, while assertions validate assumptions. Using assertions as logic control is incorrect.",
+            "examples": [
+              "Assertions should not replace conditional branching"
+            ],
+            "learnMore": [
+              {
+                "title": "Control Flow vs Assertions",
+                "url": "https://docs.python.org/3/tutorial/controlflow.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which type of test is the smallest testable part of an application?",
+      "options": [
+        {
+          "id": "A",
+          "text": "System tests",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "System tests validate the application as a whole.",
+            "why": "System testing evaluates the complete, integrated system against requirements. It operates at the highest level and is not focused on isolated components, making it unsuitable for validating the smallest testable units.",
+            "examples": [
+              "End-to-end testing of a deployed application"
+            ],
+            "learnMore": [
+              {
+                "title": "System Testing Overview",
+                "url": "https://www.geeksforgeeks.org/system-testing/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Acceptance tests",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Acceptance tests verify business requirements and user expectations.",
+            "why": "Acceptance testing focuses on whether the system meets stakeholder needs. It operates at a high level and validates behavior from a user or business perspective, not individual code units.",
+            "examples": [
+              "User acceptance testing before release"
+            ],
+            "learnMore": [
+              {
+                "title": "Acceptance Testing Explained",
+                "url": "https://www.geeksforgeeks.org/acceptance-testing-software-testing/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Integration tests",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Integration tests verify interactions between components.",
+            "why": "Integration testing checks how multiple units work together. It assumes individual units already function correctly and therefore does not represent the smallest testable part.",
+            "examples": [
+              "Testing communication between a service and a database"
+            ],
+            "learnMore": [
+              {
+                "title": "Integration Testing Basics",
+                "url": "https://www.geeksforgeeks.org/integration-testing/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Unit tests",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Unit tests validate the smallest isolated pieces of application logic.",
+            "keyPoints": [
+              "Focus on individual functions or methods",
+              "Run independently of other components",
+              "Fast to execute and easy to automate",
+              "Help catch logic errors early",
+              "Form the foundation of a testing strategy"
+            ],
+            "examples": [
+              "Testing a single function that calculates tax",
+              "Validating input validation logic in isolation"
+            ],
+            "additionalInfo": "Unit testing targets the smallest testable units of code, usually individual functions or methods. These tests are designed to run in isolation, often using mocks or stubs to replace external dependencies. Because unit tests are fast and focused, they provide immediate feedback during development and help developers catch defects early. A strong suite of unit tests increases confidence when refactoring code and reduces the likelihood of introducing regressions. In professional development workflows, unit tests are typically automated and executed as part of continuous integration pipelines. They serve as the first line of defense in ensuring code correctness and stability.",
+            "learnMore": [
+              {
+                "title": "Python unittest Framework",
+                "url": "https://docs.python.org/3/library/unittest.html"
+              },
+              {
+                "title": "Real Python – Unit Testing",
+                "url": "https://realpython.com/python-testing/"
+              },
+              {
+                "title": "Unit Testing Concepts",
+                "url": "https://www.geeksforgeeks.org/unit-testing-software-testing/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "What kind of test can verify that different parts of software work together when combined?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Unit test",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Unit tests validate components in isolation.",
+            "why": "Unit testing intentionally avoids dependencies between components. While useful for correctness, it cannot confirm that separate modules interact correctly.",
+            "examples": [
+              "Mocking dependencies instead of using real integrations"
+            ],
+            "learnMore": [
+              {
+                "title": "Unit vs Integration Testing",
+                "url": "https://www.geeksforgeeks.org/difference-between-unit-testing-and-integration-testing/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "System tests",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "System tests evaluate the complete application behavior.",
+            "why": "System testing occurs after integration testing and focuses on end-to-end validation. It is broader than verifying component interactions alone.",
+            "examples": [
+              "Testing an entire deployed system"
+            ],
+            "learnMore": [
+              {
+                "title": "System Testing Overview",
+                "url": "https://www.geeksforgeeks.org/system-testing/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Integration tests",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Integration tests verify that multiple components work together correctly.",
+            "keyPoints": [
+              "Focus on interactions between modules",
+              "Validate data flow across components",
+              "Catch interface and communication issues",
+              "Executed after unit testing",
+              "Essential for multi-component systems"
+            ],
+            "examples": [
+              "Testing API interaction with a database",
+              "Validating service-to-service communication"
+            ],
+            "additionalInfo": "Integration testing ensures that different components or modules of a system work together as intended. Even if individual units pass their unit tests, issues can still arise when components interact due to interface mismatches, data format inconsistencies, or incorrect assumptions. Integration tests help detect these problems early by exercising real interactions between parts of the system. They are especially important in distributed systems, microservices, and applications that rely on external services or databases. By validating how components collaborate, integration testing bridges the gap between isolated unit tests and full system tests.",
+            "learnMore": [
+              {
+                "title": "Integration Testing Explained",
+                "url": "https://www.geeksforgeeks.org/integration-testing/"
+              },
+              {
+                "title": "Real Python – Integration Testing",
+                "url": "https://realpython.com/python-testing/#integration-testing"
+              },
+              {
+                "title": "Software Testing Levels",
+                "url": "https://www.ibm.com/topics/software-testing"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Acceptance tests",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Acceptance tests validate requirements, not component interaction.",
+            "why": "Acceptance testing confirms whether the software meets user or business expectations. It operates at a higher abstraction level than integration testing.",
+            "examples": [
+              "Validating business workflows from a user perspective"
+            ],
+            "learnMore": [
+              {
+                "title": "Acceptance Testing Basics",
+                "url": "https://www.geeksforgeeks.org/acceptance-testing-software-testing/"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

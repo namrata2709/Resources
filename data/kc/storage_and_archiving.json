@@ -1,0 +1,576 @@
+{
+  "title": "Storage and Archiving Quiz",
+  "topic": "AWS Storage and Archiving",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which solution provides temporary storage for an Amazon EC2 instance?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Amazon Simple Storage Service (Amazon S3) bucket",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Amazon S3 provides durable object storage, not temporary instance-level storage.",
+            "keyPoints": [
+              "Object-based storage service",
+              "Highly durable and persistent",
+              "Not directly attached to EC2",
+              "Accessible over the network"
+            ],
+            "examples": [
+              "Storing backups or static assets"
+            ],
+            "additionalInfo": "Amazon S3 is designed for long-term, durable storage of objects. Data stored in S3 persists independently of EC2 instances and is not affected when an instance stops or terminates. This persistence makes it unsuitable for temporary or ephemeral storage needs tied to the lifecycle of a specific EC2 instance.",
+            "learnMore": [
+              {
+                "title": "Amazon S3 Overview",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Amazon Elastic Block Store (Amazon EBS) volume",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Amazon EBS provides persistent block storage, not temporary storage.",
+            "keyPoints": [
+              "Persistent across instance stops",
+              "Can be detached and reattached",
+              "Designed for durability",
+              "Used for boot and data volumes"
+            ],
+            "examples": [
+              "Storing application data"
+            ],
+            "additionalInfo": "EBS volumes are independent of the EC2 instance lifecycle and retain data even after the instance is stopped. This persistence disqualifies EBS as a temporary storage solution.",
+            "learnMore": [
+              {
+                "title": "Amazon EBS Overview",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEBS.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Amazon EC2 instance store",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "EC2 instance store provides ephemeral storage tied to the instance lifecycle.",
+            "keyPoints": [
+              "Physically attached to the host",
+              "Data lost on stop or terminate",
+              "Very low latency",
+              "Ideal for temporary data",
+              "No additional cost",
+              "Not recoverable after failure"
+            ],
+            "examples": [
+              "Caching data",
+              "Temporary processing buffers",
+              "Scratch data for batch jobs"
+            ],
+            "additionalInfo": "An EC2 instance store provides temporary block-level storage that is physically attached to the host machine running the instance. Because it is ephemeral, any data stored on it is lost when the instance is stopped, terminated, or fails. This makes instance store ideal for short-lived data such as caches, buffers, or intermediate computation results. In exams, any question that emphasizes temporary, nonpersistent storage directly attached to EC2 points to the instance store.",
+            "learnMore": [
+              {
+                "title": "EC2 Instance Store",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html"
+              },
+              {
+                "title": "EC2 Storage Options",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Storage.html"
+              },
+              {
+                "title": "Instance Store vs EBS",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-store-volumes.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Amazon Elastic File System (Amazon EFS) file system",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Amazon EFS is a shared, persistent file system.",
+            "keyPoints": [
+              "Network file system",
+              "Highly durable",
+              "Shared across instances",
+              "Not tied to instance lifecycle"
+            ],
+            "examples": [
+              "Shared application file storage"
+            ],
+            "additionalInfo": "EFS is designed for long-term, shared file storage and is not temporary or instance-bound.",
+            "learnMore": [
+              {
+                "title": "Amazon EFS Overview",
+                "url": "https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "Which Amazon S3 object storage class should be used when access patterns are unknown or changing?",
+      "options": [
+        {
+          "id": "A",
+          "text": "S3 Glacier Flexible Retrieval",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "S3 Glacier Flexible Retrieval is designed for archival data.",
+            "keyPoints": [
+              "Long retrieval times",
+              "Low storage cost",
+              "Not suitable for frequent access",
+              "Manual retrieval required"
+            ],
+            "examples": [
+              "Compliance archives"
+            ],
+            "additionalInfo": "Glacier Flexible Retrieval is optimized for data accessed infrequently and does not automatically adjust tiers based on usage.",
+            "learnMore": [
+              {
+                "title": "S3 Glacier Flexible Retrieval",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/glacier-storage-classes.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "S3 Standard",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "S3 Standard is optimized for frequent access with predictable usage.",
+            "keyPoints": [
+              "High availability",
+              "Low latency",
+              "No automated tiering",
+              "Higher cost than IA tiers"
+            ],
+            "examples": [
+              "Active application assets"
+            ],
+            "additionalInfo": "S3 Standard is best when access patterns are well known and frequent.",
+            "learnMore": [
+              {
+                "title": "S3 Standard Storage Class",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "S3 Standard-Infrequent Access (S3 Standard-IA)",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "S3 Standard-IA assumes predictable infrequent access.",
+            "keyPoints": [
+              "Lower storage cost",
+              "Retrieval fees apply",
+              "Not adaptive",
+              "Not ideal for changing patterns"
+            ],
+            "examples": [
+              "Backups accessed occasionally"
+            ],
+            "additionalInfo": "Standard-IA requires knowing access frequency in advance to be cost effective.",
+            "learnMore": [
+              {
+                "title": "S3 Standard-IA",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "S3 Intelligent-Tiering",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "S3 Intelligent-Tiering automatically adapts to changing access patterns.",
+            "keyPoints": [
+              "Automatic tier movement",
+              "No performance impact",
+              "Cost optimized",
+              "Ideal for unknown access",
+              "No retrieval fees for frequent tiers",
+              "Minimal management overhead"
+            ],
+            "examples": [
+              "User-generated content",
+              "Analytics data with variable access",
+              "Shared datasets"
+            ],
+            "additionalInfo": "S3 Intelligent-Tiering is designed for data with unpredictable or changing access patterns. AWS automatically moves objects between access tiers based on usage, optimizing cost without requiring manual intervention. This makes it a common exam answer when access frequency is unknown.",
+            "learnMore": [
+              {
+                "title": "S3 Intelligent-Tiering Overview",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/intelligent-tiering.html"
+              },
+              {
+                "title": "S3 Storage Classes Comparison",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html"
+              },
+              {
+                "title": "Cost Optimization with S3",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/cost-optimization-storage/aws-storage-services.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which Amazon EBS volume type provides the highest performance for frequent read and write operations?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cold HDD (sc1)",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Cold HDD is optimized for infrequent access.",
+            "keyPoints": [
+              "Lowest cost HDD",
+              "High latency",
+              "Not suitable for frequent I/O",
+              "Throughput-focused"
+            ],
+            "examples": [
+              "Cold data storage"
+            ],
+            "additionalInfo": "sc1 volumes are designed for infrequently accessed data and do not support high IOPS workloads.",
+            "learnMore": [
+              {
+                "title": "Cold HDD Volumes",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Provisioned IOPS SSD (io2)",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "io2 volumes deliver the highest and most consistent EBS performance.",
+            "keyPoints": [
+              "High IOPS",
+              "Low latency",
+              "Designed for mission-critical workloads",
+              "High durability",
+              "Predictable performance",
+              "Ideal for databases"
+            ],
+            "examples": [
+              "Enterprise databases",
+              "Transaction-heavy systems",
+              "Latency-sensitive applications"
+            ],
+            "additionalInfo": "Provisioned IOPS SSD (io2) volumes are designed for the most demanding workloads that require consistent, low-latency performance. They provide the highest IOPS and durability among EBS volume types. In exams, any question emphasizing frequent, high-performance read and write operations clearly points to io2.",
+            "learnMore": [
+              {
+                "title": "Provisioned IOPS SSD (io2)",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html#EBSVolumeTypes_piops"
+              },
+              {
+                "title": "Choosing an EBS Volume Type",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html"
+              },
+              {
+                "title": "EBS Performance",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-performance.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "General Purpose SSD (gp3)",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "gp3 balances cost and performance but is not the highest tier.",
+            "keyPoints": [
+              "General-purpose workloads",
+              "Cost-effective",
+              "Lower max IOPS than io2",
+              "Flexible performance tuning"
+            ],
+            "examples": [
+              "Application servers"
+            ],
+            "additionalInfo": "gp3 is suitable for most workloads but does not match io2 for extreme performance needs.",
+            "learnMore": [
+              {
+                "title": "General Purpose SSD (gp3)",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Throughput Optimized HDD (st1)",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "st1 is optimized for throughput, not IOPS.",
+            "keyPoints": [
+              "Sequential workloads",
+              "High throughput",
+              "Lower IOPS",
+              "Not suitable for frequent random access"
+            ],
+            "examples": [
+              "Big data processing"
+            ],
+            "additionalInfo": "st1 is designed for large, sequential workloads rather than frequent read/write operations.",
+            "learnMore": [
+              {
+                "title": "Throughput Optimized HDD",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which storage solution can be attached to an Amazon EC2 instance?",
+      "options": [
+        {
+          "id": "A",
+          "text": "AWS Snowball",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS Snowball is a data transfer appliance, not attachable storage.",
+            "keyPoints": [
+              "Physical device for data migration",
+              "Used for offline data transfer",
+              "Not connected to running EC2 instances",
+              "No block-level attachment"
+            ],
+            "examples": [
+              "Migrating petabytes of on-premises data to AWS"
+            ],
+            "additionalInfo": "AWS Snowball is designed to move large amounts of data into or out of AWS when network transfer is impractical. It is not a storage service that can be attached to an EC2 instance and cannot function as live application storage.",
+            "learnMore": [
+              {
+                "title": "AWS Snowball Overview",
+                "url": "https://docs.aws.amazon.com/snowball/latest/developer-guide/whatisedge.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Amazon Aurora",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Amazon Aurora is a managed database service, not attachable storage.",
+            "keyPoints": [
+              "Relational database engine",
+              "Does not expose block storage",
+              "Accessed via database endpoints",
+              "Not mounted to EC2"
+            ],
+            "examples": [
+              "Application connecting to Aurora via SQL"
+            ],
+            "additionalInfo": "Aurora abstracts storage management entirely and does not allow direct attachment to EC2 instances. Applications interact with Aurora through database connections, not mounted volumes.",
+            "learnMore": [
+              {
+                "title": "Amazon Aurora Overview",
+                "url": "https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Amazon Elastic Block Store (Amazon EBS)",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Amazon EBS provides block-level storage that can be attached to EC2 instances.",
+            "keyPoints": [
+              "Block storage service",
+              "Attached to EC2 over the network",
+              "Persistent beyond instance lifecycle",
+              "Used for boot and data volumes",
+              "Supports snapshots and backups",
+              "High performance and durability"
+            ],
+            "examples": [
+              "Root volume for an EC2 instance",
+              "Application data storage",
+              "Database storage on EC2"
+            ],
+            "additionalInfo": "Amazon Elastic Block Store is specifically designed to be attached to Amazon EC2 instances as block-level storage. EBS volumes behave like raw disks and can be used for operating systems, applications, and databases. Unlike instance store, EBS volumes persist independently of the EC2 instance lifecycle and support snapshots for backup and recovery. In AWS exams, any question asking which storage can be attached directly to EC2 points clearly to Amazon EBS.",
+            "learnMore": [
+              {
+                "title": "Amazon EBS Overview",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEBS.html"
+              },
+              {
+                "title": "Attaching an EBS Volume",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-attaching-volume.html"
+              },
+              {
+                "title": "EBS Volume Types",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Amazon S3 Glacier",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Amazon S3 Glacier is an archival storage class, not attachable storage.",
+            "keyPoints": [
+              "Long-term archival storage",
+              "Retrieval-based access",
+              "Not mountable",
+              "Not used for active workloads"
+            ],
+            "examples": [
+              "Compliance archives"
+            ],
+            "additionalInfo": "S3 Glacier is designed for low-cost archival storage with delayed retrieval times. It cannot be attached to EC2 instances or used as block storage.",
+            "learnMore": [
+              {
+                "title": "Amazon S3 Glacier Overview",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/glacier-storage-classes.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "How much time does a standard retrieval from Amazon S3 Glacier Flexible Retrieval typically take?",
+      "options": [
+        {
+          "id": "A",
+          "text": "5–12 hours",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "5–12 hours corresponds to bulk retrieval, not standard.",
+            "keyPoints": [
+              "Bulk retrieval option",
+              "Lowest cost retrieval",
+              "Slowest access time",
+              "Used for large datasets"
+            ],
+            "examples": [
+              "Restoring large archival datasets"
+            ],
+            "additionalInfo": "Bulk retrieval is designed for cost efficiency rather than speed and is not the standard retrieval option.",
+            "learnMore": [
+              {
+                "title": "Glacier Retrieval Options",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects-retrieval-options.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "1–5 minutes",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "1–5 minutes refers to expedited retrieval.",
+            "keyPoints": [
+              "Fastest retrieval option",
+              "Higher cost",
+              "Used for urgent access",
+              "Not the default"
+            ],
+            "examples": [
+              "Emergency data restores"
+            ],
+            "additionalInfo": "Expedited retrieval provides rapid access but is not considered the standard retrieval method.",
+            "learnMore": [
+              {
+                "title": "Expedited Retrieval",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects-retrieval-options.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "1 day",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "A one-day retrieval time is not a Glacier retrieval option.",
+            "keyPoints": [
+              "Not a defined retrieval tier",
+              "Exceeds standard timelines",
+              "Incorrect assumption",
+              "Distractor option"
+            ],
+            "examples": [
+              "Assuming long archival delays"
+            ],
+            "additionalInfo": "Amazon S3 Glacier Flexible Retrieval does not define a 24-hour standard retrieval tier.",
+            "learnMore": [
+              {
+                "title": "S3 Glacier Retrieval Tiers",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects-retrieval-options.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "3–5 hours",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Standard retrieval from S3 Glacier Flexible Retrieval typically takes 3–5 hours.",
+            "keyPoints": [
+              "Default retrieval option",
+              "Balanced cost and speed",
+              "Used for most restore scenarios",
+              "Predictable retrieval time",
+              "Common exam-tested value",
+              "Applies to Glacier Flexible Retrieval"
+            ],
+            "examples": [
+              "Restoring archived backups",
+              "Accessing historical compliance data",
+              "Recovering older application logs"
+            ],
+            "additionalInfo": "Amazon S3 Glacier Flexible Retrieval offers three retrieval options: expedited, standard, and bulk. Standard retrieval is the default and most commonly used option, providing access to data in approximately 3–5 hours. It balances cost and retrieval speed, making it suitable for most archival restore scenarios. In AWS exams, standard retrieval time for Glacier Flexible Retrieval is a frequently tested detail and consistently maps to the 3–5 hour window.",
+            "learnMore": [
+              {
+                "title": "Amazon S3 Glacier Flexible Retrieval",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/glacier-storage-classes.html"
+              },
+              {
+                "title": "Restoring Archived Objects",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects.html"
+              },
+              {
+                "title": "Glacier Retrieval Options",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects-retrieval-options.html"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

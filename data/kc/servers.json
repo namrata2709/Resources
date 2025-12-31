@@ -1,0 +1,576 @@
+{
+  "title": "Servers Quiz",
+  "topic": "AWS Servers and EC2",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which resource is a template that Amazon EC2 uses to launch an instance?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Amazon Machine Image (AMI)",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "An AMI is the blueprint Amazon EC2 uses to create new instances with a predefined configuration.",
+            "keyPoints": [
+              "Defines the operating system",
+              "Includes preinstalled software and applications",
+              "Contains launch permissions",
+              "Specifies root volume mapping",
+              "Ensures consistency across instances",
+              "Reusable across multiple launches"
+            ],
+            "examples": [
+              "Launching multiple web servers from the same AMI",
+              "Creating a golden AMI with hardened security settings",
+              "Using an Amazon Linux AMI for standard workloads"
+            ],
+            "additionalInfo": "An Amazon Machine Image is a core EC2 concept that acts as a reusable template for launching instances. It defines the operating system, installed software, configuration settings, and storage mappings required at launch. Every EC2 instance must be launched from an AMI, whether it is an AWS-provided AMI, a Marketplace AMI, or a custom AMI created by the user. Using AMIs allows teams to standardize environments, reduce configuration drift, and speed up provisioning. In operational practice, organizations often create custom AMIs that include security patches, monitoring agents, and application dependencies. For exams, when the question asks for a template or blueprint used to launch EC2 instances, AMI is the correct and direct answer.",
+            "learnMore": [
+              {
+                "title": "Amazon Machine Images (AMI)",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html"
+              },
+              {
+                "title": "Create an AMI from an Instance",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-ebs.html"
+              },
+              {
+                "title": "AMI Lifecycle",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ami-basics.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Instance profile",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "An instance profile is used for IAM role association, not instance templates.",
+            "keyPoints": [
+              "Contains an IAM role",
+              "Provides temporary credentials",
+              "Does not define OS or software",
+              "Unrelated to instance launch configuration"
+            ],
+            "examples": [
+              "Granting EC2 access to S3 using a role"
+            ],
+            "additionalInfo": "Instance profiles enable permissions, not instance creation details.",
+            "learnMore": [
+              {
+                "title": "IAM Instance Profiles",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Amazon Elastic Block Store (Amazon EBS) volume",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "EBS volumes provide storage but do not define instance templates.",
+            "keyPoints": [
+              "Acts as block storage",
+              "Attached to EC2 instances",
+              "Does not include OS configuration",
+              "Cannot launch instances alone"
+            ],
+            "examples": [
+              "Root volume attached to an EC2 instance"
+            ],
+            "additionalInfo": "EBS volumes are part of instance storage, not launch templates.",
+            "learnMore": [
+              {
+                "title": "Amazon EBS Overview",
+                "url": "https://docs.aws.amazon.com/ebs/latest/userguide/what-is-ebs.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Snapshot",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Snapshots are backups of storage volumes, not instance launch templates.",
+            "keyPoints": [
+              "Point-in-time backup of EBS",
+              "Used to restore data",
+              "Can help create AMIs",
+              "Not directly used to launch instances"
+            ],
+            "examples": [
+              "Backing up a database volume"
+            ],
+            "additionalInfo": "Snapshots can contribute to AMI creation, but they are not templates themselves.",
+            "learnMore": [
+              {
+                "title": "Amazon EBS Snapshots",
+                "url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-snapshots.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "Which resource acts as a firewall at the instance level?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Router",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Routers direct traffic but do not filter instance-level access.",
+            "keyPoints": [
+              "Handles routing decisions",
+              "Not stateful",
+              "No rule-based filtering",
+              "Not EC2-specific"
+            ],
+            "examples": [
+              "Routing traffic between networks"
+            ],
+            "additionalInfo": "Routing and firewalling are separate concerns in AWS networking.",
+            "learnMore": [
+              {
+                "title": "AWS Networking Basics",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Introduction.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Internet gateway",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "An internet gateway enables internet access but does not filter traffic.",
+            "keyPoints": [
+              "Provides internet connectivity",
+              "Attached to a VPC",
+              "No traffic rules",
+              "Not a firewall"
+            ],
+            "examples": [
+              "Allowing outbound internet access"
+            ],
+            "additionalInfo": "Internet gateways allow traffic flow but rely on security groups and NACLs for filtering.",
+            "learnMore": [
+              {
+                "title": "Internet Gateways",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Network access control list (network ACL)",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Network ACLs operate at the subnet level, not the instance level.",
+            "keyPoints": [
+              "Stateless filtering",
+              "Applies to subnets",
+              "Evaluates inbound and outbound rules",
+              "Coarse-grained control"
+            ],
+            "examples": [
+              "Blocking an IP range at subnet level"
+            ],
+            "additionalInfo": "Network ACLs complement security groups but do not replace them.",
+            "learnMore": [
+              {
+                "title": "Network ACLs",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Security group",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Security groups are stateful firewalls that control traffic at the instance level.",
+            "keyPoints": [
+              "Applied directly to EC2 instances",
+              "Stateful rule evaluation",
+              "Controls inbound and outbound traffic",
+              "Default deny behavior",
+              "Supports least privilege networking",
+              "Core EC2 security component"
+            ],
+            "examples": [
+              "Allowing SSH from a trusted IP",
+              "Opening port 443 for HTTPS",
+              "Restricting database access to app servers"
+            ],
+            "additionalInfo": "Security groups act as virtual firewalls for EC2 instances. They evaluate traffic at the instance level and automatically allow return traffic for permitted inbound connections due to their stateful nature. Unlike network ACLs, security groups do not require explicit outbound rules for response traffic. They are one of the most commonly tested AWS networking concepts, and any question mentioning instance-level firewall behavior almost always points to security groups.",
+            "learnMore": [
+              {
+                "title": "Security Groups Overview",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html"
+              },
+              {
+                "title": "Security Groups vs Network ACLs",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"
+              },
+              {
+                "title": "Best Practices for Security Groups",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-security-best-practices/security-groups.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which type of IP address is considered to be static and can be reassigned to different instances?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Public IP address",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Public IPs are dynamic and change when instances stop or start.",
+            "keyPoints": [
+              "Assigned automatically",
+              "Changes on restart",
+              "Not reusable",
+              "Not suitable for failover"
+            ],
+            "examples": [
+              "Temporary IP assigned at launch"
+            ],
+            "additionalInfo": "Public IPs lack persistence and are not designed for reassignment.",
+            "learnMore": [
+              {
+                "title": "Public IP Addresses",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Network broadcast IP address",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Broadcast IPs are reserved and not assignable.",
+            "keyPoints": [
+              "Used for network-level communication",
+              "Cannot be attached to instances",
+              "Reserved by AWS",
+              "Not routable"
+            ],
+            "examples": [
+              "VPC subnet broadcast address"
+            ],
+            "additionalInfo": "Broadcast addresses are not usable for instance communication.",
+            "learnMore": [
+              {
+                "title": "VPC IP Addressing",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Elastic IP address",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Elastic IPs are static IPv4 addresses that can be reassigned between instances.",
+            "keyPoints": [
+              "Static and persistent",
+              "Allocated to an AWS account",
+              "Supports rapid failover",
+              "Does not change on restart",
+              "Common for public-facing services",
+              "DNS stability support"
+            ],
+            "examples": [
+              "Reassigning IP during instance failure",
+              "Using a fixed IP for legacy clients",
+              "Maintaining endpoint stability"
+            ],
+            "additionalInfo": "Elastic IP addresses are designed for dynamic cloud environments where instances may fail or be replaced. By allowing reassignment without DNS changes, Elastic IPs support high availability and recovery scenarios. They are static, unlike regular public IPs, and remain allocated to your AWS account until released. In exams, any mention of static, reusable public IPs always maps to Elastic IPs.",
+            "learnMore": [
+              {
+                "title": "Elastic IP Addresses",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html"
+              },
+              {
+                "title": "Using Elastic IPs for Failover",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-overview/high-availability.html"
+              },
+              {
+                "title": "IP Addressing in AWS",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Private IP address",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Private IPs are internal and tied to network interfaces.",
+            "keyPoints": [
+              "Used within a VPC",
+              "Not internet-routable",
+              "Cannot be reassigned publicly",
+              "Scoped to subnets"
+            ],
+            "examples": [
+              "Internal communication between EC2 instances"
+            ],
+            "additionalInfo": "Private IPs serve internal networking purposes and do not provide public accessibility or reassignment flexibility.",
+            "learnMore": [
+              {
+                "title": "Private IP Addresses",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "What is an instance profile used for?",
+      "options": [
+        {
+          "id": "A",
+          "text": "To assign an AWS Identity and Access Management (IAM) role to an Amazon EC2 instance",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "An instance profile allows an EC2 instance to assume an IAM role securely.",
+            "keyPoints": [
+              "Acts as a container for an IAM role",
+              "Provides temporary credentials via AWS STS",
+              "Eliminates hardcoded access keys",
+              "Attached directly to EC2 instances",
+              "Supports least privilege access",
+              "Automatically rotated credentials"
+            ],
+            "examples": [
+              "Allowing EC2 to read objects from an S3 bucket",
+              "Granting an instance permission to write logs to CloudWatch",
+              "Enabling EC2 access to DynamoDB tables"
+            ],
+            "additionalInfo": "An instance profile is the mechanism AWS uses to associate an IAM role with an EC2 instance. When an instance profile is attached, the EC2 instance can retrieve temporary security credentials from the metadata service and use them to access AWS services. This approach removes the need to store long-term access keys on the instance, which is a major security risk. The credentials are rotated automatically and scoped according to the permissions defined in the IAM role. Instance profiles are a foundational security concept in AWS and are heavily emphasized in exams. Any question describing secure service access from EC2 without embedded credentials almost always points to IAM roles and instance profiles.",
+            "learnMore": [
+              {
+                "title": "IAM Roles for Amazon EC2",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2.html"
+              },
+              {
+                "title": "Instance Profiles",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html"
+              },
+              {
+                "title": "AWS STS Temporary Credentials",
+                "url": "https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "To specify the security settings of an Amazon RDS instance",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Instance profiles apply to EC2, not Amazon RDS.",
+            "keyPoints": [
+              "RDS uses IAM roles differently",
+              "Security settings for RDS use security groups and parameter groups",
+              "No instance profile attachment",
+              "Service-specific confusion"
+            ],
+            "examples": [
+              "Using a DB parameter group for RDS configuration"
+            ],
+            "additionalInfo": "Amazon RDS does not use instance profiles in the same way EC2 does. RDS security is handled through security groups, subnet groups, and service-linked roles.",
+            "learnMore": [
+              {
+                "title": "Amazon RDS Security",
+                "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "To store permanent access keys on an Amazon EC2 instance",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Storing permanent access keys on EC2 is explicitly discouraged.",
+            "keyPoints": [
+              "Violates IAM best practices",
+              "Creates security risks",
+              "Credentials should be temporary",
+              "Instance profiles avoid this need"
+            ],
+            "examples": [
+              "Hardcoding access keys in application config files"
+            ],
+            "additionalInfo": "AWS strongly discourages storing permanent access keys on EC2 instances. Instance profiles exist specifically to avoid this practice.",
+            "learnMore": [
+              {
+                "title": "IAM Security Best Practices",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "To automatically run a script when an Amazon EC2 instance is launched",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Startup scripts are handled by user data, not instance profiles.",
+            "keyPoints": [
+              "User data runs at launch",
+              "Instance profiles manage permissions",
+              "Different EC2 features",
+              "Common exam distractor"
+            ],
+            "examples": [
+              "Bootstrapping software using EC2 user data"
+            ],
+            "additionalInfo": "Instance profiles control permissions, while EC2 user data controls startup automation. They solve different problems.",
+            "learnMore": [
+              {
+                "title": "EC2 User Data",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "Which Amazon EC2 instance type is designed for diverse workloads?",
+      "options": [
+        {
+          "id": "A",
+          "text": "General purpose",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "General purpose instances provide a balanced mix of compute, memory, and networking.",
+            "keyPoints": [
+              "Balanced CPU and memory ratio",
+              "Suitable for many application types",
+              "Cost-effective default choice",
+              "Common for web and app servers",
+              "Flexible for mixed workloads",
+              "Often used as baseline instances"
+            ],
+            "examples": [
+              "Hosting a web application",
+              "Running development and test environments",
+              "Small to medium backend services"
+            ],
+            "additionalInfo": "General purpose EC2 instances are designed to handle a wide variety of workloads without specializing in a single resource dimension. They offer a balanced combination of compute, memory, and networking performance, making them suitable for web servers, application servers, development environments, and small databases. AWS recommends general purpose instances when workload requirements are not well understood or when resource usage is evenly distributed. In exams, questions that describe broad, mixed, or diverse workloads almost always point to general purpose instance families.",
+            "learnMore": [
+              {
+                "title": "Amazon EC2 Instance Types",
+                "url": "https://docs.aws.amazon.com/ec2/latest/userguide/instance-types.html"
+              },
+              {
+                "title": "General Purpose Instances",
+                "url": "https://docs.aws.amazon.com/ec2/latest/userguide/general-purpose-instances.html"
+              },
+              {
+                "title": "Choosing the Right EC2 Instance",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-overview/compute-services.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Memory optimized",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Memory optimized instances target memory-intensive workloads.",
+            "keyPoints": [
+              "High memory-to-CPU ratio",
+              "Used for in-memory databases",
+              "Not ideal for general workloads",
+              "Specialized instance family"
+            ],
+            "examples": [
+              "SAP HANA workloads"
+            ],
+            "additionalInfo": "Memory optimized instances are designed for workloads that require large amounts of RAM, not diverse use cases.",
+            "learnMore": [
+              {
+                "title": "Memory Optimized Instances",
+                "url": "https://docs.aws.amazon.com/ec2/latest/userguide/memory-optimized-instances.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Storage optimized",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Storage optimized instances focus on high I/O performance.",
+            "keyPoints": [
+              "Optimized for low-latency storage",
+              "Designed for data warehousing",
+              "Not balanced for mixed workloads",
+              "Niche use cases"
+            ],
+            "examples": [
+              "NoSQL databases with heavy disk I/O"
+            ],
+            "additionalInfo": "Storage optimized instances serve specific high-throughput storage workloads rather than general use.",
+            "learnMore": [
+              {
+                "title": "Storage Optimized Instances",
+                "url": "https://docs.aws.amazon.com/ec2/latest/userguide/storage-optimized-instances.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Compute optimized",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Compute optimized instances focus on CPU-intensive workloads.",
+            "keyPoints": [
+              "High CPU-to-memory ratio",
+              "Used for batch processing",
+              "Ideal for high-performance computing",
+              "Not general purpose"
+            ],
+            "examples": [
+              "Scientific simulations"
+            ],
+            "additionalInfo": "Compute optimized instances are best for CPU-bound workloads and are not intended for diverse application types.",
+            "learnMore": [
+              {
+                "title": "Compute Optimized Instances",
+                "url": "https://docs.aws.amazon.com/ec2/latest/userguide/compute-optimized-instances.html"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

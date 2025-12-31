@@ -1,0 +1,607 @@
+{
+  "title": "AWS Networking Services Quiz",
+  "topic": "AWS Networking Services",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which connectivity option for a virtual private cloud (VPC) allows a private subnet to connect to the internet?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Internet gateway",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "An internet gateway enables internet access only for public subnets.",
+            "keyPoints": [
+              "Attached to a VPC",
+              "Used by resources with public IPs",
+              "Requires route table association",
+              "Does not protect private subnets"
+            ],
+            "examples": [
+              "Public EC2 instance accessing the internet"
+            ],
+            "additionalInfo": "An internet gateway allows bidirectional traffic between a VPC and the internet. However, it can only be used by instances in public subnets that have public IP addresses and appropriate route table entries. Private subnets do not have direct routes to an internet gateway, which is intentional to prevent inbound access from the internet. For this reason, an internet gateway alone cannot provide outbound internet access for private subnets.",
+            "learnMore": [
+              {
+                "title": "Internet Gateways",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "VPC peering",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "VPC peering connects VPCs to each other, not to the internet.",
+            "keyPoints": [
+              "Private connectivity between VPCs",
+              "No internet access provided",
+              "Does not perform NAT",
+              "Used for internal networking"
+            ],
+            "examples": [
+              "Connecting two application VPCs"
+            ],
+            "additionalInfo": "VPC peering enables private IP connectivity between two VPCs. It does not provide any form of internet access and cannot translate private IP addresses for outbound internet traffic.",
+            "learnMore": [
+              {
+                "title": "VPC Peering",
+                "url": "https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "VPC gateway endpoint",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Gateway endpoints provide private access to AWS services, not the internet.",
+            "keyPoints": [
+              "Used for S3 and DynamoDB",
+              "Traffic stays on AWS network",
+              "No public internet routing",
+              "Does not enable general outbound access"
+            ],
+            "examples": [
+              "Private access to S3 from a VPC"
+            ],
+            "additionalInfo": "VPC gateway endpoints allow private connectivity to specific AWS services without using the internet. They are not a solution for general outbound internet connectivity from private subnets.",
+            "learnMore": [
+              {
+                "title": "VPC Endpoints",
+                "url": "https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "NAT gateway",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "A NAT gateway enables outbound internet access for private subnets.",
+            "keyPoints": [
+              "Allows outbound-only internet traffic",
+              "Prevents unsolicited inbound access",
+              "Deployed in a public subnet",
+              "Uses network address translation",
+              "Highly available AWS-managed service",
+              "Core component for private subnet design"
+            ],
+            "examples": [
+              "Private EC2 instance downloading updates",
+              "Backend servers calling external APIs",
+              "Outbound patching from private subnets"
+            ],
+            "additionalInfo": "A NAT gateway is specifically designed to allow instances in private subnets to initiate outbound connections to the internet while blocking inbound traffic initiated from the internet. It is placed in a public subnet and uses an internet gateway for external connectivity. NAT gateways are fully managed, scalable, and highly available within an Availability Zone. In AWS exams, any scenario that requires private subnet internet access without exposing instances directly always points to a NAT gateway.",
+            "learnMore": [
+              {
+                "title": "NAT Gateway Overview",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html"
+              },
+              {
+                "title": "Private Subnet Design",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/aws-vpc-connectivity-options.html"
+              },
+              {
+                "title": "NAT Gateway vs NAT Instance",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-comparison.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "A network engineer wants to capture information about the IP traffic going to and from a VPC. Which Amazon VPC feature should be used?",
+      "options": [
+        {
+          "id": "A",
+          "text": "VPC endpoints",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "VPC endpoints provide private connectivity, not traffic logging.",
+            "keyPoints": [
+              "Used for private AWS service access",
+              "No traffic inspection capability",
+              "Does not capture logs",
+              "Connectivity feature only"
+            ],
+            "examples": [
+              "Private access to DynamoDB"
+            ],
+            "additionalInfo": "VPC endpoints control how traffic reaches AWS services but do not record or inspect network traffic.",
+            "learnMore": [
+              {
+                "title": "VPC Endpoints",
+                "url": "https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "VPC Flow Logs",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "VPC Flow Logs capture IP traffic metadata for network interfaces.",
+            "keyPoints": [
+              "Logs accepted and rejected traffic",
+              "Works at VPC, subnet, or ENI level",
+              "Used for troubleshooting and audits",
+              "Does not inspect packet payloads",
+              "Integrates with CloudWatch and S3",
+              "Essential network diagnostic tool"
+            ],
+            "examples": [
+              "Debugging security group rules",
+              "Auditing network access patterns",
+              "Investigating connectivity failures"
+            ],
+            "additionalInfo": "VPC Flow Logs record metadata about IP traffic flowing to and from network interfaces in a VPC. They capture information such as source IP, destination IP, protocol, ports, and whether traffic was accepted or rejected. Flow logs are widely used for troubleshooting, security analysis, and compliance auditing. They do not capture packet contents, making them lightweight and scalable. In AWS exams, any question involving visibility into VPC traffic immediately maps to VPC Flow Logs.",
+            "learnMore": [
+              {
+                "title": "VPC Flow Logs Overview",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html"
+              },
+              {
+                "title": "Flow Logs Record Format",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html#flow-log-records"
+              },
+              {
+                "title": "Publishing Flow Logs",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Internet gateway",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "An internet gateway enables connectivity but does not log traffic.",
+            "keyPoints": [
+              "Provides internet access",
+              "No monitoring features",
+              "No traffic capture",
+              "Routing component only"
+            ],
+            "examples": [
+              "Connecting public subnets to the internet"
+            ],
+            "additionalInfo": "Internet gateways do not provide visibility into traffic flows.",
+            "learnMore": [
+              {
+                "title": "Internet Gateways",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Route tables",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Route tables control traffic paths but do not record traffic.",
+            "keyPoints": [
+              "Define routing decisions",
+              "No logging capability",
+              "Static configuration",
+              "No diagnostics"
+            ],
+            "examples": [
+              "Routing traffic to a NAT gateway"
+            ],
+            "additionalInfo": "Route tables influence where traffic goes but do not provide traffic visibility.",
+            "learnMore": [
+              {
+                "title": "VPC Route Tables",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which type of rules can a network engineer add to the rule tables of a network access control list (network ACL)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Allow rules only",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Allow-only rules apply to security groups, not network ACLs.",
+            "keyPoints": [
+              "Security groups are allow-only",
+              "NACLs support deny rules",
+              "Stateless behavior requires explicit denies",
+              "Common exam confusion"
+            ],
+            "examples": [
+              "Security group inbound rules"
+            ],
+            "additionalInfo": "This option confuses security group behavior with network ACL functionality.",
+            "learnMore": [
+              {
+                "title": "Security Groups vs NACLs",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Allow and deny rules",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Network ACLs support both allow and deny rules.",
+            "keyPoints": [
+              "Stateless rule evaluation",
+              "Explicit allow and deny entries",
+              "Applies at subnet level",
+              "Rules evaluated in order",
+              "Default deny behavior",
+              "Provides granular traffic control"
+            ],
+            "examples": [
+              "Blocking a specific IP range",
+              "Allowing HTTP but denying SSH",
+              "Explicitly denying known malicious IPs"
+            ],
+            "additionalInfo": "Network ACLs are stateless firewall rules that operate at the subnet level. They evaluate inbound and outbound rules separately and support both allow and deny rules. Rules are processed in numerical order, and the first matching rule is applied. This capability allows for explicit traffic blocking, which is not possible with security groups. In exams, allow and deny rules always identify network ACLs.",
+            "learnMore": [
+              {
+                "title": "Network ACL Rules",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html"
+              },
+              {
+                "title": "NACL Rule Evaluation",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html#nacl-rules"
+              },
+              {
+                "title": "Subnet-Level Security",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Forward rules",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Forward rules are not a valid NACL rule type.",
+            "keyPoints": [
+              "No forwarding logic in NACLs",
+              "Used as a distractor",
+              "Not part of AWS networking",
+              "Incorrect terminology"
+            ],
+            "examples": [
+              "N/A"
+            ],
+            "additionalInfo": "Network ACLs do not support forwarding rules of any kind.",
+            "learnMore": [
+              {
+                "title": "NACL Overview",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Deny rules only",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "NACLs require both allow and deny rules to function correctly.",
+            "keyPoints": [
+              "Allow rules are mandatory",
+              "Deny-only would block all traffic",
+              "Incorrect simplification",
+              "Not how NACLs operate"
+            ],
+            "examples": [
+              "Blocking all subnet traffic"
+            ],
+            "additionalInfo": "Using only deny rules would make the subnet unusable. NACLs rely on both rule types.",
+            "learnMore": [
+              {
+                "title": "How NACLs Work",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which statements describe security groups?",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "Security groups are applied at the subnet level",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Security groups are not applied at the subnet level.",
+            "keyPoints": [
+              "Security groups are attached to ENIs",
+              "They operate at the instance level",
+              "Subnet-level control is handled by network ACLs",
+              "Common confusion in exams"
+            ],
+            "examples": [
+              "Applying a security group to an EC2 instance"
+            ],
+            "additionalInfo": "Security groups are instance-level firewalls, not subnet-level controls. Network ACLs are the mechanism that apply rules across an entire subnet. This distinction is frequently tested in AWS exams because it highlights the layered security model of VPC networking.",
+            "learnMore": [
+              {
+                "title": "Security Groups vs Network ACLs",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "The default security group allows all traffic between resources that are assigned to the same security group",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The default security group permits unrestricted communication between its members.",
+            "keyPoints": [
+              "Allows inbound traffic from itself",
+              "Facilitates internal communication",
+              "Applies only to resources in the same group",
+              "Default behavior unless modified",
+              "Stateful rule enforcement"
+            ],
+            "examples": [
+              "Two EC2 instances communicating privately",
+              "Application tiers sharing a default group"
+            ],
+            "additionalInfo": "By default, a security group allows all inbound traffic from other resources that are assigned to the same security group. This design enables easy internal communication without exposing resources externally. This behavior is frequently tested and is a key differentiator from network ACLs, which do not have self-referencing rules by default.",
+            "learnMore": [
+              {
+                "title": "Default Security Group Rules",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/default-security-group.html"
+              },
+              {
+                "title": "Security Group Basics",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"
+              },
+              {
+                "title": "Stateful Firewalls in AWS",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html#VPC_Security_Comparison"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Users can assign priority levels to incoming traffic in a security group",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Security groups do not evaluate rules based on priority.",
+            "keyPoints": [
+              "All rules are evaluated collectively",
+              "No rule numbering",
+              "No explicit priority ordering",
+              "Different from network ACLs"
+            ],
+            "examples": [
+              "Security group allowing multiple ports"
+            ],
+            "additionalInfo": "Unlike network ACLs, security groups do not use rule numbers or priorities. If traffic matches any allow rule, it is permitted. This makes security groups simpler but less granular than NACLs in rule ordering.",
+            "learnMore": [
+              {
+                "title": "Security Group Rule Evaluation",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html#SecurityGroupRules"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Security groups have an inbound rules table and outbound rules table",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Security groups maintain separate inbound and outbound rule sets.",
+            "keyPoints": [
+              "Inbound rules control incoming traffic",
+              "Outbound rules control egress traffic",
+              "Both rule sets are allow-only",
+              "Stateful behavior applies to both directions",
+              "Configured independently"
+            ],
+            "examples": [
+              "Allowing inbound HTTP",
+              "Restricting outbound database access"
+            ],
+            "additionalInfo": "Security groups contain two independent rule sets: inbound rules and outbound rules. These rules define what traffic is allowed into and out of the associated resource. Because security groups are stateful, return traffic is automatically allowed, reducing configuration complexity. This separation of inbound and outbound rules is a core concept tested in AWS networking questions.",
+            "learnMore": [
+              {
+                "title": "Security Group Inbound and Outbound Rules",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"
+              },
+              {
+                "title": "Stateful Security Groups",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html#VPC_Security_Comparison"
+              },
+              {
+                "title": "Configuring Security Groups",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/working-with-security-groups.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "Security groups are stateless",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Security groups are stateful, not stateless.",
+            "keyPoints": [
+              "Return traffic is automatically allowed",
+              "No need for reverse rules",
+              "Stateless behavior applies to NACLs",
+              "Common exam trap"
+            ],
+            "examples": [
+              "Inbound HTTP automatically allowing responses"
+            ],
+            "additionalInfo": "Security groups track the state of connections and automatically allow response traffic. Stateless behavior is a characteristic of network ACLs, not security groups.",
+            "learnMore": [
+              {
+                "title": "Stateful vs Stateless Firewalls",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "What is a logical network segment in a virtual private cloud (VPC) that can exist in only a single Availability Zone?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Internet gateway",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Internet gateways are not tied to a single Availability Zone.",
+            "keyPoints": [
+              "Attached at VPC level",
+              "Highly available",
+              "Not zone-specific",
+              "Provides internet connectivity"
+            ],
+            "examples": [
+              "Connecting a VPC to the internet"
+            ],
+            "additionalInfo": "Internet gateways operate at the VPC level and are designed to be highly available across Availability Zones.",
+            "learnMore": [
+              {
+                "title": "Internet Gateways",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Virtual private gateway",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Virtual private gateways are not restricted to a single Availability Zone.",
+            "keyPoints": [
+              "Used for VPN connections",
+              "Attached to a VPC",
+              "Region-level resource",
+              "Not an IP segment"
+            ],
+            "examples": [
+              "Site-to-site VPN connections"
+            ],
+            "additionalInfo": "A virtual private gateway enables VPN connectivity and is not a logical IP segmentation component.",
+            "learnMore": [
+              {
+                "title": "Virtual Private Gateway",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_VPN.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Subnet",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "A subnet is a logical IP range that exists within one Availability Zone.",
+            "keyPoints": [
+              "Defined by a CIDR block",
+              "Belongs to a single AZ",
+              "Used to isolate resources",
+              "Fundamental VPC building block",
+              "Supports high availability design"
+            ],
+            "examples": [
+              "Public subnet in us-east-1a",
+              "Private subnet for databases"
+            ],
+            "additionalInfo": "A subnet is a subdivision of a VPC IP address range and is always associated with exactly one Availability Zone. This design enforces fault isolation and enables high availability architectures by distributing resources across multiple subnets in different AZs. In AWS exams, any question that references a single-AZ logical network segment clearly points to a subnet.",
+            "learnMore": [
+              {
+                "title": "VPC Subnets",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html"
+              },
+              {
+                "title": "Subnet Basics",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html"
+              },
+              {
+                "title": "Designing VPC Networks",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/aws-vpc-connectivity-options.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Security group",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Security groups are not network segments.",
+            "keyPoints": [
+              "Logical firewall rules",
+              "Not tied to an AZ",
+              "Applied to instances",
+              "Do not define IP ranges"
+            ],
+            "examples": [
+              "Allowing SSH access to EC2"
+            ],
+            "additionalInfo": "Security groups control traffic but do not represent a network segment or IP range within a VPC.",
+            "learnMore": [
+              {
+                "title": "Security Groups",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

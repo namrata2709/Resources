@@ -1,0 +1,609 @@
+{
+  "title": "Tooling and Automation Quiz",
+  "topic": "AWS Tooling and Automation",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which type of AWS Systems Manager document can take a snapshot of an Amazon EC2 instance?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Automation document",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Automation documents are designed to perform operational tasks such as taking EC2 snapshots through defined workflows.",
+            "keyPoints": [
+              "Also known as runbooks",
+              "Execute multi-step operational workflows",
+              "Can call AWS APIs like CreateSnapshot",
+              "Support approvals and branching logic",
+              "Used for maintenance and remediation tasks",
+              "Central to operational automation"
+            ],
+            "examples": [
+              "Automating EBS snapshots before patching",
+              "Creating AMI backups on a schedule",
+              "Running disaster recovery preparation workflows"
+            ],
+            "additionalInfo": "AWS Systems Manager Automation documents provide a structured way to automate common and complex operational tasks. These documents define a sequence of steps that AWS executes on your behalf, such as taking snapshots, restarting instances, or applying patches. For EC2 snapshots, Automation documents can orchestrate API calls to create EBS snapshots safely and consistently, often as part of a larger workflow like pre-maintenance backups. Unlike interactive session tools, Automation documents are designed for repeatability and scale. They reduce human error and ensure that critical tasks like backups are executed the same way every time. In exams, snapshot creation and multi-step operations almost always point to Automation documents rather than other Systems Manager document types.",
+            "learnMore": [
+              {
+                "title": "AWS Systems Manager Automation",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-automation.html"
+              },
+              {
+                "title": "Automation Runbooks",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/automation-documents.html"
+              },
+              {
+                "title": "CreateSnapshot API",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateSnapshot.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Package document",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Package documents are used for installing and managing software packages.",
+            "keyPoints": [
+              "Focus on application packages",
+              "Used with Distributor",
+              "Do not execute infrastructure operations",
+              "Not workflow-based"
+            ],
+            "examples": [
+              "Installing an application on EC2"
+            ],
+            "additionalInfo": "Package documents define how software is installed or updated on instances. They are not designed for infrastructure-level operations like snapshots.",
+            "learnMore": [
+              {
+                "title": "SSM Distributor",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/distributor.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Session document",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Session documents define how interactive sessions are established.",
+            "keyPoints": [
+              "Used by Session Manager",
+              "Enable shell or port forwarding",
+              "Interactive access only",
+              "No automation workflows"
+            ],
+            "examples": [
+              "Opening a shell session to EC2"
+            ],
+            "additionalInfo": "Session documents control connection behavior but cannot perform automated operational tasks like snapshot creation.",
+            "learnMore": [
+              {
+                "title": "Session Manager Documents",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Policy document",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Policy documents define permissions, not actions.",
+            "keyPoints": [
+              "Used in IAM",
+              "Control access to resources",
+              "Do not execute tasks",
+              "Not part of Systems Manager automation"
+            ],
+            "examples": [
+              "IAM policy granting EC2 permissions"
+            ],
+            "additionalInfo": "Policy documents define what actions are allowed, but they do not perform those actions.",
+            "learnMore": [
+              {
+                "title": "IAM Policy Overview",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "Which AWS Systems Manager capability can store configuration data?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Patch Manager",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Patch Manager focuses on applying OS and application patches.",
+            "keyPoints": [
+              "Automates patching",
+              "Works with maintenance windows",
+              "Does not store configuration values",
+              "Operational, not storage-focused"
+            ],
+            "examples": [
+              "Applying security updates to EC2"
+            ],
+            "additionalInfo": "Patch Manager manages patch compliance but does not act as a configuration data store.",
+            "learnMore": [
+              {
+                "title": "AWS Patch Manager",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-patch.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Inventory",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Inventory collects metadata about instances, not configuration values.",
+            "keyPoints": [
+              "Tracks installed software",
+              "Collects OS details",
+              "Read-only data collection",
+              "Not a secret store"
+            ],
+            "examples": [
+              "Listing installed packages on EC2"
+            ],
+            "additionalInfo": "Inventory provides visibility into instance state but cannot be used to store application configuration.",
+            "learnMore": [
+              {
+                "title": "AWS Systems Manager Inventory",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-inventory.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Parameter Store",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Parameter Store securely stores configuration data and secrets.",
+            "keyPoints": [
+              "Supports plaintext and encrypted parameters",
+              "Integrated with AWS KMS",
+              "Versioned configuration values",
+              "Fine-grained IAM access control",
+              "Common for app configuration",
+              "Centralized configuration management"
+            ],
+            "examples": [
+              "Storing database connection strings",
+              "Saving API keys securely",
+              "Managing environment-specific variables"
+            ],
+            "additionalInfo": "AWS Systems Manager Parameter Store is designed specifically to store configuration data and secrets in a secure, managed way. It supports encryption using AWS KMS, versioning for rollback, and tight IAM controls. Applications and automation tools can retrieve parameters dynamically at runtime, eliminating the need to hard-code sensitive values. Parameter Store is widely used for managing environment variables, passwords, and configuration flags across multiple environments. In exams, any question involving secure configuration storage almost always points to Parameter Store.",
+            "learnMore": [
+              {
+                "title": "AWS Systems Manager Parameter Store",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html"
+              },
+              {
+                "title": "SecureString Parameters",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-securestring.html"
+              },
+              {
+                "title": "Using Parameter Store with Applications",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/introduction-devops-aws/parameter-store.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "State Manager",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "State Manager enforces desired configuration states.",
+            "keyPoints": [
+              "Applies configurations",
+              "Uses associations",
+              "Does not store secrets",
+              "Execution-focused"
+            ],
+            "examples": [
+              "Ensuring antivirus is installed"
+            ],
+            "additionalInfo": "State Manager enforces configurations but relies on other services for storing configuration data.",
+            "learnMore": [
+              {
+                "title": "AWS Systems Manager State Manager",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-state.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which AWS Systems Manager capability can connect to an instance directly from the AWS Management Console?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Patch Manager",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Patch Manager handles patching, not interactive access.",
+            "keyPoints": [
+              "Automates patching",
+              "No interactive sessions",
+              "Maintenance-focused",
+              "Not for connectivity"
+            ],
+            "examples": [
+              "Applying OS updates"
+            ],
+            "additionalInfo": "Patch Manager cannot be used to connect to instances.",
+            "learnMore": [
+              {
+                "title": "Patch Manager Overview",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-patch.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "State Manager",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "State Manager enforces configuration state, not access.",
+            "keyPoints": [
+              "Applies policies",
+              "Runs on schedules",
+              "No session capability",
+              "Automation-focused"
+            ],
+            "examples": [
+              "Ensuring logging is enabled"
+            ],
+            "additionalInfo": "State Manager does not provide interactive access.",
+            "learnMore": [
+              {
+                "title": "State Manager",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-state.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Instance Manager",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Instance Manager is not an AWS Systems Manager capability.",
+            "keyPoints": [
+              "No such SSM feature",
+              "Common distractor option",
+              "Incorrect terminology",
+              "Not part of AWS services"
+            ],
+            "examples": [
+              "N/A"
+            ],
+            "additionalInfo": "Instance Manager is not a valid AWS Systems Manager feature.",
+            "learnMore": [
+              {
+                "title": "AWS Systems Manager Features",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/what-is-systems-manager.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Session Manager",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Session Manager provides secure console-based access to instances.",
+            "keyPoints": [
+              "No SSH or bastion required",
+              "Access directly from AWS Console",
+              "Uses IAM for authentication",
+              "Fully audited with CloudTrail",
+              "Works with EC2 and on-prem servers",
+              "Improves security posture"
+            ],
+            "examples": [
+              "Opening a shell from the AWS Console",
+              "Running commands without SSH keys",
+              "Accessing private instances"
+            ],
+            "additionalInfo": "AWS Systems Manager Session Manager enables secure, auditable access to instances directly from the AWS Management Console or CLI. It removes the need for SSH keys, open inbound ports, or bastion hosts. Authentication and authorization are handled through IAM, and all session activity can be logged to CloudTrail or CloudWatch Logs. Session Manager is a key security and operations tool and is frequently tested in exams as the preferred way to access instances securely.",
+            "learnMore": [
+              {
+                "title": "AWS Systems Manager Session Manager",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html"
+              },
+              {
+                "title": "Session Manager Security Benefits",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started.html"
+              },
+              {
+                "title": "Auditing Sessions with CloudTrail",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-logging.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "Which markup languages are supported in AWS CloudFormation?",
+      "multiSelect": true,
+      "options": [
+        {
+          "id": "A",
+          "text": "Ruby",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Ruby is a programming language and is not supported for CloudFormation templates.",
+            "keyPoints": [
+              "Used for application logic",
+              "Not a markup or data serialization format",
+              "Cannot define CloudFormation resources directly",
+              "Sometimes confused due to SDK support"
+            ],
+            "examples": [
+              "Using Ruby with the AWS SDK to call APIs"
+            ],
+            "additionalInfo": "Ruby can be used to interact with AWS services through SDKs, but CloudFormation templates must be written in declarative formats. Ruby cannot be parsed natively by CloudFormation to define infrastructure.",
+            "learnMore": [
+              {
+                "title": "AWS SDK for Ruby",
+                "url": "https://docs.aws.amazon.com/sdk-for-ruby/v3/developer-guide/welcome.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "JSON",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "JSON is one of the two supported formats for CloudFormation templates.",
+            "keyPoints": [
+              "Machine-readable and structured",
+              "Supported since CloudFormation launch",
+              "Works well with automation tools",
+              "Strict syntax reduces ambiguity",
+              "Common in API-driven workflows"
+            ],
+            "examples": [
+              "Defining EC2 resources in JSON templates",
+              "Automated stack creation via CLI"
+            ],
+            "additionalInfo": "JSON was the original format supported by AWS CloudFormation and remains fully supported. It provides a strict, structured way to define resources, parameters, and outputs. While verbose, JSON integrates well with tooling and automation pipelines. CloudFormation parses JSON templates directly to provision infrastructure exactly as defined. Many legacy templates and exam questions still reference JSON explicitly, making it essential to recognize it as a valid CloudFormation format.",
+            "learnMore": [
+              {
+                "title": "CloudFormation JSON Templates",
+                "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-formats.html"
+              },
+              {
+                "title": "AWS CloudFormation Template Anatomy",
+                "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html"
+              },
+              {
+                "title": "Using AWS CLI with CloudFormation",
+                "url": "https://docs.aws.amazon.com/cli/latest/reference/cloudformation/index.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "YAML",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "YAML is the preferred and more readable format for CloudFormation templates.",
+            "keyPoints": [
+              "Human-readable syntax",
+              "Supports intrinsic functions cleanly",
+              "Less verbose than JSON",
+              "Widely used in IaC workflows",
+              "Fully supported by AWS"
+            ],
+            "examples": [
+              "Defining VPC stacks in YAML",
+              "Writing reusable nested stacks"
+            ],
+            "additionalInfo": "YAML is widely favored for CloudFormation templates due to its readability and concise syntax. AWS supports YAML fully, including shorthand intrinsic functions like !Ref and !Sub. This makes templates easier to maintain and review. From an exam perspective, YAML and JSON are the only correct answers whenever CloudFormation template languages are asked.",
+            "learnMore": [
+              {
+                "title": "CloudFormation YAML Templates",
+                "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-formats.html"
+              },
+              {
+                "title": "Intrinsic Functions in YAML",
+                "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html"
+              },
+              {
+                "title": "Infrastructure as Code Best Practices",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/introduction-devops-aws/infrastructure-as-code.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "JavaScript",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "JavaScript cannot be used to write CloudFormation templates.",
+            "keyPoints": [
+              "Imperative language",
+              "Used for application logic",
+              "Not a declarative template format",
+              "Often confused with CDK"
+            ],
+            "examples": [
+              "Using JavaScript with AWS CDK"
+            ],
+            "additionalInfo": "JavaScript is used with higher-level tools like AWS CDK, which generate CloudFormation templates under the hood. CloudFormation itself does not accept JavaScript templates.",
+            "learnMore": [
+              {
+                "title": "AWS CDK Overview",
+                "url": "https://docs.aws.amazon.com/cdk/latest/guide/home.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "E",
+          "text": "Python",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Python is not a supported CloudFormation template language.",
+            "keyPoints": [
+              "Used with AWS SDKs and CDK",
+              "Imperative programming language",
+              "Not parsed by CloudFormation",
+              "Common source of confusion"
+            ],
+            "examples": [
+              "Defining infrastructure with AWS CDK in Python"
+            ],
+            "additionalInfo": "Python can define infrastructure through AWS CDK, but the CDK synthesizes CloudFormation templates in JSON or YAML. CloudFormation itself does not consume Python directly.",
+            "learnMore": [
+              {
+                "title": "AWS CDK with Python",
+                "url": "https://docs.aws.amazon.com/cdk/latest/guide/work-with-cdk-python.html"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "Which AWS service is based on the Chef and Puppet automation platforms?",
+      "options": [
+        {
+          "id": "A",
+          "text": "AWS OpsWorks",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "AWS OpsWorks provides managed Chef and Puppet environments.",
+            "keyPoints": [
+              "Supports Chef and Puppet",
+              "Automates server configuration",
+              "Manages application lifecycle",
+              "Enforces desired state configuration",
+              "Targets configuration management use cases",
+              "Integrates with EC2"
+            ],
+            "examples": [
+              "Managing fleet configuration with Chef",
+              "Using Puppet to enforce server state",
+              "Automating app deployments with OpsWorks"
+            ],
+            "additionalInfo": "AWS OpsWorks is a configuration management service that integrates directly with Chef and Puppet. It allows teams to use familiar automation tools to define how servers should be configured and maintained. OpsWorks handles the infrastructure provisioning and lifecycle management while Chef or Puppet handle configuration enforcement. Although newer tools like Systems Manager are more commonly recommended today, OpsWorks remains the AWS service explicitly built on Chef and Puppet. In exams, any mention of Chef or Puppet almost always maps to AWS OpsWorks.",
+            "learnMore": [
+              {
+                "title": "AWS OpsWorks Overview",
+                "url": "https://docs.aws.amazon.com/opsworks/latest/userguide/welcome.html"
+              },
+              {
+                "title": "OpsWorks for Puppet Enterprise",
+                "url": "https://docs.aws.amazon.com/opsworks/latest/userguide/opspup.html"
+              },
+              {
+                "title": "OpsWorks for Chef Automate",
+                "url": "https://docs.aws.amazon.com/opsworks/latest/userguide/opscm.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "AWS CloudFormation",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "CloudFormation is an infrastructure provisioning service, not Chef or Puppet based.",
+            "keyPoints": [
+              "Declarative IaC service",
+              "Uses JSON or YAML templates",
+              "Does not manage configuration state",
+              "Different automation layer"
+            ],
+            "examples": [
+              "Provisioning VPCs with CloudFormation"
+            ],
+            "additionalInfo": "CloudFormation defines infrastructure resources but does not enforce configuration management like Chef or Puppet.",
+            "learnMore": [
+              {
+                "title": "AWS CloudFormation Overview",
+                "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "AWS Systems Manager",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Systems Manager is AWS-native and not based on Chef or Puppet.",
+            "keyPoints": [
+              "Agent-based management",
+              "Uses AWS documents and automation",
+              "No Chef or Puppet dependency",
+              "Broader operations focus"
+            ],
+            "examples": [
+              "Patching instances with Patch Manager"
+            ],
+            "additionalInfo": "Systems Manager replaces many traditional configuration tools but is not built on Chef or Puppet.",
+            "learnMore": [
+              {
+                "title": "AWS Systems Manager Overview",
+                "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/what-is-systems-manager.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "AWS Config",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "AWS Config tracks configuration changes rather than enforcing them.",
+            "keyPoints": [
+              "Records resource configuration history",
+              "Evaluates compliance",
+              "Does not configure servers",
+              "Not a configuration management tool"
+            ],
+            "examples": [
+              "Auditing security group changes"
+            ],
+            "additionalInfo": "AWS Config is a monitoring and compliance service, not an automation platform.",
+            "learnMore": [
+              {
+                "title": "AWS Config Overview",
+                "url": "https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
