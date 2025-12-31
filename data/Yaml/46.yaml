@@ -1,0 +1,493 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: VPC with an Amazon Linux instance in a public subnet
+
+Parameters:
+
+  VPCCIDR:
+    Description: CIDR Block for VPC
+    Type: String
+    Default: 10.200.0.0/20
+    AllowedValues:
+      - 10.200.0.0/20
+
+  PublicSubnet1Param:
+    Description: Public Subnet 1
+    Type: String
+    Default: 10.200.0.0/24
+    AllowedValues:
+      - 10.200.0.0/24
+
+  PrivateSubnet1Param:
+    Description: Private Subnet 1
+    Type: String
+    Default: 10.200.2.0/23
+    AllowedValues:
+      - 10.200.2.0/23
+
+  KeyName:
+    Type: String
+    Description: Keyname for the keypair that Vocareum will use
+    Default: lab-key-pair
+
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+
+Resources:
+
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      Tags:
+        - Key: VPC
+          Value: Cafe
+        - Key: Name
+          Value: Cafe
+
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    DependsOn: VPC
+
+  AttachGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    DependsOn:
+      - VPC
+      - InternetGateway
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnet1Param
+      AvailabilityZone: !Select
+        - '0'
+        - !GetAZs ''
+      MapPublicIpOnLaunch: 'true'
+      Tags:
+        - Key: Name
+          Value: Cafe Public Subnet 1
+
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    DependsOn:
+      - VPC
+      - AttachGateway
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Public Route Table
+
+  PublicRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn:
+      - VPC
+      - PublicRouteTable
+      - InternetGateway
+      - AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    DependsOn:
+      - PublicRouteTable
+      - PublicSubnet1
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PrivateSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnet1Param
+      AvailabilityZone: !Select
+        - '0'
+        - !GetAZs ''
+      Tags:
+        - Key: Name
+          Value: Private Subnet 1
+
+  PrivateRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    DependsOn:
+      - VPC
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Private Route Table 1
+
+  PrivateRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn:
+      - VPC
+      - PrivateRouteTable
+      - NATGateway
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    DependsOn:
+      - PrivateRouteTable
+      - PrivateSubnet1
+    Properties:
+      SubnetId: !Ref PrivateSubnet1
+      RouteTableId: !Ref PrivateRouteTable
+
+  NATGateway:
+    DependsOn: AttachGateway
+    Type: 'AWS::EC2::NatGateway'
+    Properties:
+      AllocationId: !GetAtt
+        - EIP
+        - AllocationId
+      SubnetId: !Ref PublicSubnet1
+
+  EIP:
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+
+  LinuxinstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  LinuxInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref LinuxinstanceRole
+
+  LinuxInstance:
+    Type: 'AWS::EC2::Instance'
+    DependsOn:
+      - VPC
+      - LinuxInstanceSG
+      - PublicSubnet1
+    Properties:
+      ImageId: !Ref LatestAmiId
+      KeyName: !Ref KeyName
+      InstanceType: t3.micro
+      IamInstanceProfile: !Ref LinuxInstanceProfile
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          AssociatePublicIpAddress: 'true'
+          SubnetId: !Ref PublicSubnet1
+          GroupSet:
+            - !Ref LinuxInstanceSG
+      SourceDestCheck: 'false'
+      Tags:
+        - Key: Name
+          Value: CLI Host
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum -y update
+          mkdir /home/ec2-user/sysops-activity-files
+          chown ec2-user:ec2-user /home/ec2-user/sysops-activity-files
+          cd /home/ec2-user/sysops-activity-files
+          yum install -y wget
+          #wget https://us-west-2-tcdev.s3.amazonaws.com/{%KAIZEN_S3_LAB_PREFIX %}/scripts/static-website-v2.tar.gz
+          #wget https://aws-tc-largeobjects.s3.amazonaws.com/CUR-TF-100-RESTRT-1/170-activity-JAWS-website-s3/static-website-v2.tar.gz
+          wget https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-100-RSJAWS-1-23732/170-activity-JAWS-website-s3/s3/static-website-v2.tar.gz
+          chown ec2-user:ec2-user /home/ec2-user/sysops-activity-files/static-website-v2.tar.gz
+
+  LinuxInstanceSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn: VPC
+    Properties:
+      GroupDescription: Security group for the CLI Host Linux instance
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Cafe SG
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          FromPort: '0'
+          ToPort: '65535'
+          CidrIp: 0.0.0.0/0
+
+###########
+# Read only access for awsstudent (across services)
+###########
+
+  ReadOnlyGroup:
+      Type: AWS::IAM::Group
+      Properties:
+        GroupName: QLReadOnly
+        ManagedPolicyArns: [ "arn:aws:iam::aws:policy/ReadOnlyAccess" ]
+
+  GroupAssignment:
+    Type: AWS::IAM::UserToGroupAddition
+    DependsOn: ReadOnlyGroup
+    Properties:
+      GroupName: QLReadOnly
+      Users:
+        - awsstudent
+
+  IAMUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName: awsstudent
+
+  IAMPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    DependsOn: IAMUser
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement: [ {
+            "Sid": "AllowAllActions",
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:List*",
+                "cloudformation:Describe*",
+                "cloudformation:Detect*",
+                "cloudformation:EstimateTemplateCost",
+                "cloudformation:Get*",
+                "cloudwatch:*",
+                "ec2:*Address*",
+                "ec2:*associate*",
+                "ec2:AttachVolume",
+                "ec2:BundleInstance",
+                "ec2:Cancel*",
+                "ec2:*Capacity*",
+                "ec2:CreateInstanceExportTask",
+                "ec2:CreateFlowLogs",
+                "ec2:*Credit*",
+                "ec2:*Cidr",
+                "ec2:Delete*",
+                "ec2:Describe*",
+                "ec2:DetachVolume",
+                "ec2:*Dhcp*",
+                "ec2:*Ebs*",
+                "ec2:*Event*",
+                "ec2:*Fleet*",
+                "ec2:*Format",
+                "ec2:*Gateway*",
+                "ec2:Get*",
+                "ec2:*InstanceAttribute",
+                "ec2:*InternetGateway",
+                "ec2:*Image*",
+                "ec2:*KeyPair",
+                "ec2:*Kms*",
+                "ec2:*monitor*",
+                "ec2:*Network*",
+                "ec2:*Options",
+                "ec2:*PrefixList*",
+                "ec2:ReportInstanceStatus",
+                "ec2:RebootInstances",
+                "ec2:ReplaceIamInstanceProfileAssociation",
+                "ec2:*Route*",
+                "ec2:*SecurityGroup*",
+                "ec2:Search*",
+                "ec2:SendDiagnosticInterrupt",
+                "ec2:StopInstances",
+                "ec2:*Snapshot*",
+                "ec2:*Subnet*",
+                "ec2:*Tag*",
+                "ec2:TerminateInstances",
+                "ec2:*Traffic*",
+                "ec2:*Vpn*",
+                "ec2:*Vpc*",
+                "events:*",
+                "iam:List*",
+                "iam:Get*",
+                "iam:CreateUser",
+                "iam:CreateLoginProfile",
+                "kms:List*",
+                "kms:Describe*",
+                "logs:*",
+                "resource-groups:Get*",
+                "resource-groups:List*",
+                "resource-groups:SearchResources",
+                "s3:*",
+                "ssm:List*",
+                "ssm:Describe*",
+                "ssm:Get*",
+                "ssm:PutInventory",
+                "ssm:PutComplianceItems",
+                "ssm:PutConfigurePackageResult",
+                "ssm:UpdateAssociationStatus",
+                "ssm:UpdateInstanceAssociationStatus",
+                "ssm:UpdateInstanceInformation",
+                "ssm:CancelCommand",
+                "ssm:SendCommand",
+                "ssm:StartAutomationExecution",
+                "ssm:StartSession",
+                "ssm:TerminateSession",
+                "ssm:ResumeSession",
+                "ssm:DescribeSessions",
+                "ssm:GetConnectionStatus",
+                "sns:CreateTopic",
+                "sns:DeleteTopic",
+                "sns:AddPermission",
+                "sns:RemovePermission",
+                "sns:Publish",
+                "sns:Subscribe",
+                "sns:Unsubscribe",
+                "sns:ConfirmSubscription",
+                "sns:Get*",
+                "sns:Set*",
+                "sns:List*",
+                "tag:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Action": [
+                "iam:AttachUserPolicy"
+            ],
+            "Effect": "Allow",
+            "Resource": "*",
+            "Condition": {
+                "ArnEquals": {
+                    "iam:PolicyARN": [
+                        "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+                    ]
+                }
+            }
+        },
+        {
+            "Sid": "RestrictInstanceActions",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:CreateVolume",
+                "ec2:EnableVolumeIO",
+                "ec2:ImportVolume",
+                "ec2:ImportSnapshot",
+                "ec2:ImportInstance",
+                "ec2:*LaunchTemplate*",
+                "ec2:ModifyVolume*",
+                "ec2:RunInstances",
+                "ec2:StartInstances"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringEqualsIfExists": {
+                    "ec2:Owner": "amazon"
+                },
+                "ForAllValues:StringLikeIfExists": {
+                    "ec2:InstanceType": [
+                        "*.nano",
+                        "*.micro",
+                        "*.small"
+                    ],
+                    "ec2:Tenancy": "default"
+                },
+                "StringNotEqualsIfExists": {
+                    "ec2:PlacementGroupStrategy": "cluster"
+                },
+                "StringNotEqualsIgnoreCaseIfExists": {
+                    "ec2:VolumeType": [
+                        "io1",
+                        "st1"
+                    ]
+                },
+                "NumericLessThanEqualsIfExists": {
+                    "ec2:VolumeSize": "101"
+                }
+            }
+        },
+        {
+            "Sid": "RestrictActions",
+            "Effect": "Deny",
+            "Action": [
+                "ec2:*Spot*",
+                "ec2:*ReservedInstances*",
+                "ec2:*Scheduled*",
+                "ec2:*Purchase*",
+                "ec2:EnableFastSnapshotRestores"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "ServiceLinkedRoleAndPolicies",
+            "Effect": "Allow",
+            "Action": [
+                "iam:UpdateAssumeRolePolicy",
+                "iam:PassRole",
+                "iam:DetachRolePolicy",
+                "iam:CreateServiceLinkedRole",
+                "iam:DeleteRolePolicy",
+                "iam:UpdateRoleDescription",
+                "iam:CreateRole",
+                "iam:DeleteRole",
+                "iam:AttachRolePolicy",
+                "iam:DeleteServiceLinkedRole",
+                "iam:PutRolePolicy",
+                "iam:AddRoleToInstanceProfile",
+                "iam:CreateInstanceProfile"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringLikeIfExists": {
+                    "iam:AWSServiceName": [
+                        "ec2.amazonaws.com",
+                        "s3.amazonaws.com"
+                    ]
+                }
+            }
+        }]
+      ManagedPolicyName: lab_policy
+      Users:
+        - awsstudent
+
+  IAMUserAccessKey:
+    Type: 'AWS::IAM::AccessKey'
+    DependsOn: IAMUser
+    Properties:
+      Status: Active
+      UserName: awsstudent
+
+  AwsStudentAccessKey:
+    Type: AWS::IAM::AccessKey
+    DependsOn: IAMUser
+    Properties:
+      Status: Active
+      UserName: awsstudent
+
+
+Outputs:
+
+  AccessKey:
+    Value: !Ref IAMUserAccessKey
+
+  SecretKey:
+    Value: !GetAtt
+      - IAMUserAccessKey
+      - SecretAccessKey
+
+  InstanceSessionURL:
+    Description: AWS Systems Manager Session Manager (SSM) terminal connection to the Web Server EC2 instance
+    Value: !Sub https://${AWS::Region}.console.aws.amazon.com/systems-manager/session-manager/${LinuxInstance}

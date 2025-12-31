@@ -1,0 +1,465 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Systems Hardening using Patch Manager
+
+Parameters:
+  VPCCIDR:
+    Description: CIDR Block for VPC
+    Type: String
+    Default: 10.0.0.0/16
+    AllowedValues:
+      - 10.0.0.0/16
+
+  PublicSubnetParam:
+    Description:  Public Subnet 1
+    Type: String
+    Default: 10.0.1.0/24
+    AllowedValues:
+      - 10.0.1.0/24
+
+  PrivateSubnetParam:
+    Description:  Private Subnet
+    Type: String
+    Default: 10.0.2.0/24
+
+  KeyName:
+    Type: String
+    Description: Keyname for the keypair that Qwiklab will use to launch EC2 instances
+    Default: default-lab-key
+
+  LinuxAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+
+  WindowsAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base    
+
+  SSHLocation:
+    Description: The IP address range that can be used to SSH to the EC2 instances
+    Type: String
+    MinLength: "9"
+    MaxLength: "18"
+    Default: 0.0.0.0/0
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x    
+
+  # S3PathPrefix:
+  #   Type: String
+  #   Description: "The path prefix where lab resources are stored (Leading and trailing slash required!)"
+  #   #Default: "<% KAIZEN_S3_LAB_PREFIX %>"
+  #   Default: courses/ILT-DD-300-SECPC/v1.0.0/lab1-policychallenge
+
+  # S3ResourceBucket:
+  #   Type: String
+  #   Description: 'S3 Bucket suffix (e.g. us-west-2-tcdev) of where to pull lab resources from'
+  #   Default: 'tcdev'
+
+Resources:
+
+#VPC - This will be default VPC for student
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+        - Key: Name
+          Value: LabVPC
+        - Key: "SecurityScan"
+          Value: "true"       
+
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    DependsOn: VPC
+
+  AttachGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    DependsOn:
+      - VPC
+      - InternetGateway
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet:
+    Type: 'AWS::EC2::Subnet'
+    DependsOn: AttachGateway
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnetParam
+      AvailabilityZone: !Select
+        - '0'
+        - !GetAZs ''
+      Tags:
+        - Key: Name
+          Value: Public Subnet     
+
+  PrivateSubnet:
+    Type: 'AWS::EC2::Subnet'
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnetParam
+      MapPublicIpOnLaunch: True
+      AvailabilityZone: !Select
+        - '0'
+        - !GetAZs ''
+      Tags:
+        - Key: Name
+          Value: Private Subnet         
+
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    DependsOn:
+      - VPC
+      - AttachGateway
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: Public     
+
+  AppRouteTable:
+    Type: AWS::EC2::RouteTable
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: App Route Table
+
+  PublicRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn:
+      - PublicRouteTable
+      - AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  AppRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn:
+      - AppRouteTable
+      - AttachGateway
+    Properties:
+      RouteTableId: !Ref AppRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway      
+
+  PublicSubnetRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    DependsOn:
+      - PublicRouteTable
+      - PublicSubnet
+      - AttachGateway
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+
+  AppRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    DependsOn:
+      - AppRouteTable
+      - PrivateSubnet
+    Properties:
+      RouteTableId: !Ref AppRouteTable
+      SubnetId: !Ref PrivateSubnet
+
+  LinuxSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn:
+      - AttachGateway
+    Properties:
+      GroupDescription:  security group
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: LinuxSG     
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: '0'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '0'
+          ToPort: '443'
+          CidrIp: 0.0.0.0/0
+
+  WindowsSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn:
+      - AttachGateway
+    Properties:
+      GroupDescription:  security group
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: WindowsSG        
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '3389'
+          ToPort: '3389'
+          CidrIp: 0.0.0.0/0          
+
+         
+  Linux1:
+    Type: 'AWS::EC2::Instance'
+    DependsOn:
+      - AttachGateway
+      - Ec2InstanceProfile
+      - PrivateSubnet
+      - LinuxSG
+    Properties:
+      IamInstanceProfile: !Ref Ec2InstanceProfile
+      ImageId: !Ref LinuxAmiId
+      KeyName: !Ref KeyName
+      InstanceType: t2.micro
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          AssociatePublicIpAddress: 'true'
+          SubnetId: !Ref PrivateSubnet
+          GroupSet:
+            - !Ref LinuxSG
+      SourceDestCheck: 'false'
+      Tags:
+        - Key: Name
+          Value: Linux-1
+        - Key: 'Patch Group'
+          Value: 'LinuxProd'          
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -ex
+          yum install -y git aws-cfn-bootstrap aws-apitools-common aws-apitools-ec2
+          yum -y update
+          # Configure the EC2 and ssm users to work properly.
+          mkdir /home/ec2-user/.aws &&
+          echo "[default]" > /home/ec2-user/.aws/config &&
+          echo "region = ${AWS::Region}" >> /home/ec2-user/.aws/config &&
+          mkdir -p /home/ssm-user/.aws &&
+          echo "[default]" > /home/ssm-user/.aws/config &&
+          echo "region = ${AWS::Region}" >> /home/ssm-user/.aws/config &&
+
+          until (( $(id -u ssm-user) )); do sleep 10; done &&
+          chown -R ssm-user:ssm-user /home/ssm-user/ &&
+
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AppServerHost --region ${AWS::Region}    
+
+  Linux2:
+    Type: 'AWS::EC2::Instance'
+    DependsOn:
+      - AttachGateway
+      - Ec2InstanceProfile
+      - PrivateSubnet
+      - LinuxSG
+    Properties:
+      IamInstanceProfile: !Ref Ec2InstanceProfile
+      ImageId: !Ref LinuxAmiId
+      KeyName: !Ref KeyName
+      InstanceType: t2.micro
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          AssociatePublicIpAddress: 'true'
+          SubnetId: !Ref PrivateSubnet
+          GroupSet:
+            - !Ref LinuxSG
+      SourceDestCheck: 'false'
+      Tags:
+        - Key: Name
+          Value: Linux-2
+        - Key: 'Patch Group'
+          Value: 'LinuxProd'         
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -ex
+          yum install -y git aws-cfn-bootstrap aws-apitools-common aws-apitools-ec2
+          yum -y update
+          # Configure the EC2 and ssm users to work properly.
+          mkdir /home/ec2-user/.aws &&
+          echo "[default]" > /home/ec2-user/.aws/config &&
+          echo "region = ${AWS::Region}" >> /home/ec2-user/.aws/config &&
+          mkdir -p /home/ssm-user/.aws &&
+          echo "[default]" > /home/ssm-user/.aws/config &&
+          echo "region = ${AWS::Region}" >> /home/ssm-user/.aws/config &&
+
+          until (( $(id -u ssm-user) )); do sleep 10; done &&
+          chown -R ssm-user:ssm-user /home/ssm-user/ &&
+
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AppServerHost --region ${AWS::Region}    
+
+  Linux3:
+    Type: 'AWS::EC2::Instance'
+    DependsOn:
+      - AttachGateway
+      - Ec2InstanceProfile
+      - PrivateSubnet
+      - LinuxSG
+    Properties:
+      IamInstanceProfile: !Ref Ec2InstanceProfile
+      ImageId: !Ref LinuxAmiId
+      KeyName: !Ref KeyName
+      InstanceType: t2.micro
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          AssociatePublicIpAddress: 'true'
+          SubnetId: !Ref PrivateSubnet
+          GroupSet:
+            - !Ref LinuxSG
+      SourceDestCheck: 'false'
+      Tags:
+        - Key: Name
+          Value: Linux-3
+        - Key: 'Patch Group'
+          Value: 'LinuxProd'         
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -ex
+          yum install -y git aws-cfn-bootstrap aws-apitools-common aws-apitools-ec2
+          yum -y update
+          # Configure the EC2 and ssm users to work properly.
+          mkdir /home/ec2-user/.aws &&
+          echo "[default]" > /home/ec2-user/.aws/config &&
+          echo "region = ${AWS::Region}" >> /home/ec2-user/.aws/config &&
+          mkdir -p /home/ssm-user/.aws &&
+          echo "[default]" > /home/ssm-user/.aws/config &&
+          echo "region = ${AWS::Region}" >> /home/ssm-user/.aws/config &&
+
+          until (( $(id -u ssm-user) )); do sleep 10; done &&
+          chown -R ssm-user:ssm-user /home/ssm-user/ &&
+
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AppServerHost --region ${AWS::Region}                        
+
+  Windows1:
+    Type: 'AWS::EC2::Instance'
+    DependsOn:
+      - AttachGateway
+      - Ec2InstanceProfile
+      - PrivateSubnet
+      - WindowsSG
+    Properties:
+      IamInstanceProfile: !Ref Ec2InstanceProfile
+      ImageId: !Ref WindowsAmiId
+      KeyName: !Ref KeyName
+      InstanceType: t2.micro
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          AssociatePublicIpAddress: 'true'
+          SubnetId: !Ref PrivateSubnet
+          GroupSet:
+            - !Ref WindowsSG
+      SourceDestCheck: 'false'
+      Tags:
+        - Key: Name
+          Value: Windows-1
+        # - Key: 'Patch Group'
+        #   Value: 'WindowsProd'      
+
+  Windows2:
+    Type: 'AWS::EC2::Instance'
+    DependsOn:
+      - AttachGateway
+      - Ec2InstanceProfile
+      - PrivateSubnet
+      - WindowsSG
+    Properties:
+      IamInstanceProfile: !Ref Ec2InstanceProfile
+      ImageId: !Ref WindowsAmiId
+      KeyName: !Ref KeyName
+      InstanceType: t2.micro
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          AssociatePublicIpAddress: 'true'
+          SubnetId: !Ref PrivateSubnet
+          GroupSet:
+            - !Ref WindowsSG
+      SourceDestCheck: 'false'
+      Tags:
+        - Key: Name
+          Value: Windows-2
+
+  Windows3:
+    Type: 'AWS::EC2::Instance'
+    DependsOn:
+      - AttachGateway
+      - Ec2InstanceProfile
+      - PrivateSubnet
+      - WindowsSG
+    Properties:
+      IamInstanceProfile: !Ref Ec2InstanceProfile
+      ImageId: !Ref WindowsAmiId
+      KeyName: !Ref KeyName
+      InstanceType: t2.micro
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          AssociatePublicIpAddress: 'true'
+          SubnetId: !Ref PrivateSubnet
+          GroupSet:
+            - !Ref WindowsSG
+      SourceDestCheck: 'false'
+      Tags:
+        - Key: Name
+          Value: Windows-3
+
+#IAM Portion of LAb
+  Ec2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref SSMRole
+      InstanceProfileName: RoleForSSM
+
+  SSMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: 'Allow'
+          Principal:
+            Service: ['ec2.amazonaws.com']
+          Action: ['sts:AssumeRole']
+      Path: '/'
+
+  # PrivateInstanceProfile:
+  #   Type: AWS::IAM::InstanceProfile
+  #   Properties:
+  #     Path: /
+  #     Roles:
+  #       - !Ref PrivateEC2Role
+  #     InstanceProfileName: PrivateInstanceProfile
+
+  # PrivateEC2Role:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     # ManagedPolicyArns:
+  #     #   - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+  #     AssumeRolePolicyDocument:
+  #       Version: 2012-10-17
+  #       Statement:
+  #       - Effect: 'Allow'
+  #         Principal:
+  #           Service: ['ec2.amazonaws.com']
+  #         Action: ['sts:AssumeRole']
+  #     Path: '/'
+  #     Policies:
+  #       - PolicyName: root
+  #         PolicyDocument:
+  #           Version: 2012-10-17
+  #           Statement:
+  #             - Effect: Allow
+  #               Action:
+  #                 - 's3:*'
+  #               Resource:
+  #                 - 'arn:aws:s3:::*'
+  
+
+
+Outputs:
+  KeyName:
+    Value: !Ref KeyName
+  DefaultRegionName:
+    Value: !Ref 'AWS::Region'

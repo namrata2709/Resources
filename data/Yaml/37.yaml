@@ -1,0 +1,246 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: reStart Database template 
+
+###########
+Parameters:
+###########
+  # Locate latest Amazon Linux 2 AMI from public parameter store
+  LatestAL2AmiId: 
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
+    Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+
+###########
+Resources:
+###########
+# Lab VPC and Networking structure
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.1.0.0/16
+      EnableDnsSupport: True
+      EnableDnsHostnames: True
+      InstanceTenancy: 'default'
+      Tags:
+        - Key: Name
+          Value: LabVPC
+
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+
+  AttachGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    DependsOn: AttachGateway
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.1.11.0/24
+      MapPublicIpOnLaunch: True
+      AvailabilityZone: !Select
+        - '0'
+        - !GetAZs ''
+      Tags:
+        - Key: Name
+          Value: LabPublicSubnet
+
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    DependsOn: PublicSubnet1
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: PublicRouteTable
+
+  PublicRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn : AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    DependsOn: PublicRoute
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  LabInstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Security Group allowing HTTP traffic for lab instances
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: LabInstanceSecurityGroup
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+# IAM role for EC2 SSM instance profile
+  SSMInstanceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - ec2.amazonaws.com
+              - ssm.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Description: "An SSM role for use by EC2 Instances to be managed."
+      ManagedPolicyArns: [
+        "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+        "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
+      ]
+      RoleName: SSMInstanceRole
+
+  # Permissions required to EC2 Instance Connect
+  PublicInstanceRunPolicy: 
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: PublicInstanceRunPolicy
+      Roles:
+        - !Ref SSMInstanceRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - ec2:DescribeInstances
+              - ec2-instance-connect:SendSSHPublicKey
+            Resource: '*'
+
+
+  SSMInstanceProfile:
+      Type: "AWS::IAM::InstanceProfile"
+      Properties:
+        InstanceProfileName: "LabSSMRole"
+        Roles:
+          - !Ref SSMInstanceRole
+
+# Command Host used for tasks requiring CLI
+  CommandHost:
+    Type: AWS::EC2::Instance
+    DependsOn: PublicSubnet1RouteTableAssociation
+    Properties:
+      ImageId: !Ref LatestAL2AmiId
+      InstanceType: t3.micro
+      IamInstanceProfile: !Ref SSMInstanceProfile
+      Tags:
+        - Key: Name
+          Value: Command Host
+      InstanceInitiatedShutdownBehavior: terminate
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref LabInstanceSecurityGroup
+          SubnetId: !Ref PublicSubnet1
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum -y update
+          yum -y upgrade
+          amazon-linux-extras install mariadb10.5 -y
+          systemctl enable --now mariadb
+          systemctl start mariadb
+          # The world-main.sql file contains only some of the original data from the world.sql file.
+          wget https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-100-RSDBAS-3-124627/269-lab-DF-insert-update-delete/s3/world-main.sql -P /home/ec2-user/ 
+          mkdir /home/ec2-user/logs/
+          touch /home/ec2-user/logs/create-db.log
+          mysql --user=root --verbose < /home/ec2-user/world-main.sql > /home/ec2-user/logs/create-db.log
+          wget https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-100-RSDBAS-3-124627/269-lab-DF-insert-update-delete/s3/world.sql -P /home/ec2-user/
+          script -q -c 'mariadb-secure-installation' <<EOF
+
+          y
+          y
+          re:St@rt!9
+          re:St@rt!9
+          y
+          y
+          y
+          y
+          EOF
+          rm -rf /home/ec2-user/world-main.sql
+          ## Install AWS CLI v2
+          yum remove awscli -y
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          ./aws/install -b
+          export PATH=/usr/local/bin:$PATH
+          rm -rf awscliv2.zip typescript aws
+          touch ~/.ssh/config
+          echo "Host *" > ~/.ssh/config
+          echo "    ServerAliveInterval 60" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource CommandHost --configsets IncreaseSessionMgrTimeout --region ${AWS::Region}
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource CommandHost --region ${AWS::Region}
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT20M
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          IncreaseSessionMgrTimeout:
+          - "inc-session-timeout"
+      # Start - IncreaseSessionMgrTimeout config set commands
+        inc-session-timeout:
+          files:
+            /temp/ssm-settings.yaml:
+              content: |
+                inputs:
+                  s3BucketName: ""
+                  s3KeyPrefix: ""
+                  s3EncryptionEnabled: true
+                  cloudWatchLogGroupName: ""
+                  cloudWatchEncryptionEnabled: true
+                  idleSessionTimeout: "60"
+                  cloudWatchStreamingEnabled: true
+                  kmsKeyId: ""
+                  runAsEnabled: false
+                  runAsDefaultUser: ""
+                  shellProfile:
+                    linux: cd $HOME; pwd
+                schemaVersion: "1.0"
+                description: Lab document to modify Session Manager idle timeout and runas user.
+                sessionType: Standard_Stream
+          commands:
+            a-create-ssm-document:
+              command: aws ssm create-document --name "SSM-SessionManagerRunShell" --content "file:///temp/ssm-settings.yaml" --document-format YAML --document-type Session
+              ignoreErrors: true
+            b-configure-ssm:
+              command: aws ssm update-document --name "SSM-SessionManagerRunShell" --content "file:///temp/ssm-settings.yaml" --document-format YAML --document-version '$LATEST'
+              ignoreErrors: true
+
+###########
+Outputs:
+###########
+  LabRegion:
+    Description: "The AWS Region this Lab was created in"
+    Value: !Ref AWS::Region
+    Export:
+      Name: "LabRegion"
+
+  CommandHostPublicIP:
+    Description: Public IP address of Command Host.
+    Value: !GetAtt 
+      - CommandHost
+      - PublicIp
