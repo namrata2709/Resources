@@ -1,0 +1,476 @@
+{
+  "title": "Python for System Administration Quiz",
+  "topic": "Python System Administration and Automation",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which function is equivalent to the deprecated os.system() function in Python V3?",
+      "options": [
+        {
+          "id": "A",
+          "text": "subprocess.run()",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "subprocess.run() is the modern and recommended replacement for os.system() in Python 3.",
+            "keyPoints": [
+              "Provides structured control over external command execution",
+              "Allows capturing standard output and standard error",
+              "Supports argument lists instead of shell strings",
+              "Improves security by avoiding shell injection risks",
+              "Returns execution results through a CompletedProcess object"
+            ],
+            "examples": [
+              "subprocess.run([\"ls\", \"-l\"]) executes a system command safely",
+              "subprocess.run(cmd, capture_output=True) captures command output"
+            ],
+            "additionalInfo": "In Python 3, the subprocess module replaces older approaches like os.system() and os.popen(). While os.system() simply executes a command and returns its exit status, subprocess.run() offers far more control and safety. It allows administrators to pass commands as lists rather than raw shell strings, reducing the risk of shell injection vulnerabilities. subprocess.run() can capture output, handle errors explicitly, enforce timeouts, and integrate cleanly into automation scripts. These features are critical in system administration tasks where reliability and visibility into command execution matter. For example, when automating package management, user creation, or service monitoring, administrators need to inspect command results and respond to failures programmatically. subprocess.run() returns structured data that enables this behavior. Because of these advantages, os.system() is considered outdated and should be avoided in modern Python code used for automation and system management.",
+            "learnMore": [
+              {
+                "title": "Python subprocess.run()",
+                "url": "https://docs.python.org/3/library/subprocess.html#subprocess.run"
+              },
+              {
+                "title": "Replacing os.system()",
+                "url": "https://docs.python.org/3/library/subprocess.html#subprocess-replacements"
+              },
+              {
+                "title": "Real Python – Subprocess Module",
+                "url": "https://realpython.com/python-subprocess/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "os.uname()",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "os.uname() retrieves system information and does not execute commands.",
+            "why": "The os.uname() function returns details about the operating system such as kernel name and version. It is informational only and cannot run shell commands.",
+            "examples": [
+              "os.uname() returns system metadata, not command output"
+            ],
+            "learnMore": [
+              {
+                "title": "Python os.uname()",
+                "url": "https://docs.python.org/3/library/os.html#os.uname"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "json.load()",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "json.load() parses JSON data from files.",
+            "why": "json.load() is used for data serialization and deserialization, not for executing system commands. It operates on JSON content, not shell processes.",
+            "examples": [
+              "json.load(file) reads structured data from JSON"
+            ],
+            "learnMore": [
+              {
+                "title": "Python json.load()",
+                "url": "https://docs.python.org/3/library/json.html#json.load"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "open()",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "open() is used for file operations, not command execution.",
+            "why": "The open() function reads and writes files. It does not interact with the operating system shell or execute commands.",
+            "examples": [
+              "open(\"file.txt\") opens a file, not a process"
+            ],
+            "learnMore": [
+              {
+                "title": "Python open()",
+                "url": "https://docs.python.org/3/library/functions.html#open"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "What is a goal of system administration?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Find defects in applications",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Finding defects is primarily a development or QA responsibility.",
+            "why": "While sysadmins may report issues, systematically identifying application defects falls under software testing and development roles.",
+            "examples": [
+              "Bug tracking is usually handled by QA teams"
+            ],
+            "learnMore": [
+              {
+                "title": "Software Testing Roles",
+                "url": "https://www.geeksforgeeks.org/software-testing-roles/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Track source code versions",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Source code versioning is a developer responsibility.",
+            "why": "Version control systems such as Git are primarily used by developers. Sysadmins may interact with repositories but do not manage version history as a core responsibility.",
+            "examples": [
+              "Git workflows are handled by development teams"
+            ],
+            "learnMore": [
+              {
+                "title": "Version Control Basics",
+                "url": "https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Ensure system stability",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Ensuring system stability is a core responsibility of system administration.",
+            "keyPoints": [
+              "Maintains uptime and reliability of systems",
+              "Prevents unexpected outages",
+              "Manages updates and patches safely",
+              "Monitors system health and performance",
+              "Ensures services remain available"
+            ],
+            "examples": [
+              "Monitoring servers to prevent crashes",
+              "Applying security patches without downtime"
+            ],
+            "additionalInfo": "System administrators are responsible for keeping systems stable, reliable, and available. This includes managing operating systems, services, users, updates, and security controls. Stability means systems behave predictably under normal and peak loads, recover quickly from failures, and remain secure against threats. Sysadmins implement monitoring, backup strategies, patch management, and redundancy to achieve this goal. Unlike developers, who focus on building features, sysadmins focus on ensuring that existing systems continue to function correctly over time. Stability is especially critical in production environments where outages can cause data loss, revenue impact, or service disruption.",
+            "learnMore": [
+              {
+                "title": "System Administration Overview",
+                "url": "https://www.redhat.com/en/topics/linux/what-is-system-administration"
+              },
+              {
+                "title": "Site Reliability Principles",
+                "url": "https://sre.google/sre-book/introduction/"
+              },
+              {
+                "title": "Linux System Administration Basics",
+                "url": "https://www.geeksforgeeks.org/linux-system-administration/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Design database schemas",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Database schema design is typically handled by database engineers or developers.",
+            "why": "While sysadmins may manage database servers, designing schemas is a development and data architecture task.",
+            "examples": [
+              "Schema design occurs during application development"
+            ],
+            "learnMore": [
+              {
+                "title": "Database Design Basics",
+                "url": "https://www.geeksforgeeks.org/database-design/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Which part updates the packages in the current operating system?",
+      "options": [
+        {
+          "id": "A",
+          "text": "apt-get dist-upgrade",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "dist-upgrade performs complex upgrades involving dependency changes.",
+            "why": "apt-get dist-upgrade may install or remove packages to resolve dependency changes. It goes beyond updating currently installed packages.",
+            "examples": [
+              "Used during major OS upgrades"
+            ],
+            "learnMore": [
+              {
+                "title": "apt-get dist-upgrade",
+                "url": "https://manpages.ubuntu.com/manpages/focal/en/man8/apt-get.8.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "apt-get update",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "apt-get update refreshes package lists but does not install updates.",
+            "why": "This command updates the local package index so the system knows which versions are available. It does not upgrade installed software.",
+            "examples": [
+              "Must be run before upgrades"
+            ],
+            "learnMore": [
+              {
+                "title": "apt-get update Explained",
+                "url": "https://linux.die.net/man/8/apt-get"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "update_environment()",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This is a user-defined function name, not a system command.",
+            "why": "update_environment() is simply a wrapper function calling system commands. It does not itself perform updates.",
+            "examples": [
+              "Function names do not execute OS updates"
+            ],
+            "learnMore": [
+              {
+                "title": "Python Functions",
+                "url": "https://docs.python.org/3/tutorial/controlflow.html#defining-functions"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "apt-get upgrade",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "apt-get upgrade installs updated versions of currently installed packages.",
+            "keyPoints": [
+              "Upgrades installed packages only",
+              "Does not remove existing packages",
+              "Requires updated package lists",
+              "Used for routine system maintenance",
+              "Safer than dist-upgrade"
+            ],
+            "examples": [
+              "Regular security patch installation",
+              "Updating system libraries"
+            ],
+            "additionalInfo": "The apt-get upgrade command installs newer versions of packages that are already installed on the system, provided those upgrades do not require removing packages or changing dependencies. It is commonly used for routine system maintenance and security patching. Before running upgrade, administrators typically run apt-get update to refresh the package index. Unlike dist-upgrade, upgrade is conservative and avoids risky changes, making it suitable for stable environments. Understanding this distinction is important for safe automation of system updates using Python scripts.",
+            "learnMore": [
+              {
+                "title": "apt-get upgrade",
+                "url": "https://linux.die.net/man/8/apt-get"
+              },
+              {
+                "title": "Ubuntu Package Management",
+                "url": "https://ubuntu.com/server/docs/package-management"
+              },
+              {
+                "title": "Linux Updates Best Practices",
+                "url": "https://www.redhat.com/sysadmin/linux-update-best-practices"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "What is a common task for system administrators (SysAdmins)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Developing and deploying patches during maintenance windows",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Patch development is usually handled by developers, not SysAdmins.",
+            "why": "While system administrators often apply patches, the development of patches themselves typically falls under software engineering or vendor responsibilities. SysAdmins focus on deployment and operational impact rather than writing patch code.",
+            "examples": [
+              "Applying OS updates differs from developing software patches"
+            ],
+            "learnMore": [
+              {
+                "title": "Patch Management vs Development",
+                "url": "https://www.redhat.com/sysadmin/patch-management"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Creating a cloud solution framework to migrate a workload to the cloud",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Cloud migration design is typically handled by architects or DevOps engineers.",
+            "why": "Designing cloud migration frameworks involves architecture planning and solution design. SysAdmins may assist operationally, but this task is not considered a core system administration responsibility.",
+            "examples": [
+              "Cloud architects plan migration strategies"
+            ],
+            "learnMore": [
+              {
+                "title": "Cloud Migration Roles",
+                "url": "https://aws.amazon.com/cloud-migration/"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Installing new hardware or software",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "Installing and configuring hardware or software is a routine responsibility of system administrators.",
+            "keyPoints": [
+              "Involves setting up operating systems and applications",
+              "Ensures systems meet operational requirements",
+              "Includes configuration and initial testing",
+              "Supports both servers and user-facing systems",
+              "Forms the foundation of system availability"
+            ],
+            "examples": [
+              "Installing a new Linux server in a data center",
+              "Deploying required software on production systems"
+            ],
+            "additionalInfo": "System administrators are responsible for the installation, configuration, and ongoing maintenance of hardware and software systems. This includes provisioning servers, installing operating systems, deploying applications, and ensuring everything is configured according to organizational standards. These tasks form the baseline of system administration work, enabling other teams to operate on stable platforms. Even in modern cloud environments, SysAdmins continue to perform these duties through virtual machines, containers, and automation tools. Correct installation and configuration directly affect system stability, security, and performance. Because of this, installing hardware or software is one of the most fundamental and widely recognized SysAdmin responsibilities.",
+            "learnMore": [
+              {
+                "title": "System Administrator Responsibilities",
+                "url": "https://www.redhat.com/en/topics/linux/what-is-a-system-administrator"
+              },
+              {
+                "title": "Linux System Administration Basics",
+                "url": "https://www.geeksforgeeks.org/linux-system-administration/"
+              },
+              {
+                "title": "IT Operations Roles Explained",
+                "url": "https://www.atlassian.com/it-operations/what-is-it-operations"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Troubleshooting network connectivity between the company's data center and the corporate office",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "Network troubleshooting is primarily a network engineering task.",
+            "why": "While SysAdmins may assist or escalate issues, diagnosing and resolving network connectivity problems is typically handled by network engineers who specialize in routing, switching, and connectivity.",
+            "examples": [
+              "Network engineers manage routers and firewalls"
+            ],
+            "learnMore": [
+              {
+                "title": "Network Engineer Role",
+                "url": "https://www.geeksforgeeks.org/network-engineer-roles-and-responsibilities/"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "question": "What is being accomplished by the following Python function?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Creating a user name",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The function does more than just create a username string.",
+            "why": "While the function prompts for a username, it proceeds to execute a system command that performs an operating system-level action. Creating a string variable alone does not reflect the function’s full behavior.",
+            "examples": [
+              "Storing input does not modify the system"
+            ],
+            "learnMore": [
+              {
+                "title": "Python input() Function",
+                "url": "https://docs.python.org/3/library/functions.html#input"
+              }
+            ]
+          }
+        },
+        {
+          "id": "B",
+          "text": "Adding a user",
+          "isCorrect": true,
+          "explanation": {
+            "summary": "The function collects a username and executes a system command to add a new user to the system.",
+            "keyPoints": [
+              "Prompts for user input interactively",
+              "Confirms user intent before proceeding",
+              "Uses os.system to invoke a system-level command",
+              "Calls the adduser utility",
+              "Automates a common administrative task"
+            ],
+            "examples": [
+              "Automating user creation on Linux systems",
+              "Reducing manual administrative steps"
+            ],
+            "additionalInfo": "This function automates the creation of a new user account on a Linux system. It first gathers input from the administrator, confirms the username to prevent mistakes, and then invokes the adduser command with elevated privileges. Although the code uses os.system, which is discouraged in modern Python, the intent is clear: automate a repetitive administrative task. User management is a common SysAdmin responsibility, and Python scripts like this help reduce errors and save time. In production environments, such scripts are often improved with subprocess.run for better security and error handling. Understanding how Python interfaces with system commands is essential for effective automation in system administration.",
+            "learnMore": [
+              {
+                "title": "Linux adduser Command",
+                "url": "https://linux.die.net/man/8/adduser"
+              },
+              {
+                "title": "Python os.system()",
+                "url": "https://docs.python.org/3/library/os.html#os.system"
+              },
+              {
+                "title": "Python subprocess Module",
+                "url": "https://docs.python.org/3/library/subprocess.html"
+              }
+            ]
+          }
+        },
+        {
+          "id": "C",
+          "text": "Converting the value of username to lowercase",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "The function converts input to uppercase, not lowercase.",
+            "why": "The code uses the upper() method on the confirmation input, not on the username. No lowercase conversion is applied to the username variable.",
+            "examples": [
+              "upper() is used only for confirmation logic"
+            ],
+            "learnMore": [
+              {
+                "title": "Python String Methods",
+                "url": "https://docs.python.org/3/library/stdtypes.html#string-methods"
+              }
+            ]
+          }
+        },
+        {
+          "id": "D",
+          "text": "Adding a user name",
+          "isCorrect": false,
+          "explanation": {
+            "summary": "This option describes variable assignment, not system modification.",
+            "why": "Adding a username as a string does not create a system account. The function’s purpose is to modify the operating system by creating a user.",
+            "examples": [
+              "Variables do not alter OS state"
+            ],
+            "learnMore": [
+              {
+                "title": "User Management Concepts",
+                "url": "https://www.redhat.com/sysadmin/user-management-linux"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
