@@ -1,0 +1,460 @@
+{
+    "title": "Class Assessment – S3 Storage Classes",
+    "topic": "Class Assessment",
+    "questions": [
+        {
+            "id": 1,
+            "question": "Which Amazon S3 storage class is the BEST choice for data with unpredictable access patterns?",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "S3 Standard",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Amazon S3 Standard is designed for frequently accessed data with consistent access patterns.",
+                        "why": "S3 Standard is optimized for low-latency and high-throughput access but does not include any automated cost-optimization based on access frequency. When access patterns are unpredictable, S3 Standard can become more expensive because all data is always charged at the highest storage rate, even if it is rarely accessed. It is best suited for hot data that is accessed regularly rather than data whose usage fluctuates over time.",
+                        "examples": [
+                            "Hosting static website assets that are accessed daily"
+                        ],
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Standard Storage Class",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "S3 Standard-IA",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Standard-IA is intended for infrequently accessed data with known access characteristics.",
+                        "why": "Standard-IA assumes that data is accessed less frequently but still requires millisecond retrieval. It charges lower storage costs but adds retrieval fees, making it unsuitable when access patterns are unpredictable. If access suddenly increases, retrieval charges can significantly raise costs, which defeats the purpose of using this storage class.",
+                        "examples": [
+                            "Backup data that is rarely accessed but must be retrieved immediately"
+                        ],
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Standard-IA Storage Class",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard-ia](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard-ia)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "S3 Intelligent-Tiering",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Amazon S3 Intelligent-Tiering is designed for data with unknown or changing access patterns by automatically optimizing storage costs.",
+                        "keyPoints": [
+                            "Automatically moves objects between access tiers based on usage patterns",
+                            "No performance impact when data is accessed",
+                            "Eliminates the need to predict access frequency",
+                            "Includes frequent and infrequent access tiers",
+                            "Optional archive tiers for long-lived data",
+                            "Small monthly monitoring and automation fee per object"
+                        ],
+                        "examples": [
+                            "User-generated content where popularity changes over time",
+                            "Application logs that are heavily accessed initially and rarely accessed later",
+                            "Shared documents where usage varies unpredictably",
+                            "Analytics data with fluctuating query frequency"
+                        ],
+                        "additionalInfo": "Amazon S3 Intelligent-Tiering addresses one of the most common storage challenges: unpredictable access patterns. Instead of forcing architects to guess whether data should live in a frequent or infrequent tier, this storage class continuously monitors access patterns and automatically moves objects to the most cost-effective tier. Data that is accessed frequently remains in the frequent access tier, while data that has not been accessed for a period of time is moved to a lower-cost infrequent access tier. Optional archive tiers can further reduce costs for long-lived data that is rarely accessed. Importantly, these transitions happen without any operational overhead and without affecting retrieval performance. This makes Intelligent-Tiering ideal for workloads where access frequency is hard to forecast, such as evolving applications, shared data repositories, or analytics datasets. Although there is a small monitoring fee, the cost savings typically outweigh this expense when access patterns are uncertain.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Intelligent-Tiering Overview",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/intelligent-tiering.html](https://docs.aws.amazon.com/AmazonS3/latest/userguide/intelligent-tiering.html)"
+                            },
+                            {
+                                "title": "Choosing the Right Amazon S3 Storage Class",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html)"
+                            },
+                            {
+                                "title": "AWS Storage Cost Optimization",
+                                "url": "[https://docs.aws.amazon.com/whitepapers/latest/cost-optimization-storage/welcome.html](https://docs.aws.amazon.com/whitepapers/latest/cost-optimization-storage/welcome.html)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "S3 Glacier Deep Archive",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Glacier Deep Archive is intended for long-term archival data with very infrequent access.",
+                        "why": "Glacier Deep Archive is optimized for the lowest possible storage cost, not for unpredictable access. Retrieval times can take up to 48 hours, which makes it unsuitable for workloads where data might suddenly be needed. It is best used for compliance archives and long-term retention rather than active or semi-active datasets.",
+                        "examples": [
+                            "Regulatory records retained for multiple years"
+                        ],
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Glacier Deep Archive",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-deep-archive](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-deep-archive)"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "question": "Which Amazon S3 storage class stores data in ONLY one Availability Zone?",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "S3 Standard",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Standard stores data redundantly across multiple Availability Zones.",
+                        "why": "S3 Standard is designed for high durability and availability, which it achieves by replicating data across at least three Availability Zones within a Region. This multi-AZ design makes it unsuitable for scenarios where reduced resilience is acceptable in exchange for lower cost.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Durability and Availability",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/DataDurability.html](https://docs.aws.amazon.com/AmazonS3/latest/userguide/DataDurability.html)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "S3 One Zone-IA",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "S3 One Zone-IA stores data in a single Availability Zone to reduce storage costs.",
+                        "keyPoints": [
+                            "Data is stored in only one Availability Zone",
+                            "Lower storage cost compared to Standard-IA",
+                            "Designed for infrequently accessed data",
+                            "Lower availability and resilience",
+                            "Same millisecond retrieval performance as other IA classes",
+                            "Best suited for re-creatable or secondary data"
+                        ],
+                        "examples": [
+                            "Secondary backups that can be regenerated",
+                            "Non-critical data replicated from another Region",
+                            "Development environment snapshots",
+                            "Temporary analytics output"
+                        ],
+                        "additionalInfo": "Amazon S3 One Zone-IA is a cost-optimized storage class for infrequently accessed data that does not require the same level of resilience as multi-AZ storage. Unlike most S3 storage classes, which automatically replicate data across multiple Availability Zones, One Zone-IA stores all data in a single AZ. This design significantly reduces storage costs but introduces a higher risk profile, as data could be lost if the Availability Zone experiences a failure. Retrieval times remain fast, making it suitable for workloads that require immediate access but can tolerate reduced durability. Typical use cases include secondary backups, easily reproducible datasets, and non-critical data where cost savings are prioritized over maximum availability.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 One Zone-IA Storage Class",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-one-zone-ia](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-one-zone-ia)"
+                            },
+                            {
+                                "title": "S3 Storage Class Comparison",
+                                "url": "[https://aws.amazon.com/s3/storage-classes/](https://aws.amazon.com/s3/storage-classes/)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "S3 Standard-IA",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Standard-IA stores data redundantly across multiple Availability Zones.",
+                        "why": "Despite being optimized for infrequent access, S3 Standard-IA maintains the same multi-AZ durability model as S3 Standard. It does not reduce resilience by limiting storage to a single Availability Zone.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Standard-IA Overview",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard-ia](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard-ia)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "S3 Glacier Instant Retrieval",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Glacier Instant Retrieval replicates data across multiple Availability Zones.",
+                        "why": "Although optimized for archival data with instant retrieval, Glacier Instant Retrieval still uses a multi-AZ storage model to ensure high durability. It does not store data in a single Availability Zone.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Glacier Instant Retrieval",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-instant-retrieval](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-instant-retrieval)"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "question": "Which Amazon S3 storage class offers the LOWEST storage cost but the SLOWEST retrieval time (up to 48 hours)?",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "S3 Glacier Instant Retrieval",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Glacier Instant Retrieval provides fast access and is not the slowest retrieval option.",
+                        "why": "This storage class is optimized for instant access to archival data and does not have long retrieval delays. It is more expensive than Deep Archive and is designed for use cases where low latency is still required.",
+                        "learnMore": [
+                            {
+                                "title": "S3 Glacier Instant Retrieval",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-instant-retrieval](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-instant-retrieval)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "S3 Standard-IA",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Standard-IA offers fast retrieval and moderate storage costs.",
+                        "why": "Standard-IA is designed for immediate access to infrequently used data. It does not have slow retrieval times and is significantly more expensive than archival storage classes like Glacier Deep Archive.",
+                        "learnMore": [
+                            {
+                                "title": "S3 Standard-IA Storage Class",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard-ia](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard-ia)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "S3 Glacier Deep Archive",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "S3 Glacier Deep Archive is the lowest-cost Amazon S3 storage class and has the longest retrieval times.",
+                        "keyPoints": [
+                            "Lowest storage cost among all S3 classes",
+                            "Designed for long-term data retention",
+                            "Retrieval times can take up to 48 hours",
+                            "Optimized for compliance and archival use cases",
+                            "Not suitable for frequent or urgent access",
+                            "Ideal for data retained for years"
+                        ],
+                        "examples": [
+                            "Financial records retained for regulatory compliance",
+                            "Medical imaging archives stored for long-term retention",
+                            "Historical logs kept for audit purposes",
+                            "Legal documents preserved for statutory requirements"
+                        ],
+                        "additionalInfo": "Amazon S3 Glacier Deep Archive is purpose-built for organizations that need to retain massive volumes of data for long periods at the lowest possible cost. It is commonly used in industries with strict regulatory and compliance requirements, such as finance, healthcare, and government. While storage costs are extremely low, retrieval times are significantly longer than other S3 classes, ranging from 12 to 48 hours depending on the retrieval option selected. This trade-off makes Deep Archive unsuitable for operational workloads but ideal for cold data that is rarely accessed. From an architectural perspective, this class is best used when data access is predictable and infrequent, and when cost optimization outweighs retrieval speed.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Glacier Deep Archive Overview",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-deep-archive](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-deep-archive)"
+                            },
+                            {
+                                "title": "S3 Glacier Retrieval Options",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects.html](https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects.html)"
+                            },
+                            {
+                                "title": "AWS Archival Storage Use Cases",
+                                "url": "[https://aws.amazon.com/s3/storage-classes/](https://aws.amazon.com/s3/storage-classes/)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "S3 Intelligent-Tiering",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Intelligent-Tiering is designed for unpredictable access, not slow retrieval.",
+                        "why": "Intelligent-Tiering maintains millisecond access for active tiers and only moves data to archive tiers when configured. It does not inherently impose long retrieval delays unless optional archive tiers are used.",
+                        "learnMore": [
+                            {
+                                "title": "S3 Intelligent-Tiering Access Tiers",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/intelligent-tiering.html](https://docs.aws.amazon.com/AmazonS3/latest/userguide/intelligent-tiering.html)"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "question": "Which Amazon S3 storage class should you choose for disaster recovery where you need FAST retrieval but data is infrequently accessed?",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "S3 Standard",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Amazon S3 Standard is intended for frequently accessed data rather than infrequent access scenarios.",
+                        "why": "S3 Standard provides low-latency access with no retrieval fees, but it is priced for data that is accessed regularly. For disaster recovery data that is rarely accessed but must be available immediately when needed, S3 Standard often results in unnecessarily high storage costs compared to infrequent access classes. While technically functional, it is not cost-optimized for this use case.",
+                        "examples": [
+                            "Storing active application assets that are accessed daily"
+                        ],
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Standard Storage Class",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "S3 Standard-IA",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Amazon S3 Standard-IA is designed for infrequently accessed data that still requires millisecond-level retrieval.",
+                        "keyPoints": [
+                            "Optimized for data accessed less frequently",
+                            "Provides millisecond retrieval performance",
+                            "Lower storage cost compared to S3 Standard",
+                            "Retrieval fees apply only when data is accessed",
+                            "Stores data redundantly across multiple Availability Zones",
+                            "Commonly used for disaster recovery and backups"
+                        ],
+                        "examples": [
+                            "Disaster recovery backups that must be restored immediately",
+                            "Archived application data needed during outages",
+                            "Secondary copies of critical datasets",
+                            "Compliance data that must be quickly retrievable"
+                        ],
+                        "additionalInfo": "Amazon S3 Standard-IA strikes a balance between cost efficiency and performance, making it an ideal choice for disaster recovery scenarios. In these situations, data is rarely accessed under normal conditions, but when a failure occurs, rapid access becomes critical. Standard-IA offers the same millisecond-level retrieval performance as S3 Standard while reducing storage costs significantly. Unlike archival classes, it does not introduce retrieval delays, ensuring that recovery time objectives can be met. Data is stored redundantly across multiple Availability Zones, preserving the same high durability as S3 Standard. Although retrieval fees apply, they are typically insignificant compared to the cost savings achieved when data remains idle for long periods. This combination of fast access and lower storage cost makes Standard-IA the preferred storage class for disaster recovery backups and secondary copies of important data.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Standard-IA Overview",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard-ia](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard-ia)"
+                            },
+                            {
+                                "title": "S3 Storage Classes for Backup and DR",
+                                "url": "[https://docs.aws.amazon.com/whitepapers/latest/aws-overview/backup-and-restore.html](https://docs.aws.amazon.com/whitepapers/latest/aws-overview/backup-and-restore.html)"
+                            },
+                            {
+                                "title": "Designing Disaster Recovery on AWS",
+                                "url": "[https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/welcome.html](https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/welcome.html)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "S3 Glacier Flexible Retrieval",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Glacier Flexible Retrieval is designed for archival data, not immediate recovery needs.",
+                        "why": "Glacier Flexible Retrieval offers lower storage costs but introduces retrieval delays ranging from minutes to hours depending on the retrieval option chosen. While acceptable for archival restores, these delays can negatively impact disaster recovery objectives where fast restoration is required.",
+                        "examples": [
+                            "Restoring archived data during compliance audits"
+                        ],
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Glacier Flexible Retrieval",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "S3 Glacier Deep Archive",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Glacier Deep Archive is unsuitable for disaster recovery due to extremely slow retrieval times.",
+                        "why": "Deep Archive is optimized for long-term retention with retrieval times that can reach up to 48 hours. This makes it impractical for disaster recovery scenarios where data must be restored quickly to resume operations.",
+                        "examples": [
+                            "Long-term compliance archives"
+                        ],
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Glacier Deep Archive",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-deep-archive](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-deep-archive)"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "question": "Which of the following Amazon S3 storage classes has NO retrieval fee?",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "S3 Standard",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Amazon S3 Standard does not charge retrieval fees, regardless of how often data is accessed.",
+                        "keyPoints": [
+                            "No retrieval charges",
+                            "Designed for frequent and unpredictable access",
+                            "Low-latency and high-throughput performance",
+                            "Data stored redundantly across multiple Availability Zones",
+                            "Simplifies cost modeling",
+                            "Suitable for active production workloads"
+                        ],
+                        "examples": [
+                            "Web application assets accessed continuously",
+                            "Media files streamed frequently",
+                            "Data analytics inputs queried regularly",
+                            "Application configuration files"
+                        ],
+                        "additionalInfo": "Amazon S3 Standard is priced with a simple and predictable cost model that does not include retrieval fees. Customers pay only for storage, requests, and data transfer, making it ideal for workloads where data is accessed frequently or unpredictably. This absence of retrieval fees eliminates the risk of unexpected costs when access patterns change. S3 Standard stores data redundantly across multiple Availability Zones, providing high durability and availability. Because retrieval is immediate and unlimited, it is commonly used for production data, content delivery, analytics workloads, and active backups. While storage costs are higher than infrequent access or archival classes, the lack of retrieval charges makes S3 Standard cost-effective whenever data access is regular or difficult to predict. This pricing simplicity is a key reason S3 Standard remains the default choice for many applications.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Standard Pricing",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingBucket.html](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingBucket.html)"
+                            },
+                            {
+                                "title": "Understanding Amazon S3 Costs",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/billing-storage-usage.html](https://docs.aws.amazon.com/AmazonS3/latest/userguide/billing-storage-usage.html)"
+                            },
+                            {
+                                "title": "Amazon S3 Storage Class Comparison",
+                                "url": "[https://aws.amazon.com/s3/storage-classes/](https://aws.amazon.com/s3/storage-classes/)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "S3 Standard-IA",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Standard-IA charges a retrieval fee when data is accessed.",
+                        "why": "Standard-IA lowers storage costs by introducing per-GB retrieval charges. This pricing model assumes infrequent access and can increase costs if data is retrieved often.",
+                        "learnMore": [
+                            {
+                                "title": "S3 Standard-IA Pricing",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard-ia](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-standard-ia)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "S3 Glacier Instant Retrieval",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Glacier Instant Retrieval includes retrieval charges despite fast access.",
+                        "why": "Although retrieval is immediate, this class is still priced as an archival tier and applies retrieval fees to offset lower storage costs.",
+                        "learnMore": [
+                            {
+                                "title": "S3 Glacier Instant Retrieval Pricing",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-instant-retrieval](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-glacier-instant-retrieval)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "S3 One Zone-IA",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 One Zone-IA charges retrieval fees to reduce overall storage cost.",
+                        "why": "Like Standard-IA, One Zone-IA applies retrieval charges. This encourages its use for infrequently accessed data and helps offset lower storage pricing achieved by single-AZ storage.",
+                        "learnMore": [
+                            {
+                                "title": "S3 One Zone-IA Pricing",
+                                "url": "[https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-one-zone-ia](https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html#sc-one-zone-ia)"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
