@@ -1,0 +1,3219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Frameworks & Security - Complete Notes</title>
+    <link rel="stylesheet" href="../../notes-template.css">
+</head>
+<body>
+    <button id="themeToggle" class="theme-toggle">
+        <span class="theme-icon"></span>
+    </button>
+
+    <div class="note-container">
+        <div class="note-header">
+            <h1>AWS Well-Architected Framework, Cloud Adoption Framework & Security Hardening</h1>
+            <p class="note-date">📅 December 29, 2024 | Complete Learning Guide for Beginners</p>
+        </div>
+
+        <div class="note-content">
+            
+            <h2>📋 Table of Contents</h2>
+            <ul>
+                <li><a href="#introduction">Introduction: Why These Concepts Matter</a></li>
+                <li><a href="#waf-complete">AWS Well-Architected Framework (WAF) - Deep Dive</a></li>
+                <li><a href="#caf-complete">AWS Cloud Adoption Framework (CAF) - Deep Dive</a></li>
+                <li><a href="#security-complete">Security Hardening - Deep Dive</a></li>
+                <li><a href="#scenarios">Real-World Scenarios & Case Studies</a></li>
+                <li><a href="#troubleshooting">Troubleshooting Guide</a></li>
+                <li><a href="#glossary">Glossary of Terms</a></li>
+                <li><a href="#interview">Interview Questions (Basic to Advanced)</a></li>
+                <li><a href="#mcq">Practice MCQs with Explanations</a></li>
+                <li><a href="#practical">Hands-On Practical Exercise</a></li>
+                <li><a href="#summary">Summary & Checklist</a></li>
+            </ul>
+
+            <details class="collapsible-section" open>
+                <summary><h2 id="introduction">🎯 Introduction: Why These Concepts Matter</h2></summary>
+                <div class="section-content">
+
+                    <h3>📖 The Big Picture Story</h3>
+                    <p>Imagine you're planning to move your entire house to a new city. You wouldn't just throw everything in a truck and drive away, right? You'd need:</p>
+                    <ul>
+                        <li><strong>Planning:</strong> What to move? When? How much will it cost?</li>
+                        <li><strong>Organization:</strong> Who packs what? Who drives? Who unpacks?</li>
+                        <li><strong>Security:</strong> How to protect valuables during the move?</li>
+                        <li><strong>Quality Check:</strong> Is everything working in the new house?</li>
+                    </ul>
+
+                    <p>Moving to the cloud is exactly like this! AWS provides frameworks (step-by-step guides) to help organizations move their IT systems safely and efficiently.</p>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Real-Life Analogy:</strong> Think of AWS as a luxury apartment complex you're moving into. CAF is your moving checklist, WAF is the quality inspection after moving in, and Security Hardening is installing locks and alarms.</p>
+                    </div>
+
+                    <h3>🧭 What You'll Learn Today</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Framework/Concept</th>
+                                <th>Simple Definition</th>
+                                <th>Everyday Example</th>
+                                <th>Why It Matters</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Well-Architected Framework (WAF)</strong></td>
+                                <td>Best practices checklist for cloud applications</td>
+                                <td>Like a home inspector checking if your new house is built properly</td>
+                                <td>Prevents costly mistakes and downtime</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloud Adoption Framework (CAF)</strong></td>
+                                <td>Step-by-step guide to prepare for cloud migration</td>
+                                <td>Like a wedding planner ensuring everything is ready before the big day</td>
+                                <td>Ensures smooth transition with minimal disruption</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Hardening</strong></td>
+                                <td>Locking doors before intruders can enter</td>
+                                <td>Like a gated community with security guards</td>
+                                <td>Prevents unauthorized access to your systems</td>
+                            </tr>
+                            <tr>
+                                <td><strong>System Hardening</strong></td>
+                                <td>Securing valuables inside your locked house</td>
+                                <td>Like a safe inside your bedroom</td>
+                                <td>Protects data even if someone gets inside</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🎓 Who Should Learn This?</h3>
+                    <ul>
+                        <li>✅ Anyone preparing for AWS Cloud Practitioner certification</li>
+                        <li>✅ IT professionals planning cloud migration</li>
+                        <li>✅ Students starting their cloud computing journey</li>
+                        <li>✅ Business managers understanding cloud strategy</li>
+                        <li>✅ Anyone curious about cloud security</li>
+                    </ul>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="waf-complete">🏛️ AWS Well-Architected Framework (WAF) - Complete Guide</h2></summary>
+                <div class="section-content">
+
+                    <h3>📖 Story Time: The Restaurant That Kept Breaking Down</h3>
+                    <blockquote>
+                        <p><strong>The Problem:</strong> A restaurant moved from a small kitchen to a large cloud-based food delivery platform. Initially, everything worked great! Orders came in, food went out. But soon:</p>
+                        <ul>
+                            <li>🔴 The app crashed during dinner rush (reliability issue)</li>
+                            <li>💰 Cloud bills skyrocketed to $10,000/month (cost issue)</li>
+                            <li>🐌 Food took 2 hours to deliver (performance issue)</li>
+                            <li>🔓 Customer data was leaked (security issue)</li>
+                        </ul>
+                        <p><strong>The Solution:</strong> The restaurant used AWS Well-Architected Framework to identify and fix these problems. They realized: <em>"Technology isn't the problem—poor planning and design are!"</em></p>
+                    </blockquote>
+
+                    <h3>🎯 What is WAF? (In Simple Words)</h3>
+                    <p>The <strong>AWS Well-Architected Framework</strong> is like a <strong>quality checklist</strong> that asks:</p>
+                    <ol>
+                        <li>"Is your cloud application built correctly?"</li>
+                        <li>"Are you following best practices?"</li>
+                        <li>"Where can you improve?"</li>
+                    </ol>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Think of it as:</strong> A health checkup for your cloud applications. Just like doctors check blood pressure, heart rate, etc., WAF checks six important "health indicators" of your cloud setup.</p>
+                    </div>
+
+                    <h3>🎨 The Six Pillars: Explained with Everyday Examples</h3>
+
+                    <h4>1️⃣ Operational Excellence: "Running Smoothly"</h4>
+                    <p><strong>Simple Definition:</strong> How well do you run and monitor your systems?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Technical Meaning</th>
+                                <th>Real Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🚗 <strong>Car Dashboard:</strong> Speedometer, fuel gauge, warning lights help you drive safely</td>
+                                <td>Monitoring systems, automated responses, continuous improvement</td>
+                                <td>Netflix monitors video streaming quality 24/7 and auto-scales servers during peak times</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Key Questions WAF Asks:</strong></p>
+                    <ul>
+                        <li>Do you have monitoring set up? (CloudWatch)</li>
+                        <li>Can you automatically fix problems? (Lambda, Systems Manager)</li>
+                        <li>Do you learn from failures? (Post-incident reviews)</li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Common Mistake:</strong> Deploying applications without monitoring. It's like driving a car with no dashboard—you won't know there's a problem until you break down!</p>
+                    </div>
+
+                    <h4>2️⃣ Security: "Protecting Your Assets"</h4>
+                    <p><strong>Simple Definition:</strong> How do you protect data, systems, and users?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Technical Meaning</th>
+                                <th>Real Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🏦 <strong>Bank Vault:</strong> Multiple locks, guards, cameras, and access logs</td>
+                                <td>Encryption, IAM, security groups, logging</td>
+                                <td>Banking apps encrypt your data, require multi-factor authentication, and log every transaction</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Key Questions WAF Asks:</strong></p>
+                    <ul>
+                        <li>Is data encrypted? (KMS, SSL/TLS)</li>
+                        <li>Who can access what? (IAM policies)</li>
+                        <li>Are you tracking access? (CloudTrail)</li>
+                        <li>Do you have network controls? (Security Groups, NACLs)</li>
+                    </ul>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Horror Story:</strong> A company left their S3 bucket public by mistake. Result? 100 million customer records leaked. Cost? $50 million in fines and lost reputation.</p>
+                    </div>
+
+                    <h4>3️⃣ Reliability: "Always Available"</h4>
+                    <p><strong>Simple Definition:</strong> Does your application work consistently when needed?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Technical Meaning</th>
+                                <th>Real Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🚰 <strong>Water Supply:</strong> Backup water tanks, multiple pipelines, automatic switching</td>
+                                <td>Multi-AZ deployment, auto-scaling, backups, disaster recovery</td>
+                                <td>Amazon.com runs in multiple data centers. If one fails, traffic automatically goes to another</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Key Questions WAF Asks:</strong></p>
+                    <ul>
+                        <li>What happens if a server fails? (Auto Scaling)</li>
+                        <li>Are you using multiple locations? (Multi-AZ, Multi-Region)</li>
+                        <li>Can you recover from disasters? (Backups, snapshots)</li>
+                    </ul>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Pro Tip:</strong> Netflix famously runs "Chaos Monkey"—a tool that randomly shuts down servers to test if the system can survive failures!</p>
+                    </div>
+
+                    <h4>4️⃣ Performance Efficiency: "Fast and Optimized"</h4>
+                    <p><strong>Simple Definition:</strong> Are you using resources efficiently for best performance?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Technical Meaning</th>
+                                <th>Real Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🏎️ <strong>Race Car:</strong> Right engine size, right fuel, proper tires for the race track</td>
+                                <td>Right-sized instances, CDN, caching, serverless where appropriate</td>
+                                <td>YouTube uses CDN (CloudFront) to deliver videos from servers closest to you—faster and cheaper!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Key Questions WAF Asks:</strong></p>
+                    <ul>
+                        <li>Are you using the right instance types? (t3.micro vs c5.xlarge)</li>
+                        <li>Can you use serverless? (Lambda instead of EC2)</li>
+                        <li>Are you caching content? (CloudFront, ElastiCache)</li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Waste Alert:</strong> Using a Ferrari to deliver groceries = Using c5.24xlarge for a simple blog. Right tool for the job!</p>
+                    </div>
+
+                    <h4>5️⃣ Cost Optimization: "Don't Waste Money"</h4>
+                    <p><strong>Simple Definition:</strong> How do you avoid paying for things you don't need?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Technical Meaning</th>
+                                <th>Real Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>💡 <strong>Electricity Bill:</strong> Turn off lights in empty rooms, use energy-efficient bulbs, compare electricity providers</td>
+                                <td>Stop unused instances, use Reserved Instances, right-sizing, S3 lifecycle policies</td>
+                                <td>Pinterest saved $20 million/year by identifying and stopping unused EC2 instances and old snapshots</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Key Questions WAF Asks:</strong></p>
+                    <ul>
+                        <li>Are you paying for idle resources? (EC2 instances running 24/7 but only used 2 hours/day)</li>
+                        <li>Can you use Reserved Instances? (Up to 75% savings)</li>
+                        <li>Are you storing unnecessary data? (Old logs, unused snapshots)</li>
+                    </ul>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Real Incident:</strong> A startup left test servers running over the weekend. Monday morning: $15,000 AWS bill! Always use auto-shutdown!</p>
+                    </div>
+
+                    <h4>6️⃣ Sustainability: "Eco-Friendly Cloud"</h4>
+                    <p><strong>Simple Definition:</strong> How do you minimize environmental impact?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Technical Meaning</th>
+                                <th>Real Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>♻️ <strong>Recycling:</strong> Reuse bags, carpool, use energy-efficient appliances</td>
+                                <td>Use Graviton processors, optimize code, auto-scale down when not needed</td>
+                                <td>AWS data centers use renewable energy. By choosing right regions, you reduce carbon footprint</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Key Questions WAF Asks:</strong></p>
+                    <ul>
+                        <li>Are you using efficient instance types? (Graviton2 uses 60% less energy)</li>
+                        <li>Do you scale down when not needed? (Turn off dev/test environments at night)</li>
+                        <li>Are you in green regions? (AWS regions powered by renewable energy)</li>
+                    </ul>
+
+                    <h3>🎬 Complete WAF Scenario: E-Commerce Startup</h3>
+
+                    <h4>📋 Scenario Setup</h4>
+                    <p><strong>Company:</strong> "ShopFast" - Online clothing store<br>
+                    <strong>Problem:</strong> Moved to AWS, but facing issues<br>
+                    <strong>Goal:</strong> Use WAF to identify and fix problems</p>
+
+                    <h4>❌ WORST CASE: Ignoring WAF</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pillar</th>
+                                <th>Problem</th>
+                                <th>Impact</th>
+                                <th>Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Operational Excellence</td>
+                                <td>No monitoring - didn't know servers were down for 6 hours</td>
+                                <td>Lost 1000 customers</td>
+                                <td>$50,000 revenue lost</td>
+                            </tr>
+                            <tr>
+                                <td>Security</td>
+                                <td>Database publicly accessible</td>
+                                <td>Customer data stolen</td>
+                                <td>$500,000 fine + reputation damage</td>
+                            </tr>
+                            <tr>
+                                <td>Reliability</td>
+                                <td>Single server in one location</td>
+                                <td>Server crashed during Black Friday sale</td>
+                                <td>$200,000 lost sales</td>
+                            </tr>
+                            <tr>
+                                <td>Performance</td>
+                                <td>Used t2.micro for entire website</td>
+                                <td>Slow page loads, customers left</td>
+                                <td>40% bounce rate</td>
+                            </tr>
+                            <tr>
+                                <td>Cost</td>
+                                <td>Left 50 test servers running 24/7</td>
+                                <td>Unnecessary expenses</td>
+                                <td>$30,000/month waste</td>
+                            </tr>
+                            <tr>
+                                <td>Sustainability</td>
+                                <td>Didn't optimize resource usage</td>
+                                <td>High carbon footprint</td>
+                                <td>Environmental impact</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Total Damage:</strong> $780,000 + lost customers + bad reputation</p>
+
+                    <h4>✅ BEST CASE: Following WAF</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pillar</th>
+                                <th>Solution Implemented</th>
+                                <th>Result</th>
+                                <th>Benefit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Operational Excellence</td>
+                                <td>Set up CloudWatch alarms, automated scaling</td>
+                                <td>99.99% uptime</td>
+                                <td>Customer trust increased</td>
+                            </tr>
+                            <tr>
+                                <td>Security</td>
+                                <td>Implemented IAM, Security Groups, encryption</td>
+                                <td>Zero security breaches</td>
+                                <td>Compliance certification achieved</td>
+                            </tr>
+                            <tr>
+                                <td>Reliability</td>
+                                <td>Multi-AZ deployment, auto-scaling, backups</td>
+                                <td>Survived Black Friday traffic spike</td>
+                                <td>$500,000 in sales</td>
+                            </tr>
+                            <tr>
+                                <td>Performance</td>
+                                <td>Right-sized instances, added CloudFront CDN</td>
+                                <td>Page load: 3 seconds → 0.8 seconds</td>
+                                <td>Conversion rate +25%</td>
+                            </tr>
+                            <tr>
+                                <td>Cost</td>
+                                <td>Auto-shutdown scripts, Reserved Instances</td>
+                                <td>Monthly bill: $50,000 → $28,000</td>
+                                <td>$264,000 saved/year</td>
+                            </tr>
+                            <tr>
+                                <td>Sustainability</td>
+                                <td>Switched to Graviton2, optimized code</td>
+                                <td>40% less energy consumption</td>
+                                <td>Green certification badge</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Total Benefit:</strong> $764,000 saved + happy customers + industry recognition</p>
+
+                    <h4>🎓 Key Learning from Scenario</h4>
+                    <div class="success-box">
+                        <p>✅ <strong>Takeaway:</strong> WAF isn't just theory—it directly impacts your bottom line. Following it saved ShopFast from bankruptcy and made them profitable!</p>
+                    </div>
+
+                    <h3>🛠️ How to Actually Use WAF (Step-by-Step)</h3>
+
+                    <h4>Method 1: AWS Well-Architected Tool (GUI - Easiest)</h4>
+                    <ol>
+                        <li><strong>Login to AWS Console</strong>
+                            <ul>
+                                <li>Search for "Well-Architected Tool"</li>
+                                <li>Click "Define workload"</li>
+                            </ul>
+                        </li>
+                        <li><strong>Describe Your Application</strong>
+                            <ul>
+                                <li>Name: "My E-Commerce Website"</li>
+                                <li>Description: "Online shopping platform"</li>
+                                <li>Environment: Production</li>
+                                <li>Regions: us-east-1</li>
+                            </ul>
+                        </li>
+                        <li><strong>Answer Questions for Each Pillar</strong>
+                            <ul>
+                                <li>Example: "Do you have monitoring in place?" → Yes/No</li>
+                                <li>Be honest! The tool is meant to help you improve</li>
+                            </ul>
+                        </li>
+                        <li><strong>Review Results</strong>
+                            <ul>
+                                <li>High-risk issues (HRI) - Fix immediately!</li>
+                                <li>Medium-risk issues (MRI) - Plan to fix soon</li>
+                                <li>No issues - You're doing great!</li>
+                            </ul>
+                        </li>
+                        <li><strong>Download Improvement Plan</strong>
+                            <ul>
+                                <li>Get a PDF report with recommendations</li>
+                                <li>Share with your team</li>
+                                <li>Track progress</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Time Investment:</strong> First review takes 2-4 hours. After that, quarterly reviews take just 30-60 minutes.</p>
+                    </div>
+
+                    <h3>💭 Memory Trick: Remember the Six Pillars</h3>
+                    <p><strong>Acronym:</strong> <span style="font-size: 1.2em; font-weight: bold; color: #3498db;">O-S-R-P-C-S</span></p>
+                    <p><strong>Story:</strong> "<strong>O</strong>ur <strong>S</strong>mart <strong>R</strong>obot <strong>P</strong>aints <strong>C</strong>olorful <strong>S</strong>unsets"</p>
+                    <ul>
+                        <li><strong>O</strong>ur = <strong>O</strong>perational Excellence</li>
+                        <li><strong>S</strong>mart = <strong>S</strong>ecurity</li>
+                        <li><strong>R</strong>obot = <strong>R</strong>eliability</li>
+                        <li><strong>P</strong>aints = <strong>P</strong>erformance Efficiency</li>
+                        <li><strong>C</strong>olorful = <strong>C</strong>ost Optimization</li>
+                        <li><strong>S</strong>unsets = <strong>S</strong>ustainability</li>
+                    </ul>
+
+                    
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="caf-complete">🚀 AWS Cloud Adoption Framework (CAF) - Complete Guide</h2></summary>
+                <div class="section-content">
+
+                    <h3>📖 Story Time: The Company That Jumped Too Fast</h3>
+                    <blockquote>
+                        <p><strong>The Disaster:</strong> TechCorp decided to "move to the cloud" overnight. They hired cloud engineers, bought AWS credits, and started migrating servers. Within 3 months:</p>
+                        <ul>
+                            <li>😰 Employees didn't know how to use cloud tools</li>
+                            <li>💸 Costs spiraled out of control (no budgets set)</li>
+                            <li>🚨 Security team wasn't prepared (compliance violations)</li>
+                            <li>📉 Critical applications crashed (no disaster recovery plan)</li>
+                            <li>🤯 Management blamed IT, IT blamed management</li>
+                        </ul>
+                        <p><strong>The Learning:</strong> They realized: <em>"We had the technology but not the organizational readiness. Cloud migration is not just about technology—it's about people, processes, and culture!"</em></p>
+                        <p><strong>The Solution:</strong> They started over using AWS Cloud Adoption Framework. This time, they prepared the organization BEFORE moving.</p>
+                    </blockquote>
+
+                    <h3>🎯 What is CAF? (In Simple Words)</h3>
+                    <p>The <strong>AWS Cloud Adoption Framework</strong> is like a <strong>wedding planner's checklist</strong> that ensures:</p>
+                    <ol>
+                        <li>"Is everyone ready for the big change?"</li>
+                        <li>"Do we have all the people, skills, and plans in place?"</li>
+                        <li>"What gaps need to be filled before we start?"</li>
+                    </ol>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Think of it as:</strong> A pre-flight checklist for pilots. Before takeoff (migration), you must check fuel (budget), crew training (skills), weather (risks), and flight plan (strategy).</p>
+                    </div>
+
+                    <h3>⚖️ WAF vs CAF: The Ultimate Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>CAF (Cloud Adoption Framework)</th>
+                                <th>WAF (Well-Architected Framework)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Analogy</strong></td>
+                                <td>🏠 <strong>Moving Company Checklist:</strong> Pack boxes, hire movers, update address, transfer utilities</td>
+                                <td>🔍 <strong>Home Inspector:</strong> After moving in, check if plumbing works, electricity is safe, foundation is solid</td>
+                            </tr>
+                            <tr>
+                                <td><strong>When</strong></td>
+                                <td><strong>BEFORE</strong> migration (preparation phase)</td>
+                                <td><strong>AFTER</strong> migration (optimization phase)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Focus</strong></td>
+                                <td>Organizational readiness (people, skills, culture)</td>
+                                <td>Technical correctness (architecture, best practices)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Main Question</strong></td>
+                                <td>"Are we ready to move to cloud?"</td>
+                                <td>"Is our cloud setup optimized?"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Components</strong></td>
+                                <td>6 Perspectives</td>
+                                <td>6 Pillars</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Who Uses</strong></td>
+                                <td>Entire organization (business + IT)</td>
+                                <td>Mainly IT and DevOps teams</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Frequency</strong></td>
+                                <td>Once before migration, review during migration</td>
+                                <td>Quarterly reviews for ongoing optimization</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Real Example</strong></td>
+                                <td>Training employees, setting budgets, defining governance policies</td>
+                                <td>Fixing slow queries, adding auto-scaling, encrypting data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Key Insight:</strong> CAF = "Are we organizationally ready?" | WAF = "Are we technically correct?"<br>
+                        <strong>Both are essential!</strong> CAF prepares your organization, WAF optimizes your applications.</p>
+                    </div>
+
+                    <h3>🎨 The Six Perspectives: Explained with Everyday Examples</h3>
+
+                    <h4>📊 Business Perspectives (Strategic - WHY we move)</h4>
+
+                    <h5>1️⃣ Business Perspective: "The Money Question"</h5>
+                    <p><strong>Simple Definition:</strong> Why are we moving to cloud? What business value will it create?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Key Questions</th>
+                                <th>Who Answers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>💼 <strong>Business Case for New Factory:</strong> Will it increase profits? Reduce costs? Enter new markets?</td>
+                                <td>
+                                    • Why cloud? (Save money? Scale faster? Innovation?)<br>
+                                    • What's the ROI? (Return on Investment)<br>
+                                    • How do we measure success?
+                                </td>
+                                <td>
+                                    • CEO<br>
+                                    • CFO<br>
+                                    • Business Managers<br>
+                                    • Finance Teams
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Example Business Goals:</strong></p>
+                    <ul>
+                        <li>💰 Reduce IT costs by 30%</li>
+                        <li>⚡ Launch new products 50% faster</li>
+                        <li>🌍 Expand to 5 new countries</li>
+                        <li>📈 Improve customer experience (faster website)</li>
+                    </ul>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Common Mistake:</strong> "We're moving to cloud because everyone else is." This is NOT a business case! You need specific, measurable goals.</p>
+                    </div>
+
+                    <h5>2️⃣ People Perspective: "The Training Question"</h5>
+                    <p><strong>Simple Definition:</strong> Do our people have the skills needed for cloud?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Key Questions</th>
+                                <th>Who Answers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🎓 <strong>Switching from Manual to Electric Cars:</strong> Do drivers need training? Can mechanics fix them?</td>
+                                <td>
+                                    • Are employees trained on AWS?<br>
+                                    • Who will manage change?<br>
+                                    • How to handle resistance?
+                                </td>
+                                <td>
+                                    • HR Manager<br>
+                                    • Training Department<br>
+                                    • Team Leads
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>People Readiness Actions:</strong></p>
+                    <ul>
+                        <li>📚 Enroll team in AWS training (like this course!)</li>
+                        <li>🎯 Hire cloud-skilled professionals</li>
+                        <li>📢 Communicate changes clearly (town halls, emails)</li>
+                        <li>🏆 Reward early adopters and cloud champions</li>
+                    </ul>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Real Stat:</strong> 67% of cloud migrations fail due to lack of skilled people, NOT technology issues!</p>
+                    </div>
+
+                    <h5>3️⃣ Governance Perspective: "The Rules Question"</h5>
+                    <p><strong>Simple Definition:</strong> What are the rules, policies, and compliance requirements?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Key Questions</th>
+                                <th>Who Answers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>⚖️ <strong>Traffic Laws:</strong> Speed limits, signals, licensing, enforcement</td>
+                                <td>
+                                    • Who approves cloud spending?<br>
+                                    • What data can go to cloud?<br>
+                                    • How do we ensure compliance?
+                                </td>
+                                <td>
+                                    • CIO<br>
+                                    • Compliance Officer<br>
+                                    • Enterprise Architects
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Governance Policies Needed:</strong></p>
+                    <ul>
+                        <li>📋 Cloud spending approval process</li>
+                        <li>🔒 Data classification (what's sensitive?)</li>
+                        <li>✅ Compliance standards (GDPR, HIPAA, PCI-DSS)</li>
+                        <li>🚨 Incident response procedures</li>
+                    </ul>
+
+                    <h4>⚙️ Technical Perspectives (Implementation - HOW we move)</h4>
+
+                    <h5>4️⃣ Platform Perspective: "The Infrastructure Question"</h5>
+                    <p><strong>Simple Definition:</strong> What cloud services will we use? How do we build the foundation?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Key Questions</th>
+                                <th>Who Answers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🏗️ <strong>Building Foundation:</strong> Concrete, plumbing, electrical before building walls</td>
+                                <td>
+                                    • Which AWS services? (EC2, Lambda, RDS?)<br>
+                                    • How to set up networking? (VPC, subnets)<br>
+                                    • What's the landing zone?
+                                </td>
+                                <td>
+                                    • CTO<br>
+                                    • Solution Architects<br>
+                                    • DevOps Engineers
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Platform Setup Tasks:</strong></p>
+                    <ul>
+                        <li>🏠 Create AWS Landing Zone (baseline environment)</li>
+                        <li>🌐 Design VPC architecture</li>
+                        <li>🔧 Choose compute services (EC2, Lambda, ECS)</li>
+                        <li>💾 Select database services (RDS, DynamoDB)</li>
+                    </ul>
+
+                    <div class="success-box">
+                        <p>✅ <strong>AWS Tip:</strong> Use AWS Control Tower to automatically set up a well-architected landing zone!</p>
+                    </div>
+
+                    <h5>5️⃣ Security Perspective: "The Protection Question"</h5>
+                    <p><strong>Simple Definition:</strong> How do we keep everything secure and compliant?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Key Questions</th>
+                                <th>Who Answers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🔐 <strong>Bank Security:</strong> Vaults, guards, cameras, access controls, alarms</td>
+                                <td>
+                                    • How to protect data?<br>
+                                    • Who has access to what?<br>
+                                    • Are we compliant?
+                                </td>
+                                <td>
+                                    • CISO<br>
+                                    • Security Team<br>
+                                    • Compliance Officers
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Security Readiness Checklist:</strong></p>
+                    <ul>
+                        <li>🔑 IAM policies defined (who can do what)</li>
+                        <li>🔒 Encryption strategy (data at rest and in transit)</li>
+                        <li>🛡️ Security controls (firewalls, monitoring)</li>
+                        <li>📝 Audit logging enabled (CloudTrail, Config)</li>
+                    </ul>
+
+                    <h5>6️⃣ Operations Perspective: "The Day-to-Day Question"</h5>
+                    <p><strong>Simple Definition:</strong> How do we monitor, maintain, and support cloud systems daily?</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Analogy</th>
+                                <th>Key Questions</th>
+                                <th>Who Answers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🏥 <strong>Hospital Operations:</strong> 24/7 monitoring, emergency response, maintenance, patient care</td>
+                                <td>
+                                    • Who monitors systems?<br>
+                                    • How to handle incidents?<br>
+                                    • What about backups?
+                                </td>
+                                <td>
+                                    • IT Operations Manager<br>
+                                    • Support Teams<br>
+                                    • DevOps Engineers
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Operations Readiness:</strong></p>
+                    <ul>
+                        <li>📊 Monitoring dashboards (CloudWatch)</li>
+                        <li>🚨 Incident response playbooks</li>
+                        <li>💾 Backup and recovery procedures</li>
+                        <li>📞 24/7 support rotation schedule</li>
+                    </ul>
+
+                    <h3>🎬 Complete CAF Scenario: Hospital Going Digital</h3>
+
+                    <h4>📋 Scenario Setup</h4>
+                    <p><strong>Organization:</strong> "CityHealth Hospital"<br>
+                    <strong>Current State:</strong> Paper-based records, aging servers in basement<br>
+                    <strong>Goal:</strong> Move patient records and systems to AWS<br>
+                    <strong>Timeline:</strong> 12 months</p>
+
+                    <h4>❌ WORST CASE: Skipping CAF Assessment</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Perspective</th>
+                                <th>What Went Wrong</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Business</strong></td>
+                                <td>No clear goals or budget. CEO said "just do it"</td>
+                                <td>Budget overrun by 300%. Project almost cancelled</td>
+                            </tr>
+                            <tr>
+                                <td><strong>People</strong></td>
+                                <td>Nurses and doctors not trained on new system</td>
+                                <td>Staff revolt. "We can't find patient records!" Chaos for 6 months</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Governance</strong></td>
+                                <td>Didn't check HIPAA compliance requirements</td>
+                                <td>$10 million fine for storing patient data incorrectly</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Platform</strong></td>
+                                <td>IT team chose random AWS services without planning</td>
+                                <td>Systems couldn't talk to each other. Integration nightmare</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security</strong></td>
+                                <td>Left default security settings (everything open)</td>
+                                <td>Ransomware attack. Patient data encrypted. Paid $500K ransom</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Operations</strong></td>
+                                <td>No one knew how to monitor or fix cloud issues</td>
+                                <td>System down for 48 hours. Emergency patients redirected to other hospitals</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Result:</strong> Project disaster. CEO and CIO fired. Hospital sued for malpractice. Total loss: $25 million + reputation damage.</p>
+
+                    <h4>✅ BEST CASE: Following CAF Properly</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Perspective</th>
+                                <th>What They Did Right</th>
+                                <th>Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Business</strong></td>
+                                <td>
+                                    • Defined clear goal: "Reduce medical errors by 40%"<br>
+                                    • Set $5M budget with quarterly reviews<br>
+                                    • Identified ROI: Save $2M/year in paper costs
+                                </td>
+                                <td>Stakeholder buy-in achieved. Budget approved. Clear success metrics</td>
+                            </tr>
+                            <tr>
+                                <td><strong>People</strong></td>
+                                <td>
+                                    • 3-month training program for all staff<br>
+                                    • Hired 2 AWS-certified cloud engineers<br>
+                                    • Created "Cloud Champions" program<br>
+                                    • Weekly Q&A sessions
+                                </td>
+                                <td>Staff adoption rate: 95%. Doctors loved the new system. "Much faster!"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Governance</strong></td>
+                                <td>
+                                    • Hired HIPAA compliance consultant<br>
+                                    • Defined data classification (PHI = highest security)<br>
+                                    • Created cloud governance board<br>
+                                    • Monthly compliance audits
+                                </td>
+                                <td>Passed HIPAA audit with zero findings. Received healthcare innovation award</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Platform</strong></td>
+                                <td>
+                                    • Built AWS landing zone with Control Tower<br>
+                                    • Used RDS for patient database (encrypted)<br>
+                                    • CloudFront for fast access to medical images<br>
+                                    • Lambda for automated reports
+                                </td>
+                                <td>System performance exceeded expectations. Doctors access records in 2 seconds vs 5 minutes before</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security</strong></td>
+                                <td>
+                                    • Multi-layer security (VPC, Security Groups, WAF)<br>
+                                    • Encryption everywhere (KMS)<br>
+                                    • MFA for all access<br>
+                                    • GuardDuty for threat detection
+                                </td>
+                                <td>Zero security breaches in 2 years. Insurance premiums reduced by 20%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Operations</strong></td>
+                                <td>
+                                    • 24/7 monitoring with CloudWatch<br>
+                                    • Automated backups every 6 hours<br>
+                                    • Disaster recovery tested monthly<br>
+                                    • On-call rotation for IT staff
+                                </td>
+                                <td>99.99% uptime. Zero data loss. Staff confidence in system = 100%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Result:</strong> Award-winning digital transformation. Patient satisfaction +40%. Featured in healthcare magazine as "Hospital of the Future"</p>
+
+                    <h4>🎓 Key Learning from Scenario</h4>
+                    <div class="success-box">
+                        <p>✅ <strong>Takeaway:</strong> CAF transforms cloud migration from a risky gamble into a planned success. The hospital that followed CAF didn't just survive—they thrived!</p>
+                    </div>
+
+                    <h3>💭 Memory Trick: Remember the Six Perspectives</h3>
+                    <p><strong>Acronym:</strong> <span style="font-size: 1.2em; font-weight: bold; color: #e74c3c;">B-P-G-P-S-O</span></p>
+                    <p><strong>Story:</strong> "<strong>B</strong>uy <strong>P</strong>izza, <strong>G</strong>et <strong>P</strong>arty, <strong>S</strong>erve <strong>O</strong>thers"</p>
+                    <ul>
+                        <li><strong>B</strong>uy = <strong>B</strong>usiness</li>
+                        <li><strong>P</strong>izza = <strong>P</strong>eople</li>
+                        <li><strong>G</strong>et = <strong>G</strong>overnance</li>
+                        <li><strong>P</strong>arty = <strong>P</strong>latform</li>
+                        <li><strong>S</strong>erve = <strong>S</strong>ecurity</li>
+                        <li><strong>O</strong>thers = <strong>O</strong>perations</li>
+                    </ul>
+
+                    <p><strong>Or remember by category:</strong></p>
+                    <ul>
+                        <li>📊 <strong>Business Side:</strong> B-P-G (Business, People, Governance)</li>
+                        <li>⚙️ <strong>Technical Side:</strong> P-S-O (Platform, Security, Operations)</li>
+                    </ul>
+
+                    
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="security-complete">🔒 Security Hardening - Complete Guide</h2></summary>
+                <div class="section-content">
+
+                    <h3>📖 Story Time: The Hotel Analogy</h3>
+                    <blockquote>
+                        <p>Imagine a luxury hotel protecting its guests and valuables:</p>
+                        <ul>
+                            <li>🚧 <strong>Main Gate:</strong> Security guard checks who enters (Network Hardening)</li>
+                            <li>🏢 <strong>Building Entrance:</strong> Reception checks guest IDs (Network Hardening)</li>
+                            <li>🚪 <strong>Room Door:</strong> Key card access (System Hardening)</li>
+                            <li>🔒 <strong>Room Safe:</strong> Only guest knows the code (System Hardening)</li>
+                            <li>📹 <strong>CCTV Everywhere:</strong> 24/7 monitoring (Both)</li>
+                        </ul>
+                        <p><strong>The Principle:</strong> Multiple layers of security. If one fails, others protect you. This is called <strong>"Defense in Depth"</strong></p>
+                    </blockquote>
+
+                    <h3>🎯 Core Security Truth</h3>
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Golden Rule of Security:</strong> Security is about <strong>controlling access</strong>. There are TWO control points:</p>
+                        <ol>
+                            <li><strong>BEFORE</strong> someone reaches the system → Network Hardening</li>
+                            <li><strong>AFTER</strong> someone reaches the system → System Hardening</li>
+                        </ol>
+                        <p><strong>If attackers can't reach you, they can't attack you!</strong></p>
+                    </div>
+
+                    <h3>🌐 Network Hardening: "The Outer Shield"</h3>
+
+                    <h4>📖 Simple Definition</h4>
+                    <p><strong>Network Hardening</strong> = Controlling who can connect to your system, from where, and on which ports.</p>
+
+                    <h4>🏰 Medieval Castle Analogy</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Medieval Defense</th>
+                                <th>Network Hardening Equivalent</th>
+                                <th>AWS Service</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🏔️ <strong>Natural Moat:</strong> Water around castle</td>
+                                <td>VPC isolation - separate networks</td>
+                                <td>Virtual Private Cloud (VPC)</td>
+                            </tr>
+                            <tr>
+                                <td>🚧 <strong>Main Gate:</strong> Only one entrance with guards</td>
+                                <td>Internet Gateway - controlled entry point</td>
+                                <td>Internet Gateway, NAT Gateway</td>
+                            </tr>
+                            <tr>
+                                <td>🛡️ <strong>Castle Walls:</strong> Block unauthorized entry</td>
+                                <td>Firewall rules - block bad traffic</td>
+                                <td>Security Groups, NACLs</td>
+                            </tr>
+                            <tr>
+                                <td>🔭 <strong>Watchtowers:</strong> Scouts watching for enemies</td>
+                                <td>Intrusion detection</td>
+                                <td>GuardDuty, VPC Flow Logs</td>
+                            </tr>
+                            <tr>
+                                <td>📜 <strong>Guest List:</strong> Who's allowed in?</td>
+                                <td>IP whitelisting/blacklisting</td>
+                                <td>Security Group rules, WAF</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>🎬 Network Hardening Scenario: The Coffee Shop Website</h4>
+
+                    <p><strong>Scenario:</strong> "Java Junction" launches online ordering website on AWS EC2</p>
+
+                    <h5>❌ WORST CASE: No Network Hardening</h5>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mistake</th>
+                                <th>What Happened</th>
+                                <th>Consequence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Opened all ports (0-65535)</td>
+                                <td>Hackers scanned and found SSH open</td>
+                                <td>Server taken over in 2 hours</td>
+                            </tr>
+                            <tr>
+                                <td>Allowed SSH from anywhere (0.0.0.0/0)</td>
+                                <td>Brute force attack on SSH password</td>
+                                <td>20,000 login attempts/hour</td>
+                            </tr>
+                            <tr>
+                                <td>No firewall rules</td>
+                                <td>DDoS attack flooded server</td>
+                                <td>Website down for 3 days</td>
+                            </tr>
+                            <tr>
+                                <td>Database exposed to internet</td>
+                                <td>Customer credit cards stolen</td>
+                                <td>$200K lawsuit + reputation destroyed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Total Damage:</strong> Business closed within 6 months</p>
+
+                    <h5>✅ BEST CASE: Proper Network Hardening</h5>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Protection Layer</th>
+                                <th>What They Did</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Security Groups</strong></td>
+                                <td>
+                                    • Port 80 (HTTP) from anywhere ✅<br>
+                                    • Port 443 (HTTPS) from anywhere ✅<br>
+                                    • Port 22 (SSH) ONLY from office IP ✅<br>
+                                    • All other ports CLOSED ✅
+                                </td>
+                                <td>99.9% of attack attempts blocked before reaching server</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network ACLs</strong></td>
+                                <td>
+                                    • Blocked known malicious IP ranges<br>
+                                    • Rate limiting rules
+                                </td>
+                                <td>Blocked 500K malicious requests/day</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VPC Design</strong></td>
+                                <td>
+                                    • Web servers in PUBLIC subnet<br>
+                                    • Database in PRIVATE subnet (no internet access)<br>
+                                    • NAT Gateway for outbound only
+                                </td>
+                                <td>Database completely invisible to hackers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WAF (Web App Firewall)</strong></td>
+                                <td>
+                                    • SQL injection protection<br>
+                                    • XSS attack protection<br>
+                                    • Bot detection
+                                </td>
+                                <td>Blocked 50K attack attempts/week</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Monitoring</strong></td>
+                                <td>
+                                    • VPC Flow Logs enabled<br>
+                                    • GuardDuty active<br>
+                                    • SNS alerts for suspicious activity
+                                </td>
+                                <td>Detected and stopped 3 serious attacks in first year</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Result:</strong> Zero security breaches in 3 years. Business thriving with 10,000 orders/month</p>
+
+                    <h4>⚙️ How to Implement Network Hardening</h4>
+
+                    <h5>Step-by-Step: Security Group Setup</h5>
+
+                    <p><strong>Method 1: AWS CLI</strong></p>
+                    <pre><code># Create Security Group for Web Server
+aws ec2 create-security-group \
+    --group-name "WebServer-Hardened" \
+    --description "Secure web server with minimal ports" \
+    --vpc-id vpc-12345678
+
+# Allow HTTPS from anywhere (port 443)
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-12345678 \
+    --protocol tcp \
+    --port 443 \
+    --cidr 0.0.0.0/0
+
+# Allow HTTP from anywhere (port 80)
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-12345678 \
+    --protocol tcp \
+    --port 80 \
+    --cidr 0.0.0.0/0
+
+# Allow SSH ONLY from your office (replace with YOUR IP)
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-12345678 \
+    --protocol tcp \
+    --port 22 \
+    --cidr 203.0.113.25/32
+
+# Note: All other ports are automatically DENIED</code></pre>
+
+                    <p><strong>Method 2: AWS Console (Step-by-Step for Absolute Beginners)</strong></p>
+                    <ol>
+                        <li><strong>Login to AWS Console</strong>
+                            <ul>
+                                <li>Go to <a href="https://console.aws.amazon.com" target="_blank">https://console.aws.amazon.com</a></li>
+                                <li>Enter your credentials</li>
+                            </ul>
+                        </li>
+                        <li><strong>Navigate to EC2</strong>
+                            <ul>
+                                <li>Search bar at top: Type "EC2"</li>
+                                <li>Click "EC2" service</li>
+                            </ul>
+                        </li>
+                        <li><strong>Go to Security Groups</strong>
+                            <ul>
+                                <li>Left sidebar: Scroll down to "Network & Security"</li>
+                                <li>Click "Security Groups"</li>
+                            </ul>
+                        </li>
+                        <li><strong>Create New Security Group</strong>
+                            <ul>
+                                <li>Orange button top-right: "Create security group"</li>
+                                <li>Name: <code>WebServer-Hardened</code></li>
+                                <li>Description: <code>Secure configuration for web server</code></li>
+                                <li>VPC: Select your VPC (usually one default)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Add Inbound Rules</strong> (Who can connect TO your server)
+                            <ul>
+                                <li>Click "Add rule" button</li>
+                                <li><strong>Rule 1: HTTPS</strong>
+                                    <ul>
+                                        <li>Type: HTTPS</li>
+                                        <li>Protocol: TCP (auto-filled)</li>
+                                        <li>Port: 443 (auto-filled)</li>
+                                        <li>Source: 0.0.0.0/0 (means "from anywhere")</li>
+                                        <li>Description: "Allow HTTPS from internet"</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Rule 2: HTTP</strong>
+                                    <ul>
+                                        <li>Type: HTTP</li>
+                                        <li>Port: 80 (auto-filled)</li>
+                                        <li>Source: 0.0.0.0/0</li>
+                                        <li>Description: "Allow HTTP from internet"</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Rule 3: SSH (Admin Access)</strong>
+                                    <ul>
+                                        <li>Type: SSH</li>
+                                        <li>Port: 22 (auto-filled)</li>
+                                        <li>Source: <strong>My IP</strong> (click dropdown, select "My IP")</li>
+                                        <li>Description: "Admin access from office only"</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li><strong>Outbound Rules</strong> (What your server can access)
+                            <ul>
+                                <li>Leave default: "All traffic" to "0.0.0.0/0"</li>
+                                <li>This allows your server to make any outbound connections</li>
+                                <li>(You can restrict this later for paranoid security)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Review and Create</strong>
+                            <ul>
+                                <li>Scroll down</li>
+                                <li>Orange button: "Create security group"</li>
+                                <li>Success! ✅</li>
+                            </ul>
+                        </li>
+                        <li><strong>Apply to EC2 Instance</strong>
+                            <ul>
+                                <li>Go back to EC2 → Instances</li>
+                                <li>Select your instance</li>
+                                <li>Actions → Security → Change security groups</li>
+                                <li>Select "WebServer-Hardened"</li>
+                                <li>Click "Add security group"</li>
+                                <li>Remove old insecure ones</li>
+                                <li>Save!</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Congratulations!</strong> You've just implemented network hardening. Your server now only accepts connections on ports you explicitly allowed!</p>
+                    </div>
+
+                    <h4>📊 Network Hardening Checklist</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Security Layer</th>
+                                <th>Action Required</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Security Groups</td>
+                                <td>Configure restrictive inbound rules</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="sg-config"></td>
+                            </tr>
+                            <tr>
+                                <td>Network ACLs</td>
+                                <td>Add subnet-level filtering (optional but recommended)</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="nacl-config"></td>
+                            </tr>
+                            <tr>
+                                <td>VPC Design</td>
+                                <td>Separate public and private subnets</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="vpc-design"></td>
+                            </tr>
+                            <tr>
+                                <td>SSH Access</td>
+                                <td>Restrict to specific IP addresses only</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="ssh-restrict"></td>
+                            </tr>
+                            <tr>
+                                <td>Database Isolation</td>
+                                <td>Place databases in private subnets</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="db-private"></td>
+                            </tr>
+                            <tr>
+                                <td>VPC Flow Logs</td>
+                                <td>Enable to monitor all network traffic</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="flow-logs"></td>
+                            </tr>
+                            <tr>
+                                <td>GuardDuty</td>
+                                <td>Enable for automated threat detection</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="guardduty"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>💻 System Hardening: "The Inner Safe"</h3>
+
+                    <h4>📖 Simple Definition</h4>
+                    <p><strong>System Hardening</strong> = Controlling what users can do AFTER they've accessed the system.</p>
+
+                    <h4>🏦 Bank Vault Analogy</h4>
+                    <p>Imagine you passed the security guard and entered the bank (network hardening worked). But:</p>
+                    <ul>
+                        <li>🚫 Can you enter the vault? → <strong>User Access Control (IAM)</strong></li>
+                        <li>🔐 Can you open safe deposit boxes? → <strong>File Permissions</strong></li>
+                        <li>👀 Are your actions being recorded? → <strong>Logging & Monitoring</strong></li>
+                        <li>🔧 Can you access bank systems? → <strong>Service Hardening</strong></li>
+                    </ul>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Key Insight:</strong> Network Hardening asks "Can you reach me?" System Hardening asks "What can you do once you're in?"</p>
+                    </div>
+
+                    <h4>🔧 Five Pillars of System Hardening</h4>
+
+                    <h5>1️⃣ User Access Control (IAM)</h5>
+                    <p><strong>Principle:</strong> Who can access what? Give minimum necessary permissions.</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Real-Life Example</th>
+                                <th>Technical Implementation</th>
+                                <th>AWS Service</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>👤 Hotel staff: Janitor can clean rooms but can't access safe</td>
+                                <td>Create IAM roles with specific permissions<br>Example: ReadOnlyAccess for interns</td>
+                                <td>IAM (Identity and Access Management)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Bad Example:</strong></p>
+                    <pre><code>❌ Give everyone AdministratorAccess
+Result: Junior developer accidentally deleted production database</code></pre>
+
+                    <p><strong>Good Example:</strong></p>
+                    <pre><code>✅ Developers get: EC2 read/write, RDS read-only
+✅ Admins get: Full access with MFA required
+✅ Interns get: Read-only access to logs</code></pre>
+
+                    <h5>2️⃣ Operating System Hardening</h5>
+                    <p><strong>Principle:</strong> Keep OS secure and updated</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Why Important</th>
+                                <th>How to Do It</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Apply security patches</td>
+                                <td>Fix known vulnerabilities</td>
+                                <td>AWS Systems Manager Patch Manager</td>
+                            </tr>
+                            <tr>
+                                <td>Disable root login</td>
+                                <td>Prevent highest-privilege access</td>
+                                <td>Edit <code>/etc/ssh/sshd_config</code></td>
+                            </tr>
+                            <tr>
+                                <td>Remove unnecessary software</td>
+                                <td>Fewer attack surfaces</td>
+                                <td><code>yum remove telnet</code></td>
+                            </tr>
+                            <tr>
+                                <td>Enable firewall</td>
+                                <td>Additional layer of defense</td>
+                                <td><code>systemctl enable firewalld</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h5>3️⃣ Service Hardening</h5>
+                    <p><strong>Principle:</strong> Stop unnecessary services, secure necessary ones</p>
+
+                    <p><strong>Think of it like:</strong> Why leave all appliances running when you're not home? Turn off what you don't need!</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Risk if Unsecured</th>
+                                <th>Hardening Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SSH</td>
+                                <td>Brute force attacks</td>
+                                <td>• Disable password auth (use keys only)<br>• Change default port from 22<br>• Fail2ban for auto-blocking</td>
+                            </tr>
+                            <tr>
+                                <td>Web Server (Apache/Nginx)</td>
+                                <td>Information disclosure</td>
+                                <td>• Hide version numbers<br>• Disable directory listing<br>• Enable HTTPS only</td>
+                            </tr>
+                            <tr>
+                                <td>Database</td>
+                                <td>SQL injection, unauthorized access</td>
+                                <td>• Bind to localhost only<br>• Use strong passwords<br>• Enable SSL connections</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h5>4️⃣ File & Permission Security</h5>
+                    <p><strong>Principle:</strong> Control who can read, write, or execute files</p>
+
+                    <p><strong>Linux File Permissions Explained (Simple!):</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Permission</th>
+                                <th>Code</th>
+                                <th>Meaning</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Read (r)</strong></td>
+                                <td>4</td>
+                                <td>Can view file contents</td>
+                                <td>View a document</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Write (w)</strong></td>
+                                <td>2</td>
+                                <td>Can modify file</td>
+                                <td>Edit a document</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Execute (x)</strong></td>
+                                <td>1</td>
+                                <td>Can run as program</td>
+                                <td>Run a script</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Common Secure Permissions:</strong></p>
+                    <pre><code># SSH Private Key (only you can read)
+chmod 600 ~/.ssh/id_rsa
+Permission: rw------- (Owner: read+write, Others: nothing)
+
+# Configuration files (you read/write, others read-only)
+chmod 644 /etc/myapp/config.yml
+Permission: rw-r--r-- (Owner: read+write, Others: read-only)
+
+# Executable scripts (you all, others read+execute)
+chmod 755 /usr/local/bin/backup.sh
+Permission: rwxr-xr-x (Owner: all, Others: read+execute)
+
+# Sensitive data directory (only you access)
+chmod 700 ~/sensitive-data/
+Permission: rwx------ (Owner: all, Others: nothing)</code></pre>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Never Do This:</strong> <code>chmod 777 file</code> (Everyone can do everything = Security nightmare!)</p>
+                    </div>
+
+                    <h5>5️⃣ Logging & Monitoring</h5>
+                    <p><strong>Principle:</strong> Track everything, detect suspicious activity</p>
+
+                    <p><strong>What to Monitor:</strong></p>
+                    <ul>
+                        <li>🔑 <strong>Authentication attempts:</strong> Who tried to login? Successful? Failed?</li>
+                        <li>📁 <strong>File access:</strong> Who accessed sensitive files?</li>
+                        <li>⚙️ <strong>System changes:</strong> Who installed software? Changed configs?</li>
+                        <li>🌐 <strong>Network connections:</strong> Unusual outbound traffic?</li>
+                    </ul>
+
+                    <p><strong>AWS Monitoring Services:</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>What It Monitors</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CloudWatch Logs</td>
+                                <td>Application logs, system logs</td>
+                                <td>"Show me all failed SSH attempts in last hour"</td>
+                            </tr>
+                            <tr>
+                                <td>CloudTrail</td>
+                                <td>AWS API calls (who did what)</td>
+                                <td>"Who deleted the S3 bucket?"</td>
+                            </tr>
+                            <tr>
+                                <td>GuardDuty</td>
+                                <td>Malicious activity, threats</td>
+                                <td>"Alert if someone mines Bitcoin on my servers"</td>
+                            </tr>
+                            <tr>
+                                <td>Security Hub</td>
+                                <td>Overall security posture</td>
+                                <td>"Give me security score 0-100"</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                   
+
+
+
+            <h4>🎬 Complete System Hardening Scenario: The Startup That Got Hacked</h4>
+
+                    <p><strong>Company:</strong> "CodeCraft" - Software Development Startup<br>
+                    <strong>Team Size:</strong> 15 developers<br>
+                    <strong>Infrastructure:</strong> 10 EC2 instances on AWS</p>
+
+                    <h5>❌ Day 1: The Nightmare Begins</h5>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>What Happened</th>
+                                <th>Root Cause</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>9:00 AM</td>
+                                <td>Junior developer logs into production server as root</td>
+                                <td>❌ Root login not disabled</td>
+                            </tr>
+                            <tr>
+                                <td>9:15 AM</td>
+                                <td>Accidentally runs <code>rm -rf /var/www</code><br>Entire website deleted</td>
+                                <td>❌ No file permissions, root has unlimited power</td>
+                            </tr>
+                            <tr>
+                                <td>10:00 AM</td>
+                                <td>Try to restore from backup<br>Backup failed - command not found</td>
+                                <td>❌ No backups configured</td>
+                            </tr>
+                            <tr>
+                                <td>11:00 AM</td>
+                                <td>While investigating, notice strange files<br>Server compromised by malware</td>
+                                <td>❌ No monitoring, didn't notice hack for 2 weeks</td>
+                            </tr>
+                            <tr>
+                                <td>2:00 PM</td>
+                                <td>Customer data leaked on dark web<br>Hacker used old vulnerability</td>
+                                <td>❌ Server not patched in 6 months</td>
+                            </tr>
+                            <tr>
+                                <td>5:00 PM</td>
+                                <td>Company announces data breach<br>News goes viral</td>
+                                <td>❌ No incident response plan</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Final Outcome:</strong> Company sued for $2M, lost all customers, shut down within 3 months</p>
+
+                    <h5>✅ How Proper System Hardening Would Have Prevented This</h5>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hardening Control</th>
+                                <th>What It Would Have Stopped</th>
+                                <th>How</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Disable Root Login</strong></td>
+                                <td>Junior dev couldn't login as root</td>
+                                <td>Config: <code>PermitRootLogin no</code> in SSH settings</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IAM Roles (Least Privilege)</strong></td>
+                                <td>Junior dev only had read access to production</td>
+                                <td>IAM Policy: DeveloperReadOnly (can't delete files)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File Permissions</strong></td>
+                                <td>Even if logged in, couldn't delete critical files</td>
+                                <td>Website files owned by www-data user, not accessible to developers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Automated Backups</strong></td>
+                                <td>Could restore website in 5 minutes</td>
+                                <td>AWS Backup running hourly snapshots</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Patches</strong></td>
+                                <td>Vulnerability wouldn't exist</td>
+                                <td>Systems Manager auto-patching weekly</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Monitoring & Alerts</strong></td>
+                                <td>Hack detected within minutes, not weeks</td>
+                                <td>GuardDuty alert: "Unusual outbound traffic detected"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CloudTrail Logging</strong></td>
+                                <td>Forensics: Know exactly what happened and when</td>
+                                <td>Complete audit trail of all actions</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Lesson Learned:</strong> System hardening isn't optional—it's the difference between staying in business and bankruptcy!</p>
+                    </div>
+
+                    <h4>🛠️ Practical System Hardening Implementation</h4>
+
+                    <h5>Complete Hardening Script for Linux Server</h5>
+                    <pre><code>#!/bin/bash
+# AWS EC2 System Hardening Script
+# Run this on fresh EC2 instance
+
+echo "=== Starting System Hardening ==="
+
+# 1. Update all packages
+echo "Step 1: Updating system packages..."
+sudo yum update -y
+
+# 2. Disable root login
+echo "Step 2: Disabling root SSH login..."
+sudo sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+sudo sed -i 's/#PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+
+# 3. Disable password authentication (use keys only)
+echo "Step 3: Disabling password authentication..."
+sudo sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+
+# 4. Restart SSH service
+sudo systemctl restart sshd
+
+# 5. Install and enable automatic security updates
+echo "Step 4: Enabling automatic security updates..."
+sudo yum install yum-cron -y
+sudo systemctl enable yum-cron
+sudo systemctl start yum-cron
+
+# 6. Configure firewall
+echo "Step 5: Configuring firewall..."
+sudo yum install firewalld -y
+sudo systemctl enable firewalld
+sudo systemctl start firewalld
+
+# Allow only necessary ports
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --reload
+
+# 7. Install fail2ban (auto-ban brute force attempts)
+echo "Step 6: Installing fail2ban..."
+sudo yum install epel-release -y
+sudo yum install fail2ban -y
+sudo systemctl enable fail2ban
+sudo systemctl start fail2ban
+
+# 8. Set strict file permissions
+echo "Step 7: Setting file permissions..."
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+
+# 9. Remove unnecessary packages
+echo "Step 8: Removing unnecessary packages..."
+sudo yum remove telnet -y
+
+# 10. Install CloudWatch Logs agent
+echo "Step 9: Installing CloudWatch agent..."
+wget https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
+sudo rpm -U ./amazon-cloudwatch-agent.rpm
+
+echo "=== System Hardening Complete! ==="
+echo "Next steps:"
+echo "1. Configure CloudWatch agent"
+echo "2. Set up automated backups"
+echo "3. Enable GuardDuty in AWS Console"
+echo "4. Review CloudTrail logs regularly"</code></pre>
+
+                    <div class="info-box">
+                        <p>💡 <strong>How to Use This Script:</strong></p>
+                        <ol>
+                            <li>Save as <code>harden.sh</code></li>
+                            <li>Upload to your EC2: <code>scp harden.sh ec2-user@your-server:/home/ec2-user/</code></li>
+                            <li>SSH into server: <code>ssh ec2-user@your-server</code></li>
+                            <li>Make executable: <code>chmod +x harden.sh</code></li>
+                            <li>Run: <code>./harden.sh</code></li>
+                            <li>Wait 5-10 minutes</li>
+                            <li>Done! Your server is now hardened ✅</li>
+                        </ol>
+                    </div>
+
+                    <h3>⚖️ Network vs System Hardening: Side-by-Side Comparison</h3>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Network Hardening 🌐</th>
+                                <th>System Hardening 💻</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Control Point</strong></td>
+                                <td>BEFORE reaching system</td>
+                                <td>AFTER reaching system</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Analogy</strong></td>
+                                <td>Castle walls and moat</td>
+                                <td>Safe inside the castle</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Main Question</strong></td>
+                                <td>"Can you connect?"</td>
+                                <td>"What can you do?"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Primary Goal</strong></td>
+                                <td>Block unauthorized connections</td>
+                                <td>Limit damage if someone gets in</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Services</strong></td>
+                                <td>Security Groups, NACLs, VPC, WAF</td>
+                                <td>IAM, Systems Manager, Inspector, KMS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Configuration Level</strong></td>
+                                <td>Network/Infrastructure layer</td>
+                                <td>Operating System/Application layer</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Example Controls</strong></td>
+                                <td>
+                                    • Open only port 80, 443<br>
+                                    • Block malicious IPs<br>
+                                    • Isolate databases
+                                </td>
+                                <td>
+                                    • Disable root login<br>
+                                    • Apply security patches<br>
+                                    • Set file permissions
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>When Configured</strong></td>
+                                <td>During infrastructure setup</td>
+                                <td>After server deployment</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Maintenance</strong></td>
+                                <td>Update rules as needed (monthly)</td>
+                                <td>Continuous (weekly patches, daily monitoring)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>First Line of Defense</strong></td>
+                                <td>✅ YES</td>
+                                <td>❌ NO (second line)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Can Work Alone?</strong></td>
+                                <td>❌ NO - Both needed!</td>
+                                <td>❌ NO - Both needed!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Critical Principle:</strong> Defense in Depth<br>
+                        Network Hardening + System Hardening = Complete Security<br>
+                        <strong>Never rely on just one!</strong> If hackers bypass your network security, system hardening is your last stand.</p>
+                    </div>
+
+                    <h3>💭 Memory Tricks for Security Concepts</h3>
+
+                    <h4>🔐 Remember "Defense in Depth"</h4>
+                    <p><strong>Think: Onion Layers</strong></p>
+                    <ol>
+                        <li>🧅 Outer layer: Network firewall (Security Groups)</li>
+                        <li>🧅 Middle layer: OS hardening (Patches, configs)</li>
+                        <li>🧅 Inner layer: File permissions</li>
+                        <li>🧅 Core: Encrypted data (even if stolen, useless)</li>
+                    </ol>
+
+                    <h4>📝 Remember Security Hardening Steps</h4>
+                    <p><strong>Acronym: P-U-M-L-A</strong></p>
+                    <p><strong>Story:</strong> "<strong>P</strong>lease <strong>U</strong>se <strong>M</strong>ore <strong>L</strong>ocks <strong>A</strong>lways"</p>
+                    <ul>
+                        <li><strong>P</strong> = <strong>P</strong>atch systems (security updates)</li>
+                        <li><strong>U</strong> = <strong>U</strong>ser access control (IAM, least privilege)</li>
+                        <li><strong>M</strong> = <strong>M</strong>onitor everything (CloudWatch, logs)</li>
+                        <li><strong>L</strong> = <strong>L</strong>ock down services (disable unnecessary)</li>
+                        <li><strong>A</strong> = <strong>A</strong>udit regularly (Security Hub, Inspector)</li>
+                    </ul>
+
+            <details class="collapsible-section">
+                <summary><h2 id="scenarios">🎭 Real-World Scenarios & Case Studies</h2></summary>
+                <div class="section-content">
+
+                    <h3>📊 Scenario Summary Table</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Scenario Name</th>
+                                <th>Category</th>
+                                <th>Problem</th>
+                                <th>Solution Framework</th>
+                                <th>Key Learning</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Restaurant Breaking Down</td>
+                                <td>WAF</td>
+                                <td>App crashes, high costs, slow performance</td>
+                                <td>Applied WAF review, fixed all 6 pillars</td>
+                                <td>Technology isn't the problem - poor planning is</td>
+                            </tr>
+                            <tr>
+                                <td>Company Jumped Too Fast</td>
+                                <td>CAF</td>
+                                <td>Unprepared organization, failed migration</td>
+                                <td>Used CAF to prepare all 6 perspectives</td>
+                                <td>Cloud migration needs organizational readiness</td>
+                            </tr>
+                            <tr>
+                                <td>Hospital Going Digital</td>
+                                <td>CAF</td>
+                                <td>Patient records migration</td>
+                                <td>CAF ensured HIPAA compliance, staff training</td>
+                                <td>Healthcare requires careful compliance planning</td>
+                            </tr>
+                            <tr>
+                                <td>Coffee Shop Website</td>
+                                <td>Network Hardening</td>
+                                <td>Hacked due to open ports</td>
+                                <td>Restricted ports, VPC isolation, WAF</td>
+                                <td>Open ports = open invitation to hackers</td>
+                            </tr>
+                            <tr>
+                                <td>Startup That Got Hacked</td>
+                                <td>System Hardening</td>
+                                <td>Root access, no patches, no backups</td>
+                                <td>Disabled root, patching, monitoring, backups</td>
+                                <td>System hardening prevents insider threats too</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🎯 Best Practices Derived from Scenarios</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Best Practice</th>
+                                <th>Source Scenario</th>
+                                <th>Why Important</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Never skip monitoring setup</td>
+                                <td>Restaurant (WAF)</td>
+                                <td>Can't fix what you can't see</td>
+                                <td>Enable CloudWatch on day 1</td>
+                            </tr>
+                            <tr>
+                                <td>Train staff before migration</td>
+                                <td>Hospital (CAF - People)</td>
+                                <td>67% of failures due to lack of skills</td>
+                                <td>3-month training program minimum</td>
+                            </tr>
+                            <tr>
+                                <td>Check compliance requirements first</td>
+                                <td>Hospital (CAF - Governance)</td>
+                                <td>Avoid multi-million dollar fines</td>
+                                <td>Consult legal/compliance team early</td>
+                            </tr>
+                            <tr>
+                                <td>Restrict SSH to specific IPs</td>
+                                <td>Coffee Shop (Network Hardening)</td>
+                                <td>Prevents 99% of brute force attacks</td>
+                                <td>Security Group: Port 22 from My IP only</td>
+                            </tr>
+                            <tr>
+                                <td>Disable root login immediately</td>
+                                <td>Startup (System Hardening)</td>
+                                <td>Prevents accidental destruction</td>
+                                <td><code>PermitRootLogin no</code> in SSH config</td>
+                            </tr>
+                            <tr>
+                                <td>Automate security patches</td>
+                                <td>Startup (System Hardening)</td>
+                                <td>Old vulnerabilities = easy target</td>
+                                <td>AWS Systems Manager Patch Manager</td>
+                            </tr>
+                            <tr>
+                                <td>Test backups regularly</td>
+                                <td>Startup (System Hardening)</td>
+                                <td>Untested backup = no backup</td>
+                                <td>Monthly restore drills</td>
+                            </tr>
+                            <tr>
+                                <td>Use Multi-AZ for production</td>
+                                <td>Restaurant (WAF - Reliability)</td>
+                                <td>Survive data center failures</td>
+                                <td>Deploy in at least 2 Availability Zones</td>
+                            </tr>
+                            <tr>
+                                <td>Right-size instances to save money</td>
+                                <td>Restaurant (WAF - Cost)</td>
+                                <td>50-70% cost savings possible</td>
+                                <td>Use AWS Compute Optimizer</td>
+                            </tr>
+                            <tr>
+                                <td>Place databases in private subnets</td>
+                                <td>Coffee Shop (Network Hardening)</td>
+                                <td>Database should never be internet-facing</td>
+                                <td>VPC design: public subnet (web), private (DB)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="troubleshooting">🔧 Troubleshooting Guide</h2></summary>
+                <div class="section-content">
+
+                    <h3>Common Issues and Fixes</h3>
+
+                    <h4>🚨 Issue 1: "Can't SSH into EC2 Instance"</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Possible Cause</th>
+                                <th>How to Check</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Security Group blocking SSH</td>
+                                <td>Check if port 22 is open</td>
+                                <td>Add rule: SSH (22) from My IP</td>
+                            </tr>
+                            <tr>
+                                <td>Wrong key pair</td>
+                                <td>Check which key was used at launch</td>
+                                <td>Use correct .pem file: <code>ssh -i correct.pem ...</code></td>
+                            </tr>
+                            <tr>
+                                <td>Wrong username</td>
+                                <td>Different AMIs use different users</td>
+                                <td>Amazon Linux: ec2-user, Ubuntu: ubuntu</td>
+                            </tr>
+                            <tr>
+                                <td>Instance not running</td>
+                                <td>Check instance state in console</td>
+                                <td>Start the instance</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>🚨 Issue 2: "Website Not Loading"</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Possible Cause</th>
+                                <th>How to Check</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Security Group not allowing HTTP/HTTPS</td>
+                                <td>Check inbound rules</td>
+                                <td>Add rules: HTTP (80), HTTPS (443) from 0.0.0.0/0</td>
+                            </tr>
+                            <tr>
+                                <td>Web server not running</td>
+                                <td>SSH in, run: <code>systemctl status httpd</code></td>
+                                <td><code>sudo systemctl start httpd</code></td>
+                            </tr>
+                            <tr>
+                                <td>Wrong URL</td>
+                                <td>Use Public IPv4 address from console</td>
+                                <td>http://YOUR_PUBLIC_IP (not private IP)</td>
+                            </tr>
+                            <tr>
+                                <td>Firewall inside EC2 blocking</td>
+                                <td><code>sudo firewall-cmd --list-all</code></td>
+                                <td><code>sudo firewall-cmd --add-service=http --permanent</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>🚨 Issue 3: "High AWS Bill"</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Likely Culprit</th>
+                                <th>How to Find</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Idle EC2 instances</td>
+                                <td>Cost Explorer → EC2 costs</td>
+                                <td>Stop/terminate unused instances</td>
+                            </tr>
+                            <tr>
+                                <td>Old EBS snapshots</td>
+                                <td>EC2 → Snapshots → Sort by age</td>
+                                <td>Delete snapshots older than needed</td>
+                            </tr>
+                            <tr>
+                                <td>Elastic IPs not attached</td>
+                                <td>VPC → Elastic IPs → Check "Instance" column</td>
+                                <td>Release unused Elastic IPs</td>
+                            </tr>
+                            <tr>
+                                <td>Data transfer costs</td>
+                                <td>Cost Explorer → Data Transfer</td>
+                                <td>Use CloudFront, keep data in same region</td>
+                            </tr>
+                            <tr>
+                                <td>Oversized instances</td>
+                                <td>CloudWatch → CPU utilization < 20%</td>
+                                <td>Downsize: t3.large → t3.medium</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="glossary">📘 Glossary of Terms</h2></summary>
+                <div class="section-content">
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Term</th>
+                                <th>Simple Definition</th>
+                                <th>Example / Analogy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Artifact (WAF)</strong></td>
+                                <td>The application or workload being reviewed</td>
+                                <td>The website or app you're checking with WAF Tool</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Attack Surface</strong></td>
+                                <td>All possible entry points for attackers</td>
+                                <td>Every open port is like an unlocked door</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Auto Scaling</strong></td>
+                                <td>Automatically add/remove servers based on demand</td>
+                                <td>Restaurant adding waiters during lunch rush</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Availability Zone (AZ)</strong></td>
+                                <td>Separate data center in same region</td>
+                                <td>Different buildings in same city</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bastion Host</strong></td>
+                                <td>Secure jump server for accessing private networks</td>
+                                <td>Security checkpoint to enter restricted area</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CloudTrail</strong></td>
+                                <td>Records all AWS API calls (who did what)</td>
+                                <td>Security camera footage for AWS account</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CloudWatch</strong></td>
+                                <td>Monitoring service for AWS resources</td>
+                                <td>Dashboard showing car speed, fuel, engine temp</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Defense in Depth</strong></td>
+                                <td>Multiple layers of security controls</td>
+                                <td>Castle with moat, walls, guards, locked rooms</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Disaster Recovery</strong></td>
+                                <td>Plan to restore systems after major failure</td>
+                                <td>Fire evacuation plan and backup building</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encryption at Rest</strong></td>
+                                <td>Data encrypted when stored on disk</td>
+                                <td>Documents locked in safe</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encryption in Transit</strong></td>
+                                <td>Data encrypted while moving over network</td>
+                                <td>Documents in armored truck</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GuardDuty</strong></td>
+                                <td>AI-powered threat detection service</td>
+                                <td>Smart security guard who learns attack patterns</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hardening</strong></td>
+                                <td>Making systems more secure by reducing vulnerabilities</td>
+                                <td>Reinforcing doors and windows in your house</td>
+                            </tr>
+                            <tr>
+                                <td><strong>High Availability</strong></td>
+                                <td>System designed to minimize downtime</td>
+                                <td>Hospital with backup generators</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IAM (Identity and Access Management)</strong></td>
+                                <td>Controls who can do what in AWS</td>
+                                <td>Employee ID badges with different access levels</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ingress</strong></td>
+                                <td>Incoming network traffic</td>
+                                <td>People entering building</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Egress</strong></td>
+                                <td>Outgoing network traffic</td>
+                                <td>People leaving building</td>
+                            </tr>
+                            <tr>
+                                <td><strong>KMS (Key Management Service)</strong></td>
+                                <td>Service to create and manage encryption keys</td>
+                                <td>Master key vault for all your locks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Landing Zone</strong></td>
+                                <td>Pre-configured secure AWS environment</td>
+                                <td>Furnished apartment ready to move in</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Least Privilege</strong></td>
+                                <td>Give users minimum permissions needed</td>
+                                <td>Janitor can clean but can't access safe</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Multi-AZ</strong></td>
+                                <td>Resources deployed across multiple Availability Zones</td>
+                                <td>Stores in different city neighborhoods</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NACL (Network Access Control List)</strong></td>
+                                <td>Firewall rules at subnet level</td>
+                                <td>Neighborhood gate controlling who enters/exits</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Patch</strong></td>
+                                <td>Software update fixing security vulnerabilities</td>
+                                <td>Fixing holes in your roof</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Perspective (CAF)</strong></td>
+                                <td>Different organizational viewpoints in cloud adoption</td>
+                                <td>Different departments planning office move</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pillar (WAF)</strong></td>
+                                <td>Core best practice category</td>
+                                <td>Main support columns of a building</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Principle of Least Privilege</strong></td>
+                                <td>Users get only minimum access they need</td>
+                                <td>Hotel guest can access their room, not others</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Private Subnet</strong></td>
+                                <td>Network section with no direct internet access</td>
+                                <td>Basement vault with no windows</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Proctor</strong></td>
+                                <td>Exam supervisor who monitors during online test</td>
+                                <td>Teacher watching students during exam</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Public Subnet</strong></td>
+                                <td>Network section with internet access</td>
+                                <td>Store front facing the street</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RTO (Recovery Time Objective)</strong></td>
+                                <td>Maximum acceptable downtime</td>
+                                <td>"Website must be back up within 1 hour"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RPO (Recovery Point Objective)</strong></td>
+                                <td>Maximum acceptable data loss</td>
+                                <td>"Can't lose more than 5 minutes of data"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Scalability</strong></td>
+                                <td>Ability to handle increased load</td>
+                                <td>Restaurant can add more tables when busy</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Group</strong></td>
+                                <td>Virtual firewall for EC2 instances</td>
+                                <td>Bouncer at door checking guest list</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shared Responsibility Model</strong></td>
+                                <td>AWS secures cloud infrastructure, you secure what's in it</td>
+                                <td>Landlord secures building, you lock your apartment</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Snapshot</strong></td>
+                                <td>Point-in-time backup of storage</td>
+                                <td>Photo of your room before moving furniture</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VPC (Virtual Private Cloud)</strong></td>
+                                <td>Your private isolated network in AWS</td>
+                                <td>Your private office floor in shared building</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vulnerability</strong></td>
+                                <td>Security weakness that can be exploited</td>
+                                <td>Broken lock on back door</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WAF (Web Application Firewall)</strong></td>
+                                <td>Firewall protecting web applications from attacks</td>
+                                <td>Security system blocking malicious website visitors</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Workload</strong></td>
+                                <td>Collection of resources running an application</td>
+                                <td>All equipment needed to run a restaurant</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="interview">🎤 Interview Questions (Basic to Advanced)</h2></summary>
+                <div class="section-content">
+
+                    <h3>🟢 Basic Level Questions</h3>
+
+                    <div class="question-card">
+                        <p><strong>Q1: What is the AWS Well-Architected Framework?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong> The AWS Well-Architected Framework is a set of best practices and guidelines that helps you design, build, and review cloud workloads on AWS. It consists of six pillars: Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization, and Sustainability. It's like a quality checklist to ensure your applications are built correctly.</p>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q2: What are the six pillars of the Well-Architected Framework?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong></p>
+                            <ol>
+                                <li><strong>Operational Excellence</strong> - Running and monitoring systems effectively</li>
+                                <li><strong>Security</strong> - Protecting information and systems</li>
+                                <li><strong>Reliability</strong> - Ensuring consistent performance</li>
+                                <li><strong>Performance Efficiency</strong> - Using resources efficiently</li>
+                                <li><strong>Cost Optimization</strong> - Avoiding unnecessary expenses</li>
+                                <li><strong>Sustainability</strong> - Minimizing environmental impact</li>
+                            </ol>
+                            <p><strong>Memory trick:</strong> "Our Smart Robot Paints Colorful Sunsets" (O-S-R-P-C-S)</p>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q3: What is the difference between WAF and CAF?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong></p>
+                            <ul>
+                                <li><strong>CAF (Cloud Adoption Framework)</strong> is used BEFORE migration to ensure organizational readiness. It has 6 perspectives (Business, People, Governance, Platform, Security, Operations).</li>
+                                <li><strong>WAF (Well-Architected Framework)</strong> is used AFTER migration for technical optimization. It has 6 pillars focused on application architecture.</li>
+                            </ul>
+                            <p><strong>Simple analogy:</strong> CAF = Wedding planner (preparation), WAF = Home inspector (quality check after moving in)</p>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q4: What is the difference between Network Hardening and System Hardening?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong></p>
+                            <ul>
+                                <li><strong>Network Hardening:</strong> Security controls BEFORE reaching the system (e.g., Security Groups, firewalls, port restrictions). It answers "Can you connect?"</li>
+                                <li><strong>System Hardening:</strong> Security controls AFTER reaching the system (e.g., IAM, file permissions, patching). It answers "What can you do inside?"</li>
+                            </ul>
+                            <p><strong>Analogy:</strong> Network = Castle walls, System = Safe inside the castle</p>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q5: What is a Security Group in AWS?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong> A Security Group is a virtual firewall that controls inbound and outbound traffic for EC2 instances. It works at the instance level and is stateful (if you allow inbound traffic, the response is automatically allowed out). You specify which ports are open and from which IP addresses traffic is allowed.</p>
+                            <p><strong>Example:</strong> Allow port 80 (HTTP) from anywhere, but port 22 (SSH) only from your office IP.</p>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q6: What does "Defense in Depth" mean?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong> Defense in Depth is a security strategy that uses multiple layers of security controls. If one layer fails, other layers still protect the system. Like an onion with multiple layers, or a castle with moat, walls, guards, and locked rooms.</p>
+                            <p><strong>AWS Example:</strong> VPC isolation → Security Groups → System firewalls → File permissions → Encryption</p>
+                        </div>
+                    </div>
+
+                    <h3>🟠 Intermediate Level Questions</h3>
+
+                    <div class="question-card">
+                        <p><strong>Q7: A company is migrating to AWS and wants to ensure they're prepared. Which framework should they use and why?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong> They should use the <strong>Cloud Adoption Framework (CAF)</strong> because it helps assess organizational readiness BEFORE migration. CAF addresses six perspectives:</p>
+                            <ul>
+                                <li><strong>Business:</strong> Clear goals and ROI</li>
+                                <li><strong>People:</strong> Training and skills</li>
+                                <li><strong>Governance:</strong> Policies and compliance</li>
+                                <li><strong>Platform:</strong> Technical foundation</li>
+                                <li><strong>Security:</strong> Security controls</li>
+                                <li><strong>Operations:</strong> Day-to-day management</li>
+                            </ul>
+                            <p>After migration, they should use WAF to optimize their workloads.</p>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q8: Your EC2 instance is running but you can't SSH into it. What could be wrong?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong> Several possible causes:</p>
+                            <ol>
+                                <li><strong>Security Group:</strong> Port 22 might not be open or not allowed from your IP</li>
+                                <li><strong>NACL:</strong> Subnet-level blocking</li>
+                                <li><strong>Key Pair:</strong> Using wrong .pem file</li>
+                                <li><strong>Username:</strong> Wrong username (should be ec2-user for Amazon Linux, ubuntu for Ubuntu)</li>
+                                <li><strong>Instance State:</strong> Instance might be stopped or terminated</li>
+                            </ol>
+                            <p><strong>Troubleshooting steps:</strong> Check Security Group first, then verify key pair and username.</p>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q9: How would you secure a database server in AWS?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong> Use both network and system hardening:</p>
+                            <p><strong>Network Hardening:</strong></p>
+                            <ul>
+                                <li>Place database in <strong>private subnet</strong> (no internet access)</li>
+                                <li>Security Group: Allow port 3306/5432 ONLY from web server security group</li>
+                                <li>No public IP address</li>
+                            </ul>
+                            <p><strong>System Hardening:</strong></p>
+                            <ul>
+                                <li>Enable encryption at rest (KMS)</li>
+                                <li>Enable encryption in transit (SSL/TLS)</li>
+                                <li>Strong passwords or IAM authentication</li>
+                                <li>Regular backups with automated snapshots</li>
+                                <li>Enable CloudWatch monitoring and alarms</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q10: What is the principle of Least Privilege and why is it important?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong> The Principle of Least Privilege means giving users/services only the minimum permissions they need to do their job, nothing more.</p>
+                            <p><strong>Why important:</strong></p>
+                            <ul>
+                                <li>Limits damage from compromised accounts</li>
+                                <li>Prevents accidental mistakes (junior dev can't delete production DB)</li>
+                                <li>Meets compliance requirements</li>
+                                <li>Easier to audit and track actions</li>
+                            </ul>
+                            <p><strong>Example:</strong> Intern gets ReadOnlyAccess, not AdministratorAccess</p>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q11: Explain the difference between Security Groups and NACLs.</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong></p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Aspect</th>
+                                        <th>Security Group</th>
+                                        <th>NACL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Level</td>
+                                        <td>Instance level</td>
+                                        <td>Subnet level</td>
+                                    </tr>
+                                    <tr>
+                                        <td>State</td>
+                                        <td>Stateful (return traffic auto-allowed)</td>
+                                        <td>Stateless (must explicitly allow return traffic)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rules</td>
+                                        <td>Allow rules only</td>
+                                        <td>Allow AND Deny rules</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Evaluation</td>
+                                        <td>All rules evaluated</td>
+                                        <td>Rules evaluated in number order</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Default</td>
+                                        <td>Deny all inbound, allow all outbound</td>
+                                        <td>Allow all inbound and outbound</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p><strong>When to use:</strong> Security Groups for most cases, NACLs for subnet-level blocking of malicious IPs</p>
+                        </div>
+                    </div>
+
+                    <h3>🔴 Advanced Level Questions</h3>
+
+                    <div class="question-card">
+                        <p><strong>Q12: A company's AWS bill increased by 300% in one month. How would you investigate and fix this using WAF principles?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong> This relates to the <strong>Cost Optimization pillar</strong> of WAF. Investigation steps:</p>
+                            <ol>
+                                <li><strong>Analyze with Cost Explorer:</strong>
+                                    <ul>
+                                        <li>Identify which service costs increased</li>
+                                        <li>Check for anomalies (sudden spikes)</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Common culprits:</strong>
+                                    <ul>
+                                        <li>EC2 instances running 24/7 (should be stopped after hours)</li>
+                                        <li>Old EBS snapshots accumulating</li>
+                                        <li>Unattached Elastic IPs ($3.60/month each)</li>
+                                        <li>Data transfer costs (not using CloudFront)</li>
+                                        <li>Over-provisioned instances (using c5.24xlarge when t3.medium sufficient)</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Solutions:</strong>
+                                    <ul>
+                                        <li>Implement auto-shutdown for dev/test (Lambda + EventBridge)</li>
+                                        <li>Delete old snapshots (lifecycle policies)</li>
+                                        <li>Release unused Elastic IPs</li>
+                                        <li>Right-size instances (AWS Compute Optimizer)</li>
+                                        <li>Use Reserved Instances for predictable workloads (up to 75% savings)</li>
+                                        <li>Set up AWS Budgets with alerts</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q13: Design a highly available and secure web application architecture on AWS.</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong> This combines WAF (Reliability & Security pillars) with hardening principles:</p>
+                            <p><strong>Architecture:</strong></p>
+                            <ul>
+                                <li><strong>VPC Design:</strong>
+                                    <ul>
+                                        <li>Public subnets: Web servers (Multi-AZ)</li>
+                                        <li>Private subnets: Application servers (Multi-AZ)</li>
+                                        <li>Private subnets: Database (Multi-AZ with RDS)</li>
+                                    </ul>
+                                </li>
+                                <li><strong>High Availability:</strong>
+                                    <ul>
+                                        <li>Application Load Balancer (ALB) distributing traffic</li>
+                                        <li>Auto Scaling Group (minimum 2 instances across 2 AZs)</li>
+                                        <li>RDS Multi-AZ for database failover</li>
+                                        <li>CloudFront CDN for static content</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Security:</strong>
+                                    <ul>
+                                        <li><strong>Network:</strong> Security Groups limiting access, WAF on ALB, VPC Flow Logs</li>
+                                        <li><strong>System:</strong> Hardened AMIs, IAM roles, encrypted EBS volumes, GuardDuty enabled</li>
+                                        <li><strong>Data:</strong> RDS encryption (KMS), SSL/TLS for all traffic, S3 encryption</li>
+                                        <li><strong>Monitoring:</strong> CloudWatch alarms, CloudTrail logging, SNS notifications</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Backup & Recovery:</strong>
+                                    <ul>
+                                        <li>Automated RDS snapshots</li>
+                                        <li>Cross-region backup replication</li>
+                                        <li>Disaster recovery plan with RTO < 1 hour</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q14: Your production server was compromised. Walk me through your incident response using system hardening principles.</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong></p>
+                            <p><strong>Immediate Response (0-30 minutes):</strong></p>
+                            <ol>
+                                <li><strong>Isolate:</strong> Change Security Group to deny all traffic (except your forensic IP)</li>
+                                <li><strong>Snapshot:</strong> Take EBS snapshot immediately (preserve evidence)</li>
+                                <li><strong>Alert:</strong> Notify security team, management</li>
+                            </ol>
+                            <p><strong>Investigation (30 min - 2 hours):</strong></p>
+                            <ol start="4">
+                                <li><strong>Check CloudTrail:</strong> What API calls were made? Who accessed what?</li>
+                                <li><strong>Check VPC Flow Logs:</strong> Where did traffic come from? What connections were made?</li>
+                                <li><strong>Check System Logs:</strong> SSH access logs (/var/log/auth.log), command history</li>
+                                <li><strong>Check GuardDuty findings:</strong> Any threat detections?</li>
+                            </ol>
+                            <p><strong>Remediation (2-4 hours):</strong></p>
+                            <ol start="8">
+                                <li><strong>Launch new instance</strong> from clean AMI (don't try to clean compromised one)</li>
+                                <li><strong>Apply hardening:</strong>
+                                    <ul>
+                                        <li>Disable root login</li>
+                                        <li>New SSH keys</li>
+                                        <li>Restrictive Security Groups</li>
+                                        <li>Latest patches</li>
+                                        <li>Enhanced monitoring</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Restore data</strong> from last known good backup</li>
+                                <li><strong>Update WAF rules</strong> if web application was exploited</li>
+                            </ol>
+                            <p><strong>Post-Incident (Next week):</strong></p>
+                            <ol start="12">
+                                <li><strong>Root cause analysis:</strong> How did they get in?</li>
+                                <li><strong>Fix vulnerabilities:</strong> Patch systems, close security gaps</li>
+                                <li><strong>Update runbooks:</strong> Document lessons learned</li>
+                                <li><strong>Implement preventive controls:</strong> Better monitoring, stricter access controls</li>
+                                <li><strong>Terminate compromised instance</strong> after forensics complete</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <p><strong>Q15: How would you implement the CAF for a healthcare organization migrating patient records to AWS?</strong></p>
+                        <div class="info-box">
+                            <p><strong>Answer:</strong> Healthcare requires special attention to all 6 CAF perspectives due to HIPAA compliance:</p>
+                            <p><strong>1. Business Perspective:</strong></p>
+                            <ul>
+                                <li>Goal: Reduce medical errors by 40%, improve patient access to records</li>
+                                <li>ROI: Save $2M/year in paper storage and manual processes</li>
+                                <li>Timeline: 12-month phased migration</li>
+                            </ul>
+                            <p><strong>2. People Perspective:</strong></p>
+                            <ul>
+                                <li>3-month training program for all staff (doctors, nurses, IT)</li>
+                                <li>Hire AWS-certified cloud engineers</li>
+                                <li>Change management: Weekly Q&A sessions, cloud champions program</li>
+                            </ul>
+                            <p><strong>3. Governance Perspective:</strong></p>
+                            <ul>
+                                <li>HIPAA compliance consultant engaged from day 1</li>
+                                <li>Data classification: PHI (Protected Health Information) = highest security</li>
+                                <li>Cloud governance board with CIO, CISO, Compliance Officer</li>
+                                <li>Monthly compliance audits</li>
+                            </ul>
+                            <p><strong>4. Platform Perspective:</strong></p>
+                            <ul>
+                                <li>Build HIPAA-compliant landing zone</li>
+                                <li>RDS with encryption for patient database</li>
+                                <li>S3 with encryption and access logging for medical images</li>
+                                <li>Multi-AZ deployment for high availability (lives depend on it!)</li>
+                            </ul>
+                            <p><strong>5. Security Perspective:</strong></p>
+                            <ul>
+                                <li>All data encrypted (at rest with KMS, in transit with SSL/TLS)</li>
+                                <li>MFA required for all access</li>
+                                <li>VPC isolation: patient data in private subnets only</li>
+                                <li>GuardDuty + Security Hub + CloudTrail enabled</li>
+                                <li>BAA (Business Associate Agreement) signed with AWS</li>
+                            </ul>
+                            <p><strong>6. Operations Perspective:</strong></p>
+                            <ul>
+                                <li>24/7 monitoring with CloudWatch</li>
+                                <li>Automated backups every 6 hours</li>
+                                <li>Disaster recovery tested monthly (RTO: 1 hour, RPO: 15 minutes)</li>
+                                <li>On-call rotation for IT staff</li>
+                            </ul>
+                            <p><strong>Success Criteria:</strong></p>
+                            <ul>
+                                <li>Pass HIPAA audit with zero findings</li>
+                                <li>99.99% uptime</li>
+                                <li>Patient access to records within 2 seconds</li>
+                                <li>Zero data breaches</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="mcq">📝 Practice MCQs with Detailed Explanations</h2></summary>
+                <div class="section-content">
+
+                    <p><strong>Instructions:</strong> Read each question carefully. Try to answer before looking at the explanation.</p>
+
+                    <h3>Section 1: AWS Well-Architected Framework</h3>
+
+                    <ol>
+                        <li>
+                            <strong>Which pillar of the AWS Well-Architected Framework focuses on the ability to recover from failures and dynamically meet demand?</strong>
+                            <ul>
+                                <li>A) Operational Excellence</li>
+                                <li>B) Security</li>
+                                <li>C) Reliability</li>
+                                <li>D) Performance Efficiency</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: C) Reliability</strong></p>
+                                <p><strong>Explanation:</strong> The Reliability pillar ensures workloads perform their intended function correctly and consistently. It includes recovering from failures, meeting demand dynamically (auto-scaling), and mitigating disruptions like service outages or misconfigurations.</p>
+                                <p><strong>Why others are wrong:</strong></p>
+                                <ul>
+                                    <li>A) Operational Excellence focuses on running and monitoring systems</li>
+                                    <li>B) Security focuses on protecting data and systems</li>
+                                    <li>D) Performance Efficiency focuses on using resources efficiently</li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>A company wants to ensure their cloud applications are cost-effective. Which WAF pillar should they focus on?</strong>
+                            <ul>
+                                <li>A) Sustainability</li>
+                                <li>B) Cost Optimization</li>
+                                <li>C) Performance Efficiency</li>
+                                <li>D) Operational Excellence</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) Cost Optimization</strong></p>
+                                <p><strong>Explanation:</strong> The Cost Optimization pillar focuses on avoiding unnecessary costs. This includes right-sizing resources, using Reserved Instances, stopping unused resources, and monitoring spending.</p>
+                                <p><strong>Why others are wrong:</strong></p>
+                                <ul>
+                                    <li>A) Sustainability focuses on environmental impact (energy efficiency)</li>
+                                    <li>C) Performance Efficiency focuses on speed/efficiency, which may reduce costs but isn't the primary focus</li>
+                                    <li>D) Operational Excellence focuses on processes and monitoring</li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>Which of the following is NOT one of the six pillars of the Well-Architected Framework?</strong>
+                            <ul>
+                                <li>A) Operational Excellence</li>
+                                <li>B) Compliance</li>
+                                <li>C) Reliability</li>
+                                <li>D) Sustainability</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) Compliance</strong></p>
+                                <p><strong>Explanation:</strong> Compliance is not a separate pillar. However, compliance requirements are addressed within the Security pillar and Governance perspective of CAF.</p>
+                                <p><strong>The six pillars are:</strong> Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization, Sustainability</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>What is the primary purpose of the AWS Well-Architected Tool?</strong>
+                            <ul>
+                                <li>A) To deploy applications automatically</li>
+                                <li>B) To review workloads against best practices</li>
+                                <li>C) To monitor application performance</li>
+                                <li>D) To manage IAM permissions</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) To review workloads against best practices</strong></p>
+                                <p><strong>Explanation:</strong> The AWS Well-Architected Tool helps you review your workloads against the six pillars by asking questions and identifying high-risk issues (HRI) and medium-risk issues (MRI). It provides recommendations for improvement.</p>
+                                <p><strong>Why others are wrong:</strong></p>
+                                <ul>
+                                    <li>A) CloudFormation/Elastic Beanstalk deploy applications</li>
+                                    <li>C) CloudWatch monitors performance</li>
+                                    <li>D) IAM manages permissions</li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>Which pillar of WAF addresses minimizing the environmental impact of cloud workloads?</strong>
+                            <ul>
+                                <li>A) Cost Optimization</li>
+                                <li>B) Performance Efficiency</li>
+                                <li>C) Sustainability</li>
+                                <li>D) Operational Excellence</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: C) Sustainability</strong></p>
+                                <p><strong>Explanation:</strong> The Sustainability pillar (newest pillar, added in 2021) focuses on minimizing environmental impact. This includes using efficient instance types (Graviton), optimizing code, auto-scaling down when not needed, and choosing regions powered by renewable energy.</p>
+                            </div>
+                        </li>
+                    </ol>
+
+                    <h3>Section 2: Cloud Adoption Framework</h3>
+
+                    <ol start="6">
+                        <li>
+                            <strong>When should an organization use the AWS Cloud Adoption Framework?</strong>
+                            <ul>
+                                <li>A) After migrating to AWS to optimize costs</li>
+                                <li>B) Before migrating to AWS to assess readiness</li>
+                                <li>C) Only if experiencing security issues</li>
+                                <li>D) After deploying applications to review architecture</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) Before migrating to AWS to assess readiness</strong></p>
+                                <p><strong>Explanation:</strong> CAF is used BEFORE migration to assess organizational readiness across six perspectives (Business, People, Governance, Platform, Security, Operations). It helps identify capability gaps that need to be addressed.</p>
+                                <p><strong>Key difference:</strong> CAF = Before migration (preparation), WAF = After migration (optimization)</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>Which CAF perspective focuses on ensuring people have the necessary cloud skills?</strong>
+                            <ul>
+                                <li>A) Business</li>
+                                <li>B) People</li>
+                                <li>C) Platform</li>
+                                <li>D) Operations</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) People</strong></p>
+                                <p><strong>Explanation:</strong> The People perspective focuses on workforce transformation including training, communications, and change management. It ensures employees are skilled and ready for cloud adoption.</p>
+                                <p><strong>Key roles:</strong> HR, Training Managers, People Managers</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>How many perspectives does the Cloud Adoption Framework have?</strong>
+                            <ul>
+                                <li>A) 4</li>
+                                <li>B) 5</li>
+                                <li>C) 6</li>
+                                <li>D) 7</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: C) 6</strong></p>
+                                <p><strong>Explanation:</strong> CAF has 6 perspectives divided into two categories:</p>
+                                <p><strong>Business Perspectives:</strong> Business, People, Governance</p>
+                                <p><strong>Technical Perspectives:</strong> Platform, Security, Operations</p>
+                                <p><strong>Memory trick:</strong> "Buy Pizza, Get Party, Serve Others" (B-P-G-P-S-O)</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>Which CAF perspective would address the question "What are our compliance requirements?"</strong>
+                            <ul>
+                                <li>A) Business</li>
+                                <li>B) Governance</li>
+                                <li>C) Security</li>
+                                <li>D) Platform</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) Governance</strong></p>
+                                <p><strong>Explanation:</strong> The Governance perspective focuses on managing and measuring business outcomes, including compliance requirements, policies, and risk management.</p>
+                                <p><strong>Key roles:</strong> CIO, Program Managers, Enterprise Architects, Compliance Officers</p>
+                                <p><strong>Note:</strong> Security perspective handles implementation of security controls, while Governance handles compliance policies</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>What is the main difference between CAF and WAF?</strong>
+                            <ul>
+                                <li>A) CAF is for security, WAF is for cost optimization</li>
+                                <li>B) CAF is for organizational readiness, WAF is for technical optimization</li>
+                                <li>C) CAF is free, WAF costs money</li>
+                                <li>D) CAF is for small companies, WAF is for enterprises</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) CAF is for organizational readiness, WAF is for technical optimization</strong></p>
+                                <p><strong>Explanation:</strong></p>
+                                <table>
+                                    <tr>
+                                        <th>Aspect</th>
+                                        <th>CAF</th>
+                                        <th>WAF</th>
+                                    </tr>
+                                    <tr>
+                                        <td>When</td>
+                                        <td>BEFORE migration</td>
+                                        <td>AFTER migration</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Focus</td>
+                                        <td>Organizational (people, processes)</td>
+                                        <td>Technical (architecture, workloads)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Question</td>
+                                        <td>"Are we ready?"</td>
+                                        <td>"Is it optimized?"</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </li>
+                    </ol>
+
+                    <h3>Section 3: Security Hardening</h3>
+
+                    <ol start="11">
+                        <li>
+                            <strong>What is the primary purpose of network hardening?</strong>
+                            <ul>
+                                <li>A) To improve application performance</li>
+                                <li>B) To control access before reaching the system</li>
+                                <li>C) To encrypt data at rest</li>
+                                <li>D) To monitor user activities</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) To control access before reaching the system</strong></p>
+                                <p><strong>Explanation:</strong> Network hardening controls who can connect to your system, from where, and on which ports. It's the first line of defense that prevents unauthorized connection attempts.</p>
+                                <p><strong>Examples:</strong> Security Groups, NACLs, firewalls, VPC isolation</p>
+                                <p><strong>Key principle:</strong> "If you can't reach it, you can't attack it"</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>Which of the following is an example of system hardening?</strong>
+                            <ul>
+                                <li>A) Configuring Security Groups to allow only port 443</li>
+                                <li>B) Disabling root login on a Linux server</li>
+                                <li>C) Placing database in a private subnet</li>
+                                <li>D) Using a Web Application Firewall</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) Disabling root login on a Linux server</strong></p>
+                                <p><strong>Explanation:</strong> System hardening controls what users can do AFTER reaching the system. Disabling root login is an operating system configuration that limits access.</p>
+                                <p><strong>Why others are wrong:</strong></p>
+                                <ul>
+                                    <li>A) Security Groups = Network hardening</li>
+                                    <li>C) Private subnet = Network hardening</li>
+                                    <li>D) WAF = Network hardening</li>
+                                </ul>
+                                <p><strong>Other system hardening examples:</strong> File permissions, patching, IAM roles, removing unnecessary services</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>A Security Group operates at which layer?</strong>
+                            <ul>
+                                <li>A) Region level</li>
+                                <li>B) VPC level</li>
+                                <li>C) Subnet level</li>
+                                <li>D) Instance level</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: D) Instance level</strong></p>
+                                <p><strong>Explanation:</strong> Security Groups are virtual firewalls that control traffic at the instance (EC2) level. They are stateful, meaning return traffic is automatically allowed.</p>
+                                <p><strong>Comparison:</strong></p>
+                                <ul>
+                                    <li><strong>Security Group:</strong> Instance level, stateful, allow rules only</li>
+                                    <li><strong>NACL:</strong> Subnet level, stateless, allow AND deny rules</li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>What does "Defense in Depth" mean in cloud security?</strong>
+                            <ul>
+                                <li>A) Using only the strongest single security control</li>
+                                <li>B) Implementing multiple layers of security controls</li>
+                                <li>C) Focusing only on perimeter security</li>
+                                <li>D) Encrypting everything with the longest possible keys</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) Implementing multiple layers of security controls</strong></p>
+                                <p><strong>Explanation:</strong> Defense in Depth means using multiple layers of security so if one layer fails, others still protect the system.</p>
+                                <p><strong>Example layers:</strong></p>
+                                <ol>
+                                    <li>VPC isolation (network layer)</li>
+                                    <li>Security Groups (instance firewall)</li>
+                                    <li>OS firewall (system level)</li>
+                                    <li>File permissions (access control)</li>
+                                    <li>Encryption (data protection)</li>
+                                </ol>
+                                <p><strong>Analogy:</strong> Like an onion with multiple layers, or a castle with moat, walls, guards, and locked rooms</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>Which AWS service should you enable to detect threats and malicious activity in your account?</strong>
+                            <ul>
+                                <li>A) CloudWatch</li>
+                                <li>B) CloudTrail</li>
+                                <li>C) GuardDuty</li>
+                                <li>D) Inspector</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: C) GuardDuty</strong></p>
+                                <p><strong>Explanation:</strong> GuardDuty is a threat detection service that uses machine learning to identify malicious activity like cryptocurrency mining, unusual API calls, compromised instances, and reconnaissance attacks.</p>
+                                <p><strong>Service comparison:</strong></p>
+                                <ul>
+                                    <li><strong>GuardDuty:</strong> Threat detection (finds bad guys)</li>
+                                    <li><strong>CloudWatch:</strong> Monitoring metrics (CPU, memory, etc.)</li>
+                                    <li><strong>CloudTrail:</strong> Audit logging (who did what)</li>
+                                    <li><strong>Inspector:</strong> Vulnerability scanning (finds security holes)</li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>What is the Principle of Least Privilege?</strong>
+                            <ul>
+                                <li>A) Give all users administrator access for convenience</li>
+                                <li>B) Give users only the minimum permissions they need</li>
+                                <li>C) Remove all privileges from users</li>
+                                <li>D) Give privileges based on seniority</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) Give users only the minimum permissions they need</strong></p>
+                                <p><strong>Explanation:</strong> Least Privilege means granting only the permissions necessary to perform a job, nothing more. This limits damage from compromised accounts and prevents accidental mistakes.</p>
+                                <p><strong>Example:</strong></p>
+                                <ul>
+                                    <li>❌ Bad: Give intern AdministratorAccess</li>
+                                    <li>✅ Good: Give intern ReadOnlyAccess to specific resources</li>
+                                </ul>
+                                <p><strong>Real incident:</strong> Junior developer with full access accidentally deleted production database</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>You want to restrict SSH access to your EC2 instance to only your office IP. Which service should you configure?</strong>
+                            <ul>
+                                <li>A) IAM</li>
+                                <li>B) Security Group</li>
+                                <li>C) KMS</li>
+                                <li>D) CloudWatch</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) Security Group</strong></p>
+                                <p><strong>Explanation:</strong> Security Groups control network traffic to EC2 instances. To restrict SSH (port 22) to your office:</p>
+                                <pre><code>Type: SSH
+Port: 22
+Source: 203.0.113.25/32 (your office IP)</code></pre>
+                                <p><strong>Why others are wrong:</strong></p>
+                                <ul>
+                                    <li>A) IAM controls AWS API access, not network traffic</li>
+                                    <li>C) KMS manages encryption keys</li>
+                                    <li>D) CloudWatch monitors resources</li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>Which is NOT a component of system hardening?</strong>
+                            <ul>
+                                <li>A) Applying security patches</li>
+                                <li>B) Configuring firewall rules</li>
+                                <li>C) Setting file permissions</li>
+                                <li>D) Disabling unnecessary services</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) Configuring firewall rules</strong></p>
+                                <p><strong>Explanation:</strong> Configuring firewall rules is NETWORK hardening (controls before reaching system), not system hardening.</p>
+                                <p><strong>System hardening includes:</strong></p>
+                                <ul>
+                                    <li>✅ OS patching</li>
+                                    <li>✅ File permissions (chmod, chown)</li>
+                                    <li>✅ User access control (IAM)</li>
+                                    <li>✅ Disabling unnecessary services</li>
+                                    <li>✅ Strong password policies</li>
+                                    <li>✅ Logging and monitoring</li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>What is the best practice for placing a database in AWS?</strong>
+                            <ul>
+                                <li>A) Public subnet with public IP</li>
+                                <li>B) Private subnet with no internet access</li>
+                                <li>C) Public subnet with firewall</li>
+                                <li>D) Any subnet with strong password</li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) Private subnet with no internet access</strong></p>
+                                <p><strong>Explanation:</strong> Databases should NEVER be directly accessible from the internet. Place them in private subnets where they can only be accessed by application servers in public subnets.</p>
+                                <p><strong>Architecture:</strong></p>
+                                <ul>
+                                    <li><strong>Public Subnet:</strong> Web servers (need internet access)</li>
+                                    <li><strong>Private Subnet:</strong> Databases, application servers</li>
+                                    <li><strong>Security Group:</strong> Database port (3306/5432) only from web server SG</li>
+                                </ul>
+                                <p><strong>Real incident:</strong> Coffee shop left database public → hacked in 2 hours → $200K lawsuit</p>
+                            </div>
+                        </li>
+
+                        <li>
+                            <strong>Which command disables root login on a Linux server?</strong>
+                            <ul>
+                                <li>A) <code>passwd -l root</code></li>
+                                <li>B) Edit <code>/etc/ssh/sshd_config</code> and set <code>PermitRootLogin no</code></li>
+                                <li>C) <code>userdel root</code></li>
+                                <li>D) <code>chmod 000 /root</code></li>
+                            </ul>
+                            <div class="success-box">
+                                <p><strong>✅ Answer: B) Edit /etc/ssh/sshd_config and set PermitRootLogin no</strong></p>
+                                <p><strong>Explanation:</strong> To disable root SSH login:</p>
+                                <pre><code>sudo vi /etc/ssh/sshd_config
+# Change: PermitRootLogin yes
+# To: PermitRootLogin no
+sudo systemctl restart sshd</code></pre>
+                                <p><strong>Why others are wrong:</strong></p>
+                                <ul>
+                                    <li>A) Only locks password, doesn't disable SSH with keys</li>
+                                    <li>C) Deleting root user breaks the system!</li>
+                                    <li>D) Doesn't affect SSH login</li>
+                                </ul>
+                                <p><strong>Why disable root:</strong> Prevents accidental destruction (like <code>rm -rf /</code>) and limits damage from compromised accounts</p>
+                            </div>
+                        </li>
+                    </ol>
+
+                    <h3>📊 Your Score</h3>
+                    <p><strong>Count your correct answers:</strong></p>
+                    <ul>
+                        <li><strong>18-20 correct:</strong> 🏆 Excellent! You're ready for the exam!</li>
+                        <li><strong>15-17 correct:</strong> 👍 Good! Review the concepts you missed.</li>
+                        <li><strong>12-14 correct:</strong> 📚 Fair. Study the frameworks and security concepts more.</li>
+                        <li><strong>Below 12:</strong> 💪 Keep studying! Review the complete notes and try again.</li>
+                    </ul>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="practical">🛠️ Hands-On Practical Exercise</h2></summary>
+                <div class="section-content">
+
+                    <h3>Exercise: Secure a Web Application on AWS</h3>
+
+                    <h4>🎯 Objective</h4>
+                    <p>Deploy a simple web application and implement both network and system hardening following WAF principles.</p>
+
+                    <h4>📋 Prerequisites</h4>
+                    <ul>
+                        <li>AWS Account with EC2 access</li>
+                        <li>Basic understanding of Linux commands</li>
+                        <li>SSH client (Terminal on Mac/Linux, PuTTY on Windows)</li>
+                        <li>Time needed: 1-2 hours</li>
+                    </ul>
+
+                    <h4>🚀 Step-by-Step Implementation</h4>
+
+                    <h5>Phase 1: Launch EC2 Instance (Unsecured)</h5>
+                    <ol>
+                        <li>Go to EC2 Dashboard → Launch Instance</li>
+                        <li>Settings:
+                            <ul>
+                                <li>Name: <code>WebServer-Unsecured</code></li>
+                                <li>AMI: Amazon Linux 2023</li>
+                                <li>Instance Type: t2.micro (free tier)</li>
+                                <li>Key Pair: Create new or use existing</li>
+                                <li>Network: Default VPC, Public subnet</li>
+                                <li>Security Group: Create new - <strong>Allow ALL traffic from anywhere (0.0.0.0/0)</strong></li>
+                            </ul>
+                        </li>
+                        <li>Launch instance</li>
+                        <li>Note the Public IP address</li>
+                    </ol>
+
+                    <h5>Phase 2: Install Web Server</h5>
+                    <pre><code># SSH into instance
+ssh -i your-key.pem ec2-user@YOUR_PUBLIC_IP
+
+# Update system
+sudo yum update -y
+
+# Install Apache web server
+sudo yum install httpd -y
+
+# Create simple webpage
+echo "&lt;h1&gt;Welcome to My Insecure Website!&lt;/h1&gt;" | sudo tee /var/www/html/index.html
+
+# Start web server
+sudo systemctl start httpd
+sudo systemctl enable httpd
+
+# Test: Open browser and go to http://YOUR_PUBLIC_IP</code></pre>
+
+                    <h5>Phase 3: Identify Security Issues (Current State)</h5>
+                    <p><strong>Check what's open:</strong></p>
+                    <pre><code># Check listening ports
+sudo netstat -tuln
+
+# Check running services
+sudo systemctl list-units --type=service --state=running
+
+# Check users
+cat /etc/passwd
+
+# Check if root login is enabled
+grep PermitRootLogin /etc/ssh/sshd_config</code></pre>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Current Problems:</strong></p>
+                        <ul>
+                            <li>All ports open to internet</li>
+                            <li>Root login enabled via SSH</li>
+                            <li>No monitoring</li>
+                            <li>No backups</li>
+                            <li>System not patched</li>
+                            <li>Unnecessary services running</li>
+                        </ul>
+                    </div>
+
+                    <h5>Phase 4: Implement Network Hardening</h5>
+
+                    <p><strong>4.1: Create Restrictive Security Group (AWS Console)</strong></p>
+                    <ol>
+                        <li>EC2 → Security Groups → Create security group</li>
+                        <li>Name: <code>WebServer-Hardened-SG</code></li>
+                        <li>Inbound Rules:
+                            <ul>
+                                <li>Type: HTTP, Port: 80, Source: 0.0.0.0/0 (anywhere)</li>
+                                <li>Type: HTTPS, Port: 443, Source: 0.0.0.0/0</li>
+                                <li>Type: SSH, Port: 22, Source: <strong>My IP</strong> (click dropdown)</li>
+                            </ul>
+                        </li>
+                        <li>Outbound Rules: Keep default (all traffic allowed)</li>
+                        <li>Create security group</li>
+                    </ol>
+
+                    <p><strong>4.2: Apply to Instance</strong></p>
+                    <ol>
+                        <li>Select your instance</li>
+                        <li>Actions → Security → Change security groups</li>
+                        <li>Remove old security group</li>
+                        <li>Add <code>WebServer-Hardened-SG</code></li>
+                        <li>Save</li>
+                    </ol>
+
+                    <p><strong>4.3: Test (Network Hardening Complete)</strong></p>
+                    <pre><code># From your computer, test:
+# ✅ This should work (HTTP allowed from anywhere)
+curl http://YOUR_PUBLIC_IP
+
+# ✅ This should work (SSH allowed from your IP)
+ssh -i your-key.pem ec2-user@YOUR_PUBLIC_IP
+
+# From a DIFFERENT IP (friend's computer or mobile network):
+# ❌ SSH should be blocked
+# ✅ HTTP should still work</code></pre>
+
+                    <h5>Phase 5: Implement System Hardening</h5>
+
+                    <p><strong>5.1: Disable Root Login</strong></p>
+                    <pre><code># SSH into server
+ssh -i your-key.pem ec2-user@YOUR_PUBLIC_IP
+
+# Disable root login
+sudo sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+sudo sed -i 's/#PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+
+# Disable password authentication (use keys only)
+sudo sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+
+# Restart SSH
+sudo systemctl restart sshd
+
+# Verify
+grep PermitRootLogin /etc/ssh/sshd_config
+# Should show: PermitRootLogin no</code></pre>
+
+                    <p><strong>5.2: Install and Configure Automatic Security Updates</strong></p>
+                    <pre><code># Install automatic update tool
+sudo yum install yum-cron -y
+
+# Configure for automatic security updates
+sudo sed -i 's/update_cmd = default/update_cmd = security/' /etc/yum/yum-cron.conf
+sudo sed -i 's/apply_updates = no/apply_updates = yes/' /etc/yum/yum-cron.conf
+
+# Enable and start
+sudo systemctl enable yum-cron
+sudo systemctl start yum-cron
+
+# Verify
+sudo systemctl status yum-cron</code>
+                    
