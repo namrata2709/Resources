@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Container Orchestration & Kubernetes - Overview</title>
-    <link rel="stylesheet" href="../../../css/notes-template.css">
+    <title>AWS Frameworks & Security - Overview Notes</title>
+    <link rel="stylesheet" href="../../notes-template.css">
 </head>
 <body>
     <button id="themeToggle" class="theme-toggle">
@@ -13,1446 +13,1717 @@
 
     <div class="note-container">
         <div class="note-header">
-            <h1>Container Orchestration & Kubernetes</h1>
-            <p class="note-date">📅 December 23, 2025</p>
+            <h1>AWS Well-Architected Framework, Cloud Adoption Framework & Security Hardening</h1>
+            <p class="note-date">📅 December 29, 2024</p>
         </div>
 
         <div class="note-content">
-            <h2>📋 Table of Contents</h2>
-            <ol>
-                <li><a href="#docker-fundamentals">Docker Fundamentals</a></li>
-                <li><a href="#docker-components">Docker Components & Architecture</a></li>
-                <li><a href="#docker-images">Docker Images & Registries</a></li>
-                <li><a href="#docker-compose">Docker Compose & Multi-Container Management</a></li>
-                <li><a href="#orchestration-need">Why Container Orchestration?</a></li>
-                <li><a href="#kubernetes-architecture">Kubernetes Architecture</a></li>
-                <li><a href="#kubernetes-components">Kubernetes Components</a></li>
-                <li><a href="#aws-ecs">AWS ECS (Elastic Container Service)</a></li>
-                <li><a href="#aws-eks">AWS EKS (Elastic Kubernetes Service)</a></li>
-                <li><a href="#best-practices">Best Practices</a></li>
-            </ol>
-
-            <h2 id="docker-fundamentals">🐳 Docker Fundamentals</h2>
             
-            <h3>What is Docker?</h3>
-            <p>Docker is a containerization platform that packages applications and their dependencies into lightweight, portable containers. Unlike virtual machines, containers share the host OS kernel, making them more efficient.</p>
+            <h2>📋 Table of Contents</h2>
+            <ul>
+                <li><a href="#executive-summary">Executive Summary</a></li>
+                <li><a href="#waf">AWS Well-Architected Framework (WAF)</a></li>
+                <li><a href="#caf">AWS Cloud Adoption Framework (CAF)</a></li>
+                <li><a href="#security">Security: System & Network Hardening</a></li>
+                <li><a href="#exam-prep">AWS Certification Exam Preparation</a></li>
+                <li><a href="#best-practices">Best Practices Summary</a></li>
+                <li><a href="#resources">Additional Resources</a></li>
+            </ul>
 
-            <h3>Container vs Virtual Machine</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Aspect</th>
-                        <th>Container</th>
-                        <th>Virtual Machine</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>OS</td>
-                        <td>Shares host OS kernel</td>
-                        <td>Separate guest OS for each VM</td>
-                    </tr>
-                    <tr>
-                        <td>Size</td>
-                        <td>Lightweight (MBs)</td>
-                        <td>Heavy (GBs)</td>
-                    </tr>
-                    <tr>
-                        <td>Startup Time</td>
-                        <td>Seconds</td>
-                        <td>Minutes</td>
-                    </tr>
-                    <tr>
-                        <td>Resource Allocation</td>
-                        <td>Dynamic (uses what's needed)</td>
-                        <td>Pre-allocated (fixed memory/CPU)</td>
-                    </tr>
-                    <tr>
-                        <td>Isolation</td>
-                        <td>Process-level</td>
-                        <td>Hardware-level</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h2 id="docker-components">⚙️ Docker Components & Architecture</h2>
-
-            <h3>Docker Installation Components</h3>
-            <p>When you install Docker, you receive two main components:</p>
-
-            <h4>1. Docker CLI (Command Line Interface)</h4>
-            <p>The user interface that allows interaction with Docker through commands.</p>
-
-            <h4>2. Docker Daemon (Service)</h4>
-            <p>The background service that manages Docker containers, images, networks, and volumes.</p>
-
-            <h3>Practical Implementation</h3>
-
-            <h4>Method 1: AWS CLI - Installing Docker on Ubuntu EC2</h4>
-            <pre><code># Update system packages
-sudo apt-get update
-
-# Install Docker
-sudo apt-get install -y docker.io
-
-# Enable Docker service to start on boot
-sudo systemctl enable docker
-
-# Start Docker service
-sudo systemctl start docker
-
-# Verify Docker installation
-docker --version
-
-# Check Docker service status
-sudo systemctl status docker</code></pre>
-
-            <h4>Method 2: AWS Console - Setting Up EC2 for Docker</h4>
-            <ol>
-                <li>Open <strong>AWS Management Console</strong> and navigate to <strong>EC2</strong></li>
-                <li>Click <strong>Launch Instance</strong></li>
-                <li>Select <strong>Ubuntu 22.04 LTS</strong> AMI</li>
-                <li>Choose instance type (t2.micro for testing)</li>
-                <li>Configure security group:
-                    <ul>
-                        <li>Allow SSH (port 22)</li>
-                        <li>Allow HTTP (port 80) if running web apps</li>
-                        <li>Allow custom ports for your applications</li>
-                    </ul>
-                </li>
-                <li>Launch instance and connect via SSH</li>
-                <li>Run Docker installation commands from Method 1</li>
-            </ol>
-
-            <h3>User Permissions Configuration</h3>
+            <h2 id="executive-summary">🎯 Executive Summary</h2>
+            <p>This document covers three critical AWS concepts tested in the AWS Certified Cloud Practitioner exam:</p>
+            <ul>
+                <li><strong>Well-Architected Framework (WAF):</strong> Best practices for building and reviewing cloud workloads</li>
+                <li><strong>Cloud Adoption Framework (CAF):</strong> Organizational readiness for cloud migration</li>
+                <li><strong>Security Hardening:</strong> Network and system-level security implementations</li>
+            </ul>
 
             <div class="highlight-box">
-                <p>⚠️ <strong>Important:</strong> By default, only the root user can run Docker commands. Non-root users must be added to the docker group.</p>
+                <p>⚠️ <strong>Exam Note:</strong> These topics typically appear as 1-2 questions in the AWS Cloud Practitioner exam. Focus on understanding the six pillars of WAF and six perspectives of CAF.</p>
             </div>
 
-            <h4>Adding User to Docker Group</h4>
+            <details class="collapsible-section" open>
+                <summary><h2 id="waf">🏛️ AWS Well-Architected Framework (WAF)</h2></summary>
+                <div class="section-content">
 
-            <h5>Method 1: CLI Commands</h5>
-            <pre><code># Add current user to docker group
-sudo usermod -aG docker $USER
+                    <h3>📖 Definition</h3>
+                    <p>The AWS Well-Architected Framework is a set of best practices designed to help cloud architects build secure, high-performing, resilient, and efficient infrastructure for applications and workloads.</p>
 
-# For Ubuntu EC2 instances
-sudo usermod -aG docker ubuntu
+                    <div class="info-box">
+                        <p>💡 <strong>Key Purpose:</strong> WAF answers the question: "Is your application deployed and built the right way on AWS?"</p>
+                    </div>
 
-# Activate group changes (Option 1 - Run this command)
-newgrp docker
+                    <h3>🎯 The Six Pillars of WAF</h3>
 
-# Or (Option 2 - Reconnect to session)
-exit
-# Then reconnect via SSH
+                    <div class="diagram-container">
+                        <img src="https://docs.aws.amazon.com/images/wellarchitected/latest/framework/images/wellarchitected-pillars.png" alt="AWS Well-Architected Framework Six Pillars">
+                        <p class="diagram-caption"><em>Figure 1: The Six Pillars of AWS Well-Architected Framework</em></p>
+                    </div>
 
-# Verify user can run Docker without sudo
-docker ps</code></pre>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pillar</th>
+                                <th>Focus Area</th>
+                                <th>Key Question</th>
+                                <th>Example AWS Services</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. Operational Excellence</strong></td>
+                                <td>Running and monitoring systems</td>
+                                <td>How do you run and monitor systems to deliver business value?</td>
+                                <td>CloudWatch, CloudTrail, Systems Manager</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. Security</strong></td>
+                                <td>Protecting information and systems</td>
+                                <td>How do you protect data, systems, and assets?</td>
+                                <td>IAM, GuardDuty, Shield, WAF</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. Reliability</strong></td>
+                                <td>Ensuring consistent performance</td>
+                                <td>How do you ensure workloads perform their intended function?</td>
+                                <td>Multi-AZ, Auto Scaling, Backup</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. Performance Efficiency</strong></td>
+                                <td>Using resources efficiently</td>
+                                <td>How do you use computing resources efficiently?</td>
+                                <td>Lambda, ECS, Elastic Beanstalk</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. Cost Optimization</strong></td>
+                                <td>Avoiding unnecessary costs</td>
+                                <td>How do you avoid or eliminate unneeded cost?</td>
+                                <td>Cost Explorer, Budgets, Reserved Instances</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. Sustainability</strong></td>
+                                <td>Minimizing environmental impact</td>
+                                <td>How do you minimize environmental impacts?</td>
+                                <td>EC2 right-sizing, S3 Intelligent-Tiering</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-            <h5>Method 2: Manual Configuration</h5>
-            <ol>
-                <li>Check if docker group exists: <code>cat /etc/group | grep docker</code></li>
-                <li>If not exists, create group: <code>sudo groupadd docker</code></li>
-                <li>Add user to group: <code>sudo usermod -aG docker username</code></li>
-                <li>Verify group membership: <code>groups username</code></li>
-                <li>Restart Docker service: <code>sudo systemctl restart docker</code></li>
-            </ol>
+                    <h3>🔍 Why WAF Exists</h3>
+                    <p><strong>Problem Statement:</strong> When organizations first migrate to AWS, they often face:</p>
+                    <ul>
+                        <li>Applications that work initially but suddenly go down</li>
+                        <li>Unexpectedly high costs</li>
+                        <li>Security vulnerabilities and gaps</li>
+                        <li>Poor performance under load</li>
+                    </ul>
 
-            <div class="success-box">
-                <p>✅ <strong>Troubleshooting Checklist:</strong></p>
-                <ul>
-                    <li>Confirm Docker daemon is running: <code>sudo systemctl status docker</code></li>
-                    <li>Verify user is in docker group: <code>groups</code></li>
-                    <li>If issues persist, log out and log back in</li>
-                </ul>
-            </div>
+                    <div class="error-box">
+                        <p>❌ <strong>Common Misconception:</strong> "Cloud failures are due to technology issues." Reality: People fail in the cloud because of poor planning and poor design, not because AWS services don't work.</p>
+                    </div>
 
-            <h2 id="docker-images">📦 Docker Images & Registries</h2>
+                    <h3>⚙️ Practical Implementation</h3>
 
-            <h3>Understanding Docker Images</h3>
-            <p>A Docker image is a <strong>read-only template</strong> containing:</p>
-            <ul>
-                <li>Base operating system (lightweight)</li>
-                <li>Application code</li>
-                <li>Dependencies and libraries</li>
-                <li>Configuration files</li>
-                <li>Environment variables</li>
-            </ul>
-
-            <h3>Dockerfile Structure</h3>
-            <p>A Dockerfile contains instructions to build a Docker image:</p>
-
-            <pre><code># Use a base image
-FROM python:3.9-slim
-
-# Set working directory inside container
-WORKDIR /app
-
-# Copy application files
-COPY requirements.txt .
-COPY app.py .
-
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Expose application port
-EXPOSE 5000
-
-# Define startup command
-CMD ["python", "app.py"]</code></pre>
-
-            <h3>Building and Running Containers</h3>
-
-            <h4>Method 1: Using Docker CLI</h4>
-            <pre><code># Build image from Dockerfile
-docker build -t my-python-app:1.0 .
-
-# List all images
-docker images
-
-# Run container from image
-docker run -d -p 8080:5000 --name my-app my-python-app:1.0
-
-# Explanation of flags:
-# -d: Run in detached mode (background)
-# -p 8080:5000: Map host port 8080 to container port 5000
-# --name: Assign name to container
-# my-python-app:1.0: Image name and tag
-
-# View running containers
-docker ps
-
-# View all containers (including stopped)
-docker ps -a
-
-# Stop container
-docker stop my-app
-
-# Start stopped container
-docker start my-app
-
-# Remove container
-docker rm my-app
-
-# Remove image
-docker rmi my-python-app:1.0</code></pre>
-
-            <h3>Docker Image Registries</h3>
-
-            <h4>Public Registry: Docker Hub</h4>
-            <p>Docker Hub is the default public registry for Docker images.</p>
-
-            <h5>Using Docker Hub (CLI)</h5>
-            <pre><code># Login to Docker Hub
-docker login
-
-# Tag image for Docker Hub
-docker tag my-python-app:1.0 username/my-python-app:1.0
-
-# Push image to Docker Hub
-docker push username/my-python-app:1.0
-
-# Pull image from Docker Hub
-docker pull username/my-python-app:1.0
-
-# Pull official images
-docker pull nginx:latest
-docker pull ubuntu:22.04
-docker pull python:3.9-slim</code></pre>
-
-            <h5>Using Docker Hub (Console)</h5>
-            <ol>
-                <li>Visit <strong>hub.docker.com</strong></li>
-                <li>Create an account or sign in</li>
-                <li>Click <strong>Create Repository</strong></li>
-                <li>Choose <strong>Public</strong> or <strong>Private</strong></li>
-                <li>Name your repository</li>
-                <li>Use CLI commands above to push images</li>
-            </ol>
-
-            <h4>Private Registry: AWS ECR (Elastic Container Registry)</h4>
-
-            <h5>Method 1: AWS CLI</h5>
-            <pre><code># Create ECR repository
-aws ecr create-repository \
-    --repository-name my-app \
+                    <h4>Method 1: AWS CLI - Well-Architected Tool</h4>
+                    <pre><code># Create a workload review
+aws wellarchitected create-workload \
+    --workload-name "MyApplication" \
+    --description "Production web application" \
+    --environment PRODUCTION \
     --region us-east-1
 
-# Get login credentials
-aws ecr get-login-password --region us-east-1 | \
-    docker login --username AWS \
-    --password-stdin ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
+# List available lenses
+aws wellarchitected list-lenses --region us-east-1
 
-# Tag image for ECR
-docker tag my-python-app:1.0 \
-    ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/my-app:1.0
+# Get workload details
+aws wellarchitected get-workload \
+    --workload-id <workload-id> \
+    --region us-east-1</code></pre>
 
-# Push to ECR
-docker push ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/my-app:1.0
+                    <h4>Method 2: AWS Console (GUI)</h4>
+                    <ol>
+                        <li>Open AWS Management Console and search for <strong>"Well-Architected Tool"</strong></li>
+                        <li>Click <strong>Define workload</strong></li>
+                        <li>Enter workload details:
+                            <ul>
+                                <li>Name: Your application name</li>
+                                <li>Description: Application purpose</li>
+                                <li>Environment: Production/Pre-production</li>
+                                <li>Regions: Where deployed</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>Start reviewing</strong></li>
+                        <li>Answer questions for each pillar</li>
+                        <li>Review <strong>High-risk issues (HRI)</strong> and <strong>Medium-risk issues (MRI)</strong></li>
+                        <li>Download improvement plan</li>
+                    </ol>
 
-# Pull from ECR
-docker pull ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/my-app:1.0</code></pre>
+                    <div class="success-box">
+                        <p>✅ <strong>Best Practice:</strong> Conduct Well-Architected Reviews quarterly for production workloads and before major architectural changes.</p>
+                    </div>
 
-            <h5>Method 2: AWS Console</h5>
-            <ol>
-                <li>Open <strong>AWS Console</strong> → <strong>ECR</strong></li>
-                <li>Click <strong>Create repository</strong></li>
-                <li>Enter <strong>Repository name</strong></li>
-                <li>Choose <strong>Private</strong> visibility</li>
-                <li>Configure:
+                    <h3>📊 WAF Review Process</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Action</th>
+                                <th>Duration</th>
+                                <th>Output</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1. Define</td>
+                                <td>Identify workload and stakeholders</td>
+                                <td>30 minutes</td>
+                                <td>Workload profile</td>
+                            </tr>
+                            <tr>
+                                <td>2. Review</td>
+                                <td>Answer pillar-specific questions</td>
+                                <td>2-4 hours</td>
+                                <td>Risk assessment</td>
+                            </tr>
+                            <tr>
+                                <td>3. Analyze</td>
+                                <td>Identify high and medium risks</td>
+                                <td>1 hour</td>
+                                <td>Risk report</td>
+                            </tr>
+                            <tr>
+                                <td>4. Improve</td>
+                                <td>Implement recommendations</td>
+                                <td>Ongoing</td>
+                                <td>Remediation plan</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="diagram-placeholder">
+                        <div class="placeholder-content">
+                            <p>🎨 <strong>IMAGE TO GENERATE:</strong></p>
+                            <p><strong>Description:</strong> WAF Review Workflow Diagram showing the complete review cycle</p>
+                            <p><strong>Type:</strong> Flowchart / Process Diagram</p>
+                            <p><strong>Key Elements:</strong></p>
+                            <ul>
+                                <li>Starting point: "Define Workload"</li>
+                                <li>Six pillar assessment boxes (with icons)</li>
+                                <li>Risk identification diamond</li>
+                                <li>Improvement recommendations</li>
+                                <li>Continuous monitoring loop back to start</li>
+                                <li>Color coding: Green (low risk), Yellow (medium), Red (high)</li>
+                            </ul>
+                            <p><strong>Suggested Tool:</strong> Lucidchart / draw.io / AWS Architecture Icons</p>
+                        </div>
+                    </div>
+
+                    <h3>🎯 Key Takeaways</h3>
                     <ul>
-                        <li><strong>Image scanning:</strong> Enable for security</li>
-                        <li><strong>KMS encryption:</strong> Optional for enhanced security</li>
+                        <li>WAF provides <strong>technical correctness</strong> after migration</li>
+                        <li>Focuses on <strong>continuous improvement</strong> of existing workloads</li>
+                        <li>Six pillars must be balanced - optimizing one shouldn't compromise others</li>
+                        <li>Regular reviews prevent architectural debt</li>
+                        <li>Use the Well-Architected Tool in AWS Console for guided assessments</li>
                     </ul>
-                </li>
-                <li>Click <strong>Create repository</strong></li>
-                <li>Click on repository name to view <strong>Push commands</strong></li>
-                <li>Follow the displayed CLI commands to push images</li>
-            </ol>
 
-            <h3>Comparison: Public vs Private Registries</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Feature</th>
-                        <th>Docker Hub (Public)</th>
-                        <th>AWS ECR (Private)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Access</td>
-                        <td>Anyone can pull public images</td>
-                        <td>Requires AWS authentication</td>
-                    </tr>
-                    <tr>
-                        <td>Security</td>
-                        <td>Basic (username/password)</td>
-                        <td>IAM roles and policies</td>
-                    </tr>
-                    <tr>
-                        <td>Cost</td>
-                        <td>Free (with limits)</td>
-                        <td>Pay for storage and transfer</td>
-                    </tr>
-                    <tr>
-                        <td>Integration</td>
-                        <td>Works with any Docker host</td>
-                        <td>Seamless AWS service integration</td>
-                    </tr>
-                    <tr>
-                        <td>Use Case</td>
-                        <td>Open source, public projects</td>
-                        <td>Enterprise, proprietary applications</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h2 id="docker-compose">🔗 Docker Compose & Multi-Container Management</h2>
-
-            <h3>What is Docker Compose?</h3>
-            <p>Docker Compose is a tool for defining and running multi-container Docker applications using a YAML configuration file.</p>
-
-            <h3>When to Use Docker Compose</h3>
-            <ul>
-                <li>Applications with multiple services (frontend, backend, database)</li>
-                <li>Microservices architecture</li>
-                <li>Development environments requiring multiple containers</li>
-                <li>Need to manage container dependencies</li>
-            </ul>
-
-            <h3>Docker Compose File Structure</h3>
-            <pre><code>version: '3.8'
-
-services:
-  # Frontend service
-  frontend:
-    image: my-frontend:1.0
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-    networks:
-      - app-network
-
-  # Backend service
-  backend:
-    image: my-backend:1.0
-    ports:
-      - "5000:5000"
-    environment:
-      - DATABASE_URL=mongodb://database:27017
-    depends_on:
-      - database
-    networks:
-      - app-network
-
-  # Database service
-  database:
-    image: mongo:latest
-    volumes:
-      - mongo-data:/data/db
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
-
-volumes:
-  mongo-data:</code></pre>
-
-            <h3>Docker Compose Commands</h3>
-
-            <h4>Method 1: Using Docker Compose CLI</h4>
-            <pre><code># Start all services defined in docker-compose.yml
-docker-compose up -d
-
-# View running services
-docker-compose ps
-
-# View logs from all services
-docker-compose logs
-
-# View logs from specific service
-docker-compose logs frontend
-
-# Stop all services
-docker-compose stop
-
-# Stop and remove containers, networks
-docker-compose down
-
-# Stop and remove containers, networks, volumes
-docker-compose down -v
-
-# Restart specific service
-docker-compose restart backend
-
-# Scale a service (create multiple instances)
-docker-compose up -d --scale backend=3
-
-# Build images before starting
-docker-compose up --build</code></pre>
-
-            <h3>Docker Networking</h3>
-
-            <h4>Network Types</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Network Type</th>
-                        <th>Description</th>
-                        <th>Use Case</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Bridge</td>
-                        <td>Default network for containers on same host</td>
-                        <td>Local development, isolated applications</td>
-                    </tr>
-                    <tr>
-                        <td>Host</td>
-                        <td>Container uses host's network directly</td>
-                        <td>High-performance applications, no isolation needed</td>
-                    </tr>
-                    <tr>
-                        <td>Overlay</td>
-                        <td>Connects containers across multiple hosts</td>
-                        <td>Swarm mode, distributed applications</td>
-                    </tr>
-                    <tr>
-                        <td>None</td>
-                        <td>No network connectivity</td>
-                        <td>Security testing, isolated operations</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h4>Network Management Commands</h4>
-            <pre><code># Create custom network
-docker network create my-network
-
-# List networks
-docker network ls
-
-# Inspect network
-docker network inspect my-network
-
-# Connect container to network
-docker network connect my-network container-name
-
-# Disconnect container from network
-docker network disconnect my-network container-name
-
-# Run container on specific network
-docker run -d --network my-network --name app nginx</code></pre>
-
-            <h3>Docker Volumes (Data Persistence)</h3>
-
-            <h4>Why Use Volumes?</h4>
-            <p>Containers are ephemeral - when deleted, all data inside is lost. Volumes provide persistent storage.</p>
-
-            <h4>Volume Types</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Description</th>
-                        <th>Command Example</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Named Volume</td>
-                        <td>Docker-managed storage</td>
-                        <td><code>docker run -v my-volume:/data nginx</code></td>
-                    </tr>
-                    <tr>
-                        <td>Bind Mount</td>
-                        <td>Mount host directory</td>
-                        <td><code>docker run -v /host/path:/container/path nginx</code></td>
-                    </tr>
-                    <tr>
-                        <td>tmpfs Mount</td>
-                        <td>Temporary memory storage</td>
-                        <td><code>docker run --tmpfs /tmp nginx</code></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h4>Volume Commands</h4>
-            <pre><code># Create volume
-docker volume create my-data
-
-# List volumes
-docker volume ls
-
-# Inspect volume
-docker volume inspect my-data
-
-# Remove unused volumes
-docker volume prune
-
-# Run container with volume
-docker run -d -v my-data:/app/data --name myapp nginx
-
-# Bind mount (development)
-docker run -d -v $(pwd):/app --name dev-app node:latest</code></pre>
-
-            <h2 id="orchestration-need">🎭 Why Container Orchestration?</h2>
-
-            <h3>Limitations of Plain Docker</h3>
-            <p>While Docker effectively runs containers, it lacks critical features for production environments:</p>
-
-            <div class="error-box">
-                <p>❌ <strong>Docker Cannot Provide:</strong></p>
-                <ul>
-                    <li><strong>Auto-scaling:</strong> Automatically increase/decrease container count based on load</li>
-                    <li><strong>Load balancing:</strong> Distribute traffic across multiple containers</li>
-                    <li><strong>Self-healing:</strong> Automatically restart failed containers</li>
-                    <li><strong>Rolling updates:</strong> Update applications without downtime</li>
-                    <li><strong>Rollback capability:</strong> Revert to previous version if deployment fails</li>
-                    <li><strong>Service discovery:</strong> Containers finding and communicating with each other</li>
-                    <li><strong>Health monitoring:</strong> Continuous health checks and automated responses</li>
-                </ul>
-            </div>
-
-            <h3>Real-World Production Requirements</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Requirement</th>
-                        <th>Scenario</th>
-                        <th>Docker Alone</th>
-                        <th>With Orchestration</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>High Availability</td>
-                        <td>Server crashes</td>
-                        <td>Manual restart needed</td>
-                        <td>Automatic recovery on different host</td>
-                    </tr>
-                    <tr>
-                        <td>Traffic Surge</td>
-                        <td>Sudden user increase</td>
-                        <td>Manual scaling required</td>
-                        <td>Auto-scales to handle load</td>
-                    </tr>
-                    <tr>
-                        <td>Container Failure</td>
-                        <td>Application crashes</td>
-                        <td>Downtime until manual fix</td>
-                        <td>Automatic restart/replacement</td>
-                    </tr>
-                    <tr>
-                        <td>Updates</td>
-                        <td>New version deployment</td>
-                        <td>Requires downtime</td>
-                        <td>Zero-downtime rolling updates</td>
-                    </tr>
-                    <tr>
-                        <td>Resource Management</td>
-                        <td>15-20 containers</td>
-                        <td>Complex manual management</td>
-                        <td>Automated scheduling and placement</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>What is Container Orchestration?</h3>
-            <p><strong>Container orchestration</strong> is the automated management of containerized applications in production environments, handling:</p>
-            <ul>
-                <li>Deployment and scheduling of containers</li>
-                <li>Scaling up and down based on demand</li>
-                <li>Load balancing across containers</li>
-                <li>Health monitoring and self-healing</li>
-                <li>Rolling updates and rollbacks</li>
-                <li>Service discovery and networking</li>
-                <li>Resource allocation and optimization</li>
-            </ul>
-
-            <h3>Container Orchestration Tools</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tool</th>
-                        <th>Description</th>
-                        <th>Best For</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Docker Swarm</td>
-                        <td>Docker's native orchestration</td>
-                        <td>Simple setups, Docker-only environments</td>
-                    </tr>
-                    <tr>
-                        <td>Kubernetes (K8s)</td>
-                        <td>Industry-standard, open-source</td>
-                        <td>Production environments, cloud-agnostic</td>
-                    </tr>
-                    <tr>
-                        <td>K3s</td>
-                        <td>Lightweight Kubernetes</td>
-                        <td>IoT, edge computing, resource-constrained</td>
-                    </tr>
-                    <tr>
-                        <td>AWS ECS</td>
-                        <td>AWS-native container service</td>
-                        <td>AWS-specific deployments</td>
-                    </tr>
-                    <tr>
-                        <td>AWS EKS</td>
-                        <td>Managed Kubernetes on AWS</td>
-                        <td>Kubernetes on AWS with less management</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h2 id="kubernetes-architecture">🎯 Kubernetes Architecture</h2>
-
-            <h3>What is Kubernetes?</h3>
-            <p>Kubernetes (K8s) is an open-source container orchestration platform that automates deployment, scaling, and management of containerized applications.</p>
-
-            <div class="info-box">
-                <p>💡 <strong>Key Facts:</strong></p>
-                <ul>
-                    <li><strong>Name origin:</strong> K8s = K + 8 characters + s (ubernete)</li>
-                    <li><strong>Type:</strong> Open-source, cloud-agnostic</li>
-                    <li><strong>Created by:</strong> Google (now managed by CNCF)</li>
-                    <li><strong>Architecture:</strong> Cluster-based with master-worker model</li>
-                </ul>
-            </div>
-
-            <h3>Kubernetes Cluster Components</h3>
-            <p>A Kubernetes cluster consists of two main parts:</p>
-
-            <h4>1. Control Plane (Master Node)</h4>
-            <p>The "brain" of the cluster that makes decisions about the cluster's state and responds to events.</p>
-
-            <h4>2. Worker Nodes</h4>
-            <p>The "hands" that execute the actual work - running containerized applications.</p>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Component</th>
-                        <th>Location</th>
-                        <th>Role</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Control Plane</td>
-                        <td>Master Node</td>
-                        <td>Makes decisions, manages cluster state</td>
-                    </tr>
-                    <tr>
-                        <td>Worker Nodes</td>
-                        <td>Multiple machines</td>
-                        <td>Run application containers (Pods)</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h2 id="kubernetes-components">⚙️ Kubernetes Components Explained</h2>
-
-            <h3>Control Plane Components</h3>
-
-            <h4>1. API Server</h4>
-            <p><strong>Role:</strong> The front door of Kubernetes - all communication goes through it.</p>
-            <ul>
-                <li>Single entry point for all cluster operations</li>
-                <li>Validates and processes REST API requests</li>
-                <li>Authenticates and authorizes users</li>
-                <li>Forwards requests to appropriate components</li>
-            </ul>
-
-            <h4>2. etcd</h4>
-            <p><strong>Role:</strong> The cluster's memory - stores all cluster data.</p>
-            <ul>
-                <li>Distributed key-value store</li>
-                <li>Stores cluster state, configuration, and secrets</li>
-                <li>Source of truth for cluster information</li>
-                <li>Highly available and consistent</li>
-            </ul>
-
-            <h4>3. Scheduler</h4>
-            <p><strong>Role:</strong> The decision-maker - decides where Pods should run.</p>
-            <ul>
-                <li>Watches for newly created Pods with no assigned node</li>
-                <li>Evaluates resource requirements (CPU, memory)</li>
-                <li>Considers constraints and policies</li>
-                <li>Assigns Pods to optimal worker nodes</li>
-            </ul>
-
-            <h4>4. Controller Manager</h4>
-            <p><strong>Role:</strong> The supervisor - ensures desired state matches actual state.</p>
-            <p>Contains multiple controllers:</p>
-            <ul>
-                <li><strong>Node Controller:</strong> Monitors node health</li>
-                <li><strong>Replication Controller:</strong> Maintains correct number of Pods</li>
-                <li><strong>Endpoints Controller:</strong> Manages service endpoints</li>
-                <li><strong>Service Account Controller:</strong> Creates default accounts</li>
-            </ul>
-
-            <h4>5. Cloud Controller Manager</h4>
-            <p><strong>Role:</strong> Cloud provider interface - integrates with cloud services.</p>
-            <ul>
-                <li>Manages cloud-specific resources (load balancers, storage)</li>
-                <li>Node lifecycle management in cloud</li>
-                <li>Route management</li>
-            </ul>
-
-            <h3>Worker Node Components</h3>
-
-            <h4>1. Kubelet</h4>
-            <p><strong>Role:</strong> The node agent - ensures containers are running.</p>
-            <ul>
-                <li>Runs on every worker node</li>
-                <li>Communicates with API server</li>
-                <li>Manages container lifecycle</li>
-                <li>Reports node and Pod status</li>
-            </ul>
-
-            <h4>2. Container Runtime</h4>
-            <p><strong>Role:</strong> The engine - actually runs containers.</p>
-            <p>Supported runtimes:</p>
-            <ul>
-                <li><strong>Containerd:</strong> Industry standard (recommended)</li>
-                <li><strong>CRI-O:</strong> Lightweight, Kubernetes-optimized</li>
-                <li><strong>Docker:</strong> (deprecated in K8s 1.24+)</li>
-            </ul>
-
-            <h4>3. Kube-proxy</h4>
-            <p><strong>Role:</strong> The network manager - handles networking rules.</p>
-            <ul>
-                <li>Maintains network rules on nodes</li>
-                <li>Enables communication between Pods</li>
-                <li>Implements Kubernetes Service concept</li>
-                <li>Manages load balancing</li>
-            </ul>
-
-            <h3>Kubernetes Objects</h3>
-
-            <h4>Pod</h4>
-            <p>The <strong>smallest deployable unit</strong> in Kubernetes.</p>
-            <ul>
-                <li>Can contain one or more containers</li>
-                <li>Shares network namespace and storage</li>
-                <li>Gets unique IP address</li>
-                <li>Ephemeral (can be replaced)</li>
-            </ul>
-
-            <h4>Deployment</h4>
-            <p>Manages <strong>stateless applications</strong> with desired replica count.</p>
-            <ul>
-                <li>Ensures specified number of Pods running</li>
-                <li>Handles rolling updates</li>
-                <li>Enables rollback to previous versions</li>
-                <li>Self-healing (restarts failed Pods)</li>
-            </ul>
-
-            <h4>Service</h4>
-            <p>Provides <strong>stable network endpoint</strong> for accessing Pods.</p>
-            <ul>
-                <li>Load balances traffic across Pods</li>
-                <li>Provides service discovery</li>
-                <li>Types: ClusterIP, NodePort, LoadBalancer, ExternalName</li>
-            </ul>
-
-            <h3>Interacting with Kubernetes</h3>
-
-            <h4>kubectl CLI Commands</h4>
-            <pre><code># Get cluster information
-kubectl cluster-info
-kubectl get nodes
-
-# Deploy application from YAML
-kubectl apply -f deployment.yaml
-
-# View deployments
-kubectl get deployments
-kubectl get pods
-kubectl get services
-
-# Describe resource details
-kubectl describe pod pod-name
-kubectl describe deployment deployment-name
-
-# View logs
-kubectl logs pod-name
-kubectl logs -f pod-name  # Follow logs
-
-# Execute commands in Pod
-kubectl exec -it pod-name -- /bin/bash
-
-# Scale deployment
-kubectl scale deployment/my-app --replicas=5
-
-# Delete resources
-kubectl delete pod pod-name
-kubectl delete deployment deployment-name
-kubectl delete -f deployment.yaml</code></pre>
-
-            <h3>Sample Deployment YAML</h3>
-            <pre><code>apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-  labels:
-    app: nginx
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.21
-        ports:
-        - containerPort: 80
-        resources:
-          requests:
-            memory: "64Mi"
-            CPU: "250m"
-          limits:
-            memory: "128Mi"
-            cpu: "500m"</code></pre>
-
-            <h2 id="aws-ecs">☁️ AWS ECS (Elastic Container Service)</h2>
-
-            <h3>What is AWS ECS?</h3>
-            <p>ECS is AWS's <strong>native container orchestration service</strong> that manages Docker containers without needing Kubernetes.</p>
-
-            <div class="info-box">
-                <p>💡 <strong>Key Concept:</strong> ECS simplifies container management by removing Kubernetes complexity while providing enterprise-grade orchestration features.</p>
-            </div>
-
-            <h3>ECS Core Components</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Component</th>
-                        <th>Description</th>
-                        <th>Purpose</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Cluster</td>
-                        <td>Logical grouping of resources</td>
-                        <td>Organizes tasks and services</td>
-                    </tr>
-                    <tr>
-                        <td>Task Definition</td>
-                        <td>Blueprint for containers</td>
-                        <td>Defines image, CPU, memory, ports</td>
-                    </tr>
-                    <tr>
-                        <td>Task</td>
-                        <td>Running instance of task definition</td>
-                        <td>Actual running containers</td>
-                    </tr>
-                    <tr>
-                        <td>Service</td>
-                        <td>Maintains desired task count</td>
-                        <td>Ensures availability and load balancing</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>ECS Launch Types</h3>
-
-            <h4>1. EC2 Launch Type</h4>
-            <p>You manage the EC2 instances that run containers.</p>
-            <ul>
-                <li><strong>More control</strong> over underlying infrastructure</li>
-                <li>Choose instance types</li>
-                <li>Manage patching and scaling</li>
-                <li>Cost-effective for long-running workloads</li>
-            </ul>
-
-            <h4>2. Fargate Launch Type (Serverless)</h4>
-            <p>AWS manages the infrastructure - you only define containers.</p>
-            <ul>
-                <li><strong>No server management</strong> required</li>
-                <li>Pay only for resources used</li>
-                <li>Automatic scaling</li>
-                <li>Ideal for variable workloads</li>
-            </ul>
-
-            <h3>Creating ECS Cluster and Task</h3>
-
-            <h4>Method 1: AWS CLI</h4>
-            <pre><code># Create ECS cluster
-aws ecs create-cluster \
-    --cluster-name my-app-cluster \
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="caf">🚀 AWS Cloud Adoption Framework (CAF)</h2></summary>
+                <div class="section-content">
+
+                    <h3>📖 Definition</h3>
+                    <p>The AWS Cloud Adoption Framework (CAF) provides guidance to help organizations prepare for successful cloud migration. It addresses organizational readiness across six perspectives.</p>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Key Purpose:</strong> CAF answers: "Are we ready to move to the cloud?" It focuses on organizational readiness BEFORE migration.</p>
+                    </div>
+
+                    <h3>⚖️ WAF vs CAF: Understanding the Difference</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Cloud Adoption Framework (CAF)</th>
+                                <th>Well-Architected Framework (WAF)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Timing</strong></td>
+                                <td><strong>BEFORE</strong> migration</td>
+                                <td><strong>AFTER</strong> migration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Focus</strong></td>
+                                <td>Organizational readiness</td>
+                                <td>Technical correctness</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Scope</strong></td>
+                                <td>People, processes, culture</td>
+                                <td>Architecture, workloads</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Question</strong></td>
+                                <td>"Are we ready to migrate?"</td>
+                                <td>"Is our application optimized?"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Components</strong></td>
+                                <td>6 Perspectives</td>
+                                <td>6 Pillars</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Remember:</strong> CAF = Organization preparation | WAF = Continuous workload optimization</p>
+                    </div>
+
+                    <h3>🎯 The Six Perspectives of CAF</h3>
+
+                    <div class="diagram-container">
+                        <img src="https://docs.aws.amazon.com/images/prescriptive-guidance/latest/strategy-cloud-adoption/images/caf-perspectives.png" alt="AWS Cloud Adoption Framework Six Perspectives">
+                        <p class="diagram-caption"><em>Figure 2: The Six Perspectives of AWS Cloud Adoption Framework</em></p>
+                    </div>
+
+                    <h4>📊 Business Perspectives (Strategic)</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Perspective</th>
+                                <th>Focus Area</th>
+                                <th>Key Questions</th>
+                                <th>Common Roles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. Business</strong></td>
+                                <td>Business value optimization</td>
+                                <td>
+                                    • Why are we moving to cloud?<br>
+                                    • What business outcomes do we expect?<br>
+                                    • How will we measure success?
+                                </td>
+                                <td>
+                                    • Business Managers<br>
+                                    • Finance Managers<br>
+                                    • Budget Owners<br>
+                                    • Strategy Stakeholders
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. People</strong></td>
+                                <td>Workforce transformation</td>
+                                <td>
+                                    • Are our people skilled enough?<br>
+                                    • What training is needed?<br>
+                                    • How do we manage change?
+                                </td>
+                                <td>
+                                    • Human Resources<br>
+                                    • Training Managers<br>
+                                    • People Managers<br>
+                                    • Communications Team
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. Governance</strong></td>
+                                <td>Business outcomes management</td>
+                                <td>
+                                    • Do we have proper governance?<br>
+                                    • What are our compliance requirements?<br>
+                                    • How do we manage risks?
+                                </td>
+                                <td>
+                                    • CIO<br>
+                                    • Program Managers<br>
+                                    • Enterprise Architects<br>
+                                    • Business Analysts
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>⚙️ Technical Perspectives (Implementation)</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Perspective</th>
+                                <th>Focus Area</th>
+                                <th>Key Questions</th>
+                                <th>Common Roles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>4. Platform</strong></td>
+                                <td>Cloud solution development</td>
+                                <td>
+                                    • Is our base platform ready?<br>
+                                    • What services should we use?<br>
+                                    • How do we optimize solutions?
+                                </td>
+                                <td>
+                                    • CTO<br>
+                                    • IT Managers<br>
+                                    • Solution Architects<br>
+                                    • Engineering Leads
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. Security</strong></td>
+                                <td>Security compliance & resilience</td>
+                                <td>
+                                    • Do we have security controls?<br>
+                                    • Are we compliant?<br>
+                                    • How do we ensure resilience?
+                                </td>
+                                <td>
+                                    • CISO<br>
+                                    • IT Security Managers<br>
+                                    • Security Analysts<br>
+                                    • Compliance Officers
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. Operations</strong></td>
+                                <td>Cloud operations delivery</td>
+                                <td>
+                                    • Are operations teams ready?<br>
+                                    • Do we have monitoring in place?<br>
+                                    • Can we deliver agile operations?
+                                </td>
+                                <td>
+                                    • IT Operations Managers<br>
+                                    • IT Support Managers<br>
+                                    • DevOps Engineers<br>
+                                    • SRE Teams
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🔄 CAF Implementation Process</h3>
+
+                    <div class="diagram-placeholder">
+                        <div class="placeholder-content">
+                            <p>🎨 <strong>IMAGE TO GENERATE:</strong></p>
+                            <p><strong>Description:</strong> CAF Migration Journey - Four Phases</p>
+                            <p><strong>Type:</strong> Timeline / Process Flow</p>
+                            <p><strong>Key Elements:</strong></p>
+                            <ul>
+                                <li>Phase 1: Envision - Define business outcomes</li>
+                                <li>Phase 2: Align - Identify gaps across 6 perspectives</li>
+                                <li>Phase 3: Launch - Deliver pilot projects</li>
+                                <li>Phase 4: Scale - Expand to production</li>
+                                <li>Each phase connected with arrows</li>
+                                <li>Icons for each perspective at relevant phases</li>
+                            </ul>
+                            <p><strong>Suggested Tool:</strong> PowerPoint / Canva / Miro</p>
+                        </div>
+                    </div>
+
+                    <h3>⚙️ Practical Implementation</h3>
+
+                    <h4>Method 1: Using AWS CLI (Limited - mostly documentation-driven)</h4>
+                    <pre><code># CAF is primarily a guidance framework, not a service
+# However, you can use AWS Organizations for governance
+
+# Create organizational structure for CAF implementation
+aws organizations create-organizational-unit \
+    --parent-id r-xxxx \
+    --name "Production" \
     --region us-east-1
 
-# Register task definition
-aws ecs register-task-definition \
-    --cli-input-json file://task-definition.json
+# Apply Service Control Policies (Governance perspective)
+aws organizations attach-policy \
+    --policy-id p-xxxx \
+    --target-id ou-xxxx</code></pre>
 
-# Run task
-aws ecs run-task \
-    --cluster my-app-cluster \
-    --task-definition my-app-task:1 \
-    --count 2 \
-    --launch-type FARGATE \
-    --network-configuration "awsvpcConfiguration={subnets=[subnet-12345],securityGroups=[sg-12345]}"
-
-# Create service
-aws ecs create-service \
-    --cluster my-app-cluster \
-    --service-name my-app-service \
-    --task-definition my-app-task:1 \
-    --desired-count 3 \
-    --launch-type FARGATE
-
-# List running tasks
-aws ecs list-tasks --cluster my-app-cluster
-
-            # Describe service
-aws ecs describe-services \
-    --cluster my-app-cluster \
-    --services my-app-service</code></pre>
-
-            <h4>Method 2: AWS Console</h4>
-            <ol>
-                <li>Open <strong>AWS Console</strong> → <strong>ECS</strong></li>
-                <li>Click <strong>Create Cluster</strong></li>
-                <li>Choose cluster template:
-                    <ul>
-                        <li><strong>Networking only:</strong> For Fargate</li>
-                        <li><strong>EC2 Linux + Networking:</strong> For EC2 launch type</li>
-                    </ul>
-                </li>
-                <li>Configure cluster:
-                    <ul>
-                        <li>Enter <strong>Cluster name</strong></li>
-                        <li>For EC2: Choose instance type, number of instances</li>
-                        <li>Configure VPC and subnets</li>
-                    </ul>
-                </li>
-                <li>Click <strong>Create</strong></li>
-                <li>Create <strong>Task Definition</strong>:
-                    <ul>
-                        <li>Click <strong>Task Definitions</strong> → <strong>Create new Task Definition</strong></li>
-                        <li>Choose launch type (Fargate or EC2)</li>
-                        <li>Enter task definition name</li>
-                        <li>Add container:
+                    <h4>Method 2: AWS Console - Planning & Assessment</h4>
+                    <ol>
+                        <li>Navigate to <strong>AWS Migration Hub</strong></li>
+                        <li>Go to <strong>Strategy Recommendations</strong></li>
+                        <li>Click <strong>Get started with Strategy Recommendations</strong></li>
+                        <li>Complete the <strong>Cloud Readiness Assessment</strong>:
                             <ul>
-                                <li>Container name</li>
-                                <li>Image URI (from ECR or Docker Hub)</li>
-                                <li>Memory limits (soft/hard)</li>
-                                <li>Port mappings</li>
+                                <li>Answer questions for each CAF perspective</li>
+                                <li>Identify capability gaps</li>
+                                <li>Receive readiness score</li>
                             </ul>
                         </li>
-                        <li>Configure task size (CPU and memory)</li>
-                        <li>Click <strong>Create</strong></li>
-                    </ul>
-                </li>
-                <li>Create <strong>Service</strong>:
+                        <li>Review <strong>Recommended Actions</strong> for each perspective</li>
+                        <li>Create <strong>Action Plan</strong> with timelines</li>
+                        <li>Assign owners to each perspective</li>
+                    </ol>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Best Practice:</strong> Conduct CAF assessment workshops with stakeholders from all six perspectives before starting migration.</p>
+                    </div>
+
+                    <h3>📋 CAF Readiness Checklist</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Perspective</th>
+                                <th>Readiness Criteria</th>
+                                <th>Status Check</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Business</td>
+                                <td>Clear business case and ROI defined</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="caf-business"></td>
+                            </tr>
+                            <tr>
+                                <td>People</td>
+                                <td>Training plan and change management strategy</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="caf-people"></td>
+                            </tr>
+                            <tr>
+                                <td>Governance</td>
+                                <td>Policies, compliance, and KPIs established</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="caf-governance"></td>
+                            </tr>
+                            <tr>
+                                <td>Platform</td>
+                                <td>Landing zone and baseline architecture ready</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="caf-platform"></td>
+                            </tr>
+                            <tr>
+                                <td>Security</td>
+                                <td>Security controls and compliance framework</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="caf-security"></td>
+                            </tr>
+                            <tr>
+                                <td>Operations</td>
+                                <td>Monitoring, incident response, and support</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="caf-operations"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🎯 Key Takeaways</h3>
                     <ul>
-                        <li>Navigate to cluster</li>
-                        <li>Click <strong>Services</strong> → <strong>Create</strong></li>
-                        <li>Select task definition</li>
-                        <li>Enter service name</li>
-                        <li>Set number of tasks (replicas)</li>
-                        <li>Configure load balancer (optional)</li>
-                        <li>Set Auto Scaling policies</li>
-                        <li>Click <strong>Create Service</strong></li>
+                        <li>CAF ensures <strong>organizational readiness</strong> before migration</li>
+                        <li>Addresses both <strong>business and technical</strong> perspectives</li>
+                        <li>Cloud is an <strong>organizational change</strong>, not just infrastructure change</li>
+                        <li>All six perspectives must be addressed for successful adoption</li>
+                        <li>Use CAF before migration, WAF after migration</li>
                     </ul>
-                </li>
-            </ol>
 
-            <h3>Sample ECS Task Definition JSON</h3>
-            <pre><code>{
-  "family": "my-app-task",
-  "networkMode": "awsvpc",
-  "requiresCompatibilities": ["FARGATE"],
-  "cpu": "256",
-  "memory": "512",
-  "containerDefinitions": [
-    {
-      "name": "my-app-container",
-      "image": "123456789.dkr.ecr.us-east-1.amazonaws.com/my-app:latest",
-      "portMappings": [
-        {
-          "containerPort": 80,
-          "protocol": "tcp"
-        }
-      ],
-      "essential": true,
-      "environment": [
-        {
-          "name": "ENV",
-          "value": "production"
-        }
-      ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/my-app",
-          "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "ecs"
-        }
-      }
-    }
-  ]
-}</code></pre>
+                </div>
+            </details>
 
-            <h3>ECS vs Kubernetes Comparison</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Feature</th>
-                        <th>ECS</th>
-                        <th>Kubernetes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Complexity</td>
-                        <td>Simple, AWS-specific</td>
-                        <td>Complex, steep learning curve</td>
-                    </tr>
-                    <tr>
-                        <td>Cloud Portability</td>
-                        <td>AWS-only</td>
-                        <td>Cloud-agnostic</td>
-                    </tr>
-                    <tr>
-                        <td>Management</td>
-                        <td>Fully managed by AWS</td>
-                        <td>Self-managed or EKS</td>
-                    </tr>
-                    <tr>
-                        <td>Cost</td>
-                        <td>No cluster management fees</td>
-                        <td>Cluster management overhead</td>
-                    </tr>
-                    <tr>
-                        <td>Integration</td>
-                        <td>Seamless AWS services</td>
-                        <td>Requires configuration</td>
-                    </tr>
-                    <tr>
-                        <td>Best For</td>
-                        <td>AWS-native applications</td>
-                        <td>Multi-cloud, complex orchestration</td>
-                    </tr>
-                </tbody>
-            </table>
+            <details class="collapsible-section">
+                <summary><h2 id="security">🔒 Security: System & Network Hardening</h2></summary>
+                <div class="section-content">
 
-            <h2 id="aws-eks">🎡 AWS EKS (Elastic Kubernetes Service)</h2>
+                    <h3>🎯 Core Security Principle</h3>
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Core Truth:</strong> Security is about controlling access. There are two places where access can be controlled:<br>
+                        1. <strong>BEFORE</strong> reaching the system (Network Hardening)<br>
+                        2. <strong>AFTER</strong> reaching the system (System Hardening)</p>
+                    </div>
 
-            <h3>What is AWS EKS?</h3>
-            <p>EKS is <strong>AWS-managed Kubernetes</strong> that runs the Kubernetes control plane across multiple availability zones for high availability.</p>
-
-            <h3>EKS Architecture</h3>
-            <p>EKS provides:</p>
-            <ul>
-                <li><strong>Managed Control Plane:</strong> AWS manages API server, etcd, scheduler, controllers</li>
-                <li><strong>Worker Nodes:</strong> You manage (EC2) or AWS manages (Fargate)</li>
-                <li><strong>High Availability:</strong> Control plane runs across 3 AZs</li>
-                <li><strong>Integration:</strong> Seamless integration with AWS services</li>
-            </ul>
-
-            <h3>EKS Worker Node Options</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Option</th>
-                        <th>Management</th>
-                        <th>Use Case</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Self-Managed Nodes</td>
-                        <td>You create and manage EC2 instances</td>
-                        <td>Maximum control, custom configurations</td>
-                    </tr>
-                    <tr>
-                        <td>Managed Node Groups</td>
-                        <td>AWS automates node provisioning</td>
-                        <td>Simplified management, automatic updates</td>
-                    </tr>
-                    <tr>
-                        <td>Fargate</td>
-                        <td>AWS manages all infrastructure</td>
-                        <td>Serverless, no node management</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>Creating EKS Cluster</h3>
-
-            <h4>Method 1: AWS CLI (using eksctl)</h4>
-            <pre><code># Install eksctl (EKS CLI tool)
-curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-sudo mv /tmp/eksctl /usr/local/bin
-
-# Create EKS cluster with managed node group
-eksctl create cluster \
-    --name my-eks-cluster \
-    --region us-east-1 \
-    --nodegroup-name my-nodes \
-    --node-type t3.medium \
-    --nodes 3 \
-    --nodes-min 1 \
-    --nodes-max 4 \
-    --managed
-
-# Update kubeconfig to connect to cluster
-aws eks update-kubeconfig \
-    --region us-east-1 \
-    --name my-eks-cluster
-
-# Verify connection
-kubectl get nodes
-kubectl get pods --all-namespaces
-
-# Deploy application
-kubectl apply -f deployment.yaml
-
-# Create service
-kubectl apply -f service.yaml
-
-# Get services
-kubectl get svc
-
-# Delete cluster
-eksctl delete cluster --name my-eks-cluster --region us-east-1</code></pre>
-
-            <h4>Method 2: AWS Console</h4>
-            <ol>
-                <li><strong>Prerequisites:</strong>
+                    <h3>📚 Real-Life Analogy: Protecting Valuables</h3>
+                    <p>Imagine protecting a valuable gold ornament:</p>
                     <ul>
-                        <li>Create IAM role for EKS cluster</li>
-                        <li>Create VPC with public/private subnets</li>
+                        <li><strong>Layer 1:</strong> House entrance with gate (Network Hardening)</li>
+                        <li><strong>Layer 2:</strong> Bedroom door (Network Hardening)</li>
+                        <li><strong>Layer 3:</strong> Almirah/Cupboard (Network Hardening)</li>
+                        <li><strong>Layer 4:</strong> Locker inside cupboard (System Hardening)</li>
+                        <li><strong>Layer 5:</strong> Only authorized person has key (System Hardening)</li>
+                        <li><strong>Monitoring:</strong> CCTV cameras throughout (Both)</li>
                     </ul>
-                </li>
-                <li>Open <strong>AWS Console</strong> → <strong>EKS</strong></li>
-                <li>Click <strong>Add cluster</strong> → <strong>Create</strong></li>
-                <li>Configure cluster:
-                    <ul>
-                        <li>Enter <strong>Cluster name</strong></li>
-                        <li>Select <strong>Kubernetes version</strong></li>
-                        <li>Choose <strong>Cluster service role</strong></li>
-                    </ul>
-                </li>
-                <li>Configure networking:
-                    <ul>
-                        <li>Select <strong>VPC</strong></li>
-                        <li>Choose <strong>Subnets</strong> (minimum 2 in different AZs)</li>
-                        <li>Select <strong>Security groups</strong></li>
-                        <li>Choose <strong>Cluster endpoint access</strong> (Public/Private)</li>
-                    </ul>
-                </li>
-                <li>Configure observability (optional):
-                    <ul>
-                        <li>Enable <strong>Control plane logging</strong></li>
-                    </ul>
-                </li>
-                <li>Click <strong>Create</strong> (takes 10-15 minutes)</li>
-                <li><strong>Add Node Group:</strong>
-                    <ul>
-                        <li>Navigate to cluster → <strong>Compute</strong> tab</li>
-                        <li>Click <strong>Add node group</strong></li>
-                        <li>Enter node group name</li>
-                        <li>Choose <strong>Node IAM role</strong></li>
-                        <li>Select instance types (e.g., t3.medium)</li>
-                        <li>Configure scaling:
+
+                    <div class="info-box">
+                        <p>💡 <strong>Key Insight:</strong> Multiple layers of security (defense in depth) protect against different threat vectors.</p>
+                    </div>
+
+                    <h3>🌐 Network Hardening</h3>
+
+                    <h4>📖 Definition</h4>
+                    <p><strong>Network Hardening</strong> controls access <strong>BEFORE</strong> someone reaches the system. It answers: "Who can connect? From where? On which port?"</p>
+
+                    <div class="diagram-container">
+                        <img src="https://d1.awsstatic.com/security-center/SecurityBlog/network-hardening-diagram.png" alt="Network Hardening Architecture">
+                        <p class="diagram-caption"><em>Figure 3: Network Hardening Components</em></p>
+                    </div>
+
+                    <h4>🔧 Network Hardening Components</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Purpose</th>
+                                <th>AWS Implementation</th>
+                                <th>Example Rule</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Firewall</strong></td>
+                                <td>Filter incoming/outgoing traffic</td>
+                                <td>Security Groups, Network ACLs</td>
+                                <td>Allow HTTP (80) from anywhere</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Port Control</strong></td>
+                                <td>Allow only necessary ports</td>
+                                <td>Security Group Rules</td>
+                                <td>SSH (22) only from admin IP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IP Filtering</strong></td>
+                                <td>Block/allow specific IPs</td>
+                                <td>NACL, WAF IP sets</td>
+                                <td>Block suspicious IP ranges</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Segmentation</strong></td>
+                                <td>Isolate resources</td>
+                                <td>VPC, Subnets</td>
+                                <td>Public vs Private subnets</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IDPS</strong></td>
+                                <td>Detect intrusions</td>
+                                <td>GuardDuty, IDS solutions</td>
+                                <td>Alert on port scans</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>⚙️ Practical Implementation: Network Hardening</h4>
+
+                    <h5>Method 1: AWS CLI - Security Group Configuration</h5>
+                    <pre><code># Create a security group with strict rules
+aws ec2 create-security-group \
+    --group-name "WebServer-SG" \
+    --description "Hardened security group for web servers" \
+    --vpc-id vpc-xxxxx
+
+# Allow HTTP from anywhere (port 80)
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-xxxxx \
+    --protocol tcp \
+    --port 80 \
+    --cidr 0.0.0.0/0
+
+# Allow SSH ONLY from admin IP (port 22)
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-xxxxx \
+    --protocol tcp \
+    --port 22 \
+    --cidr 203.0.113.25/32  # Replace with your IP
+
+# Deny all other inbound traffic (implicit in AWS)
+# All outbound traffic allowed by default
+
+# Create Network ACL for subnet-level control
+aws ec2 create-network-acl \
+    --vpc-id vpc-xxxxx
+
+# Add NACL rule to block specific IP range
+aws ec2 create-network-acl-entry \
+    --network-acl-id acl-xxxxx \
+    --ingress \
+    --rule-number 100 \
+    --protocol -1 \
+    --cidr-block 198.51.100.0/24 \
+    --rule-action deny</code></pre>
+
+                    <h5>Method 2: AWS Console - Network Hardening Setup</h5>
+                    <ol>
+                        <li><strong>Configure Security Groups:</strong>
                             <ul>
-                                <li>Minimum: 1</li>
-                                <li>Maximum: 4</li>
-                                <li>Desired: 2</li>
+                                <li>Go to <strong>EC2 Dashboard</strong> → <strong>Security Groups</strong></li>
+                                <li>Click <strong>Create security group</strong></li>
+                                <li>Name: "Hardened-WebServer-SG"</li>
+                                <li>Add Inbound Rules:
+                                    <ul>
+                                        <li>Type: HTTP | Port: 80 | Source: 0.0.0.0/0</li>
+                                        <li>Type: HTTPS | Port: 443 | Source: 0.0.0.0/0</li>
+                                        <li>Type: SSH | Port: 22 | Source: <em>Your IP/32</em></li>
+                                    </ul>
+                                </li>
+                                <li>Outbound Rules: Keep default (all traffic allowed)</li>
+                                <li>Click <strong>Create</strong></li>
                             </ul>
                         </li>
-                        <li>Click <strong>Create</strong></li>
-                    </ul>
-                </li>
-                <li><strong>Connect to cluster:</strong>
+                        <li><strong>Configure Network ACLs:</strong>
+                            <ul>
+                                <li>Go to <strong>VPC Dashboard</strong> → <strong>Network ACLs</strong></li>
+                                <li>Select your VPC's NACL</li>
+                                <li>Add Inbound Rules (evaluated in order):
+                                    <!-- Part 2 Continuation - AWS Frameworks & Security Overview -->
+
+                                    <ul>
+                                        <li>Rule 100: Block malicious IP | Deny</li>
+                                        <li>Rule 110: Allow HTTP | Port 80 | Allow</li>
+                                        <li>Rule 120: Allow HTTPS | Port 443 | Allow</li>
+                                        <li>Rule 130: Allow SSH | Port 22 | Allow</li>
+                                        <li>Rule *: Deny all (default)</li>
+                                    </ul>
+                                </li>
+                                <li>Click <strong>Save changes</strong></li>
+                            </ul>
+                        </li>
+                        <li><strong>Enable VPC Flow Logs:</strong>
+                            <ul>
+                                <li>Select your VPC → <strong>Actions</strong> → <strong>Create flow log</strong></li>
+                                <li>Filter: Accept, Reject, or All</li>
+                                <li>Destination: CloudWatch Logs or S3</li>
+                                <li>This monitors all network traffic</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Best Practice:</strong> Use Security Groups for instance-level control (stateful) and NACLs for subnet-level control (stateless). Security Groups should be your primary defense.</p>
+                    </div>
+
+                    <h3>💻 System Hardening</h3>
+
+                    <h4>📖 Definition</h4>
+                    <p><strong>System Hardening</strong> controls access <strong>AFTER</strong> someone reaches the system. It answers: "What can users do inside the system?"</p>
+
+                    <div class="diagram-placeholder">
+                        <div class="placeholder-content">
+                            <p>🎨 <strong>IMAGE TO GENERATE:</strong></p>
+                            <p><strong>Description:</strong> System Hardening Layers Diagram</p>
+                            <p><strong>Type:</strong> Layered Security Diagram</p>
+                            <p><strong>Key Elements:</strong></p>
+                            <ul>
+                                <li>Center: Operating System (Server)</li>
+                                <li>Layer 1: User Access Control (IAM)</li>
+                                <li>Layer 2: Service Hardening (running services)</li>
+                                <li>Layer 3: File Permissions</li>
+                                <li>Layer 4: Application Security</li>
+                                <li>Outer layer: Logging & Monitoring</li>
+                                <li>Show arrows from each layer to CloudWatch</li>
+                            </ul>
+                            <p><strong>Suggested Tool:</strong> draw.io / Lucidchart</p>
+                        </div>
+                    </div>
+
+                    <h4>🔧 System Hardening Components</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Focus Area</th>
+                                <th>Actions</th>
+                                <th>AWS Tools</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Operating System Hardening</strong></td>
+                                <td>OS security baseline</td>
+                                <td>
+                                    • Apply latest security patches<br>
+                                    • Disable unnecessary services<br>
+                                    • Configure secure boot<br>
+                                    • Remove default accounts
+                                </td>
+                                <td>
+                                    • Systems Manager Patch Manager<br>
+                                    • EC2 Image Builder<br>
+                                    • Inspector
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>User Access Control</strong></td>
+                                <td>Who can access what</td>
+                                <td>
+                                    • Implement least privilege<br>
+                                    • Use IAM roles<br>
+                                    • Enable MFA<br>
+                                    • Disable root login
+                                </td>
+                                <td>
+                                    • IAM<br>
+                                    • AWS SSO<br>
+                                    • Secrets Manager
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Service Hardening</strong></td>
+                                <td>Running services</td>
+                                <td>
+                                    • Stop unused services<br>
+                                    • Configure secure settings<br>
+                                    • Update service versions<br>
+                                    • Disable insecure protocols
+                                </td>
+                                <td>
+                                    • Systems Manager<br>
+                                    • Config<br>
+                                    • Service Catalog
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Application Security</strong></td>
+                                <td>Installed software</td>
+                                <td>
+                                    • Install only required apps<br>
+                                    • Keep applications updated<br>
+                                    • Remove outdated packages<br>
+                                    • Scan for vulnerabilities
+                                </td>
+                                <td>
+                                    • Inspector<br>
+                                    • ECR Image Scanning<br>
+                                    • Trusted Advisor
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>File & Permission Security</strong></td>
+                                <td>Data access control</td>
+                                <td>
+                                    • Set strict file permissions<br>
+                                    • Encrypt sensitive files<br>
+                                    • Audit file access<br>
+                                    • Implement file integrity monitoring
+                                </td>
+                                <td>
+                                    • KMS<br>
+                                    • CloudTrail<br>
+                                    • Macie
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Logging & Monitoring</strong></td>
+                                <td>Activity tracking</td>
+                                <td>
+                                    • Enable system logs<br>
+                                    • Track login attempts<br>
+                                    • Monitor suspicious activity<br>
+                                    • Set up alerts
+                                </td>
+                                <td>
+                                    • CloudWatch Logs<br>
+                                    • CloudTrail<br>
+                                    • GuardDuty<br>
+                                    • Security Hub
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>⚙️ Practical Implementation: System Hardening</h4>
+
+                    <h5>Method 1: AWS CLI - System Hardening</h5>
+                    <pre><code># 1. Enable CloudWatch Logs for EC2
+aws logs create-log-group \
+    --log-group-name "/aws/ec2/system-logs"
+
+# 2. Apply security patches using Systems Manager
+aws ssm send-command \
+    --document-name "AWS-RunPatchBaseline" \
+    --targets "Key=instanceids,Values=i-xxxxx" \
+    --parameters "Operation=Install"
+
+# 3. Create IAM role with least privilege
+aws iam create-role \
+    --role-name "EC2-LimitedAccess" \
+    --assume-role-policy-document file://trust-policy.json
+
+aws iam attach-role-policy \
+    --role-name "EC2-LimitedAccess" \
+    --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess
+
+# 4. Enable GuardDuty for threat detection
+aws guardduty create-detector \
+    --enable \
+    --finding-publishing-frequency FIFTEEN_MINUTES
+
+# 5. Run security assessment with Inspector
+aws inspector2 enable \
+    --resource-types EC2 ECR
+
+# 6. Configure file integrity monitoring (example user data script)
+# This would be in EC2 user data or Systems Manager document
+#!/bin/bash
+# Install AIDE (Advanced Intrusion Detection Environment)
+yum install aide -y
+aide --init
+cp /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
+# Schedule daily integrity checks
+echo "0 5 * * * /usr/sbin/aide --check" | crontab -</code></pre>
+
+                    <h5>Method 2: AWS Console - System Hardening Setup</h5>
+                    <ol>
+                        <li><strong>Configure IAM for Least Privilege:</strong>
+                            <ul>
+                                <li>Go to <strong>IAM Dashboard</strong> → <strong>Roles</strong></li>
+                                <li>Click <strong>Create role</strong></li>
+                                <li>Select: AWS service → EC2</li>
+                                <li>Attach policies:
+                                    <ul>
+                                        <li>For web servers: <code>AmazonS3ReadOnlyAccess</code></li>
+                                        <li>For logging: <code>CloudWatchAgentServerPolicy</code></li>
+                                        <li>Avoid: <code>AdministratorAccess</code></li>
+                                    </ul>
+                                </li>
+                                <li>Name role: "EC2-WebServer-Role"</li>
+                                <li>Attach to EC2 instance during launch</li>
+                            </ul>
+                        </li>
+                        <li><strong>Enable Systems Manager for Patch Management:</strong>
+                            <ul>
+                                <li>Go to <strong>Systems Manager</strong> → <strong>Patch Manager</strong></li>
+                                <li>Click <strong>Configure patching</strong></li>
+                                <li>Select: Scan and install</li>
+                                <li>Schedule: Daily at 2 AM</li>
+                                <li>Targets: Tag-based (e.g., Environment=Production)</li>
+                                <li>Reboot option: Reboot if needed</li>
+                            </ul>
+                        </li>
+                        <li><strong>Set Up CloudWatch Logs:</strong>
+                            <ul>
+                                <li>SSH into EC2 instance</li>
+                                <li>Install CloudWatch Agent:
+                                    <pre><code>wget https://s3.amazonaws.com/amazoncloudwatch-agent/linux/amd64/latest/amazon-cloudwatch-agent.rpm
+sudo rpm -U ./amazon-cloudwatch-agent.rpm</code></pre>
+                                </li>
+                                <li>Configure agent to collect:
+                                    <ul>
+                                        <li>/var/log/secure (authentication logs)</li>
+                                        <li>/var/log/messages (system logs)</li>
+                                        <li>/var/log/httpd/access_log (web logs)</li>
+                                    </ul>
+                                </li>
+                                <li>Start agent: <code>sudo systemctl start amazon-cloudwatch-agent</code></li>
+                            </ul>
+                        </li>
+                        <li><strong>Enable GuardDuty for Threat Detection:</strong>
+                            <ul>
+                                <li>Go to <strong>GuardDuty</strong> → <strong>Get Started</strong></li>
+                                <li>Click <strong>Enable GuardDuty</strong></li>
+                                <li>Configure findings:
+                                    <ul>
+                                        <li>Export to S3 for long-term storage</li>
+                                        <li>Send to SNS for email alerts</li>
+                                        <li>Integrate with Security Hub</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li><strong>Harden OS Configuration (SSH to instance):</strong>
+                            <pre><code># Disable root login
+sudo sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+
+# Disable password authentication (use key-based only)
+sudo sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+
+# Restart SSH service
+sudo systemctl restart sshd
+
+# Set strict file permissions
+chmod 600 ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+
+# Remove unnecessary packages
+sudo yum remove telnet -y
+
+# Enable automatic security updates
+sudo yum install yum-cron -y
+sudo systemctl enable yum-cron
+sudo systemctl start yum-cron</code></pre>
+                        </li>
+                    </ol>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Common Mistake:</strong> Opening systems first and then trying to secure them. Always harden BEFORE exposing to network.</p>
+                    </div>
+
+                    <h3>⚖️ Network vs System Hardening Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Network Hardening</th>
+                                <th>System Hardening</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Control Point</strong></td>
+                                <td>BEFORE reaching system</td>
+                                <td>AFTER reaching system</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Question</strong></td>
+                                <td>"Can you reach the system?"</td>
+                                <td>"What can you do inside?"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Focus</strong></td>
+                                <td>Network traffic control</td>
+                                <td>System configuration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Services</strong></td>
+                                <td>Security Groups, NACLs, WAF, VPC</td>
+                                <td>IAM, Systems Manager, Inspector</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Analogy</strong></td>
+                                <td>House gate, door locks</td>
+                                <td>Safe inside the house</td>
+                            </tr>
+                            <tr>
+                                <td><strong>First Line</strong></td>
+                                <td>✅ Yes - first defense</td>
+                                <td>❌ No - second defense</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Prevents</strong></td>
+                                <td>Unauthorized connection attempts</td>
+                                <td>Unauthorized actions on system</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🔄 Complete Security Implementation Workflow</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Action</th>
+                                <th>Type</th>
+                                <th>Tools</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Design VPC with public/private subnets</td>
+                                <td>Network</td>
+                                <td>VPC, Subnets, Route Tables</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Configure NACLs for subnet-level filtering</td>
+                                <td>Network</td>
+                                <td>Network ACLs</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Create restrictive Security Groups</td>
+                                <td>Network</td>
+                                <td>Security Groups</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Launch hardened AMI</td>
+                                <td>System</td>
+                                <td>EC2 Image Builder</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Attach IAM role with least privilege</td>
+                                <td>System</td>
+                                <td>IAM</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>Configure OS security settings</td>
+                                <td>System</td>
+                                <td>Systems Manager, User Data</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>Install and configure monitoring</td>
+                                <td>Both</td>
+                                <td>CloudWatch, GuardDuty</td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td>Enable logging and auditing</td>
+                                <td>Both</td>
+                                <td>CloudTrail, VPC Flow Logs</td>
+                            </tr>
+                            <tr>
+                                <td>9</td>
+                                <td>Regular security assessments</td>
+                                <td>Both</td>
+                                <td>Inspector, Security Hub</td>
+                            </tr>
+                            <tr>
+                                <td>10</td>
+                                <td>Continuous patch management</td>
+                                <td>System</td>
+                                <td>Patch Manager</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🎯 Key Takeaways</h3>
                     <ul>
-                        <li>Install kubectl and AWS CLI</li>
-                        <li>Run: <code>aws eks update-kubeconfig --name my-eks-cluster --region us-east-1</code></li>
-                        <li>Verify: <code>kubectl get nodes</code></li>
+                        <li><strong>Defense in Depth:</strong> Use both network and system hardening</li>
+                        <li><strong>Network Hardening:</strong> First line of defense - prevents unauthorized connections</li>
+                        <li><strong>System Hardening:</strong> Second line of defense - limits what can be done after access</li>
+                        <li><strong>Default Insecure:</strong> Fresh OS installations are open by default - must be hardened</li>
+                        <li><strong>Continuous Process:</strong> Hardening is not one-time - requires ongoing maintenance</li>
+                        <li><strong>If you can't reach it, you can't attack it</strong> - Network hardening principle</li>
                     </ul>
-                </li>
-            </ol>
 
-            <h3>EKS vs ECS vs Kubernetes Comparison</h3>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="exam-prep">📝 AWS Certification Exam Preparation</h2></summary>
+                <div class="section-content">
+
+                    <h3>🎓 AWS Certified Cloud Practitioner Exam Details</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Exam Attribute</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Exam Code</strong></td>
+                                <td>CLF-C02</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Duration</strong></td>
+                                <td>90 minutes (+ 30 min accommodation for non-native English speakers)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Number of Questions</strong></td>
+                                <td>65 questions (mix of multiple choice and multiple response)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Passing Score</strong></td>
+                                <td>700 out of 1000 points</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cost</strong></td>
+                                <td>$100 USD (+ taxes ≈ $118-120 USD)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Validity</strong></td>
+                                <td>3 years from certification date</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Retake Policy</strong></td>
+                                <td>Must wait 14 days before retaking after failure</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📋 Registration Process</h3>
+
+                    <h4>Step 1: Create AWS Certification Account</h4>
+                    <ol>
+                        <li>Go to: <a href="https://www.aws.training/certification" target="_blank">https://www.aws.training/certification</a></li>
+                        <li>Click <strong>Sign In</strong> or <strong>Create Account</strong></li>
+                        <li>Use your email to create AWS Builder ID</li>
+                        <li>Complete profile with:
+                            <ul>
+                                <li><strong>Full Name</strong> (as on government ID)</li>
+                                <li>Contact information</li>
+                                <li>Current role (e.g., Cloud Engineer, Student)</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Critical:</strong> Name on certification account MUST match your government-issued ID exactly. Contact support immediately if name is incorrect.</p>
+                    </div>
+
+                    <h4>Step 2: Request Exam Accommodation (Extra 30 Minutes)</h4>
+                    <ol>
+                        <li>After logging in, go to <strong>Exam Registration</strong></li>
+                        <li>Click <strong>Exam Accommodations</strong></li>
+                        <li>Click <strong>Request Accommodation</strong></li>
+                        <li>Select: <strong>ESL +30 Minutes</strong> (English as Second Language)</li>
+                        <li>Submit request (typically approved within 24 hours)</li>
+                    </ol>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Benefit:</strong> This adds 30 extra minutes (90 + 30 = 120 minutes total) for non-native English speakers at no additional cost.</p>
+                    </div>
+
+                    <h4>Step 3: Schedule Your Exam</h4>
+
+                    <h5>Option A: Online Proctored Exam (Recommended)</h5>
+                    <ol>
+                        <li>Click <strong>Schedule an Exam</strong></li>
+                        <li>Select: <strong>CLF-C02 - AWS Certified Cloud Practitioner</strong></li>
+                        <li>Choose: <strong>Online with OnVUE</strong></li>
+                        <li>Select exam language: <strong>English</strong></li>
+                        <li>Accept terms and conditions</li>
+                        <li>Choose date and time:
+                            <ul>
+                                <li>Available 24/7 (including late night slots)</li>
+                                <li>Recommended: Morning hours (6-10 AM) for minimal interruptions</li>
+                            </ul>
+                        </li>
+                        <li>Enter voucher code when prompted</li>
+                        <li>Complete payment (should be $0 with voucher)</li>
+                        <li>Receive confirmation email</li>
+                    </ol>
+
+                    <h5>Option B: Test Center Exam</h5>
+                    <ol>
+                        <li>Click <strong>Schedule an Exam</strong></li>
+                        <li>Select: <strong>CLF-C02 - AWS Certified Cloud Practitioner</strong></li>
+                        <li>Choose: <strong>Test Center</strong></li>
+                        <li>Enter your location to find nearby Pearson VUE test centers</li>
+                        <li>Select test center</li>
+                        <li>Choose available date and time</li>
+                        <li>Enter voucher code</li>
+                        <li>Arrive 30 minutes early on exam day with government ID</li>
+                    </ol>
+
+                    <h3>💻 Online Exam Technical Requirements</h3>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Warning:</strong> Most technical failures in online exams occur due to:<br>
+                        1. Using work/employer laptop (restrictive security settings)<br>
+                        2. Unreliable Wi-Fi connection</p>
+                    </div>
+
+                    <h4>✅ System Requirements</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Requirement</th>
+                                <th>Specification</th>
+                                <th>Why Important</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Computer</strong></td>
+                                <td>Personal laptop/desktop (NOT employer-issued)</td>
+                                <td>Avoid corporate security restrictions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Internet</strong></td>
+                                <td>Wired connection OR reliable 5G mobile hotspot</td>
+                                <td>Prevent disconnections</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Power</strong></td>
+                                <td>Fully charged + plugged into charger</td>
+                                <td>Avoid battery drain mid-exam</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Webcam</strong></td>
+                                <td>Working camera (built-in or external)</td>
+                                <td>Proctor monitors you via video</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Microphone</strong></td>
+                                <td>Working microphone</td>
+                                <td>Proctor may ask questions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Operating System</strong></td>
+                                <td>Windows 10/11 or macOS 10.13+</td>
+                                <td>OnVUE software compatibility</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>🏠 Testing Environment Requirements</h4>
+                    <ul>
+                        <li><strong>✅ Private room:</strong> Distraction-free, no other people</li>
+                        <li><strong>✅ Clean desk:</strong> Only laptop and mouse (no keyboard for laptops)</li>
+                        <li><strong>✅ No mirrors:</strong> Remove or cover mirrors in the room</li>
+                        <li><strong>✅ Closed door:</strong> No one can enter during exam</li>
+                        <li><strong>✅ Good lighting:</strong> Proctor must see your face clearly</li>
+                        <li><strong>❌ No watches:</strong> Must remove all wristwatches</li>
+                        <li><strong>❌ No phones visible:</strong> After room photos, keep phone away</li>
+                        <li><strong>❌ No food/drinks:</strong> Not allowed during exam</li>
+                        <li><strong>❌ No headphones:</strong> Bluetooth devices prohibited</li>
+                        <li><strong>❌ No additional monitors:</strong> Disconnect extra screens</li>
+                    </ul>
+
+                    <h3>🔐 Online Exam Check-In Process (30 Minutes Before)</h3>
+
+                    <h4>Phase 1: System Test (Do this NOW + on exam day)</h4>
+                    <ol>
+                        <li>Visit: <a href="https://home.pearsonvue.com/aws/onvue" target="_blank">Pearson VUE OnVUE System Test</a></li>
+                        <li>Click <strong>Run System Test</strong></li>
+                        <li>Download OnVUE application</li>
+                        <li>System test checks:
+                            <ul>
+                                <li>✅ Internet speed (minimum 1 Mbps upload/download)</li>
+                                <li>✅ Webcam functionality</li>
+                                <li>✅ Microphone functionality</li>
+                                <li>✅ Screen sharing capability</li>
+                            </ul>
+                        </li>
+                        <li>If all checks pass → System is ready</li>
+                    </ol>
+
+                    <h4>Phase 2: Check-In (30 Minutes Before Exam)</h4>
+                    <ol>
+                        <li><strong>Launch OnVUE application</strong> (installed during system test)</li>
+                        <li><strong>Enter Access Code</strong> (from confirmation email)</li>
+                        <li><strong>Wait for Proctor</strong> (usually 5-15 minutes)</li>
+                    </ol>
+
+                    <h4>Phase 3: Testing Space Verification</h4>
+                    <p>Proctor will ask you to:</p>
+                    <ol>
+                        <li><strong>Show your room:</strong> Lift laptop and pan 360° slowly
+                            <ul>
+                                <li>Show all four walls</li>
+                                <li>Show desk area (must be clear)</li>
+                                <li>Show under desk</li>
+                                <li>Confirm door is closed</li>
+                            </ul>
+                        </li>
+                        <li><strong>Show your hands:</strong> Front and back of both hands
+                            <ul>
+                                <li>Confirm no watches</li>
+                                <li>Confirm no rings with cameras/devices</li>
+                            </ul>
+                        </li>
+                        <li><strong>Show your ears:</strong> No earphones/hearing devices</li>
+                        <li><strong>Show area around laptop:</strong> No papers, books, phones</li>
+                    </ol>
+
+                    <h4>Phase 4: Photo ID Verification</h4>
+                    <ol>
+                        <li>Proctor will send a <strong>link to your mobile phone</strong></li>
+                        <li>Open link on phone and upload:
+                            <ul>
+                                <li><strong>Photo of government ID:</strong> Passport, Driver's License, or Aadhaar Card
+                                    <ul>
+                                        <li>Must be clear and readable</li>
+                                        <li>Name must match certification account</li>
+                                    </ul>
+                                </li>
+                                <li><strong>4 Photos of your testing space:</strong>
+                                    <ul>
+                                        <li>Front of your laptop</li>
+                                        <li>Right side of laptop</li>
+                                        <li>Back of laptop</li>
+                                        <li>Left side of laptop</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>After uploading, <strong>keep phone away</strong> from testing area</li>
+                    </ol>
+
+                    <h4>Phase 5: Exam Begins</h4>
+                    <p>Once proctor confirms everything:</p>
+                    <ul>
+                        <li>Exam will be released on your screen</li>
+                        <li>Proctor monitors you throughout via webcam</li>
+                        <li>Do NOT:
+                            <ul>
+                                <li>Look away from screen for extended time</li>
+                                <li>Talk or move lips (even silently)</li>
+                                <li>Stand up or leave seat</li>
+                                <li>Cover your face</li>
+                            </ul>
+                        </li>
+                        <li>Allowed to:
+                            <ul>
+                                <li>Use on-screen whiteboard for calculations</li>
+
+                                <!-- Part 3 Continuation - AWS Frameworks & Security Overview -->
+
+                                <li>Flag questions for review</li>
+                                <li>Take brief breaks (timer continues)</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Real Incident - Learn from Instructor's Experience:</strong><br>
+                        The instructor failed twice due to technical issues:<br>
+                        <strong>Attempt 1:</strong> Laptop battery died mid-exam (not plugged in) → Moving to plug charger = violation → Exam cancelled<br>
+                        <strong>Attempt 2:</strong> Power outage = Wi-Fi disconnected → Exam failed<br>
+                        <strong>Attempt 3 (SUCCESS):</strong> Laptop fully charged + plugged in + 5G mobile hotspot → Passed!<br><br>
+                        <strong>Lesson:</strong> Use mobile hotspot instead of home Wi-Fi to avoid power outage issues.</p>
+                    </div>
+
+                    <h3>📚 Study Resources & Preparation</h3>
+
+                    <h4>✅ Recommended Free Resources</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Type</th>
+                                <th>Link</th>
+                                <th>Time Investment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>AWS Skill Builder</strong></td>
+                                <td>Official Course</td>
+                                <td><a href="https://explore.skillbuilder.aws/" target="_blank">AWS Skill Builder</a></td>
+                                <td>16 hours</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Educate</strong></td>
+                                <td>Hands-on Labs</td>
+                                <td><a href="https://aws.amazon.com/education/awseducate/" target="_blank">AWS Educate</a></td>
+                                <td>20+ hours</td>
+                            </tr>
+                            <tr>
+                                <td><strong>FreeCodeCamp</strong></td>
+                                <td>Video Course</td>
+                                <td><a href="https://www.youtube.com/watch?v=SOTamWNgDKc" target="_blank">14-hour Cloud Practitioner</a></td>
+                                <td>14 hours</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Whitepapers</strong></td>
+                                <td>Documentation</td>
+                                <td>
+                                    • <a href="https://aws.amazon.com/architecture/well-architected/" target="_blank">Well-Architected Framework</a><br>
+                                    • <a href="https://d1.awsstatic.com/whitepapers/aws-overview.pdf" target="_blank">AWS Overview</a>
+                                </td>
+                                <td>4-6 hours</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Sample Questions</strong></td>
+                                <td>Practice Test</td>
+                                <td><a href="https://d1.awsstatic.com/training-and-certification/docs-cloud-practitioner/AWS-Certified-Cloud-Practitioner_Sample-Questions.pdf" target="_blank">Official Sample</a></td>
+                                <td>30 minutes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ExamTopics</strong></td>
+                                <td>Practice Questions</td>
+                                <td><a href="https://www.examtopics.com/exams/amazon/aws-certified-cloud-practitioner/" target="_blank">ExamTopics CLF-C02</a></td>
+                                <td>Ongoing</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>📅 Recommended Study Plan (4 Weeks)</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Week</th>
+                                <th>Focus Areas</th>
+                                <th>Activities</th>
+                                <th>Hours/Week</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Week 1</strong></td>
+                                <td>Cloud Concepts, EC2, S3</td>
+                                <td>
+                                    • Watch AWS Restart recordings<br>
+                                    • Complete AWS Educate labs<br>
+                                    • Read overview notes<br>
+                                    • Practice 20 MCQs
+                                </td>
+                                <td>15-20</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Week 2</strong></td>
+                                <td>IAM, VPC, Databases, Security</td>
+                                <td>
+                                    • AWS Skill Builder modules<br>
+                                    • Hands-on labs<br>
+                                    • Create flashcards<br>
+                                    • Practice 30 MCQs
+                                </td>
+                                <td>15-20</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Week 3</strong></td>
+                                <td>Pricing, Support, Architecture</td>
+                                <td>
+                                    • FreeCodeCamp video<br>
+                                    • Read WAF/CAF whitepapers<br>
+                                    • Review weak areas<br>
+                                    • Practice 50 MCQs
+                                </td>
+                                <td>15-20</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Week 4</strong></td>
+                                <td>Full Revision & Practice Tests</td>
+                                <td>
+                                    • Take 3-4 full practice tests<br>
+                                    • Review incorrect answers<br>
+                                    • Memorize key facts<br>
+                                    • Final revision
+                                </td>
+                                <td>20-25</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Instructor's Advice:</strong> "Take the exam within 1 month of completing the program. Don't wait longer - your knowledge is freshest now. Schedule your exam ASAP to create urgency."</p>
+                    </div>
+
+                    <h3>⚡ Quick Tips for Exam Day</h3>
+                    <ul>
+                        <li><strong>✅ Do System Test:</strong> Run it 1 day before + 1 hour before exam</li>
+                        <li><strong>✅ Use Mobile Hotspot:</strong> More reliable than home Wi-Fi</li>
+                        <li><strong>✅ Sit Close to Camera:</strong> Camera should capture only your face (not whole room)</li>
+                        <li><strong>✅ Join 30 Minutes Early:</strong> Complete check-in process without rushing</li>
+                        <li><strong>✅ Remove All Watches:</strong> Even fitness trackers</li>
+                        <li><strong>✅ Clear Desk Completely:</strong> Only laptop and mouse</li>
+                        <li><strong>✅ Use Bathroom Before:</strong> No breaks allowed</li>
+                        <li><strong>✅ Flag Difficult Questions:</strong> Come back later</li>
+                        <li><strong>❌ Don't Move Lips:</strong> Proctor will warn/cancel exam</li>
+                        <li><strong>❌ Don't Look Away:</strong> Keep eyes on screen</li>
+                        <li><strong>❌ Don't Stand Up:</strong> Stay seated entire duration</li>
+                    </ul>
+
+                    <h3>🎯 Key Takeaways - Exam Preparation</h3>
+                    <ul>
+                        <li><strong>Schedule within 1 month</strong> of training completion</li>
+                        <li><strong>Request ESL accommodation</strong> for extra 30 minutes</li>
+                        <li><strong>Choose online exam</strong> for flexibility (morning slots recommended)</li>
+                        <li><strong>Use personal laptop + mobile hotspot</strong> for reliability</li>
+                        <li><strong>Complete system test</strong> before exam day</li>
+                        <li><strong>Join 30 minutes early</strong> for smooth check-in</li>
+                        <li><strong>Follow proctor rules strictly</strong> to avoid cancellation</li>
+                    </ul>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="best-practices">✅ Best Practices Summary</h2></summary>
+                <div class="section-content">
+
+                    <h3>🏛️ Well-Architected Framework Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pillar</th>
+                                <th>Best Practice</th>
+                                <th>Implementation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Operational Excellence</strong></td>
+                                <td>Automate operations tasks</td>
+                                <td>Use Systems Manager, CloudFormation, Lambda</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security</strong></td>
+                                <td>Implement defense in depth</td>
+                                <td>Multiple security layers (network + system hardening)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reliability</strong></td>
+                                <td>Design for failure</td>
+                                <td>Multi-AZ deployment, Auto Scaling, automated backups</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Use right-sized resources</td>
+                                <td>Match instance types to workload requirements</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cost</strong></td>
+                                <td>Monitor and optimize spending</td>
+                                <td>Cost Explorer, Budgets, Reserved Instances</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sustainability</strong></td>
+                                <td>Maximize resource utilization</td>
+                                <td>Auto Scaling, S3 Intelligent-Tiering, Graviton instances</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🚀 Cloud Adoption Framework Best Practices</h3>
+                    <ul>
+                        <li><strong>Business:</strong> Define clear success metrics before migration</li>
+                        <li><strong>People:</strong> Invest in training 3-6 months before migration</li>
+                        <li><strong>Governance:</strong> Establish cloud governance policies early</li>
+                        <li><strong>Platform:</strong> Build landing zone before workload migration</li>
+                        <li><strong>Security:</strong> Implement security controls from day one</li>
+                        <li><strong>Operations:</strong> Set up monitoring and incident response first</li>
+                    </ul>
+
+                    <h3>🔒 Security Hardening Best Practices</h3>
+
+                    <h4>Network Hardening</h4>
+                    <ul>
+                        <li><strong>Least Privilege Network Access:</strong> Open only required ports</li>
+                        <li><strong>Source IP Restriction:</strong> Limit SSH to specific IPs</li>
+                        <li><strong>Use Security Groups First:</strong> Primary defense mechanism</li>
+                        <li><strong>Network Segmentation:</strong> Separate public and private subnets</li>
+                        <li><strong>Enable VPC Flow Logs:</strong> Monitor all network traffic</li>
+                    </ul>
+
+                    <h4>System Hardening</h4>
+                    <ul>
+                        <li><strong>Patch Management:</strong> Automate security updates</li>
+                        <li><strong>Disable Root Login:</strong> Use sudo with regular accounts</li>
+                        <li><strong>Remove Unnecessary Services:</strong> Stop unused daemons</li>
+                        <li><strong>Strong Password Policies:</strong> Or better, use key-based authentication</li>
+                        <li><strong>Enable Logging:</strong> Track all system activities</li>
+                        <li><strong>Use IAM Roles:</strong> Never hardcode credentials</li>
+                    </ul>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="resources">🔗 Additional Resources</h2></summary>
+                <div class="section-content">
+
+                    <h3>📚 Official AWS Documentation</h3>
+                    <ul>
+                        <li><strong>Well-Architected Framework:</strong> <a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html" target="_blank">https://docs.aws.amazon.com/wellarchitected/</a></li>
+                        <li><strong>Cloud Adoption Framework:</strong> <a href="https://aws.amazon.com/cloud-adoption-framework/" target="_blank">https://aws.amazon.com/cloud-adoption-framework/</a></li>
+                        <li><strong>Security Best Practices:</strong> <a href="https://docs.aws.amazon.com/security/" target="_blank">https://docs.aws.amazon.com/security/</a></li>
+                        <li><strong>AWS Certification:</strong> <a href="https://aws.amazon.com/certification/" target="_blank">https://aws.amazon.com/certification/</a></li>
+                    </ul>
+
+                    <h3>🎥 Video Resources</h3>
+                    <ul>
+                        <li><strong>AWS Official YouTube Channel:</strong> <a href="https://www.youtube.com/user/AmazonWebServices" target="_blank">AWS YouTube</a></li>
+                        <li><strong>FreeCodeCamp Cloud Practitioner:</strong> <a href="https://www.youtube.com/watch?v=SOTamWNgDKc" target="_blank">14-hour Full Course</a></li>
+                        <li><strong>AWS re:Invent Sessions:</strong> <a href="https://reinvent.awsevents.com/" target="_blank">Latest AWS Announcements</a></li>
+                    </ul>
+
+                    <h3>📖 Recommended Reading</h3>
+                    <ul>
+                        <li><strong>AWS Certified Cloud Practitioner Study Guide</strong> (Official)</li>
+                        <li><strong>AWS Well-Architected Framework Whitepaper</strong> (Free)</li>
+                        <li><strong>AWS Security Best Practices Whitepaper</strong> (Free)</li>
+                    </ul>
+
+                    <h3>🧪 Practice Platforms</h3>
+                    <ul>
+                        <li><strong>AWS Skill Builder:</strong> Official practice exams</li>
+                        <li><strong>Whizlabs:</strong> Practice tests and labs</li>
+                        <li><strong>Tutorials Dojo:</strong> Highly rated practice exams</li>
+                        <li><strong>ExamTopics:</strong> Free community-contributed questions</li>
+                    </ul>
+
+                    <h3>🛠️ Hands-On Practice</h3>
+                    <ul>
+                        <li><strong>AWS Free Tier:</strong> <a href="https://aws.amazon.com/free/" target="_blank">12 months free services</a></li>
+                        <li><strong>AWS Educate:</strong> Labs and learning paths</li>
+                        <li><strong>CloudAcademy:</strong> Sandbox environments</li>
+                        <li><strong>A Cloud Guru:</strong> Hands-on labs</li>
+                    </ul>
+
+                </div>
+            </details>
+
+            <h2>📋 Final Preparation Checklist</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>Feature</th>
-                        <th>ECS</th>
-                        <th>EKS</th>
-                        <th>Self-Managed K8s</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Complexity</td>
-                        <td>Low</td>
-                        <td>Medium</td>
-                        <td>High</td>
-                    </tr>
-                    <tr>
-                        <td>Kubernetes</td>
-                        <td>No</td>
-                        <td>Yes</td>
-                        <td>Yes</td>
-                    </tr>
-                    <tr>
-                        <td>Management Overhead</td>
-                        <td>Very Low</td>
-                        <td>Low (control plane)</td>
-                        <td>High (everything)</td>
-                    </tr>
-                    <tr>
-                        <td>Cloud Portability</td>
-                        <td>AWS-only</td>
-                        <td>Limited (K8s standard)</td>
-                        <td>Full portability</td>
-                    </tr>
-                    <tr>
-                        <td>Cost</td>
-                        <td>No extra fees</td>
-                        <td>$0.10/hour per cluster</td>
-                        <td>EC2 costs only</td>
-                    </tr>
-                    <tr>
-                        <td>Learning Curve</td>
-                        <td>Gentle</td>
-                        <td>Steep</td>
-                        <td>Very Steep</td>
-                    </tr>
-                    <tr>
-                        <td>Best For</td>
-                        <td>Simple AWS apps</td>
-                        <td>K8s + AWS benefits</td>
-                        <td>Multi-cloud expertise</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h2 id="best-practices">✅ Best Practices</h2>
-
-            <h3>Docker Best Practices</h3>
-            <ul>
-                <li>✅ Use official base images from Docker Hub</li>
-                <li>✅ Keep images small (use alpine or slim variants)</li>
-                <li>✅ Use specific image tags (avoid <code>latest</code> in production)</li>
-                <li>✅ Minimize layers in Dockerfile</li>
-                <li>✅ Use <code>.dockerignore</code> to exclude unnecessary files</li>
-                <li>✅ Run containers as non-root user</li>
-                <li>✅ Use multi-stage builds for smaller images</li>
-                <li>✅ Scan images for vulnerabilities before deployment</li>
-            </ul>
-
-            <h3>Container Security</h3>
-            <ul>
-                <li>🔒 Never store secrets in images</li>
-                <li>🔒 Use environment variables or secret management services</li>
-                <li>🔒 Regularly update base images and dependencies</li>
-                <li>🔒 Implement least privilege access</li>
-                <li>🔒 Enable image scanning in ECR</li>
-                <li>🔒 Use private registries for proprietary applications</li>
-            </ul>
-
-            <h3>Kubernetes Best Practices</h3>
-            <ul>
-                <li>✅ Define resource requests and limits</li>
-                <li>✅ Use namespaces to organize resources</li>
-                <li>✅ Implement readiness and liveness probes</li>
-                <li>✅ Use ConfigMaps for configuration</li>
-                <li>✅ Use Secrets for sensitive data</li>
-                <li>✅ Implement RBAC (Role-Based Access Control)</li>
-                <li>✅ Use Deployments (not bare Pods)</li>
-                <li>✅ Enable Pod autoscaling (HPA)</li>
-                <li>✅ Use Service Mesh for complex microservices</li>
-            </ul>
-
-            <h3>ECS/EKS Best Practices</h3>
-            <ul>
-                <li>💰 Use Fargate for variable workloads to optimize costs</li>
-                <li>💰 Use Spot Instances for non-critical workloads</li>
-                <li>✅ Enable container insights for monitoring</li>
-                <li>✅ Use Application Load Balancer for HTTP/HTTPS traffic</li>
-                <li>✅ Implement auto-scaling policies</li>
-                <li>✅ Use ECR for private image storage</li>
-                <li>✅ Enable logging to CloudWatch</li>
-                <li>✅ Tag resources for cost allocation</li>
-            </ul>
-
-            <h3>Production Deployment Checklist</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Category</th>
                         <th>Checkpoint</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Images</td>
-                        <td>Stored in private registry (ECR)</td>
-                        <td>☐</td>
+                        <td>Understood WAF six pillars</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="waf-pillars"></td>
                     </tr>
                     <tr>
-                        <td>Security</td>
-                        <td>Vulnerability scanning enabled</td>
-                        <td>☐</td>
+                        <td>Understood CAF six perspectives</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="caf-perspectives"></td>
                     </tr>
                     <tr>
-                        <td>Resources</td>
-                        <td>CPU/Memory limits defined</td>
-                        <td>☐</td>
+                        <td>Can differentiate WAF vs CAF</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="waf-vs-caf"></td>
                     </tr>
                     <tr>
-                        <td>Health</td>
-                        <td>Health checks configured</td>
-                        <td>☐</td>
+                        <td>Understood network hardening concepts</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="network-hardening"></td>
                     </tr>
                     <tr>
-                        <td>Scaling</td>
-                        <td>Auto-scaling policies set</td>
-                        <td>☐</td>
+                        <td>Understood system hardening concepts</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="system-hardening"></td>
                     </tr>
                     <tr>
-                        <td>Monitoring</td>
-                        <td>Logging and metrics enabled</td>
-                        <td>☐</td>
+                        <td>Configured Security Groups in practice</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="sg-practice"></td>
                     </tr>
                     <tr>
-                        <td>Networking</td>
-                        <td>Load balancer configured</td>
-                        <td>☐</td>
+                        <td>Configured IAM roles in practice</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="iam-practice"></td>
                     </tr>
                     <tr>
-                        <td>Backup</td>
-                        <td>Persistent data backed up</td>
-                        <td>☐</td>
+                        <td>Created AWS certification account</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="cert-account"></td>
+                    </tr>
+                    <tr>
+                        <td>Requested exam accommodation (ESL +30 min)</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="exam-accommodation"></td>
+                    </tr>
+                    <tr>
+                        <td>Completed system test for online exam</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="system-test"></td>
+                    </tr>
+                    <tr>
+                        <td>Scheduled exam date within 1 month</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="exam-scheduled"></td>
+                    </tr>
+                    <tr>
+                        <td>Prepared testing environment (room, laptop, internet)</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="testing-env"></td>
+                    </tr>
+                    <tr>
+                        <td>Practiced 100+ MCQs</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="mcq-practice"></td>
+                    </tr>
+                    <tr>
+                        <td>Reviewed all weak areas</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="weak-areas"></td>
+                    </tr>
+                    <tr>
+                        <td>Ready to take the exam!</td>
+                        <td><input type="checkbox" class="checklist-item" data-key="ready-exam"></td>
                     </tr>
                 </tbody>
             </table>
 
-            <h3>Common Mistakes to Avoid</h3>
-            <div class="error-box">
-                <p>❌ <strong>Don't:</strong></p>
-                <ul>
-                    <li>Run containers as root user</li>
-                    <li>Use <code>latest</code> tag in production</li>
-                    <li>Store secrets in images or environment variables</li>
-                    <li>Ignore resource limits (causes node crashes)</li>
-                    <li>Skip health checks</li>
-                    <li>Deploy directly to production without testing</li>
-                    <li>Forget to implement logging</li>
-                    <li>Over-provision resources (increases costs)</li>
-                </ul>
-            </div>
-
-            <h3>Optimization Tips</h3>
             <div class="success-box">
-                <p>💡 <strong>Performance Optimization:</strong></p>
-                <ul>
-                    <li>Use multi-stage builds to reduce image size</li>
-                    <li>Implement caching strategies for builds</li>
-                    <li>Use CDN for static content</li>
-                    <li>Enable container image caching</li>
-                    <li>Optimize application startup time</li>
-                    <li>Use horizontal pod autoscaling</li>
-                    <li>Implement proper resource requests/limits</li>
-                </ul>
+                <p>✅ <strong>Instructor's Final Message:</strong></p>
+                <p>"Every batch is unique, and this batch has been exceptional. I'm proud of your dedication - managing families, kids, and personal responsibilities while completing this program. You've earned this. Now go clear that exam and make yourself proud. All the best! 🎓"</p>
+                <p style="text-align: right;"><em>- Sai Kumar, AWS Instructor</em></p>
             </div>
-
-            <h3>🔗 Key Takeaways</h3>
-            <ul>
-                <li>Docker provides containerization; orchestration tools manage containers at scale</li>
-                <li>Kubernetes is industry-standard, cloud-agnostic orchestration</li>
-                <li>AWS ECS simplifies container management without Kubernetes complexity</li>
-                <li>AWS EKS provides managed Kubernetes on AWS infrastructure</li>
-                <li>Choose based on requirements: ECS for simplicity, EKS for Kubernetes ecosystem, self-managed for full control</li>
-                <li>Always implement security, monitoring, and scaling from the start</li>
-                <li>Use infrastructure as code (IaC) for reproducible deployments</li>
-                <li>Continuous learning is essential - container technology evolves rapidly</li>
-            </ul>
-
-            <h3>📚 Additional Resources for Study</h3>
-            <ul>
-                <li><strong>Docker Documentation:</strong> <a href="https://docs.docker.com/" target="_blank">docs.docker.com</a></li>
-                <li><strong>Kubernetes Documentation:</strong> <a href="https://kubernetes.io/docs/" target="_blank">kubernetes.io/docs</a></li>
-                <li><strong>AWS ECS Documentation:</strong> <a href="https://docs.aws.amazon.com/ecs/" target="_blank">docs.aws.amazon.com/ecs</a></li>
-                <li><strong>AWS EKS Documentation:</strong> <a href="https://docs.aws.amazon.com/eks/" target="_blank">docs.aws.amazon.com/eks</a></li>
-                <li><strong>Recommended Video:</strong> Learn with Chirag - Complete CI/CD Project (2 hours)</li>
-            </ul>
 
         </div>
 
         <div class="tags">
-            <span class="tag">Docker</span>
-            <span class="tag">Kubernetes</span>
-            <span class="tag">AWS ECS</span>
-            <span class="tag">AWS EKS</span>
-            <span class="tag">Container Orchestration</span>
-            <span class="tag">DevOps</span>
+            <span class="tag">AWS</span>
+            <span class="tag">Well-Architected Framework</span>
+            <span class="tag">Cloud Adoption Framework</span>
+            <span class="tag">Security</span>
+            <span class="tag">Network Hardening</span>
+            <span class="tag">System Hardening</span>
+            <span class="tag">Certification</span>
+            <span class="tag">Cloud Practitioner</span>
         </div>
     </div>
 
     <script src="../../../js/theme.js"></script>
+    <script src="../../../js/notes-template.js"></script>
 </body>
 </html>

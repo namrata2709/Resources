@@ -358,4 +358,904 @@ body {
     .theme-toggle {
         display: none;
     }
+}/**
+ * Notes Template Stylesheet
+ * Universal styles for all note pages (overview.html and complete.html)
+ * File location: css/notes-template.css
+ * Linked in HTML as: <link rel="stylesheet" href="../../../css/notes-template.css">
+ */
+
+/* ============================================
+   CSS VARIABLES & THEME
+   ============================================ */
+
+:root {
+    /* Light theme colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-code: #f5f5f5;
+    --text-primary: #2c3e50;
+    --text-secondary: #5a6c7d;
+    --text-muted: #95a5a6;
+    --border-color: #e1e8ed;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --accent: #3498db;
+    --accent-hover: #2980b9;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --error: #e74c3c;
+    --info: #3498db;
+    
+    /* Interactive elements */
+    --highlight-bg: #fff9e6;
+    --highlight-border: #ffd700;
+    --info-bg: #e3f2fd;
+    --info-border: #2196f3;
+    --success-bg: #e8f5e9;
+    --success-border: #4caf50;
+    --error-bg: #ffebee;
+    --error-border: #f44336;
+    
+    /* Quiz colors */
+    --quiz-correct: #d4edda;
+    --quiz-incorrect: #f8d7da;
+    --quiz-border-correct: #28a745;
+    --quiz-border-incorrect: #dc3545;
+    
+    /* Flashcard colors */
+    --flashcard-bg: #ffffff;
+    --flashcard-border: #dee2e6;
+    --flashcard-shadow: rgba(0, 0, 0, 0.15);
+    
+    /* Progress bar */
+    --progress-bg: #e9ecef;
+    --progress-fill: #28a745;
+}
+
+[data-theme="dark"] {
+    /* Dark theme colors */
+    --bg-primary: #1a1d23;
+    --bg-secondary: #252932;
+    --bg-code: #2d3139;
+    --text-primary: #e4e6eb;
+    --text-secondary: #b0b3b8;
+    --text-muted: #8a8d91;
+    --border-color: #3a3d44;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --accent: #4a9eff;
+    --accent-hover: #6db3ff;
+    --success: #3dd598;
+    --warning: #ffa726;
+    --error: #ef5350;
+    --info: #4a9eff;
+    
+    --highlight-bg: #3a3520;
+    --highlight-border: #ffd700;
+    --info-bg: #1e3a5f;
+    --info-border: #4a9eff;
+    --success-bg: #1e3d2f;
+    --success-border: #3dd598;
+    --error-bg: #3d1e1e;
+    --error-border: #ef5350;
+    
+    --quiz-correct: #1e3d2f;
+    --quiz-incorrect: #3d1e1e;
+    --quiz-border-correct: #3dd598;
+    --quiz-border-incorrect: #ef5350;
+    
+    --flashcard-bg: #252932;
+    --flashcard-border: #3a3d44;
+    --flashcard-shadow: rgba(0, 0, 0, 0.4);
+    
+    --progress-bg: #3a3d44;
+    --progress-fill: #3dd598;
+}
+
+/* ============================================
+   GLOBAL STYLES
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.7;
+    font-size: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================
+   THEME TOGGLE BUTTON
+   ============================================ */
+
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+.theme-icon::before {
+    content: '☀️';
+    font-size: 24px;
+}
+
+[data-theme="dark"] .theme-icon::before {
+    content: '🌙';
+}
+
+/* ============================================
+   NOTE CONTAINER
+   ============================================ */
+
+.note-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background: var(--bg-primary);
+}
+
+.note-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.note-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.note-date {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+.note-content h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.note-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+}
+
+.note-content h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.note-content p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    line-height: 1.8;
+}
+
+.note-content strong {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.note-content em {
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   LISTS
+   ============================================ */
+
+.note-content ul,
+.note-content ol {
+    margin-left: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.note-content ul li,
+.note-content ol li {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+
+.note-content ul ul,
+.note-content ol ol,
+.note-content ul ol,
+.note-content ol ul {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ============================================
+   CODE BLOCKS
+   ============================================ */
+
+.note-content code {
+    background: var(--bg-code);
+    color: var(--accent);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    border: 1px solid var(--border-color);
+}
+
+.note-content pre {
+    background: var(--bg-code);
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+.note-content pre code {
+    background: none;
+    padding: 0;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    display: block;
+}
+
+/* ============================================
+   BLOCKQUOTES
+   ============================================ */
+
+.note-content blockquote {
+    border-left: 4px solid var(--accent);
+    background: var(--bg-secondary);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: var(--text-secondary);
+    border-radius: 0 8px 8px 0;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+
+.note-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.note-content table thead {
+    background: var(--bg-secondary);
+}
+
+.note-content table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.note-content table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.note-content table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.note-content table tbody tr:hover {
+    background: var(--bg-secondary);
+}
+
+/* ============================================
+   SPECIAL BOXES
+   ============================================ */
+
+.highlight-box,
+.info-box,
+.success-box,
+.error-box {
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.highlight-box {
+    background: var(--highlight-bg);
+    border-color: var(--highlight-border);
+}
+
+.info-box {
+    background: var(--info-bg);
+    border-color: var(--info-border);
+}
+
+.success-box {
+    background: var(--success-bg);
+    border-color: var(--success-border);
+}
+
+.error-box {
+    background: var(--error-bg);
+    border-color: var(--error-border);
+}
+
+.highlight-box p,
+.info-box p,
+.success-box p,
+.error-box p {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.highlight-box strong,
+.info-box strong,
+.success-box strong,
+.error-box strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.05em;
+}
+
+/* ============================================
+   IMAGES & DIAGRAMS
+   ============================================ */
+
+.note-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    display: block;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.diagram-container {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.diagram-caption {
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    font-size: 0.95em;
+}
+
+.diagram-placeholder {
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.diagram-placeholder .placeholder-content {
+    color: var(--text-secondary);
+}
+
+.diagram-placeholder strong {
+    color: var(--accent);
+    font-size: 1.1em;
+}
+
+.diagram-placeholder ul {
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+/* ============================================
+   COLLAPSIBLE SECTIONS
+   ============================================ */
+
+.collapsible-section {
+    margin: 1.5rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-primary);
+}
+
+.collapsible-section summary {
+    cursor: pointer;
+    padding: 1rem 1.5rem;
+    background: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+    list-style: none;
+    user-select: none;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.collapsible-section summary:hover {
+    background: var(--bg-code);
+}
+
+.collapsible-section summary::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 0.75rem;
+    transition: transform 0.2s ease;
+    color: var(--accent);
+    font-size: 0.8em;
+}
+
+.collapsible-section[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.collapsible-section summary h2 {
+    display: inline;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.collapsible-section summary h3 {
+    display: inline;
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.section-content {
+    padding: 1.5rem;
+}
+
+/* ============================================
+   INTERACTIVE CHECKLIST
+   ============================================ */
+
+.checklist-progress {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.checklist-progress p {
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 24px;
+    background: var(--progress-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--progress-fill), var(--success));
+    border-radius: 12px;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85em;
+}
+
+.checklist-item {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--success);
+}
+
+/* ============================================
+   QUIZ SYSTEM
+   ============================================ */
+
+.quiz-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.quiz-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.quiz-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow);
+}
+
+.quiz-score {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    display: none;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.quiz-score.excellent {
+    background: var(--success-bg);
+    color: var(--success-border);
+    border: 2px solid var(--success-border);
+}
+
+.quiz-score.good {
+    background: var(--highlight-bg);
+    color: var(--warning);
+    border: 2px solid var(--warning);
+}
+
+.quiz-score.needs-improvement {
+    background: var(--error-bg);
+    color: var(--error-border);
+    border: 2px solid var(--error-border);
+}
+
+.quiz-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.quiz-question {
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.quiz-question.correct {
+    background: var(--quiz-correct);
+    border-color: var(--quiz-border-correct);
+}
+
+.quiz-question.incorrect {
+    background: var(--quiz-incorrect);
+    border-color: var(--quiz-border-incorrect);
+}
+
+.question-number {
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.question-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.quiz-option {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.quiz-option:hover {
+    background: var(--bg-code);
+    border-color: var(--accent);
+}
+
+.quiz-option input[type="radio"] {
+    margin-right: 0.75rem;
+    cursor: pointer;
+    accent-color: var(--accent);
+}
+
+.quiz-option span {
+    flex: 1;
+    color: var(--text-primary);
+}
+
+.quiz-explanation {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--info-bg);
+    border-left: 4px solid var(--info-border);
+    border-radius: 0 6px 6px 0;
+    display: none;
+}
+
+.quiz-explanation strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--info-border);
+}
+
+/* ============================================
+   FLASHCARD SYSTEM
+   ============================================ */
+
+.flashcard-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.flashcard {
+    perspective: 1000px;
+    height: 250px;
+}
+
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flashcard-inner.flipped {
+    transform: rotateY(180deg);
+}
+
+.flashcard-front,
+.flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.5rem;
+    background: var(--flashcard-bg);
+    border: 2px solid var(--flashcard-border);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px var(--flashcard-shadow);
+}
+
+.flashcard-back {
+    transform: rotateY(180deg);
+}
+
+.flashcard h4 {
+    color: var(--accent);
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.flashcard p {
+    flex: 1;
+    color: var(--text-primary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+    overflow-y: auto;
+}
+
+.flip-btn {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.flip-btn:hover {
+    background: var(--accent-hover);
+    transform: scale(1.05);
+}
+
+/* ============================================
+   TAGS
+   ============================================ */
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.tag {
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid var(--border-color);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    .note-container {
+        padding: 15px;
+        margin: 20px auto;
+    }
+    
+    .note-header h1 {
+        font-size: 2rem;
+    }
+    
+    .note-content h2 {
+        font-size: 1.5rem;
+    }
+    
+    .note-content h3 {
+        font-size: 1.25rem;
+    }
+    
+    .theme-toggle {
+        width: 45px;
+        height: 45px;
+        top: 15px;
+        right: 15px;
+    }
+    
+    .flashcard-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .quiz-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .quiz-btn {
+        width: 100%;
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+    .theme-toggle {
+        display: none;
+    }
+    
+    .collapsible-section {
+        border: none;
+    }
+    
+    .collapsible-section summary {
+        display: none;
+    }
+    
+    .section-content {
+        padding: 0;
+    }
+    
+    .quiz-btn {
+        display: none;
+    }
+    
+    .flashcard-container {
+        display: block;
+    }
+    
+    .flashcard {
+        page-break-inside: avoid;
+        margin-bottom: 2rem;
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-center {
+    text-align: center;
+}
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
 }
