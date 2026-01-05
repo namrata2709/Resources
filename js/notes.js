@@ -226,7 +226,7 @@
         const filepath = `data/notes/${folder}/${filename}`;
         
         if (type === 'html') {
-            window.open(filepath, '_blank');
+            window.open(filepath, '_self');
         } else if (type === 'pdf' || type === 'txt') {
             window.open(filepath, '_blank');
         } else if (type === 'doc') {
