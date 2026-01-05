@@ -210,7 +210,7 @@
 
     // Open gallery with folder parameter
     function openGallery(folder) {
-        window.open(`data/notes/images.html?folder=${folder}`, '_blank');
+        window.open(`data/notes/images.html?folder=${folder}`, '_self');
     }
 
     // Open file (navigate or download)
