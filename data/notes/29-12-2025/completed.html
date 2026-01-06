@@ -132,7 +132,9 @@
                     </div>
 
                     <h3>🎨 The Six Pillars: Explained with Everyday Examples</h3>
-
+                    <div class="diagram-container">
+                        <img src="6_pillars_of_the_waf.jpeg" alt="WAF Six Pillars">
+                    </div>
                     <h4>1️⃣ Operational Excellence: "Running Smoothly"</h4>
                     <p><strong>Simple Definition:</strong> How well do you run and monitor your systems?</p>
                     
@@ -431,7 +433,9 @@
                     </div>
 
                     <h3>🛠️ How to Actually Use WAF (Step-by-Step)</h3>
-
+                    <div class="diagram-container">
+                        <img src="waf-review-workflow.png" alt="WAF Review Workflow">
+                    </div>
                     <h4>Method 1: AWS Well-Architected Tool (GUI - Easiest)</h4>
                     <ol>
                         <li><strong>Login to AWS Console</strong>
@@ -580,7 +584,9 @@
                     </div>
 
                     <h3>🎨 The Six Perspectives: Explained with Everyday Examples</h3>
-
+                    <div class="diagram-container">
+                        <img src="caf-migration-journey.png" alt="CAF Migration Journey">
+                    </div>
                     <h4>📊 Business Perspectives (Strategic - WHY we move)</h4>
 
                     <h5>1️⃣ Business Perspective: "The Money Question"</h5>
@@ -985,6 +991,9 @@
                     </blockquote>
 
                     <h3>🎯 Core Security Truth</h3>
+                    <div class="diagram-container">
+                        <img src="defense-in-depth.png" alt="Defense in Depth Concept">
+                    </div>
                     <div class="highlight-box">
                         <p>⚠️ <strong>Golden Rule of Security:</strong> Security is about <strong>controlling access</strong>. There are TWO control points:</p>
                         <ol>
@@ -1306,7 +1315,9 @@ aws ec2 authorize-security-group-ingress \
                     </table>
 
                     <h3>💻 System Hardening: "The Inner Safe"</h3>
-
+                    <div class="diagram-container">
+                        <img src="system-hardening-layers.png" alt="System Hardening Layers">
+                    </div>
                     <h4>📖 Simple Definition</h4>
                     <p><strong>System Hardening</strong> = Controlling what users can do AFTER they've accessed the system.</p>
 
@@ -3215,5 +3226,495 @@ sudo systemctl enable yum-cron
 sudo systemctl start yum-cron
 
 # Verify
-sudo systemctl status yum-cron</code>
+sudo systemctl status yum-cron
+
+</code></pre>
+
+                    <p><strong>5.3: Set Strict File Permissions</strong></p>
+                    <pre><code># Secure SSH directory
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+
+# Secure web files (owned by apache user)
+sudo chown -R apache:apache /var/www/html
+sudo chmod 755 /var/www/html
+sudo chmod 644 /var/www/html/index.html
+
+# Verify
+ls -la ~/.ssh
+ls -la /var/www/html</code></pre>
+
+                    <p><strong>5.4: Remove Unnecessary Services</strong></p>
+                    <pre><code># List all services
+sudo systemctl list-units --type=service
+
+# Remove telnet (if installed - insecure)
+sudo yum remove telnet -y
+
+# Disable unnecessary services (example)
+# sudo systemctl disable bluetooth  # if server has it</code></pre>
+
+                    <p><strong>5.5: Install and Configure Fail2Ban (Auto-ban brute force)</strong></p>
+                    <pre><code># Install EPEL repository
+sudo yum install epel-release -y
+
+# Install fail2ban
+sudo yum install fail2ban -y
+
+# Configure fail2ban for SSH
+sudo cat > /etc/fail2ban/jail.local << 'EOF'
+[sshd]
+enabled = true
+port = ssh
+logpath = /var/log/secure
+maxretry = 3
+bantime = 3600
+EOF
+
+# Enable and start
+sudo systemctl enable fail2ban
+sudo systemctl start fail2ban
+
+# Check status
+sudo fail2ban-client status sshd</code></pre>
+
+                    <p><strong>5.6: Enable System Logging</strong></p>
+                    <pre><code># Install CloudWatch Logs agent
+wget https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
+sudo rpm -U ./amazon-cloudwatch-agent.rpm
+
+# Note: Full CloudWatch configuration requires IAM role
+# For this exercise, just verify local logging
+
+# Check system logs are enabled
+sudo systemctl status rsyslog
+
+# View recent security logs
+sudo tail -f /var/log/secure</code></pre>
+
+                    <h5>Phase 6: Verification & Testing</h5>
+
+                    <p><strong>6.1: Security Checklist</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Security Control</th>
+                                <th>Status</th>
+                                <th>How to Verify</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Restrictive Security Group</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="ex-sg"></td>
+                                <td>Check SG rules in console: Only 80, 443, 22 (from your IP)</td>
+                            </tr>
+                            <tr>
+                                <td>Root login disabled</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="ex-root"></td>
+                                <td><code>grep PermitRootLogin /etc/ssh/sshd_config</code></td>
+                            </tr>
+                            <tr>
+                                <td>Auto security updates</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="ex-updates"></td>
+                                <td><code>sudo systemctl status yum-cron</code></td>
+                            </tr>
+                            <tr>
+                                <td>File permissions set</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="ex-perms"></td>
+                                <td><code>ls -la ~/.ssh</code> (should show 700)</td>
+                            </tr>
+                            <tr>
+                                <td>Fail2ban active</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="ex-fail2ban"></td>
+                                <td><code>sudo systemctl status fail2ban</code></td>
+                            </tr>
+                            <tr>
+                                <td>Unnecessary services removed</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="ex-services"></td>
+                                <td><code>which telnet</code> (should return nothing)</td>
+                            </tr>
+                            <tr>
+                                <td>Website still accessible</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="ex-web"></td>
+                                <td>Open http://YOUR_PUBLIC_IP in browser</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>6.2: Test Security (Try to Break In!)</strong></p>
+                    <pre><code># Test 1: Try SSH from different IP (should fail)
+# Ask a friend or use mobile network
+ssh ec2-user@YOUR_PUBLIC_IP
+# Expected: Connection refused or timeout
+
+# Test 2: Try multiple failed SSH attempts (should get banned)
+# (Don't do this from your main IP!)
+
+# Test 3: Website should still work from anywhere
+curl http://YOUR_PUBLIC_IP
+# Expected: ✅ Website loads</code></pre>
+
+                    <h4>📊 Expected Outcome</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Before Hardening</th>
+                                <th>After Hardening</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Open Ports</td>
+                                <td>All (0-65535)</td>
+                                <td>Only 80, 443, 22</td>
+                            </tr>
+                            <tr>
+                                <td>SSH Access</td>
+                                <td>From anywhere</td>
+                                <td>Only from your IP</td>
+                            </tr>
+                            <tr>
+                                <td>Root Login</td>
+                                <td>Enabled</td>
+                                <td>Disabled</td>
+                            </tr>
+                            <tr>
+                                <td>Security Updates</td>
+                                <td>Manual</td>
+                                <td>Automatic</td>
+                            </tr>
+                            <tr>
+                                <td>Brute Force Protection</td>
+                                <td>None</td>
+                                <td>Fail2ban active</td>
+                            </tr>
+                            <tr>
+                                <td>Attack Surface</td>
+                                <td>Very High</td>
+                                <td>Minimal</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>🎓 Observations & Learning</h4>
+                    <div class="success-box">
+                        <p><strong>What You Accomplished:</strong></p>
+                        <ul>
+                            <li>✅ Implemented network hardening (Security Groups)</li>
+                            <li>✅ Implemented system hardening (OS configuration)</li>
+                            <li>✅ Applied WAF Security pillar principles</li>
+                            <li>✅ Used Defense in Depth strategy</li>
+                            <li>✅ Followed Least Privilege principle</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Key Takeaway:</strong> A few simple hardening steps dramatically reduced your attack surface from "wide open" to "secure fortress." This is exactly what saves companies from breaches!</p>
+                    </div>
+
+                    <h4>🧹 Cleanup (To Avoid Charges)</h4>
+                    <pre><code># In AWS Console:
+1. EC2 → Instances → Select your instance
+2. Instance state → Terminate instance
+3. EC2 → Security Groups → Delete WebServer-Hardened-SG (after instance terminates)
+4. Done! No more charges.</code></pre>
+
+                    <h4>🏆 Bonus Challenges</h4>
+                    <ol>
+                        <li><strong>Advanced:</strong> Enable CloudWatch monitoring and set up alarms</li>
+                        <li><strong>Expert:</strong> Create a VPC with public/private subnets, move database to private subnet</li>
+                        <li><strong>Master:</strong> Implement this with CloudFormation Infrastructure as Code</li>
+                    </ol>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="summary">📝 Summary & Final Checklist</h2></summary>
+                <div class="section-content">
+
+                    <h3>🎯 Key Takeaways Summary</h3>
+
+                    <h4>AWS Well-Architected Framework (WAF)</h4>
+                    <ul>
+                        <li>✅ Set of best practices for building optimized cloud workloads</li>
+                        <li>✅ Used AFTER migration for continuous improvement</li>
+                        <li>✅ Six Pillars: Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization, Sustainability</li>
+                        <li>✅ Use AWS Well-Architected Tool for guided reviews</li>
+                        <li>✅ Focus on technical correctness, not organizational readiness</li>
+                        <li>✅ Conduct reviews quarterly for production workloads</li>
+                    </ul>
+
+                    <h4>AWS Cloud Adoption Framework (CAF)</h4>
+                    <ul>
+                        <li>✅ Guide for organizational readiness BEFORE cloud migration</li>
+                        <li>✅ Six Perspectives: Business, People, Governance (strategy) + Platform, Security, Operations (technical)</li>
+                        <li>✅ Addresses people, skills, processes, not just technology</li>
+                        <li>✅ Prevents 67% of migration failures caused by lack of preparation</li>
+                        <li>✅ Cloud migration is organizational change, not just IT change</li>
+                        <li>✅ All six perspectives must be ready for successful adoption</li>
+                    </ul>
+
+                    <h4>Security Hardening</h4>
+                    <ul>
+                        <li>✅ <strong>Network Hardening:</strong> Control access BEFORE reaching system (Security Groups, NACLs, VPC)</li>
+                        <li>✅ <strong>System Hardening:</strong> Control what users can do AFTER reaching system (IAM, patching, permissions)</li>
+                        <li>✅ Defense in Depth: Multiple security layers</li>
+                        <li>✅ Principle of Least Privilege: Minimum necessary permissions</li>
+                        <li>✅ Both hardening types are essential - never use just one</li>
+                        <li>✅ If attackers can't reach you, they can't attack you</li>
+                    </ul>
+
+                    <h3>📊 Master Comparison Table</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>WAF</th>
+                                <th>CAF</th>
+                                <th>Network Hardening</th>
+                                <th>System Hardening</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>When</strong></td>
+                                <td>AFTER migration</td>
+                                <td>BEFORE migration</td>
+                                <td>During setup</td>
+                                <td>During setup</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Focus</strong></td>
+                                <td>Technical optimization</td>
+                                <td>Org readiness</td>
+                                <td>Network security</td>
+                                <td>System security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Components</strong></td>
+                                <td>6 Pillars</td>
+                                <td>6 Perspectives</td>
+                                <td>Firewalls, ports</td>
+                                <td>OS, users, files</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Question</strong></td>
+                                <td>"Is it optimized?"</td>
+                                <td>"Are we ready?"</td>
+                                <td>"Can you connect?"</td>
+                                <td>"What can you do?"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Example</strong></td>
+                                <td>Add auto-scaling</td>
+                                <td>Train employees</td>
+                                <td>Block port 22</td>
+                                <td>Disable root login</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="diagram-container">
+                        <img src="network-vs-system-hardening.png" alt="Network vs System Hardening">
+                    </div>
+                    <h3>☑️ Final Mastery Checklist</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Learning Objective</th>
+                                <th>Self-Assessment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>I can name all 6 WAF pillars from memory</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-waf-pillars"></td>
+                            </tr>
+                            <tr>
+                                <td>I can name all 6 CAF perspectives from memory</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-caf-perspectives"></td>
+                            </tr>
+                            <tr>
+                                <td>I understand the difference between WAF and CAF</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-waf-vs-caf"></td>
+                            </tr>
+                            <tr>
+                                <td>I can explain network hardening to a beginner</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-network-hardening"></td>
+                            </tr>
+                            <tr>
+                                <td>I can explain system hardening to a beginner</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-system-hardening"></td>
+                            </tr>
+                            <tr>
+                                <td>I know the difference between Security Groups and NACLs</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-sg-nacl"></td>
+                            </tr>
+                            <tr>
+                                <td>I can configure a Security Group in AWS Console</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-sg-config"></td>
+                            </tr>
+                            <tr>
+                                <td>I understand Defense in Depth concept</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-defense-depth"></td>
+                            </tr>
+                            <tr>
+                                <td>I can explain Principle of Least Privilege</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-least-privilege"></td>
+                            </tr>
+                            <tr>
+                                <td>I completed the practical exercise successfully</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-practical"></td>
+                            </tr>
+                            <tr>
+                                <td>I scored 80%+ on the MCQ practice test</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-mcq"></td>
+                            </tr>
+                            <tr>
+                                <td>I can answer basic interview questions confidently</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-interview-basic"></td>
+                            </tr>
+                            <tr>
+                                <td>I can answer intermediate interview questions</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-interview-int"></td>
+                            </tr>
+                            <tr>
+                                <td>I understand real-world scenarios from the notes</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-scenarios"></td>
+                            </tr>
+                            <tr>
+                                <td>I'm ready for AWS Cloud Practitioner exam questions on these topics</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="master-exam-ready"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🎯 Exam Preparation Checklist</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Read Overview Notes completely</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="prep-overview"></td>
+                            </tr>
+                            <tr>
+                                <td>Read Complete Notes (this document) completely</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="prep-complete"></td>
+                            </tr>
+                            <tr>
+                                <td>Memorized WAF 6 pillars</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="prep-waf-memo"></td>
+                            </tr>
+                            <tr>
+                                <td>Memorized CAF 6 perspectives</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="prep-caf-memo"></td>
+                            </tr>
+                            <tr>
+                                <td>Practiced all 20 MCQs (scored 80%+)</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="prep-mcq-done"></td>
+                            </tr>
+                            <tr>
+                                <td>Completed hands-on practical exercise</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="prep-practical-done"></td>
+                            </tr>
+                            <tr>
+                                <td>Can explain concepts using real-life analogies</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="prep-analogies"></td>
+                            </tr>
+                            <tr>
+                                <td>Reviewed AWS official documentation</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="prep-docs"></td>
+                            </tr>
+                            <tr>
+                                <td>Practiced with AWS sample questions</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="prep-samples"></td>
+                            </tr>
+                            <tr>
+                                <td>Scheduled exam date</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="prep-scheduled"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>💭 Reflection Questions</h3>
+                    <ol>
+                        <li><strong>How would you apply WAF to a real project you're working on?</strong></li>
+                        <li><strong>If you were consulting for a hospital migrating to AWS, which CAF perspective would be most critical and why?</strong></li>
+                        <li><strong>What's one security mistake you've made (or seen) that could have been prevented by hardening?</strong></li>
+                        <li><strong>How would you explain network vs system hardening to your manager who isn't technical?</strong></li>
+                    </ol>
+
+                    <h3>🚀 Next Steps</h3>
+                    <div class="success-box">
+                        <p><strong>Immediate Actions:</strong></p>
+                        <ol>
+                            <li>✅ Review any sections marked as unclear</li>
+                            <li>✅ Retake MCQs until you score 100%</li>
+                            <li>✅ Practice explaining concepts out loud (teach someone!)</li>
+                            <li>✅ Complete the hands-on exercise if you haven't</li>
+                            <li>✅ Schedule your AWS exam within 2 weeks</li>
+                        </ol>
+                    </div>
+
+                    <div class="info-box">
+                        <p><strong>Additional Resources:</strong></p>
+                        <ul>
+                            <li>📚 AWS Well-Architected Framework: <a href="https://aws.amazon.com/architecture/well-architected/" target="_blank">Official Whitepaper</a></li>
+                            <li>📚 AWS Cloud Adoption Framework: <a href="https://aws.amazon.com/cloud-adoption-framework/" target="_blank">Official Guide</a></li>
+                            <li>🎥 AWS re:Invent Sessions on YouTube</li>
+                            <li>💻 Practice more labs on AWS Educate</li>
+                            <li>📝 Join AWS Cloud Practitioner study groups</li>
+                        </ul>
+                    </div>
+
+                    <h3>🎓 Instructor's Final Message</h3>
+                    <blockquote>
+                        <p>"Congratulations on completing this comprehensive guide! You've learned not just theory, but practical skills that will serve you throughout your cloud career. Remember:</p>
+                        <ul>
+                            <li><strong>WAF</strong> is your quality checklist after building</li>
+                            <li><strong>CAF</strong> is your preparation guide before moving</li>
+                            <li><strong>Hardening</strong> is your shield against threats</li>
+                        </ul>
+                        <p>These aren't just exam topics—they're real-world practices that prevent multi-million dollar disasters. The scenarios you read about? They all happened to real companies.</p>
+                        <p>Now go ace that exam and build secure, well-architected cloud solutions! 🚀</p>
+                        <p style="text-align: right;"><em>- Your AWS Instructor</em></p>
+                    </blockquote>
+
+                    <div class="success-box">
+                        <p style="text-align: center; font-size: 1.2em;">
+                            <strong>🏆 You've Got This! 💪</strong><br>
+                            <em>Good luck on your AWS Cloud Practitioner exam!</em>
+                        </p>
+                    </div>
+
+                </div>
+            </details>
+
+        </div>
+
+        <div class="tags">
+            <span class="tag">AWS</span>
+            <span class="tag">Well-Architected Framework</span>
+            <span class="tag">Cloud Adoption Framework</span>
+            <span class="tag">Security</span>
+            <span class="tag">Network Hardening</span>
+            <span class="tag">System Hardening</span>
+            <span class="tag">Certification</span>
+            <span class="tag">Cloud Practitioner</span>
+            <span class="tag">Beginner Friendly</span>
+            <span class="tag">Interview Prep</span>
+        </div>
+    </div>
+
+    <script src="../../../js/theme.js"></script>
+    <script src="../../../js/notes-template.js"></script>
+</body>
+</html>
                     
