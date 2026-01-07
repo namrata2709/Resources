@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker & Kubernetes - Overview</title>
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+</head>
+<body>
+    <button id="themeToggle" class="theme-toggle">
+        <span class="theme-icon"></span>
+    </button>
+
+    <div class="note-container">
+        <div class="note-header">
+            <h1>Docker & Kubernetes Fundamentals</h1>
+            <p class="note-date">📅 December 23, 2024</p>
+        </div>
+
+        <div class="note-content">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#introduction">Introduction to Containerization</a></li>
+                <li><a href="#docker-fundamentals">Docker Fundamentals</a></li>
+                <li><a href="#docker-components">Docker Components & Architecture</a></li>
+                <li><a href="#docker-images">Docker Images & Registry</a></li>
+                <li><a href="#docker-compose">Docker Compose</a></li>
+                <li><a href="#docker-networking">Docker Networking</a></li>
+                <li><a href="#container-orchestration">Container Orchestration Need</a></li>
+                <li><a href="#kubernetes">Kubernetes Architecture</a></li>
+                <li><a href="#aws-ecs">AWS ECS (Elastic Container Service)</a></li>
+                <li><a href="#aws-eks">AWS EKS (Elastic Kubernetes Service)</a></li>
+                <li><a href="#key-takeaways">Key Takeaways</a></li>
+            </ol>
+
+            <details class="collapsible-section" open>
+                <summary><h2 id="introduction">Introduction to Containerization</h2></summary>
+                <div class="section-content">
+                    <h3>✅ Overview</h3>
+                    <p>Containerization is a lightweight alternative to traditional virtual machines for deploying applications. Instead of running applications directly on physical servers or full virtual machines, containers package applications with their dependencies into isolated, portable units.</p>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Key Concept:</strong> Containers share the host OS kernel but maintain isolated execution environments, making them more efficient than VMs.</p>
+                    </div>
+
+                    <h3>📊 Deployment Methods Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Deployment Method</th>
+                                <th>Resource Usage</th>
+                                <th>Startup Time</th>
+                                <th>Isolation Level</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Virtual Machine (EC2)</td>
+                                <td>High (Full OS)</td>
+                                <td>Minutes</td>
+                                <td>Complete</td>
+                                <td>Traditional apps, legacy systems</td>
+                            </tr>
+                            <tr>
+                                <td>Docker Container</td>
+                                <td>Low (Shared kernel)</td>
+                                <td>Seconds</td>
+                                <td>Process-level</td>
+                                <td>Microservices, cloud-native apps</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🎯 Why Containerization?</h3>
+                    <ul>
+                        <li><strong>Portability:</strong> Run anywhere - local, cloud, hybrid</li>
+                        <li><strong>Efficiency:</strong> No need to pre-allocate full OS or hardware</li>
+                        <li><strong>Speed:</strong> Fast startup and deployment</li>
+                        <li><strong>Consistency:</strong> "Works on my machine" problem solved</li>
+                        <li><strong>Scalability:</strong> Easy to replicate and scale</li>
+                    </ul>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="docker-fundamentals">Docker Fundamentals</h2></summary>
+                <div class="section-content">
+                    <h3>✅ What is Docker?</h3>
+                    <p>Docker is a <strong>containerization runtime</strong> that builds and runs containers. It is the main environment for creating containerized applications.</p>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Important:</strong> Docker is NOT just a tool - it's a complete platform consisting of multiple components working together.</p>
+                    </div>
+
+                    <h3>⚙️ Docker Components</h3>
+                    <p>When you install Docker, you get two main components:</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Type</th>
+                                <th>Purpose</th>
+                                <th>Who Uses It</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Docker CLI</strong></td>
+                                <td>Command Line Interface</td>
+                                <td>User interface to interact with Docker</td>
+                                <td>Developers, DevOps engineers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Docker Daemon</strong></td>
+                                <td>Background Service</td>
+                                <td>Executes Docker commands, manages containers</td>
+                                <td>System (automatic)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🔐 Docker User Permissions</h3>
+                    <div class="error-box">
+                        <p>❌ <strong>Common Mistake:</strong> By default, only <code>root</code> user can run Docker commands. Non-root users will get "permission denied" errors.</p>
+                    </div>
+
+                    <h3>⚙️ Practical Implementation</h3>
+
+                    <h4>Method 1: AWS CLI (Adding User to Docker Group)</h4>
+                    <pre><code># Add current user to docker group
+sudo usermod -aG docker $USER
+
+# Apply group changes without logout
+newgrp docker
+
+# Verify user is in docker group
+groups
+
+# Test Docker access
+docker ps</code></pre>
+
+                    <h4>Method 2: AWS Console (EC2 Instance Setup)</h4>
+                    <ol>
+                        <li>Launch an <strong>Ubuntu EC2 instance</strong> (t2.micro or larger)</li>
+                        <li>Connect via <strong>SSH</strong> or <strong>EC2 Instance Connect</strong></li>
+                        <li>Install Docker:
+                            <pre><code>sudo apt update
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker</code></pre>
+                        </li>
+                        <li>Add ubuntu user to docker group:
+                            <pre><code>sudo usermod -aG docker ubuntu</code></pre>
+                        </li>
+                        <li>Reconnect to session or run: <code>newgrp docker</code></li>
+                        <li>Verify: <code>docker --version</code></li>
+                    </ol>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Best Practice:</strong> Always verify Docker daemon is running before executing Docker commands using <code>sudo systemctl status docker</code></p>
+                    </div>
+
+                    <h3>🔍 Troubleshooting Docker Issues</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Issue</th>
+                                <th>Cause</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Permission denied</td>
+                                <td>User not in docker group</td>
+                                <td><code>sudo usermod -aG docker $USER</code></td>
+                            </tr>
+                            <tr>
+                                <td>Cannot connect to Docker daemon</td>
+                                <td>Docker service not running</td>
+                                <td><code>sudo systemctl start docker</code></td>
+                            </tr>
+                            <tr>
+                                <td>Command not found</td>
+                                <td>Docker not installed</td>
+                                <td>Install Docker using package manager</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="docker-components">Docker Components & Architecture</h2></summary>
+                <div class="section-content">
+                    <h3>✅ Docker Build Process</h3>
+                    <p>Docker follows a three-step process to create and run containers:</p>
+
+                    <div class="diagram-container">
+                        <img src="docker-build-process.png" alt="Docker Build Process">
+                        <p class="diagram-caption"><em>Figure 1: Docker Build Process - Dockerfile to Container</em></p>
+                    </div>
+
+                    <h3>📄 1. Dockerfile</h3>
+                    <p>A <strong>Dockerfile</strong> is a text file containing instructions to build a Docker image. It defines:</p>
+                    <ul>
+                        <li>Base image to use</li>
+                        <li>Application code to copy</li>
+                        <li>Dependencies to install</li>
+                        <li>Commands to run</li>
+                        <li>Ports to expose</li>
+                    </ul>
+
+                    <h4>Example Dockerfile Structure:</h4>
+                    <pre><code># Base image
+FROM ubuntu:22.04
+
+# Update and install packages
+RUN apt-get update && apt-get install -y python3 python3-pip
+
+# Set working directory
+WORKDIR /app
+
+# Copy application files
+COPY . /app
+
+# Install Python dependencies
+RUN pip3 install -r requirements.txt
+
+# Expose port
+EXPOSE 8000
+
+# Run application
+CMD ["python3", "app.py"]</code></pre>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Tip:</strong> Each instruction in Dockerfile creates a new layer in the image. Optimize by combining commands with <code>&&</code></p>
+                    </div>
+
+                    <h3>🖼️ 2. Docker Image</h3>
+                    <p>A <strong>Docker Image</strong> is a <strong>read-only template</strong> for containers. Think of it as a blueprint.</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Description</th>
+                                <th>Analogy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Read-only</td>
+                                <td>Cannot be modified once built</td>
+                                <td>Like a photo negative</td>
+                            </tr>
+                            <tr>
+                                <td>Layered</td>
+                                <td>Built from multiple layers</td>
+                                <td>Like a cake with layers</td>
+                            </tr>
+                            <tr>
+                                <td>Tagged</td>
+                                <td>Identified by name:tag</td>
+                                <td>Like a product with SKU</td>
+                            </tr>
+                            <tr>
+                                <td>Portable</td>
+                                <td>Can be shared and reused</td>
+                                <td>Like a software installer</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Building an Image:</h4>
+                    <h5>Method 1: CLI</h5>
+                    <pre><code># Build image from Dockerfile in current directory
+docker build -t myapp:v1.0 .
+
+# Explanation:
+# -t : Tag the image with name:version
+# . : Use Dockerfile in current directory
+
+# List all images
+docker images
+
+# Remove an image
+docker rmi myapp:v1.0</code></pre>
+
+                    <h5>Method 2: AWS Console (Using CodeBuild)</h5>
+                    <ol>
+                        <li>Go to <strong>AWS CodeBuild</strong></li>
+                        <li>Create a <strong>new build project</strong></li>
+                        <li>Select <strong>source</strong> (GitHub, CodeCommit, S3)</li>
+                        <li>Choose <strong>environment</strong>: Ubuntu + Docker</li>
+                        <li>Add <strong>buildspec.yml</strong>:
+                            <pre><code>version: 0.2
+phases:
+  build:
+    commands:
+      - docker build -t myapp:v1.0 .</code></pre>
+                        </li>
+                        <li>Click <strong>Start Build</strong></li>
+                    </ol>
+
+                    <h3>📦 3. Docker Container</h3>
+                    <p>A <strong>Docker Container</strong> is a <strong>running instance</strong> of an image. It's a lightweight, isolated process.</p>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Key Difference:</strong> Image = Blueprint (static), Container = Running application (dynamic)</p>
+                    </div>
+
+                    <h4>Running a Container:</h4>
+                    <h5>Method 1: CLI</h5>
+                    <pre><code># Run container from image
+docker run -d -p 8000:8000 --name mycontainer myapp:v1.0
+
+# Explanation:
+# -d : Run in detached mode (background)
+# -p : Port mapping (host:container)
+# --name : Give container a name
+# myapp:v1.0 : Image to use
+
+# List running containers
+docker ps
+
+# List all containers (including stopped)
+docker ps -a
+
+# Stop container
+docker stop mycontainer
+
+# Start stopped container
+docker start mycontainer
+
+# Remove container
+docker rm mycontainer
+
+# View container logs
+docker logs mycontainer
+
+# Execute command inside container
+docker exec -it mycontainer bash</code></pre>
+
+                    <h5>Method 2: AWS Console (Using ECS)</h5>
+                    <ol>
+                        <li>Go to <strong>Amazon ECS</strong></li>
+                        <li>Create an <strong>ECS Cluster</strong></li>
+                        <li>Create a <strong>Task Definition</strong>:
+                            <ul>
+                                <li>Select <strong>Fargate</strong> or <strong>EC2</strong> launch type</li>
+                                <li>Define <strong>container image</strong> (from ECR or Docker Hub)</li>
+                                <li>Set <strong>CPU/Memory</strong> limits</li>
+                                <li>Configure <strong>port mappings</strong></li>
+                            </ul>
+                        </li>
+                        <li>Create a <strong>Service</strong> from task definition</li>
+                        <li>Service will maintain desired number of running containers</li>
+                    </ol>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Best Practices:</strong></p>
+                        <ul>
+                            <li>Always use specific image tags (avoid <code>:latest</code> in production)</li>
+                            <li>Use <code>-d</code> flag to run containers in background</li>
+                            <li>Always name your containers for easy management</li>
+                            <li>Clean up stopped containers regularly: <code>docker container prune</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="docker-images">Docker Images & Registry</h2></summary>
+                <div class="section-content">
+                    <h3>✅ Docker Hub - Public Registry</h3>
+                    <p><strong>Docker Hub</strong> is the default public registry for Docker images. It functions like GitHub for Docker images.</p>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Analogy:</strong> Docker Hub is like an app store for container images - you can download official and community images.</p>
+                    </div>
+
+                    <h3>⚙️ Working with Docker Hub</h3>
+
+                    <h4>Method 1: CLI Commands</h4>
+                    <pre><code># Login to Docker Hub
+docker login
+
+# Pull image from Docker Hub
+docker pull nginx:latest
+docker pull ubuntu:22.04
+docker pull python:3.9-slim
+
+# Push image to Docker Hub
+docker tag myapp:v1.0 username/myapp:v1.0
+docker push username/myapp:v1.0
+
+# Search for images
+docker search nginx
+
+# Logout
+docker logout</code></pre>
+
+                    <h4>Method 2: Docker Hub Web Interface</h4>
+                    <ol>
+                        <li>Go to <a href="https://hub.docker.com" target="_blank">hub.docker.com</a></li>
+                        <li>Create a free account</li>
+                        <li><strong>Search</strong> for images using search bar</li>
+                        <li>View <strong>official images</strong> (verified by Docker)</li>
+                        <li>Check <strong>image details</strong>:
+                            <ul>
+                                <li>Number of pulls</li>
+                                <li>Available tags</li>
+                                <li>Dockerfile source</li>
+                                <li>Documentation</li>
+                            </ul>
+                        </li>
+                        <li>Create <strong>repositories</strong> to store your images:
+                            <ul>
+                                <li>Click <strong>Create Repository</strong></li>
+                                <li>Set <strong>Public</strong> or <strong>Private</strong></li>
+                                <li>Add description and README</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h3>🔒 AWS ECR - Private Registry</h3>
+                    <p><strong>Amazon ECR (Elastic Container Registry)</strong> is AWS's private Docker registry service for enterprise use.</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Docker Hub</th>
+                                <th>AWS ECR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Access</td>
+                                <td>Public by default</td>
+                                <td>Private by default</td>
+                            </tr>
+                            <tr>
+                                <td>Authentication</td>
+                                <td>Username/Password</td>
+                                <td>IAM roles/policies</td>
+                            </tr>
+                            <tr>
+                                <td>Integration</td>
+                                <td>Any platform</td>
+                                <td>Deep AWS integration</td>
+                            </tr>
+                            <tr>
+                                <td>Cost</td>
+                                <td>Free (limited private repos)</td>
+                                <td>Pay per GB stored/transferred</td>
+                            </tr>
+                            <tr>
+                                <td>Security</td>
+                                <td>Basic</td>
+                                <td>Image scanning, encryption</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>⚙️ Setting Up AWS ECR</h3>
+
+                    <h4>Method 1: AWS CLI</h4>
+                    <pre><code># Create ECR repository
+aws ecr create-repository \
+    --repository-name myapp \
+    --region us-east-1
+
+# Get login password and authenticate
+aws ecr get-login-password --region us-east-1 | \
+docker login --username AWS --password-stdin \
+123456789012.dkr.ecr.us-east-1.amazonaws.com
+
+# Tag image for ECR
+docker tag myapp:v1.0 \
+123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:v1.0
+
+# Push image to ECR
+docker push \
+123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:v1.0
+
+# Pull image from ECR
+docker pull \
+123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:v1.0
+
+# List images in repository
+aws ecr list-images \
+    --repository-name myapp \
+    --region us-east-1</code></pre>
+
+                    <h4>Method 2: AWS Console</h4>
+                    <ol>
+                        <li>Go to <strong>Amazon ECR</strong> service</li>
+                        <li>Click <strong>Get Started</strong> or <strong>Create repository</strong></li>
+                        <li>Configure repository:
+                            <ul>
+                                <li><strong>Visibility:</strong> Private or Public</li>
+                                <li><strong>Repository name:</strong> myapp</li>
+                                <li><strong>Image scanning:</strong> Enable for security</li>
+                                <li><strong>Encryption:</strong> Enable KMS encryption</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>Create repository</strong></li>
+                        <li>View <strong>push commands</strong> in repository details</li>
+                        <li>Set up <strong>lifecycle policies</strong>:
+                            <ul>
+                                <li>Automatically delete old images</li>
+                                <li>Keep only N most recent images</li>
+                                <li>Save storage costs</li>
+                            </ul>
+                        </li>
+                        <li>Configure <strong>repository policies</strong> (IAM-based access)</li>
+                    </ol>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Best Practices:</strong></p>
+                        <ul>
+                            <li>Use <strong>ECR</strong> for production workloads (security + AWS integration)</li>
+                            <li>Use <strong>Docker Hub</strong> for public images and testing</li>
+                            <li>Enable <strong>image scanning</strong> in ECR to detect vulnerabilities</li>
+                            <li>Implement <strong>lifecycle policies</strong> to manage storage costs</li>
+                            <li>Use <strong>IAM roles</strong> for EC2/ECS to access ECR (no credentials needed)</li>
+                        </ul>
+                    </div>
+
+                    <h3>🔐 IAM Role for EC2 to Access ECR</h3>
+                    <pre><code># Attach IAM role to EC2 with this policy
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+      ],
+      "Resource": "*"
+    }
+  ]
+}</code></pre>
+
+                    <p>With this IAM role attached, EC2 instances can pull images from ECR without storing credentials.</p>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="docker-compose">Docker Compose - Multi-Container Management</h2></summary>
+                <div class="section-content">
+                    <h3>✅ What is Docker Compose?</h3>
+                    <p><strong>Docker Compose</strong> is a tool for defining and running <strong>multi-container</strong> Docker applications using a single YAML file.</p>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Problem it Solves:</strong> Managing multiple containers manually is tedious. Imagine running 5+ containers with different configurations - Docker Compose automates this!</p>
+                    </div>
+
+                    <h3>🎯 Use Cases</h3>
+                    <ul>
+                        <li><strong>Microservices:</strong> Frontend + Backend + Database</li>
+                        <li><strong>Development Environment:</strong> App + Redis + PostgreSQL</li>
+                        <li><strong>Testing:</strong> Application + Mock services</li>
+                        <li><strong>Multi-tier Applications:</strong> Web + API + Cache + DB</li>
+                    </ul>
+
+                    <h3>📄 Docker Compose File Structure</h3>
+                    <pre><code># docker-compose.yml
+version: '3.8'
+
+services:
+  # Frontend container
+  frontend:
+    image: myapp-frontend:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    environment:
+      - API_URL=http://backend:5000
+
+  # Backend container
+  backend:
+    image: myapp-backend:latest
+    ports:
+      - "5000:5000"
+    depends_on:
+      - database
+    environment:
+      - DB_HOST=database
+      - DB_PORT=5432
+
+  # Database container
+  database:
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=myapp
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret123
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:</code></pre>
+
+                    <h3>⚙️ Working with Docker Compose</h3>
+
+                    <h4>Method 1: CLI Commands</h4>
+                    <pre><code># Install Docker Compose (if not installed)
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+
+# Start all containers defined in docker-compose.yml
+docker-compose up -d
+
+# Explanation:
+# up : Start services
+# -d : Run in detached mode (background)
+
+# View running services
+docker-compose ps
+
+# View logs of all services
+docker-compose logs
+
+# View logs of specific service
+docker-compose logs backend
+
+# Stop all services
+docker-compose stop
+
+# Stop and remove all containers
+docker-compose down
+
+# Stop and remove containers + volumes
+docker-compose down -v
+
+# Restart services
+docker-compose restart
+
+# Scale a service
+docker-compose up -d --scale backend=3
+
+# Rebuild images and restart
+docker-compose up -d --build</code></pre>
+
+                    <h4>Method 2: AWS Console (Using ECS with Docker Compose)</h4>
+                    <ol>
+                        <li>Install <strong>ECS CLI</strong>:
+                            <pre><code>sudo curl -Lo /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
+sudo chmod +x /usr/local/bin/ecs-cli</code></pre>
+                        </li>
+                        <li>Configure ECS CLI:
+                            <pre><code>ecs-cli configure --cluster my-cluster --region us-east-1 --default-launch-type FARGATE</code></pre>
+                        </li>
+                        <li>Create <code>docker-compose.yml</code> (same as above)</li>
+                        <li>Deploy to ECS:
+                            <pre><code>ecs-cli compose up</code></pre>
+                        </li>
+                        <li>View services in <strong>ECS Console</strong></li>
+                        <li>Scale using ECS service settings</li>
+                    </ol>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Tip:</strong> AWS recently introduced <strong>Docker Compose support in ECS</strong>, making it easier to deploy multi-container apps to AWS.</p>
+                    </div>
+
+                    <h3>🔑 Key Docker Compose Concepts</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Concept</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>services</strong></td>
+                                <td>Define containers to run</td>
+                                <td>frontend, backend, database</td>
+                            </tr>
+                            <tr>
+                                <td><strong>image</strong></td>
+                                <td>Specify Docker image to use</td>
+                                <td>nginx:latest, postgres:14</td>
+                            </tr>
+                            <tr>
+                                <td><strong>build</strong></td>
+                                <td>Build image from Dockerfile</td>
+                                <td>build: ./app</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ports</strong></td>
+                                <td>Port mapping (host:container)</td>
+                                <td>- "80:80"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>environment</strong></td>
+                                <td>Set environment variables</td>
+                                <td>DB_HOST=postgres</td>
+                            </tr>
+                            <tr>
+                                <td><strong>depends_on</strong></td>
+                                <td>Start order dependency</td>
+                                <td>depends_on: - database</td>
+                            </tr>
+                            <tr>
+                                <td><strong>volumes</strong></td>
+                                <td>Persistent data storage</td>
+                                <td>- db-data:/var/lib/postgresql</td>
+                            </tr>
+                            <tr>
+                                <td><strong>networks</strong></td>
+                                <td>Custom networks for services</td>
+                                <td>networks: - frontend-net</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Example: WordPress with MySQL</h3>
+                    <pre><code>version: '3.8'
+
+services:
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass
+      WORDPRESS_DB_NAME: wordpress
+    depends_on:
+      - mysql
+    volumes:
+      - wordpress-data:/var/www/html
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL
+<!-- Part 2 Continuation -->
+
+_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppass
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  wordpress-data:
+  mysql-data:</code></pre>
+
+                    <p>Access WordPress at: <code>http://localhost:8080</code></p>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Best Practices:</strong></p>
+                        <ul>
+                            <li>Use <code>depends_on</code> to ensure correct startup order</li>
+                            <li>Always use <strong>volumes</strong> for database data (persistence)</li>
+                            <li>Use <strong>environment variables</strong> for configuration (never hardcode secrets)</li>
+                            <li>Name your services clearly (frontend, backend, database)</li>
+                            <li>Use <code>.env</code> files for sensitive data</li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="docker-networking">Docker Networking & Volumes</h2></summary>
+                <div class="section-content">
+                    <h3>✅ Docker Networking</h3>
+                    <p>Docker containers need to communicate with each other and the outside world. Docker provides different network types for different use cases.</p>
+
+                    <h3>🌐 Docker Network Types</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Network Type</th>
+                                <th>Use Case</th>
+                                <th>Container Isolation</th>
+                                <th>Internet Access</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>bridge</strong> (default)</td>
+                                <td>Containers on same host communicate</td>
+                                <td>Yes</td>
+                                <td>Via host (NAT)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>host</strong></td>
+                                <td>Container uses host network directly</td>
+                                <td>No</td>
+                                <td>Direct</td>
+                            </tr>
+                            <tr>
+                                <td><strong>overlay</strong></td>
+                                <td>Multi-host container communication</td>
+                                <td>Yes</td>
+                                <td>Via overlay network</td>
+                            </tr>
+                            <tr>
+                                <td><strong>none</strong></td>
+                                <td>Complete network isolation</td>
+                                <td>Complete</td>
+                                <td>None</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="diagram-container">
+                        <img src="docker-bridge-network.png" alt="Docker Bridge Network">
+                        <p class="diagram-caption"><em>Figure 2: Docker Bridge Network Topology</em></p>
+                    </div>
+
+                    <h3>⚙️ Working with Docker Networks</h3>
+
+                    <h4>Method 1: CLI Commands</h4>
+                    <pre><code># List networks
+docker network ls
+
+# Create custom bridge network
+docker network create myapp-network
+
+# Inspect network
+docker network inspect myapp-network
+
+# Run container on specific network
+docker run -d --name web --network myapp-network nginx
+
+# Run another container on same network
+docker run -d --name api --network myapp-network myapi:latest
+
+# Containers can now communicate using container names
+# From 'web' container: curl http://api:5000
+
+# Connect existing container to network
+docker network connect myapp-network database
+
+# Disconnect container from network
+docker network disconnect myapp-network database
+
+# Remove network
+docker network rm myapp-network
+
+# Create container with host network (no isolation)
+docker run -d --network host nginx</code></pre>
+
+                    <h4>Method 2: Using Docker Compose</h4>
+                    <pre><code>version: '3.8'
+
+services:
+  frontend:
+    image: myapp-frontend:latest
+    networks:
+      - frontend-network
+      - backend-network
+
+  backend:
+    image: myapp-backend:latest
+    networks:
+      - backend-network
+      - database-network
+
+  database:
+    image: postgres:14
+    networks:
+      - database-network
+
+networks:
+  frontend-network:
+  backend-network:
+  database-network:</code></pre>
+
+                    <h3>🗄️ Docker Volumes - Data Persistence</h3>
+                    <p>By default, data inside containers is <strong>ephemeral</strong> - it disappears when container is removed. Volumes solve this problem.</p>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Common Mistake:</strong> Not using volumes for databases - all data is lost when container restarts!</p>
+                    </div>
+
+                    <h3>📦 Volume Types</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Volume Type</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                                <th>Managed By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Named Volumes</strong></td>
+                                <td>Docker-managed volumes</td>
+                                <td>Database data, application state</td>
+                                <td>Docker</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bind Mounts</strong></td>
+                                <td>Mount host directory into container</td>
+                                <td>Development, config files</td>
+                                <td>User</td>
+                            </tr>
+                            <tr>
+                                <td><strong>tmpfs</strong></td>
+                                <td>Store in host memory (RAM)</td>
+                                <td>Temporary data, secrets</td>
+                                <td>Docker</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>⚙️ Working with Volumes</h3>
+
+                    <h4>Method 1: CLI Commands</h4>
+                    <pre><code># Create named volume
+docker volume create mydata
+
+# List volumes
+docker volume ls
+
+# Inspect volume
+docker volume inspect mydata
+
+# Use volume with container
+docker run -d \
+  --name myapp \
+  -v mydata:/app/data \
+  myapp:latest
+
+# Bind mount (host directory to container)
+docker run -d \
+  --name webapp \
+  -v /home/user/app:/usr/share/nginx/html \
+  nginx
+
+# Read-only bind mount
+docker run -d \
+  -v /home/user/config:/app/config:ro \
+  myapp:latest
+
+# Remove volume
+docker volume rm mydata
+
+# Remove all unused volumes
+docker volume prune</code></pre>
+
+                    <h4>Method 2: Using Docker Compose</h4>
+                    <pre><code>version: '3.8'
+
+services:
+  database:
+    image: postgres:14
+    volumes:
+      # Named volume for database data
+      - db-data:/var/lib/postgresql/data
+      
+      # Bind mount for init scripts
+      - ./init-scripts:/docker-entrypoint-initdb.d
+      
+      # Bind mount for config (read-only)
+      - ./postgres.conf:/etc/postgresql/postgresql.conf:ro
+
+  application:
+    image: myapp:latest
+    volumes:
+      # Named volume for uploads
+      - app-uploads:/app/uploads
+      
+      # Bind mount for logs
+      - ./logs:/app/logs
+
+volumes:
+  db-data:
+  app-uploads:</code></pre>
+
+                    <h3>🔌 Port Mapping</h3>
+                    <p>To make containers accessible from outside, you need to map container ports to host ports.</p>
+
+                    <pre><code># Port mapping syntax: -p HOST_PORT:CONTAINER_PORT
+docker run -d -p 8080:80 nginx
+
+# Map to specific host IP
+docker run -d -p 127.0.0.1:8080:80 nginx
+
+# Map random host port
+docker run -d -p 80 nginx
+
+# Multiple port mappings
+docker run -d \
+  -p 80:80 \
+  -p 443:443 \
+  nginx
+
+# View port mappings
+docker port container_name</code></pre>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Best Practices:</strong></p>
+                        <ul>
+                            <li>Use <strong>named volumes</strong> for all persistent data (databases, uploads)</li>
+                            <li>Use <strong>bind mounts</strong> for development and configuration</li>
+                            <li>Always use <strong>custom networks</strong> instead of default bridge</li>
+                            <li>Use <strong>container names</strong> for inter-container communication</li>
+                            <li>Avoid <code>--network host</code> in production (security risk)</li>
+                            <li>Clean up unused volumes regularly with <code>docker volume prune</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="container-orchestration">Why Container Orchestration?</h2></summary>
+                <div class="section-content">
+                    <h3>✅ The Problem with Docker Alone</h3>
+                    <p>Docker is excellent for running containers, but it <strong>lacks features needed for production environments</strong>.</p>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Real-World Scenario:</strong> You're running an e-commerce website with 3 containers. Suddenly, traffic increases 10x during a sale. What happens?</p>
+                    </div>
+
+                    <h3>❌ What Docker CANNOT Do</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Required in Production?</th>
+                                <th>Docker Support?</th>
+                                <th>Impact Without It</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Auto-Scaling</strong></td>
+                                <td>✅ Yes</td>
+                                <td>❌ No</td>
+                                <td>Cannot handle traffic spikes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Load Balancing</strong></td>
+                                <td>✅ Yes</td>
+                                <td>❌ No</td>
+                                <td>Single point of failure</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Self-Healing</strong></td>
+                                <td>✅ Yes</td>
+                                <td>❌ No</td>
+                                <td>Manual intervention needed</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rolling Updates</strong></td>
+                                <td>✅ Yes</td>
+                                <td>❌ No</td>
+                                <td>Downtime during deployments</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rollback</strong></td>
+                                <td>✅ Yes</td>
+                                <td>❌ No</td>
+                                <td>Cannot revert bad deployments</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Health Checks</strong></td>
+                                <td>✅ Yes</td>
+                                <td>⚠️ Basic</td>
+                                <td>Cannot detect app-level issues</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🎯 Production Requirements</h3>
+                    <ol>
+                        <li><strong>High Availability:</strong> Multiple container replicas across servers</li>
+                        <li><strong>Auto-Scaling:</strong> Automatically add/remove containers based on load</li>
+                        <li><strong>Load Balancing:</strong> Distribute traffic across container replicas</li>
+                        <li><strong>Self-Healing:</strong> Automatically restart failed containers</li>
+                        <li><strong>Zero-Downtime Deployments:</strong> Update without stopping service</li>
+                        <li><strong>Service Discovery:</strong> Containers find each other dynamically</li>
+                        <li><strong>Resource Management:</strong> Efficient CPU/memory allocation</li>
+                    </ol>
+
+                    <div class="diagram-container">
+                        <img src="docker-vs-orchestration.png" alt="Docker vs Orchestration">
+                        <p class="diagram-caption"><em>Figure 3: Docker Alone vs Container Orchestration</em></p>
+                    </div>
+
+                    <h3>🚀 Enter Container Orchestration</h3>
+                    <p><strong>Container Orchestration</strong> = Automatic management of containers in production</p>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Definition:</strong> Container orchestration tools automatically handle scheduling, scaling, load balancing, health checks, self-healing, and rolling deployments of containers.</p>
+                    </div>
+
+                    <h3>🛠️ Container Orchestration Tools</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Type</th>
+                                <th>Complexity</th>
+                                <th>Best For</th>
+                                <th>Market Share</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Docker Swarm</strong></td>
+                                <td>Docker-native</td>
+                                <td>Low</td>
+                                <td>Small deployments, learning</td>
+                                <td>Low</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kubernetes (K8s)</strong></td>
+                                <td>Open-source, CNCF</td>
+                                <td>High</td>
+                                <td>Production, enterprise</td>
+                                <td>⭐ Dominant</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS ECS</strong></td>
+                                <td>AWS-managed</td>
+                                <td>Medium</td>
+                                <td>AWS-native apps</td>
+                                <td>Medium</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS EKS</strong></td>
+                                <td>Managed Kubernetes</td>
+                                <td>Medium-High</td>
+                                <td>Kubernetes on AWS</td>
+                                <td>Growing</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🎯 Why Kubernetes Won</h3>
+                    <ul>
+                        <li>✅ <strong>Open-source:</strong> No vendor lock-in</li>
+                        <li>✅ <strong>Cloud-agnostic:</strong> Works on AWS, Azure, GCP, on-premises</li>
+                        <li>✅ <strong>Industry standard:</strong> Massive community and ecosystem</li>
+                        <li>✅ <strong>Feature-rich:</strong> Covers all production needs</li>
+                        <li>✅ <strong>Extensible:</strong> Plugins and operators for any use case</li>
+                        <li>✅ <strong>Backed by CNCF:</strong> Google, Red Hat, Microsoft support</li>
+                    </ul>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Key Takeaway:</strong> Docker is great for running containers, but you need orchestration (Kubernetes/ECS/EKS) for production deployments with high availability, scaling, and reliability.</p>
+                    </div>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="kubernetes">Kubernetes (K8s) Architecture</h2></summary>
+                <div class="section-content">
+                    <h3>✅ What is Kubernetes?</h3>
+                    <p><strong>Kubernetes</strong> (K8s) is an open-source container orchestration platform that automates deployment, scaling, and management of containerized applications.</p>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Name Origin:</strong> "Kubernetes" (Greek for "helmsman") → K + 8 letters + s = <strong>K8s</strong></p>
+                    </div>
+
+                    <h3>🏗️ Kubernetes Architecture - Cluster-Based</h3>
+                    <p>Kubernetes runs as a <strong>cluster</strong> with two main components:</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Role</th>
+                                <th>Analogy</th>
+                                <th>Manages</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Control Plane</strong></td>
+                                <td>Brain of cluster</td>
+                                <td>Orchestra conductor</td>
+                                <td>Decisions, scheduling, state</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Worker Nodes</strong></td>
+                                <td>Execution units</td>
+                                <td>Orchestra musicians</td>
+                                <td>Running containers (pods)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="diagram-container">
+                        <img src="https://d33wubrfki0l68.cloudfront.net/2475489eaf20163ec0f54ddc1d92aa8d4c87c96b/e7c81/images/docs/components-of-kubernetes.svg" alt="Kubernetes Architecture">
+                        <p class="diagram-caption"><em>Figure 1: Kubernetes Cluster Architecture</em></p>
+                    </div>
+
+                    <h3>🧠 Control Plane Components</h3>
+
+                    <h4>1. API Server</h4>
+                    <p>The <strong>front door</strong> of Kubernetes. All communication goes through the API Server.</p>
+                    <ul>
+                        <li>✅ Single entry point for all requests</li>
+                        <li>✅ Validates and authenticates requests</li>
+                        <li>✅ Routes requests to appropriate components</li>
+                        <li>✅ Implements RBAC (Role-Based Access Control)</li>
+                    </ul>
+
+                    <h4>2. etcd</h4>
+                    <p>The <strong>cluster's memory/database</strong>. Stores all cluster state and configuration.</p>
+                    <ul>
+                        <li>✅ Key-value store (like a database)</li>
+                        <li>✅ Source of truth for cluster state</li>
+                        <li>✅ Stores: pods, services, secrets, config maps</li>
+                        <li>✅ Highly available and consistent</li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Critical:</strong> If etcd is lost, the entire cluster state is lost. Always back up etcd in production!</p>
+                    </div>
+
+                    <h4>3. Scheduler</h4>
+                    <p>The <strong>decision engine</strong> that assigns pods to worker nodes.</p>
+                    <ul>
+                        <li>✅ Evaluates CPU and memory availability</li>
+                        <li>✅ Considers node constraints and affinity rules</li>
+                        <li>✅ Selects best node for each pod</li>
+                        <li>✅ Ensures even distribution of workload</li>
+                    </ul>
+
+                    <h4>4. Controller Manager</h4>
+                    <p>A <strong>collection of controllers</strong> that maintain desired state.</p>
+                    <ul>
+                        <li>✅ <strong>Node Controller:</strong> Monitors node health</li>
+                        <li>✅ <strong>Replication Controller:</strong> Maintains pod replicas</li>
+                        <li>✅ <strong>Endpoints Controller:</strong> Manages service endpoints</li>
+                        <li>✅ <strong>Service Account Controller:</strong> Manages authentication</li>
+                    </ul>
+
+                    <h4>5. Cloud Controller Manager (Optional)</h4>
+                    <p>Integrates with cloud provider APIs (AWS, Azure, GCP).</p>
+                    <ul>
+                        <li>✅ Manages load balancers</li>
+                        <li>✅ Provisions storage volumes</li>
+                        <li>✅ Manages node lifecycle in cloud</li>
+                    </ul>
+
+                    <h3>⚙️ Worker Node Components</h3>
+
+                    <h4>1. Kubelet</h4>
+                    <p>The <strong>node agent</strong> that runs on every worker node.</p>
+                    <ul>
+                        <li>✅ Communicates with Control Plane</li>
+                        <li>✅ Ensures containers are running in pods</li>
+                        <li>✅ Reports node and pod status</li>
+                        <li>✅ Executes pod lifecycle operations</li>
+                    </ul>
+
+                    <h4>2. Container Runtime</h4>
+                    <p>The <strong>software that runs containers</strong>. You must choose one:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Runtime</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>containerd</strong></td>
+                                <td>Industry standard, lightweight</td>
+                                <td>✅ Recommended</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CRI-O</strong></td>
+                                <td>Kubernetes-native runtime</td>
+                                <td>✅ Good</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Docker</strong></td>
+                                <td>Original runtime (deprecated)</td>
+                                <td>⚠️ Being phased out</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>3. kube-proxy</h4>
+                    <p>The <strong>network proxy</strong> that manages network rules.</p>
+                    <ul>
+                        <li>✅ Maintains network rules on nodes</li>
+                        <li>✅ Enables pod-to-pod communication</li>
+                        <li>✅ Implements Service abstraction</li>
+                        <li>✅ Performs connection forwarding</li>
+                    </ul>
+
+                    <h3>📦 Pod - The Smallest Unit</h3>
+                    <p>A <strong>Pod</strong> is the smallest deployable unit in Kubernetes.</p>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Key Concept:</strong> A Pod is NOT a container - it's a <strong>wrapper around one or more containers</strong> that share network and storage.</p>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Containers</strong></td>
+                                <td>Usually 1, sometimes 2+ (sidecar pattern)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shared Network</strong></td>
+                                <td>All containers share same IP address</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shared Storage</strong></td>
+                                <td>Can mount same volumes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lifecycle</strong></td>
+                                <td>Ephemeral - pods die and are replaced</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>⚙️ Interacting with Kubernetes</h3>
+
+                    <h4>kubectl - The Kubernetes CLI</h4>
+                    <pre><code># Install kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+kubectl version --client
+
+# View cluster information
+kubectl cluster-info
+
+# View nodes
+kubectl get nodes
+
+# View pods
+kubectl get pods
+
+# View all resources
+kubectl get all
+
+# Describe a resource
+kubectl describe pod my-pod
+
+# View logs
+kubectl logs my-pod
+
+# Execute command in pod
+kubectl exec -it my-pod -- /bin/bash
+
+# Apply configuration file
+kubectl apply -f deployment.yaml
+
+# Delete resource
+kubectl delete pod my-pod</code></pre>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Key Takeaways:</strong></p>
+                        <ul>
+                            <li>Kubernetes is a <strong>cluster-based</strong> platform</li>
+                            <li><strong>Control Plane</strong> = Brain (decides what to do)</li>
+                            <li><strong>Worker Nodes</strong> = Execution (does the work)</li>
+                            <li><strong>Pods</strong> = Smallest unit (wraps containers)</li>
+                            <li><strong>kubectl</strong> = CLI to interact with cluster</li>
+                        </ul>
+                    </div>
+
+                    <h3>📚 Additional Kubernetes Concepts (Advanced)</h3>
+                    <p>These topics require deeper study:</p>
+                    <ul>
+                        <li><strong>Deployments:</strong> Manage pod replicas and rolling updates</li>
+                        <li><strong>Services:</strong> Expose pods to network traffic</li>
+                        <li><strong>ConfigMaps & Secrets:</strong> Manage configuration and sensitive data</li>
+                        <li><strong>Namespaces:</strong> Logical cluster partitions</li>
+                        <li><strong>Ingress:</strong> HTTP/HTTPS routing to services</li>
+                        <li><strong>Persistent Volumes:</strong> Storage management</li>
+                        <li><strong>StatefulSets:</strong> For stateful applications</li>
+                        <li><strong>DaemonSets:</strong> Run pod on every node</li>
+                    </ul>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Learning Path:</strong> Kubernetes is a vast topic. Focus on basics first: Pods, Deployments, Services. Then gradually learn advanced concepts.</p>
+                    </div>
+                </div>
+            </details>
+
+            <div class="info-box">
+                <p>📄 <strong>Continued in Part 3...</strong></p>
+            </div>
+            <!-- Part 3 Continuation - Final Part -->
+
+            <details class="collapsible-section">
+                <summary><h2 id="aws-ecs">AWS ECS (Elastic Container Service)</h2></summary>
+                <div class="section-content">
+                    <h3>✅ What is AWS ECS?</h3>
+                    <p><strong>Amazon ECS</strong> is AWS's native container orchestration service that manages Docker containers <strong>without</strong> needing Kubernetes.</p>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>AWS's Solution:</strong> "Kubernetes is complex. Use ECS - simpler AWS-native container management!"</p>
+                    </div>
+
+                    <h3>🎯 Why Use ECS?</h3>
+                    <ul>
+                        <li>✅ <strong>Simpler than Kubernetes:</strong> No complex cluster management</li>
+                        <li>✅ <strong>Deep AWS Integration:</strong> Native support for ALB, IAM, CloudWatch, Secrets Manager</li>
+                        <li>✅ <strong>Serverless Option:</strong> Use Fargate - no EC2 management</li>
+                        <li>✅ <strong>Cost-Effective:</strong> No ECS service charge - only pay for resources</li>
+                        <li>✅ <strong>Managed Service:</strong> AWS handles control plane</li>
+                    </ul>
+
+                    <div class="diagram-container">
+                        <img src="aws-ecs-architecture.png" alt="AWS ECS Architecture">
+                        <p class="diagram-caption"><em>Figure 5: AWS ECS Architecture - Cluster, Tasks, and Services</em></p>
+                    </div>
+
+                    <h3>🏗️ ECS Core Components</h3>
+
+                    <h4>1. Cluster</h4>
+                    <p>A <strong>logical grouping</strong> of compute capacity (EC2 or Fargate).</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Purpose</strong></td>
+                                <td>Groups resources for container deployment</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Types</strong></td>
+                                <td>EC2 (you manage servers) or Fargate (serverless)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Isolation</strong></td>
+                                <td>Resources in one cluster don't affect another</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>2. Task Definition</h4>
+                    <p>A <strong>blueprint</strong> for your containers (like a Dockerfile but for ECS).</p>
+                    <p>Defines:</p>
+                    <ul>
+                        <li>Docker image to use</li>
+                        <li>CPU and memory requirements</li>
+                        <li>Port mappings</li>
+                        <li>Environment variables</li>
+                        <li>IAM role for task</li>
+                        <li>Logging configuration</li>
+                    </ul>
+
+                    <h4>3. Task</h4>
+                    <p>A <strong>running instance</strong> of a Task Definition (like a Kubernetes Pod).</p>
+
+                    <h4>4. Service</h4>
+                    <p>Ensures desired number of tasks are <strong>always running</strong>.</p>
+                    <ul>
+                        <li>✅ Maintains task count (like Kubernetes ReplicaSet)</li>
+                        <li>✅ Replaces failed tasks automatically</li>
+                        <li>✅ Integrates with load balancers</li>
+                        <li>✅ Supports rolling updates</li>
+                    </ul>
+
+                    <h3>🚀 ECS Launch Types</h3>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Launch Type</th>
+                                <th>You Manage</th>
+                                <th>AWS Manages</th>
+                                <th>Use Case</th>
+                                <th>Cost Model</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>EC2</strong></td>
+                                <td>EC2 instances, scaling, patching</td>
+                                <td>Container orchestration</td>
+                                <td>More control, cost optimization</td>
+                                <td>Pay for EC2 instances</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fargate</strong></td>
+                                <td>Nothing (serverless)</td>
+                                <td>Infrastructure + orchestration</td>
+                                <td>Simplicity, no ops overhead</td>
+                                <td>Pay per task (CPU/RAM/time)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>⚙️ Creating ECS Cluster and Service</h3>
+
+                    <h4>Method 1: AWS CLI</h4>
+                    <pre><code># Create ECS cluster
+aws ecs create-cluster \
+    --cluster-name my-app-cluster \
+    --region us-east-1
+
+# Register task definition
+aws ecs register-task-definition \
+    --cli-input-json file://task-definition.json
+
+# Create service
+aws ecs create-service \
+    --cluster my-app-cluster \
+    --service-name my-web-service \
+    --task-definition my-app:1 \
+    --desired-count 3 \
+    --launch-type FARGATE \
+    --network-configuration "awsvpcConfiguration={subnets=[subnet-12345],securityGroups=[sg-12345],assignPublicIp=ENABLED}"
+
+# Update service (change task count)
+aws ecs update-service \
+    --cluster my-app-cluster \
+    --service my-web-service \
+    --desired-count 5
+
+# List services
+aws ecs list-services --cluster my-app-cluster
+
+# Delete service
+aws ecs delete-service \
+    --cluster my-app-cluster \
+    --service my-web-service \
+    --force</code></pre>
+
+                    <h4>Method 2: AWS Console</h4>
+                    <ol>
+                        <li>Go to <strong>Amazon ECS</strong></li>
+                        <li>Click <strong>Create Cluster</strong></li>
+                        <li>Select <strong>Networking only (Fargate)</strong></li>
+                        <li>Create <strong>Task Definition</strong></li>
+                        <li>Create <strong>Service</strong> with desired task count</li>
+                        <li>Configure <strong>Load Balancer</strong> and <strong>Auto Scaling</strong></li>
+                    </ol>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Best Practices:</strong></p>
+                        <ul>
+                            <li>Use <strong>Fargate</strong> for serverless simplicity</li>
+                            <li>Use <strong>EC2 launch type</strong> for cost optimization at scale</li>
+                            <li>Enable <strong>Container Insights</strong> for monitoring</li>
+                            <li>Use <strong>Application Load Balancer</strong> for production</li>
+                            <li>Enable <strong>Service Auto Scaling</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="aws-eks">AWS EKS (Elastic Kubernetes Service)</h2></summary>
+                <div class="section-content">
+                    <h3>✅ What is AWS EKS?</h3>
+                    <p><strong>Amazon EKS</strong> is AWS's <strong>managed Kubernetes</strong> service.</p>
+
+                    <h3>🎯 Why Use EKS?</h3>
+                    <ul>
+                        <li>✅ <strong>Standard Kubernetes:</strong> No vendor lock-in</li>
+                        <li>✅ <strong>AWS-Managed Control Plane:</strong> HA across 3 AZs</li>
+                        <li>✅ <strong>AWS Integration:</strong> IAM, VPC, ALB, EBS</li>
+                        <li>✅ <strong>Hybrid/Multi-Cloud:</strong> Run same workloads anywhere</li>
+                    </ul>
+
+                    <h3>⚙️ Creating EKS Cluster</h3>
+
+                    <h4>Method 1: CLI (eksctl)</h4>
+                    <pre><code># Create EKS cluster
+eksctl create cluster \
+  --name my-eks-cluster \
+  --region us-east-1 \
+  --nodegroup-name standard-workers \
+  --node-type t3.medium \
+  --nodes 3 \
+  --managed
+
+# Deploy application
+kubectl create deployment nginx --image=nginx
+kubectl expose deployment nginx --port=80 --type=LoadBalancer
+
+# Delete cluster
+eksctl delete cluster --name my-eks-cluster</code></pre>
+
+                    <h4>Method 2: AWS Console</h4>
+                    <ol>
+                        <li>Go to <strong>Amazon EKS</strong></li>
+                        <li>Click <strong>Add Cluster</strong> → <strong>Create</strong></li>
+                        <li>Configure cluster and networking</li>
+                        <li>Add <strong>Managed Node Group</strong></li>
+                        <li>Configure kubectl: <code>aws eks update-kubeconfig --name my-eks-cluster</code></li>
+                    </ol>
+
+                    <h3>💰 EKS Pricing</h3>
+                    <ul>
+                        <li><strong>Control Plane:</strong> $0.10/hour (~$73/month per cluster)</li>
+                        <li><strong>Worker Nodes:</strong> Standard EC2 pricing</li>
+                        <li><strong>Fargate Pods:</strong> Per vCPU and GB-hour</li>
+                    </ul>
+
+                    <h3>🆚 ECS vs EKS Decision Guide</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Scenario</th>
+                                <th>Choose ECS</th>
+                                <th>Choose EKS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>New to containers</td>
+                                <td>✅</td>
+                                <td>❌</td>
+                            </tr>
+                            <tr>
+                                <td>AWS-only workloads</td>
+                                <td>✅</td>
+                                <td>⚠️</td>
+                            </tr>
+                            <tr>
+                                <td>Kubernetes experience</td>
+                                <td>❌</td>
+                                <td>✅</td>
+                            </tr>
+                            <tr>
+                                <td>Multi-cloud/hybrid</td>
+                                <td>❌</td>
+                                <td>✅</td>
+                            </tr>
+                            <tr>
+                                <td>Cost sensitivity</td>
+                                <td>✅</td>
+                                <td>⚠️</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="key-takeaways">Key Takeaways & Summary</h2></summary>
+                <div class="section-content">
+                    <h3>🎯 Container Fundamentals</h3>
+                    <ul>
+                        <li>✅ <strong>Containers</strong> are lightweight, isolated execution environments</li>
+                        <li>✅ <strong>Docker</strong> is the most popular containerization platform</li>
+                        <li>✅ Docker consists of <strong>CLI</strong> and <strong>Daemon</strong></li>
+                        <li>✅ <strong>Images</strong> are read-only templates; <strong>Containers</strong> are running instances</li>
+                    </ul>
+
+                    <h3>🗄️ Image Storage</h3>
+                    <ul>
+                        <li>✅ <strong>Docker Hub</strong> - Public registry</li>
+                        <li>✅ <strong>AWS ECR</strong> - Private registry for production</li>
+                    </ul>
+
+                    <h3>🔧 Docker Advanced Features</h3>
+                    <ul>
+                        <li>✅ <strong>Docker Compose</strong> - Manage multi-container apps</li>
+                        <li>✅ <strong>Networks</strong> - Bridge, Host, Overlay</li>
+                        <li>✅ <strong>Volumes</strong> - Data persistence</li>
+                    </ul>
+
+                    <h3>☸️ Kubernetes</h3>
+                    <ul>
+                        <li>✅ <strong>Cluster-based</strong> - Control Plane + Worker Nodes</li>
+                        <li>✅ <strong>Pod</strong> - Smallest unit</li>
+                        <li>✅ Industry standard for container orchestration</li>
+                    </ul>
+
+                    <h3>☁️ AWS Container Services</h3>
+                    <ul>
+                        <li>✅ <strong>ECS</strong> - AWS-native, simpler</li>
+                        <li>✅ <strong>EKS</strong> - Managed Kubernetes</li>
+                    </ul>
+
+                    <h3>✅ Self-Assessment Checklist</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Checkpoint</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Understand Docker CLI vs Daemon</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="docker-cli-daemon"></td>
+                            </tr>
+                            <tr>
+                                <td>Can write a Dockerfile</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="dockerfile"></td>
+                            </tr>
+                            <tr>
+                                <td>Can build and run Docker images</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="docker-build-run"></td>
+                            </tr>
+                            <tr>
+                                <td>Understand Docker Hub vs ECR</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="hub-vs-ecr"></td>
+                            </tr>
+                            <tr>
+                                <td>Can write docker-compose.yml</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="docker-compose"></td>
+                            </tr>
+                            <tr>
+                                <td>Understand Docker networks and volumes</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="network-volumes"></td>
+                            </tr>
+                            <tr>
+                                <td>Know why orchestration is needed</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="orchestration-need"></td>
+                            </tr>
+                            <tr>
+                                <td>Understand Kubernetes architecture</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="k8s-architecture"></td>
+                            </tr>
+                            <tr>
+                                <td>Know Control Plane vs Worker Nodes</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="control-worker"></td>
+                            </tr>
+                            <tr>
+                                <td>Can use kubectl basic commands</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="kubectl-basics"></td>
+                            </tr>
+                            <tr>
+                                <td>Understand ECS components</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="ecs-components"></td>
+                            </tr>
+                            <tr>
+                                <td>Know ECS EC2 vs Fargate</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="ecs-launch-types"></td>
+                            </tr>
+                            <tr>
+                                <td>Understand EKS</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="eks-understanding"></td>
+                            </tr>
+                            <tr>
+                                <td>Know when to use ECS vs EKS</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="ecs-vs-eks"></td>
+                            </tr>
+                            <tr>
+                                <td>Watched CICD project video</td>
+                                <td><input type="checkbox" class="checklist-item" data-key="cicd-video"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🔗 Important Resources</h3>
+                    <ul>
+                        <li><strong>Docker Docs:</strong> <a href="https://docs.docker.com/" target="_blank">https://docs.docker.com/</a></li>
+                        <li><strong>Kubernetes Docs:</strong> <a href="https://kubernetes.io/docs/" target="_blank">https://kubernetes.io/docs/</a></li>
+                        <li><strong>AWS ECS Docs:</strong> <a href="https://docs.aws.amazon.com/ecs/" target="_blank">https://docs.aws.amazon.com/ecs/</a></li>
+                        <li><strong>AWS EKS Docs:</strong> <a href="https://docs.aws.amazon.com/eks/" target="_blank">https://docs.aws.amazon.com/eks/</a></li>
+                    </ul>
+
+                    <h3>🚀 Next Steps</h3>
+                    <ol>
+                        <li>Complete all AWS labs and case studies</li>
+                        <li>Watch and implement CICD project video</li>
+                        <li>Build a portfolio project using Docker + ECS or EKS</li>
+                        <li>Practice interview questions using STAR method</li>
+                        <li>Update resume with container orchestration skills</li>
+                    </ol>
+                </div>
+            </details>
+
+        </div>
+
+        <div class="tags">
+            <span class="tag">AWS</span>
+            <span class="tag">Docker</span>
+            <span class="tag">Kubernetes</span>
+            <span class="tag">ECS</span>
+            <span class="tag">EKS</span>
+            <span class="tag">Containers</span>
+            <span class="tag">DevOps</span>
+        </div>
+    </div>
+
+    <script src="../../../js/theme.js"></script>
+    <script src="../../../js/notes-template.js"></script>
+</body>
+</html>
