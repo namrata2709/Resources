@@ -1,0 +1,603 @@
+/**
+ * Lab Template Stylesheet
+ * Universal styles for all lab pages
+ * File location: css/lab-template.css
+ * Linked in HTML as: <link rel="stylesheet" href="../../../css/lab-template.css">
+ */
+
+/* ============================================
+   CSS VARIABLES & THEME
+   ============================================ */
+
+:root {
+    /* Light theme colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-code: #f5f5f5;
+    --text-primary: #2c3e50;
+    --text-secondary: #5a6c7d;
+    --text-muted: #95a5a6;
+    --border-color: #e1e8ed;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --accent: #3498db;
+    --accent-hover: #2980b9;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --error: #e74c3c;
+    --info: #3498db;
+    
+    /* Lab-specific colors */
+    --lab-step-bg: #e3f2fd;
+    --lab-step-border: #2196f3;
+    --lab-task-bg: #fff9e6;
+    --lab-task-border: #ffd700;
+    --lab-note-bg: #fff3cd;
+    --lab-note-border: #ffc107;
+    --lab-important-bg: #ffebee;
+    --lab-important-border: #f44336;
+}
+
+[data-theme="dark"] {
+    /* Dark theme colors */
+    --bg-primary: #1a1d23;
+    --bg-secondary: #252932;
+    --bg-code: #2d3139;
+    --text-primary: #e4e6eb;
+    --text-secondary: #b0b3b8;
+    --text-muted: #8a8d91;
+    --border-color: #3a3d44;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --accent: #4a9eff;
+    --accent-hover: #6db3ff;
+    --success: #3dd598;
+    --warning: #ffa726;
+    --error: #ef5350;
+    --info: #4a9eff;
+    
+    --lab-step-bg: #1e3a5f;
+    --lab-step-border: #4a9eff;
+    --lab-task-bg: #3a3520;
+    --lab-task-border: #ffd700;
+    --lab-note-bg: #3d3520;
+    --lab-note-border: #ffa726;
+    --lab-important-bg: #3d1e1e;
+    --lab-important-border: #ef5350;
+}
+
+[data-theme="comfort"] {
+    /* Eye Comfort theme */
+    --bg-primary: #f5f1e8;
+    --bg-secondary: #e8e3d8;
+    --bg-code: #ded9ce;
+    --text-primary: #3d3525;
+    --text-secondary: #5a5340;
+    --text-muted: #8a7f6b;
+    --border-color: #d4cfc4;
+    --shadow: rgba(0, 0, 0, 0.08);
+    --accent: #8b6f47;
+    --accent-hover: #6d5737;
+    --success: #6b8e4e;
+    --warning: #c8944d;
+    --error: #b85c4e;
+    --info: #6b8e9e;
+    
+    --lab-step-bg: #e3f2f7;
+    --lab-step-border: #6b8e9e;
+    --lab-task-bg: #fff8e1;
+    --lab-task-border: #d4af37;
+    --lab-note-bg: #ffefd5;
+    --lab-note-border: #c8944d;
+    --lab-important-bg: #ffeae8;
+    --lab-important-border: #b85c4e;
+}
+
+/* ============================================
+   GLOBAL STYLES
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.7;
+    font-size: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================
+   THEME TOGGLE BUTTON
+   ============================================ */
+
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+.theme-icon::before {
+    content: '☀️';
+    font-size: 24px;
+}
+
+[data-theme="dark"] .theme-icon::before {
+    content: '🌙';
+}
+
+[data-theme="comfort"] .theme-icon::before {
+    content: '👁️';
+}
+
+/* ============================================
+   LAB CONTAINER
+   ============================================ */
+
+.lab-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+    background: var(--bg-primary);
+}
+
+.lab-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.lab-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.lab-meta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.lab-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.lab-meta-item strong {
+    color: var(--text-primary);
+}
+
+/* ============================================
+   LAB OBJECTIVES & OVERVIEW
+   ============================================ */
+
+.lab-objectives {
+    background: var(--lab-step-bg);
+    border-left: 4px solid var(--lab-step-border);
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.lab-objectives h2 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.lab-objectives ul {
+    list-style: none;
+    padding: 0;
+}
+
+.lab-objectives li {
+    padding: 0.5rem 0 0.5rem 2rem;
+    position: relative;
+    color: var(--text-primary);
+}
+
+.lab-objectives li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--success);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* ============================================
+   LAB STEPS
+   ============================================ */
+
+.lab-content h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.lab-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+}
+
+.lab-content h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.lab-step {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.lab-step h3 {
+    margin-top: 0;
+    color: var(--accent);
+}
+
+.lab-step ol,
+.lab-step ul {
+    margin: 1rem 0 1rem 2rem;
+}
+
+.lab-step li {
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+
+/* ============================================
+   TASK BOXES
+   ============================================ */
+
+.task-box {
+    background: var(--lab-task-bg);
+    border-left: 4px solid var(--lab-task-border);
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.task-box strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-size: 1.1em;
+}
+
+.task-box p {
+    margin: 0.5rem 0;
+    color: var(--text-primary);
+}
+
+/* ============================================
+   NOTE BOXES
+   ============================================ */
+
+.note-box {
+    background: var(--lab-note-bg);
+    border-left: 4px solid var(--lab-note-border);
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.note-box strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--warning);
+    font-size: 1.05em;
+}
+
+.note-box p {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+/* ============================================
+   IMPORTANT BOXES
+   ============================================ */
+
+.important-box {
+    background: var(--lab-important-bg);
+    border-left: 4px solid var(--lab-important-border);
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.important-box strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--error);
+    font-size: 1.05em;
+}
+
+.important-box p {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+/* ============================================
+   CODE BLOCKS
+   ============================================ */
+
+.lab-content code {
+    background: var(--bg-code);
+    color: var(--accent);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    border: 1px solid var(--border-color);
+}
+
+.lab-content pre {
+    background: var(--bg-code);
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+.lab-content pre code {
+    background: none;
+    padding: 0;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    display: block;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+
+.lab-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.lab-content table thead {
+    background: var(--bg-secondary);
+}
+
+.lab-content table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.lab-content table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.lab-content table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.lab-content table tbody tr:hover {
+    background: var(--bg-secondary);
+}
+
+/* ============================================
+   IMAGES
+   ============================================ */
+
+.lab-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    display: block;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.lab-screenshot {
+    border: 2px solid var(--accent);
+    padding: 0.5rem;
+    background: var(--bg-secondary);
+}
+
+.lab-screenshot-caption {
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    font-size: 0.95em;
+    text-align: center;
+}
+
+/* ============================================
+   PROGRESS TRACKER
+   ============================================ */
+
+.progress-tracker {
+    position: sticky;
+    top: 20px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 2rem 0;
+}
+
+.progress-tracker h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.progress-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.progress-step:hover {
+    background: var(--bg-primary);
+}
+
+.progress-step input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--success);
+}
+
+.progress-step label {
+    cursor: pointer;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+/* ============================================
+   NAVIGATION BUTTONS
+   ============================================ */
+
+.lab-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin: 3rem 0 2rem;
+    gap: 1rem;
+}
+
+.nav-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+.nav-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    .lab-container {
+        padding: 15px;
+        margin: 20px auto;
+    }
+    
+    .lab-header h1 {
+        font-size: 2rem;
+    }
+    
+    .lab-meta {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .theme-toggle {
+        width: 45px;
+        height: 45px;
+        top: 15px;
+        right: 15px;
+    }
+    
+    .lab-navigation {
+        flex-direction: column;
+    }
+    
+    .nav-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-center {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
+}
