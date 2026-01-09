@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWS Frameworks & Security - Overview Notes</title>
+    <title>AWS Training Overview Notes - Complete</title>
     <link rel="stylesheet" href="../../../css/notes-template.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
 
     <div class="note-container">
         <div class="note-header">
-            <h1>AWS Well-Architected Framework, Cloud Adoption Framework & Security Hardening</h1>
+            <h1>Overview Notes: AWS Well-Architected Framework, Cloud Adoption Framework, Security Hardening & Certification Exam</h1>
             <p class="note-date">📅 December 29, 2024</p>
         </div>
 
@@ -23,1662 +23,1285 @@
             <ul>
                 <li><a href="#executive-summary">Executive Summary</a></li>
                 <li><a href="#waf">AWS Well-Architected Framework (WAF)</a></li>
-                <li><a href="#caf">AWS Cloud Adoption Framework (CAF)</a></li>
-                <li><a href="#security">Security: System & Network Hardening</a></li>
+                <li><a href="#cap">Cloud Adoption Framework (CAP)</a></li>
+                <li><a href="#security-hardening">System & Network Hardening</a></li>
                 <li><a href="#exam-prep">AWS Certification Exam Preparation</a></li>
                 <li><a href="#best-practices">Best Practices Summary</a></li>
-                <li><a href="#resources">Additional Resources</a></li>
+                <li><a href="#references">Links & References</a></li>
             </ul>
 
             <h2 id="executive-summary">🎯 Executive Summary</h2>
-            <p>This document covers three critical AWS concepts tested in the AWS Certified Cloud Practitioner exam:</p>
-            <ul>
-                <li><strong>Well-Architected Framework (WAF):</strong> Best practices for building and reviewing cloud workloads</li>
-                <li><strong>Cloud Adoption Framework (CAF):</strong> Organizational readiness for cloud migration</li>
-                <li><strong>Security Hardening:</strong> Network and system-level security implementations</li>
-            </ul>
+
+<p>Technical reference for IT professionals with practical implementation methods.</p>
+
+<p><strong>Topics covered in this overview:</strong></p>
+
+<ul>
+    <li>🏗️ <strong>Well-Architected Framework:</strong> Six pillars for building production-ready cloud applications</li>
+    <li>🚀 <strong>Cloud Adoption Framework:</strong> Six perspectives for planning organizational cloud migration</li>
+    <li>🔒 <strong>Security Hardening:</strong> Network and system security best practices with CLI and Console methods</li>
+    <li>📝 <strong>Certification Exam:</strong> Registration process and preparation strategies for AWS Cloud Practitioner</li>
+</ul>
+
+<div class="info-box">
+    <p>💡 <strong>How to Use These Overview Notes:</strong></p>
+    <ul>
+        <li>Quick reference for technical implementations</li>
+        <li>Both AWS CLI and Console methods provided</li>
+        <li>Focus on practical application and best practices</li>
+        <li>See Complete Notes for detailed explanations and analogies</li>
+    </ul>
+</div>
 
             <div class="highlight-box">
-                <p>⚠️ <strong>Exam Note:</strong> These topics typically appear as 1-2 questions in the AWS Cloud Practitioner exam. Focus on understanding the six pillars of WAF and six perspectives of CAF.</p>
+                <p>⚠️ <strong>Important:</strong> Content based on training transcript and supplemented with official AWS documentation for accuracy.</p>
             </div>
 
-            <details class="collapsible-section" open>
-                <summary><h2 id="waf">🏛️ AWS Well-Architected Framework (WAF)</h2></summary>
+            <details class="collapsible-section">
+                <summary><h2 id="waf">AWS Well-Architected Framework (WAF)</h2></summary>
                 <div class="section-content">
 
-                    <h3>📖 Definition</h3>
-                    <p>The AWS Well-Architected Framework is a set of best practices designed to help cloud architects build secure, high-performing, resilient, and efficient infrastructure for applications and workloads.</p>
+                    <h3>✅ Overview</h3>
+                    <p>The <strong>AWS Well-Architected Framework</strong> is a set of best practices to design, build, and review workloads on AWS. It answers:</p>
+                    <ul>
+                        <li>Is your application deployed correctly on AWS?</li>
+                        <li>Is your application built using AWS best practices?</li>
+                        <li>Are you optimizing costs while maintaining performance?</li>
+                    </ul>
 
                     <div class="info-box">
-                        <p>💡 <strong>Key Purpose:</strong> WAF answers the question: "Is your application deployed and built the right way on AWS?"</p>
+                        <p>💡 <strong>Important Distinction:</strong> AWS WAF (Web Application Firewall) is a separate security service. The Well-Architected Framework is an architectural guidance framework.</p>
                     </div>
 
-                    <h3>🎯 The Six Pillars of WAF</h3>
-
+                    <h3>🏛️ The Six Pillars</h3>
                     <div class="diagram-container">
-                        <img src="6_pillars_of_the_waf.jpeg">
-                        <p class="diagram-caption"><em>Figure 1: The Six Pillars of AWS Well-Architected Framework</em></p>
+                        <img src="6_pillars_of_the_waf.jpeg" alt="AWS Well-Architected Framework - Six Pillars Overview">
+                        <p class="diagram-caption"><em>Figure 1: AWS Well-Architected Framework - Six Pillars</em></p>
                     </div>
-
                     <table>
                         <thead>
                             <tr>
                                 <th>Pillar</th>
-                                <th>Focus Area</th>
+                                <th>Focus</th>
                                 <th>Key Question</th>
-                                <th>Example AWS Services</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>1. Operational Excellence</strong></td>
-                                <td>Running and monitoring systems</td>
-                                <td>How do you run and monitor systems to deliver business value?</td>
-                                <td>CloudWatch, CloudTrail, Systems Manager</td>
-                            </tr>
-                            <tr>
-                                <td><strong>2. Security</strong></td>
-                                <td>Protecting information and systems</td>
-                                <td>How do you protect data, systems, and assets?</td>
-                                <td>IAM, GuardDuty, Shield, WAF</td>
-                            </tr>
-                            <tr>
-                                <td><strong>3. Reliability</strong></td>
-                                <td>Ensuring consistent performance</td>
-                                <td>How do you ensure workloads perform their intended function?</td>
-                                <td>Multi-AZ, Auto Scaling, Backup</td>
-                            </tr>
-                            <tr>
-                                <td><strong>4. Performance Efficiency</strong></td>
-                                <td>Using resources efficiently</td>
-                                <td>How do you use computing resources efficiently?</td>
-                                <td>Lambda, ECS, Elastic Beanstalk</td>
-                            </tr>
-                            <tr>
-                                <td><strong>5. Cost Optimization</strong></td>
-                                <td>Avoiding unnecessary costs</td>
-                                <td>How do you avoid or eliminate unneeded cost?</td>
-                                <td>Cost Explorer, Budgets, Reserved Instances</td>
-                            </tr>
-                            <tr>
-                                <td><strong>6. Sustainability</strong></td>
-                                <td>Minimizing environmental impact</td>
-                                <td>How do you minimize environmental impacts?</td>
-                                <td>EC2 right-sizing, S3 Intelligent-Tiering</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>🔍 Why WAF Exists</h3>
-                    <p><strong>Problem Statement:</strong> When organizations first migrate to AWS, they often face:</p>
-                    <ul>
-                        <li>Applications that work initially but suddenly go down</li>
-                        <li>Unexpectedly high costs</li>
-                        <li>Security vulnerabilities and gaps</li>
-                        <li>Poor performance under load</li>
-                    </ul>
-
-                    <div class="error-box">
-                        <p>❌ <strong>Common Misconception:</strong> "Cloud failures are due to technology issues." Reality: People fail in the cloud because of poor planning and poor design, not because AWS services don't work.</p>
-                    </div>
-
-                    <h3>⚙️ Practical Implementation</h3>
-
-                    <h4>Method 1: AWS CLI - Well-Architected Tool</h4>
-                    <pre><code># Create a workload review
-aws wellarchitected create-workload \
-    --workload-name "MyApplication" \
-    --description "Production web application" \
-    --environment PRODUCTION \
-    --region us-east-1
-
-# List available lenses
-aws wellarchitected list-lenses --region us-east-1
-
-# Get workload details
-aws wellarchitected get-workload \
-    --workload-id <workload-id> \
-    --region us-east-1</code></pre>
-
-                    <h4>Method 2: AWS Console (GUI)</h4>
-                    <ol>
-                        <li>Open AWS Management Console and search for <strong>"Well-Architected Tool"</strong></li>
-                        <li>Click <strong>Define workload</strong></li>
-                        <li>Enter workload details:
-                            <ul>
-                                <li>Name: Your application name</li>
-                                <li>Description: Application purpose</li>
-                                <li>Environment: Production/Pre-production</li>
-                                <li>Regions: Where deployed</li>
-                            </ul>
-                        </li>
-                        <li>Click <strong>Start reviewing</strong></li>
-                        <li>Answer questions for each pillar</li>
-                        <li>Review <strong>High-risk issues (HRI)</strong> and <strong>Medium-risk issues (MRI)</strong></li>
-                        <li>Download improvement plan</li>
-                    </ol>
-
-                    <div class="success-box">
-                        <p>✅ <strong>Best Practice:</strong> Conduct Well-Architected Reviews quarterly for production workloads and before major architectural changes.</p>
-                    </div>
-
-                    <h3>📊 WAF Review Process</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Step</th>
-                                <th>Action</th>
-                                <th>Duration</th>
-                                <th>Output</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1. Define</td>
-                                <td>Identify workload and stakeholders</td>
-                                <td>30 minutes</td>
-                                <td>Workload profile</td>
-                            </tr>
-                            <tr>
-                                <td>2. Review</td>
-                                <td>Answer pillar-specific questions</td>
-                                <td>2-4 hours</td>
-                                <td>Risk assessment</td>
-                            </tr>
-                            <tr>
-                                <td>3. Analyze</td>
-                                <td>Identify high and medium risks</td>
-                                <td>1 hour</td>
-                                <td>Risk report</td>
-                            </tr>
-                            <tr>
-                                <td>4. Improve</td>
-                                <td>Implement recommendations</td>
-                                <td>Ongoing</td>
-                                <td>Remediation plan</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="diagram-container">
-                        <img src="waf-review-workflow.png" alt="WAF Review Workflow">
-                        <p class="diagram-caption"><em>Figure 2: AWS Well-Architected Framework Review Process</em></p>
-                    </div>
-
-                    <h3>🎯 Key Takeaways</h3>
-                    <ul>
-                        <li>WAF provides <strong>technical correctness</strong> after migration</li>
-                        <li>Focuses on <strong>continuous improvement</strong> of existing workloads</li>
-                        <li>Six pillars must be balanced - optimizing one shouldn't compromise others</li>
-                        <li>Regular reviews prevent architectural debt</li>
-                        <li>Use the Well-Architected Tool in AWS Console for guided assessments</li>
-                    </ul>
-
-                </div>
-            </details>
-
-            <details class="collapsible-section">
-                <summary><h2 id="caf">🚀 AWS Cloud Adoption Framework (CAF)</h2></summary>
-                <div class="section-content">
-
-                    <h3>📖 Definition</h3>
-                    <p>The AWS Cloud Adoption Framework (CAF) provides guidance to help organizations prepare for successful cloud migration. It addresses organizational readiness across six perspectives.</p>
-
-                    <div class="info-box">
-                        <p>💡 <strong>Key Purpose:</strong> CAF answers: "Are we ready to move to the cloud?" It focuses on organizational readiness BEFORE migration.</p>
-                    </div>
-
-                    <h3>⚖️ WAF vs CAF: Understanding the Difference</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Aspect</th>
-                                <th>Cloud Adoption Framework (CAF)</th>
-                                <th>Well-Architected Framework (WAF)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Timing</strong></td>
-                                <td><strong>BEFORE</strong> migration</td>
-                                <td><strong>AFTER</strong> migration</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Focus</strong></td>
-                                <td>Organizational readiness</td>
-                                <td>Technical correctness</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Scope</strong></td>
-                                <td>People, processes, culture</td>
-                                <td>Architecture, workloads</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Question</strong></td>
-                                <td>"Are we ready to migrate?"</td>
-                                <td>"Is our application optimized?"</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Components</strong></td>
-                                <td>6 Perspectives</td>
-                                <td>6 Pillars</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="highlight-box">
-                        <p>⚠️ <strong>Remember:</strong> CAF = Organization preparation | WAF = Continuous workload optimization</p>
-                    </div>
-
-                    <h3>🎯 The Six Perspectives of CAF</h3>
-
-                    <div class="diagram-container">
-                        <img src="cloud_adoption_framework.jpeg">
-                        <p class="diagram-caption"><em>Figure 2: The Six Perspectives of AWS Cloud Adoption Framework</em></p>
-                    </div>
-
-                    <h4>📊 Business Perspectives (Strategic)</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Perspective</th>
-                                <th>Focus Area</th>
-                                <th>Key Questions</th>
-                                <th>Common Roles</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>1. Business</strong></td>
-                                <td>Business value optimization</td>
-                                <td>
-                                    • Why are we moving to cloud?<br>
-                                    • What business outcomes do we expect?<br>
-                                    • How will we measure success?
-                                </td>
-                                <td>
-                                    • Business Managers<br>
-                                    • Finance Managers<br>
-                                    • Budget Owners<br>
-                                    • Strategy Stakeholders
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>2. People</strong></td>
-                                <td>Workforce transformation</td>
-                                <td>
-                                    • Are our people skilled enough?<br>
-                                    • What training is needed?<br>
-                                    • How do we manage change?
-                                </td>
-                                <td>
-                                    • Human Resources<br>
-                                    • Training Managers<br>
-                                    • People Managers<br>
-                                    • Communications Team
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>3. Governance</strong></td>
-                                <td>Business outcomes management</td>
-                                <td>
-                                    • Do we have proper governance?<br>
-                                    • What are our compliance requirements?<br>
-                                    • How do we manage risks?
-                                </td>
-                                <td>
-                                    • CIO<br>
-                                    • Program Managers<br>
-                                    • Enterprise Architects<br>
-                                    • Business Analysts
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h4>⚙️ Technical Perspectives (Implementation)</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Perspective</th>
-                                <th>Focus Area</th>
-                                <th>Key Questions</th>
-                                <th>Common Roles</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>4. Platform</strong></td>
-                                <td>Cloud solution development</td>
-                                <td>
-                                    • Is our base platform ready?<br>
-                                    • What services should we use?<br>
-                                    • How do we optimize solutions?
-                                </td>
-                                <td>
-                                    • CTO<br>
-                                    • IT Managers<br>
-                                    • Solution Architects<br>
-                                    • Engineering Leads
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>5. Security</strong></td>
-                                <td>Security compliance & resilience</td>
-                                <td>
-                                    • Do we have security controls?<br>
-                                    • Are we compliant?<br>
-                                    • How do we ensure resilience?
-                                </td>
-                                <td>
-                                    • CISO<br>
-                                    • IT Security Managers<br>
-                                    • Security Analysts<br>
-                                    • Compliance Officers
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>6. Operations</strong></td>
-                                <td>Cloud operations delivery</td>
-                                <td>
-                                    • Are operations teams ready?<br>
-                                    • Do we have monitoring in place?<br>
-                                    • Can we deliver agile operations?
-                                </td>
-                                <td>
-                                    • IT Operations Managers<br>
-                                    • IT Support Managers<br>
-                                    • DevOps Engineers<br>
-                                    • SRE Teams
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>🔄 CAF Implementation Process</h3>
-
-                    <div class="diagram-container">
-                        <img src="caf-migration-journey.png" alt="Cloud Adoption Framework Migration Journey">
-                        <p class="diagram-caption"><em>Figure 5: Cloud Adoption Framework Migration Journey</em></p>
-                    </div>
-
-                    <h3>⚙️ Practical Implementation</h3>
-
-                    <h4>Method 1: Using AWS CLI (Limited - mostly documentation-driven)</h4>
-                    <pre><code># CAF is primarily a guidance framework, not a service
-# However, you can use AWS Organizations for governance
-
-# Create organizational structure for CAF implementation
-aws organizations create-organizational-unit \
-    --parent-id r-xxxx \
-    --name "Production" \
-    --region us-east-1
-
-# Apply Service Control Policies (Governance perspective)
-aws organizations attach-policy \
-    --policy-id p-xxxx \
-    --target-id ou-xxxx</code></pre>
-
-                    <h4>Method 2: AWS Console - Planning & Assessment</h4>
-                    <ol>
-                        <li>Navigate to <strong>AWS Migration Hub</strong></li>
-                        <li>Go to <strong>Strategy Recommendations</strong></li>
-                        <li>Click <strong>Get started with Strategy Recommendations</strong></li>
-                        <li>Complete the <strong>Cloud Readiness Assessment</strong>:
-                            <ul>
-                                <li>Answer questions for each CAF perspective</li>
-                                <li>Identify capability gaps</li>
-                                <li>Receive readiness score</li>
-                            </ul>
-                        </li>
-                        <li>Review <strong>Recommended Actions</strong> for each perspective</li>
-                        <li>Create <strong>Action Plan</strong> with timelines</li>
-                        <li>Assign owners to each perspective</li>
-                    </ol>
-
-                    <div class="success-box">
-                        <p>✅ <strong>Best Practice:</strong> Conduct CAF assessment workshops with stakeholders from all six perspectives before starting migration.</p>
-                    </div>
-
-                    <h3>📋 CAF Readiness Checklist</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Perspective</th>
-                                <th>Readiness Criteria</th>
-                                <th>Status Check</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Business</td>
-                                <td>Clear business case and ROI defined</td>
-                                <td><input type="checkbox" class="checklist-item" data-key="caf-business"></td>
-                            </tr>
-                            <tr>
-                                <td>People</td>
-                                <td>Training plan and change management strategy</td>
-                                <td><input type="checkbox" class="checklist-item" data-key="caf-people"></td>
-                            </tr>
-                            <tr>
-                                <td>Governance</td>
-                                <td>Policies, compliance, and KPIs established</td>
-                                <td><input type="checkbox" class="checklist-item" data-key="caf-governance"></td>
-                            </tr>
-                            <tr>
-                                <td>Platform</td>
-                                <td>Landing zone and baseline architecture ready</td>
-                                <td><input type="checkbox" class="checklist-item" data-key="caf-platform"></td>
-                            </tr>
-                            <tr>
-                                <td>Security</td>
-                                <td>Security controls and compliance framework</td>
-                                <td><input type="checkbox" class="checklist-item" data-key="caf-security"></td>
-                            </tr>
-                            <tr>
-                                <td>Operations</td>
-                                <td>Monitoring, incident response, and support</td>
-                                <td><input type="checkbox" class="checklist-item" data-key="caf-operations"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>🎯 Key Takeaways</h3>
-                    <ul>
-                        <li>CAF ensures <strong>organizational readiness</strong> before migration</li>
-                        <li>Addresses both <strong>business and technical</strong> perspectives</li>
-                        <li>Cloud is an <strong>organizational change</strong>, not just infrastructure change</li>
-                        <li>All six perspectives must be addressed for successful adoption</li>
-                        <li>Use CAF before migration, WAF after migration</li>
-                    </ul>
-
-                </div>
-            </details>
-
-            <details class="collapsible-section">
-                <summary><h2 id="security">🔒 Security: System & Network Hardening</h2></summary>
-                <div class="section-content">
-
-                    <h3>🎯 Core Security Principle</h3>
-                    <div class="highlight-box">
-                        <p>⚠️ <strong>Core Truth:</strong> Security is about controlling access. There are two places where access can be controlled:<br>
-                        1. <strong>BEFORE</strong> reaching the system (Network Hardening)<br>
-                        2. <strong>AFTER</strong> reaching the system (System Hardening)</p>
-                    </div>
-
-                    <h3>📚 Real-Life Analogy: Protecting Valuables</h3>
-                    <p>Imagine protecting a valuable gold ornament:</p>
-                    <ul>
-                        <li><strong>Layer 1:</strong> House entrance with gate (Network Hardening)</li>
-                        <li><strong>Layer 2:</strong> Bedroom door (Network Hardening)</li>
-                        <li><strong>Layer 3:</strong> Almirah/Cupboard (Network Hardening)</li>
-                        <li><strong>Layer 4:</strong> Locker inside cupboard (System Hardening)</li>
-                        <li><strong>Layer 5:</strong> Only authorized person has key (System Hardening)</li>
-                        <li><strong>Monitoring:</strong> CCTV cameras throughout (Both)</li>
-                    </ul>
-
-                    <div class="info-box">
-                        <p>💡 <strong>Key Insight:</strong> Multiple layers of security (defense in depth) protect against different threat vectors.</p>
-                    </div>
-
-                    <h3>🌐 Network Hardening</h3>
-
-                    <h4>📖 Definition</h4>
-                    <p><strong>Network Hardening</strong> controls access <strong>BEFORE</strong> someone reaches the system. It answers: "Who can connect? From where? On which port?"</p>
-
-                    <div class="diagram-container">
-                        <img src="network_hardening.jpeg" alt="Network Hardening Architecture">
-                        <p class="diagram-caption"><em>Figure 3: Network Hardening Components</em></p>
-                    </div>
-
-                    <h4>🔧 Network Hardening Components</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Component</th>
-                                <th>Purpose</th>
-                                <th>AWS Implementation</th>
-                                <th>Example Rule</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Firewall</strong></td>
-                                <td>Filter incoming/outgoing traffic</td>
-                                <td>Security Groups, Network ACLs</td>
-                                <td>Allow HTTP (80) from anywhere</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Port Control</strong></td>
-                                <td>Allow only necessary ports</td>
-                                <td>Security Group Rules</td>
-                                <td>SSH (22) only from admin IP</td>
-                            </tr>
-                            <tr>
-                                <td><strong>IP Filtering</strong></td>
-                                <td>Block/allow specific IPs</td>
-                                <td>NACL, WAF IP sets</td>
-                                <td>Block suspicious IP ranges</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Network Segmentation</strong></td>
-                                <td>Isolate resources</td>
-                                <td>VPC, Subnets</td>
-                                <td>Public vs Private subnets</td>
-                            </tr>
-                            <tr>
-                                <td><strong>IDPS</strong></td>
-                                <td>Detect intrusions</td>
-                                <td>GuardDuty, IDS solutions</td>
-                                <td>Alert on port scans</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h4>⚙️ Practical Implementation: Network Hardening</h4>
-
-                    <h5>Method 1: AWS CLI - Security Group Configuration</h5>
-                    <pre><code># Create a security group with strict rules
-aws ec2 create-security-group \
-    --group-name "WebServer-SG" \
-    --description "Hardened security group for web servers" \
-    --vpc-id vpc-xxxxx
-
-# Allow HTTP from anywhere (port 80)
-aws ec2 authorize-security-group-ingress \
-    --group-id sg-xxxxx \
-    --protocol tcp \
-    --port 80 \
-    --cidr 0.0.0.0/0
-
-# Allow SSH ONLY from admin IP (port 22)
-aws ec2 authorize-security-group-ingress \
-    --group-id sg-xxxxx \
-    --protocol tcp \
-    --port 22 \
-    --cidr 203.0.113.25/32  # Replace with your IP
-
-# Deny all other inbound traffic (implicit in AWS)
-# All outbound traffic allowed by default
-
-# Create Network ACL for subnet-level control
-aws ec2 create-network-acl \
-    --vpc-id vpc-xxxxx
-
-# Add NACL rule to block specific IP range
-aws ec2 create-network-acl-entry \
-    --network-acl-id acl-xxxxx \
-    --ingress \
-    --rule-number 100 \
-    --protocol -1 \
-    --cidr-block 198.51.100.0/24 \
-    --rule-action deny</code></pre>
-
-                    <h5>Method 2: AWS Console - Network Hardening Setup</h5>
-                    <ol>
-                        <li><strong>Configure Security Groups:</strong>
-                            <ul>
-                                <li>Go to <strong>EC2 Dashboard</strong> → <strong>Security Groups</strong></li>
-                                <li>Click <strong>Create security group</strong></li>
-                                <li>Name: "Hardened-WebServer-SG"</li>
-                                <li>Add Inbound Rules:
-                                    <ul>
-                                        <li>Type: HTTP | Port: 80 | Source: 0.0.0.0/0</li>
-                                        <li>Type: HTTPS | Port: 443 | Source: 0.0.0.0/0</li>
-                                        <li>Type: SSH | Port: 22 | Source: <em>Your IP/32</em></li>
-                                    </ul>
-                                </li>
-                                <li>Outbound Rules: Keep default (all traffic allowed)</li>
-                                <li>Click <strong>Create</strong></li>
-                            </ul>
-                        </li>
-                        <li><strong>Configure Network ACLs:</strong>
-                            <ul>
-                                <li>Go to <strong>VPC Dashboard</strong> → <strong>Network ACLs</strong></li>
-                                <li>Select your VPC's NACL</li>
-                                <li>Add Inbound Rules (evaluated in order):
-                                    <ul>
-                                        <li>Rule 100: Block malicious IP | Deny</li>
-                                        <li>Rule 110: Allow HTTP | Port 80 | Allow</li>
-                                        <li>Rule 120: Allow HTTPS | Port 443 | Allow</li>
-                                        <li>Rule 130: Allow SSH | Port 22 | Allow</li>
-                                        <li>Rule *: Deny all (default)</li>
-                                    </ul>
-                                </li>
-                                <li>Click <strong>Save changes</strong></li>
-                            </ul>
-                        </li>
-                        <li><strong>Enable VPC Flow Logs:</strong>
-                            <ul>
-                                <li>Select your VPC → <strong>Actions</strong> → <strong>Create flow log</strong></li>
-                                <li>Filter: Accept, Reject, or All</li>
-                                <li>Destination: CloudWatch Logs or S3</li>
-                                <li>This monitors all network traffic</li>
-                            </ul>
-                        </li>
-                    </ol>
-
-                    <div class="success-box">
-                        <p>✅ <strong>Best Practice:</strong> Use Security Groups for instance-level control (stateful) and NACLs for subnet-level control (stateless). Security Groups should be your primary defense.</p>
-                    </div>
-
-                    <h3>💻 System Hardening</h3>
-
-                    <h4>📖 Definition</h4>
-                    <p><strong>System Hardening</strong> controls access <strong>AFTER</strong> someone reaches the system. It answers: "What can users do inside the system?"</p>
-
-                    <div class="diagram-container">
-                        <img src="system-hardening-layers.png" alt="System Hardening Security Layers">
-                        <p class="diagram-caption"><em>Figure 4: Defense-in-Depth System Hardening Model</em></p>
-                    </div>
-
-                    <h4>🔧 System Hardening Components</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Component</th>
-                                <th>Focus Area</th>
-                                <th>Actions</th>
-                                <th>AWS Tools</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Operating System Hardening</strong></td>
-                                <td>OS security baseline</td>
-                                <td>
-                                    • Apply latest security patches<br>
-                                    • Disable unnecessary services<br>
-                                    • Configure secure boot<br>
-                                    • Remove default accounts
-                                </td>
-                                <td>
-                                    • Systems Manager Patch Manager<br>
-                                    • EC2 Image Builder<br>
-                                    • Inspector
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>User Access Control</strong></td>
-                                <td>Who can access what</td>
-                                <td>
-                                    • Implement least privilege<br>
-                                    • Use IAM roles<br>
-                                    • Enable MFA<br>
-                                    • Disable root login
-                                </td>
-                                <td>
-                                    • IAM<br>
-                                    • AWS SSO<br>
-                                    • Secrets Manager
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Service Hardening</strong></td>
-                                <td>Running services</td>
-                                <td>
-                                    • Stop unused services<br>
-                                    • Configure secure settings<br>
-                                    • Update service versions<br>
-                                    • Disable insecure protocols
-                                </td>
-                                <td>
-                                    • Systems Manager<br>
-                                    • Config<br>
-                                    • Service Catalog
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Application Security</strong></td>
-                                <td>Installed software</td>
-                                <td>
-                                    • Install only required apps<br>
-                                    • Keep applications updated<br>
-                                    • Remove outdated packages<br>
-                                    • Scan for vulnerabilities
-                                </td>
-                                <td>
-                                    • Inspector<br>
-                                    • ECR Image Scanning<br>
-                                    • Trusted Advisor
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>File & Permission Security</strong></td>
-                                <td>Data access control</td>
-                                <td>
-                                    • Set strict file permissions<br>
-                                    • Encrypt sensitive files<br>
-                                    • Audit file access<br>
-                                    • Implement file integrity monitoring
-                                </td>
-                                <td>
-                                    • KMS<br>
-                                    • CloudTrail<br>
-                                    • Macie
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Logging & Monitoring</strong></td>
-                                <td>Activity tracking</td>
-                                <td>
-                                    • Enable system logs<br>
-                                    • Track login attempts<br>
-                                    • Monitor suspicious activity<br>
-                                    • Set up alerts
-                                </td>
-                                <td>
-                                    • CloudWatch Logs<br>
-                                    • CloudTrail<br>
-                                    • GuardDuty<br>
-                                    • Security Hub
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h4>⚙️ Practical Implementation: System Hardening</h4>
-
-                    <h5>Method 1: AWS CLI - System Hardening</h5>
-                    <pre><code># 1. Enable CloudWatch Logs for EC2
-aws logs create-log-group \
-    --log-group-name "/aws/ec2/system-logs"
-
-# 2. Apply security patches using Systems Manager
-aws ssm send-command \
-    --document-name "AWS-RunPatchBaseline" \
-    --targets "Key=instanceids,Values=i-xxxxx" \
-    --parameters "Operation=Install"
-
-# 3. Create IAM role with least privilege
-aws iam create-role \
-    --role-name "EC2-LimitedAccess" \
-    --assume-role-policy-document file://trust-policy.json
-
-aws iam attach-role-policy \
-    --role-name "EC2-LimitedAccess" \
-    --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess
-
-# 4. Enable GuardDuty for threat detection
-aws guardduty create-detector \
-    --enable \
-    --finding-publishing-frequency FIFTEEN_MINUTES
-
-# 5. Run security assessment with Inspector
-aws inspector2 enable \
-    --resource-types EC2 ECR
-
-# 6. Configure file integrity monitoring (example user data script)
-# This would be in EC2 user data or Systems Manager document
-#!/bin/bash
-# Install AIDE (Advanced Intrusion Detection Environment)
-yum install aide -y
-aide --init
-cp /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
-# Schedule daily integrity checks
-echo "0 5 * * * /usr/sbin/aide --check" | crontab -</code></pre>
-
-                    <h5>Method 2: AWS Console - System Hardening Setup</h5>
-                    <ol>
-                        <li><strong>Configure IAM for Least Privilege:</strong>
-                            <ul>
-                                <li>Go to <strong>IAM Dashboard</strong> → <strong>Roles</strong></li>
-                                <li>Click <strong>Create role</strong></li>
-                                <li>Select: AWS service → EC2</li>
-                                <li>Attach policies:
-                                    <ul>
-                                        <li>For web servers: <code>AmazonS3ReadOnlyAccess</code></li>
-                                        <li>For logging: <code>CloudWatchAgentServerPolicy</code></li>
-                                        <li>Avoid: <code>AdministratorAccess</code></li>
-                                    </ul>
-                                </li>
-                                <li>Name role: "EC2-WebServer-Role"</li>
-                                <li>Attach to EC2 instance during launch</li>
-                            </ul>
-                        </li>
-                        <li><strong>Enable Systems Manager for Patch Management:</strong>
-                            <ul>
-                                <li>Go to <strong>Systems Manager</strong> → <strong>Patch Manager</strong></li>
-                                <li>Click <strong>Configure patching</strong></li>
-                                <li>Select: Scan and install</li>
-                                <li>Schedule: Daily at 2 AM</li>
-                                <li>Targets: Tag-based (e.g., Environment=Production)</li>
-                                <li>Reboot option: Reboot if needed</li>
-                            </ul>
-                        </li>
-                        <li><strong>Set Up CloudWatch Logs:</strong>
-                            <ul>
-                                <li>SSH into EC2 instance</li>
-                                <li>Install CloudWatch Agent:
-                                    <pre><code>wget https://s3.amazonaws.com/amazoncloudwatch-agent/linux/amd64/latest/amazon-cloudwatch-agent.rpm
-sudo rpm -U ./amazon-cloudwatch-agent.rpm</code></pre>
-                                </li>
-                                <li>Configure agent to collect:
-                                    <ul>
-                                        <li>/var/log/secure (authentication logs)</li>
-                                        <li>/var/log/messages (system logs)</li>
-                                        <li>/var/log/httpd/access_log (web logs)</li>
-                                    </ul>
-                                </li>
-                                <li>Start agent: <code>sudo systemctl start amazon-cloudwatch-agent</code></li>
-                            </ul>
-                        </li>
-                        <li><strong>Enable GuardDuty for Threat Detection:</strong>
-                            <ul>
-                                <li>Go to <strong>GuardDuty</strong> → <strong>Get Started</strong></li>
-                                <li>Click <strong>Enable GuardDuty</strong></li>
-                                <li>Configure findings:
-                                    <ul>
-                                        <li>Export to S3 for long-term storage</li>
-                                        <li>Send to SNS for email alerts</li>
-                                        <li>Integrate with Security Hub</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                        <li><strong>Harden OS Configuration (SSH to instance):</strong>
-                            <pre><code># Disable root login
-sudo sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-
-# Disable password authentication (use key-based only)
-sudo sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
-
-# Restart SSH service
-sudo systemctl restart sshd
-
-# Set strict file permissions
-chmod 600 ~/.ssh/authorized_keys
-chmod 700 ~/.ssh
-
-# Remove unnecessary packages
-sudo yum remove telnet -y
-
-# Enable automatic security updates
-sudo yum install yum-cron -y
-sudo systemctl enable yum-cron
-sudo systemctl start yum-cron</code></pre>
-                        </li>
-                    </ol>
-
-                    <div class="error-box">
-                        <p>❌ <strong>Common Mistake:</strong> Opening systems first and then trying to secure them. Always harden BEFORE exposing to network.</p>
-                    </div>
-
-                    <h3>⚖️ Network vs System Hardening Comparison</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Aspect</th>
-                                <th>Network Hardening</th>
-                                <th>System Hardening</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Control Point</strong></td>
-                                <td>BEFORE reaching system</td>
-                                <td>AFTER reaching system</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Question</strong></td>
-                                <td>"Can you reach the system?"</td>
-                                <td>"What can you do inside?"</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Focus</strong></td>
-                                <td>Network traffic control</td>
-                                <td>System configuration</td>
-                            </tr>
-                            <tr>
-                                <td><strong>AWS Services</strong></td>
-                                <td>Security Groups, NACLs, WAF, VPC</td>
-                                <td>IAM, Systems Manager, Inspector</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Analogy</strong></td>
-                                <td>House gate, door locks</td>
-                                <td>Safe inside the house</td>
-                            </tr>
-                            <tr>
-                                <td><strong>First Line</strong></td>
-                                <td>✅ Yes - first defense</td>
-                                <td>❌ No - second defense</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Prevents</strong></td>
-                                <td>Unauthorized connection attempts</td>
-                                <td>Unauthorized actions on system</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>🔄 Complete Security Implementation Workflow</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Step</th>
-                                <th>Action</th>
-                                <th>Type</th>
-                                <th>Tools</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Design VPC with public/private subnets</td>
-                                <td>Network</td>
-                                <td>VPC, Subnets, Route Tables</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Configure NACLs for subnet-level filtering</td>
-                                <td>Network</td>
-                                <td>Network ACLs</td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Create restrictive Security Groups</td>
-                                <td>Network</td>
-                                <td>Security Groups</td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>Launch hardened AMI</td>
-                                <td>System</td>
-                                <td>EC2 Image Builder</td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>Attach IAM role with least privilege</td>
-                                <td>System</td>
-                                <td>IAM</td>
-                            </tr>
-                            <tr>
-                                <td>6</td>
-                                <td>Configure OS security settings</td>
-                                <td>System</td>
-                                <td>Systems Manager, User Data</td>
-                            </tr>
-                            <tr>
-                                <td>7</td>
-                                <td>Install and configure monitoring</td>
-                                <td>Both</td>
-                                <td>CloudWatch, GuardDuty</td>
-                            </tr>
-                            <tr>
-                                <td>8</td>
-                                <td>Enable logging and auditing</td>
-                                <td>Both</td>
-                                <td>CloudTrail, VPC Flow Logs</td>
-                            </tr>
-                            <tr>
-                                <td>9</td>
-                                <td>Regular security assessments</td>
-                                <td>Both</td>
-                                <td>Inspector, Security Hub</td>
-                            </tr>
-                            <tr>
-                                <td>10</td>
-                                <td>Continuous patch management</td>
-                                <td>System</td>
-                                <td>Patch Manager</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>🎯 Key Takeaways</h3>
-                    <ul>
-                        <li><strong>Defense in Depth:</strong> Use both network and system hardening</li>
-                        <li><strong>Network Hardening:</strong> First line of defense - prevents unauthorized connections</li>
-                        <li><strong>System Hardening:</strong> Second line of defense - limits what can be done after access</li>
-                        <li><strong>Default Insecure:</strong> Fresh OS installations are open by default - must be hardened</li>
-                        <li><strong>Continuous Process:</strong> Hardening is not one-time - requires ongoing maintenance</li>
-                        <li><strong>If you can't reach it, you can't attack it</strong> - Network hardening principle</li>
-                    </ul>
-
-                </div>
-            </details>
-
-            <details class="collapsible-section">
-                <summary><h2 id="exam-prep">📝 AWS Certification Exam Preparation</h2></summary>
-                <div class="section-content">
-
-                    <h3>🎓 AWS Certified Cloud Practitioner Exam Details</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Exam Attribute</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Exam Code</strong></td>
-                                <td>CLF-C02</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Duration</strong></td>
-                                <td>90 minutes (+ 30 min accommodation for non-native English speakers)</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Number of Questions</strong></td>
-                                <td>65 questions (mix of multiple choice and multiple response)</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Passing Score</strong></td>
-                                <td>700 out of 1000 points</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Cost</strong></td>
-                                <td>$100 USD (+ taxes ≈ $118-120 USD)</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Validity</strong></td>
-                                <td>3 years from certification date</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Retake Policy</strong></td>
-                                <td>Must wait 14 days before retaking after failure</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>📋 Registration Process</h3>
-
-                    <h4>Step 1: Create AWS Certification Account</h4>
-                    <ol>
-                        <li>Go to: <a href="https://www.aws.training/certification" target="_blank">https://www.aws.training/certification</a></li>
-                        <li>Click <strong>Sign In</strong> or <strong>Create Account</strong></li>
-                        <li>Use your email to create AWS Builder ID</li>
-                        <li>Complete profile with:
-                            <ul>
-                                <li><strong>Full Name</strong> (as on government ID)</li>
-                                <li>Contact information</li>
-                                <li>Current role (e.g., Cloud Engineer, Student)</li>
-                            </ul>
-                        </li>
-                    </ol>
-
-                    <div class="highlight-box">
-                        <p>⚠️ <strong>Critical:</strong> Name on certification account MUST match your government-issued ID exactly. Contact support immediately if name is incorrect.</p>
-                    </div>
-
-                    <h4>Step 2: Request Exam Accommodation (Extra 30 Minutes)</h4>
-                    <ol>
-                        <li>After logging in, go to <strong>Exam Registration</strong></li>
-                        <li>Click <strong>Exam Accommodations</strong></li>
-                        <li>Click <strong>Request Accommodation</strong></li>
-                        <li>Select: <strong>ESL +30 Minutes</strong> (English as Second Language)</li>
-                        <li>Submit request (typically approved within 24 hours)</li>
-                    </ol>
-
-                    <div class="success-box">
-                        <p>✅ <strong>Benefit:</strong> This adds 30 extra minutes (90 + 30 = 120 minutes total) for non-native English speakers at no additional cost.</p>
-                    </div>
-
-                    <h4>Step 3: Schedule Your Exam</h4>
-
-                    <h5>Option A: Online Proctored Exam (Recommended)</h5>
-                    <ol>
-                        <li>Click <strong>Schedule an Exam</strong></li>
-                        <li>Select: <strong>CLF-C02 - AWS Certified Cloud Practitioner</strong></li>
-                        <li>Choose: <strong>Online with OnVUE</strong></li>
-                        <li>Select exam language: <strong>English</strong></li>
-                        <li>Accept terms and conditions</li>
-                        <li>Choose date and time:
-                            <ul>
-                                <li>Available 24/7 (including late night slots)</li>
-                                <li>Recommended: Morning hours (6-10 AM) for minimal interruptions</li>
-                            </ul>
-                        </li>
-                        <li>Enter voucher code when prompted</li>
-                        <li>Complete payment (should be $0 with voucher)</li>
-                        <li>Receive confirmation email</li>
-                    </ol>
-
-                    <h5>Option B: Test Center Exam</h5>
-                    <ol>
-                        <li>Click <strong>Schedule an Exam</strong></li>
-                        <li>Select: <strong>CLF-C02 - AWS Certified Cloud Practitioner</strong></li>
-                        <li>Choose: <strong>Test Center</strong></li>
-                        <li>Enter your location to find nearby Pearson VUE test centers</li>
-                        <li>Select test center</li>
-                        <li>Choose available date and time</li>
-                        <li>Enter voucher code</li>
-                        <li>Arrive 30 minutes early on exam day with government ID</li>
-                    </ol>
-
-                    <h3>💻 Online Exam Technical Requirements</h3>
-
-                    <div class="error-box">
-                        <p>❌ <strong>Warning:</strong> Most technical failures in online exams occur due to:<br>
-                        1. Using work/employer laptop (restrictive security settings)<br>
-                        2. Unreliable Wi-Fi connection</p>
-                    </div>
-
-                    <h4>✅ System Requirements</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Requirement</th>
-                                <th>Specification</th>
-                                <th>Why Important</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Computer</strong></td>
-                                <td>Personal laptop/desktop (NOT employer-issued)</td>
-                                <td>Avoid corporate security restrictions</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Internet</strong></td>
-                                <td>Wired connection OR reliable 5G mobile hotspot</td>
-                                <td>Prevent disconnections</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Power</strong></td>
-                                <td>Fully charged + plugged into charger</td>
-                                <td>Avoid battery drain mid-exam</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Webcam</strong></td>
-                                <td>Working camera (built-in or external)</td>
-                                <td>Proctor monitors you via video</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Microphone</strong></td>
-                                <td>Working microphone</td>
-                                <td>Proctor may ask questions</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Operating System</strong></td>
-                                <td>Windows 10/11 or macOS 10.13+</td>
-                                <td>OnVUE software compatibility</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h4>🏠 Testing Environment Requirements</h4>
-                    <ul>
-                        <li><strong>✅ Private room:</strong> Distraction-free, no other people</li>
-                        <li><strong>✅ Clean desk:</strong> Only laptop and mouse (no keyboard for laptops)</li>
-                        <li><strong>✅ No mirrors:</strong> Remove or cover mirrors in the room</li>
-                        <li><strong>✅ Closed door:</strong> No one can enter during exam</li>
-                        <li><strong>✅ Good lighting:</strong> Proctor must see your face clearly</li>
-                        <li><strong>❌ No watches:</strong> Must remove all wristwatches</li>
-                        <li><strong>❌ No phones visible:</strong> After room photos, keep phone away</li>
-                        <li><strong>❌ No food/drinks:</strong> Not allowed during exam</li>
-                        <li><strong>❌ No headphones:</strong> Bluetooth devices prohibited</li>
-                        <li><strong>❌ No additional monitors:</strong> Disconnect extra screens</li>
-                    </ul>
-
-                    <h3>🔐 Online Exam Check-In Process (30 Minutes Before)</h3>
-
-                    <h4>Phase 1: System Test (Do this NOW + on exam day)</h4>
-                    <ol>
-                        <li>Visit: <a href="https://home.pearsonvue.com/aws/onvue" target="_blank">Pearson VUE OnVUE System Test</a></li>
-                        <li>Click <strong>Run System Test</strong></li>
-                        <li>Download OnVUE application</li>
-                        <li>System test checks:
-                            <ul>
-                                <li>✅ Internet speed (minimum 1 Mbps upload/download)</li>
-                                <li>✅ Webcam functionality</li>
-                                <li>✅ Microphone functionality</li>
-                                <li>✅ Screen sharing capability</li>
-                            </ul>
-                        </li>
-                        <li>If all checks pass → System is ready</li>
-                    </ol>
-
-                    <h4>Phase 2: Check-In (30 Minutes Before Exam)</h4>
-                    <ol>
-                        <li><strong>Launch OnVUE application</strong> (installed during system test)</li>
-                        <li><strong>Enter Access Code</strong> (from confirmation email)</li>
-                        <li><strong>Wait for Proctor</strong> (usually 5-15 minutes)</li>
-                    </ol>
-
-                    <h4>Phase 3: Testing Space Verification</h4>
-                    <p>Proctor will ask you to:</p>
-                    <ol>
-                        <li><strong>Show your room:</strong> Lift laptop and pan 360° slowly
-                            <ul>
-                                <li>Show all four walls</li>
-                                <li>Show desk area (must be clear)</li>
-                                <li>Show under desk</li>
-                                <li>Confirm door is closed</li>
-                            </ul>
-                        </li>
-                        <li><strong>Show your hands:</strong> Front and back of both hands
-                            <ul>
-                                <li>Confirm no watches</li>
-                                <li>Confirm no rings with cameras/devices</li>
-                            </ul>
-                        </li>
-                        <li><strong>Show your ears:</strong> No earphones/hearing devices</li>
-                        <li><strong>Show area around laptop:</strong> No papers, books, phones</li>
-                    </ol>
-
-                    <h4>Phase 4: Photo ID Verification</h4>
-                    <ol>
-                        <li>Proctor will send a <strong>link to your mobile phone</strong></li>
-                        <li>Open link on phone and upload:
-                            <ul>
-                                <li><strong>Photo of government ID:</strong> Passport, Driver's License, or Aadhaar Card
-                                    <ul>
-                                        <li>Must be clear and readable</li>
-                                        <li>Name must match certification account</li>
-                                    </ul>
-                                </li>
-                                <li><strong>4 Photos of your testing space:</strong>
-                                    <ul>
-                                        <li>Front of your laptop</li>
-                                        <li>Right side of laptop</li>
-                                        <li>Back of laptop</li>
-                                        <li>Left side of laptop</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>After uploading, <strong>keep phone away</strong> from testing area</li>
-                    </ol>
-
-                    <h4>Phase 5: Exam Begins</h4>
-                    <p>Once proctor confirms everything:</p>
-                    <ul>
-                        <li>Exam will be released on your screen</li>
-                        <li>Proctor monitors you throughout via webcam</li>
-                        <li>Do NOT:
-                            <ul>
-                                <li>Look away from screen for extended time</li>
-                                <li>Talk or move lips (even silently)</li>
-                                <li>Stand up or leave seat</li>
-                                <li>Cover your face</li>
-                            </ul>
-                        </li>
-                        <li>Allowed to:
-                            <ul>
-                                <li>Use on-screen whiteboard for calculations</li>
-                                <li>Flag questions for review</li>
-                                <li>Take brief breaks (timer continues)</li>
-                            </ul>
-                        </li>
-                    </ul>
-
-                    <div class="highlight-box">
-                        <p>⚠️ <strong>Real Incident - Learn from Instructor's Experience:</strong><br>
-                        The instructor failed twice due to technical issues:<br>
-                        <strong>Attempt 1:</strong> Laptop battery died mid-exam (not plugged in) → Moving to plug charger = violation → Exam cancelled<br>
-                        <strong>Attempt 2:</strong> Power outage = Wi-Fi disconnected → Exam failed<br>
-                        <strong>Attempt 3 (SUCCESS):</strong> Laptop fully charged + plugged in + 5G mobile hotspot → Passed!<br><br>
-                        <strong>Lesson:</strong> Use mobile hotspot instead of home Wi-Fi to avoid power outage issues.</p>
-                    </div>
-
-                    <h3>📚 Study Resources & Preparation</h3>
-
-                    <h4>✅ Recommended Free Resources</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Resource</th>
-                                <th>Type</th>
-                                <th>Link</th>
-                                <th>Time Investment</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>AWS Skill Builder</strong></td>
-                                <td>Official Course</td>
-                                <td><a href="https://explore.skillbuilder.aws/" target="_blank">AWS Skill Builder</a></td>
-                                <td>16 hours</td>
-                            </tr>
-                            <tr>
-                                <td><strong>AWS Educate</strong></td>
-                                <td>Hands-on Labs</td>
-                                <td><a href="https://aws.amazon.com/education/awseducate/" target="_blank">AWS Educate</a></td>
-                                <td>20+ hours</td>
-                            </tr>
-                            <tr>
-                                <td><strong>FreeCodeCamp</strong></td>
-                                <td>Video Course</td>
-                                <td><a href="https://www.youtube.com/watch?v=SOTamWNgDKc" target="_blank">14-hour Cloud Practitioner</a></td>
-                                <td>14 hours</td>
-                            </tr>
-                            <tr>
-                                <td><strong>AWS Whitepapers</strong></td>
-                                <td>Documentation</td>
-                                <td>
-                                    • <a href="https://aws.amazon.com/architecture/well-architected/" target="_blank">Well-Architected Framework</a><br>
-                                    • <a href="https://d1.awsstatic.com/whitepapers/aws-overview.pdf" target="_blank">AWS Overview</a>
-                                </td>
-                                <td>4-6 hours</td>
-                            </tr>
-                            <tr>
-                                <td><strong>AWS Sample Questions</strong></td>
-                                <td>Practice Test</td>
-                                <td><a href="https://d1.awsstatic.com/training-and-certification/docs-cloud-practitioner/AWS-Certified-Cloud-Practitioner_Sample-Questions.pdf" target="_blank">Official Sample</a></td>
-                                <td>30 minutes</td>
-                            </tr>
-                            <tr>
-                                <td><strong>ExamTopics</strong></td>
-                                <td>Practice Questions</td>
-                                <td><a href="https://www.examtopics.com/exams/amazon/aws-certified-cloud-practitioner/" target="_blank">ExamTopics CLF-C02</a></td>
-                                <td>Ongoing</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h4>📅 Recommended Study Plan (4 Weeks)</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Week</th>
-                                <th>Focus Areas</th>
-                                <th>Activities</th>
-                                <th>Hours/Week</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Week 1</strong></td>
-                                <td>Cloud Concepts, EC2, S3</td>
-                                <td>
-                                    • Watch AWS Restart recordings<br>
-                                    • Complete AWS Educate labs<br>
-                                    • Read overview notes<br>
-                                    • Practice 20 MCQs
-                                </td>
-                                <td>15-20</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Week 2</strong></td>
-                                <td>IAM, VPC, Databases, Security</td>
-                                <td>
-                                    • AWS Skill Builder modules<br>
-                                    • Hands-on labs<br>
-                                    • Create flashcards<br>
-                                    • Practice 30 MCQs
-                                </td>
-                                <td>15-20</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Week 3</strong></td>
-                                <td>Pricing, Support, Architecture</td>
-                                <td>
-                                    • FreeCodeCamp video<br>
-                                    • Read WAF/CAF whitepapers<br>
-                                    • Review weak areas<br>
-                                    • Practice 50 MCQs
-                                </td>
-                                <td>15-20</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Week 4</strong></td>
-                                <td>Full Revision & Practice Tests</td>
-                                <td>
-                                    • Take 3-4 full practice tests<br>
-                                    • Review incorrect answers<br>
-                                    • Memorize key facts<br>
-                                    • Final revision
-                                </td>
-                                <td>20-25</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="success-box">
-                        <p>✅ <strong>Instructor's Advice:</strong> "Take the exam within 1 month of completing the program. Don't wait longer - your knowledge is freshest now. Schedule your exam ASAP to create urgency."</p>
-                    </div>
-
-                    <h3>⚡ Quick Tips for Exam Day</h3>
-                    <ul>
-                        <li><strong>✅ Do System Test:</strong> Run it 1 day before + 1 hour before exam</li>
-                        <li><strong>✅ Use Mobile Hotspot:</strong> More reliable than home Wi-Fi</li>
-                        <li><strong>✅ Sit Close to Camera:</strong> Camera should capture only your face (not whole room)</li>
-                        <li><strong>✅ Join 30 Minutes Early:</strong> Complete check-in process without rushing</li>
-                        <li><strong>✅ Remove All Watches:</strong> Even fitness trackers</li>
-                        <li><strong>✅ Clear Desk Completely:</strong> Only laptop and mouse</li>
-                        <li><strong>✅ Use Bathroom Before:</strong> No breaks allowed</li>
-                        <li><strong>✅ Flag Difficult Questions:</strong> Come back later</li>
-                        <li><strong>❌ Don't Move Lips:</strong> Proctor will warn/cancel exam</li>
-                        <li><strong>❌ Don't Look Away:</strong> Keep eyes on screen</li>
-                        <li><strong>❌ Don't Stand Up:</strong> Stay seated entire duration</li>
-                    </ul>
-
-                    <h3>🎯 Key Takeaways - Exam Preparation</h3>
-                    <ul>
-                        <li><strong>Schedule within 1 month</strong> of training completion</li>
-                        <li><strong>Request ESL accommodation</strong> for extra 30 minutes</li>
-                        <li><strong>Choose online exam</strong> for flexibility (morning slots recommended)</li>
-                        <li><strong>Use personal laptop + mobile hotspot</strong> for reliability</li>
-                        <li><strong>Complete system test</strong> before exam day</li>
-                        <li><strong>Join 30 minutes early</strong> for smooth check-in</li>
-                        <li><strong>Follow proctor rules strictly</strong> to avoid cancellation</li>
-                    </ul>
-
-                </div>
-            </details>
-
-            <details class="collapsible-section">
-                <summary><h2 id="best-practices">✅ Best Practices Summary</h2></summary>
-                <div class="section-content">
-
-                    <h3>🏛️ Well-Architected Framework Best Practices</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Pillar</th>
-                                <th>Best Practice</th>
-                                <th>Implementation</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><strong>Operational Excellence</strong></td>
-                                <td>Automate operations tasks</td>
-                                <td>Use Systems Manager, CloudFormation, Lambda</td>
+                                <td>Run and monitor systems</td>
+                                <td>How do you run and monitor systems to deliver business value?</td>
                             </tr>
                             <tr>
                                 <td><strong>Security</strong></td>
-                                <td>Implement defense in depth</td>
-                                <td>Multiple security layers (network + system hardening)</td>
+                                <td>Protect information and systems</td>
+                                <td>How do you protect data, systems, and assets?</td>
                             </tr>
                             <tr>
                                 <td><strong>Reliability</strong></td>
-                                <td>Design for failure</td>
-                                <td>Multi-AZ deployment, Auto Scaling, automated backups</td>
+                                <td>Ensure workload performs correctly</td>
+                                <td>How do you ensure a workload performs as intended?</td>
                             </tr>
                             <tr>
-                                <td><strong>Performance</strong></td>
-                                <td>Use right-sized resources</td>
-                                <td>Match instance types to workload requirements</td>
+                                <td><strong>Performance Efficiency</strong></td>
+                                <td>Use resources efficiently</td>
+                                <td>How do you use computing resources efficiently?</td>
                             </tr>
                             <tr>
-                                <td><strong>Cost</strong></td>
-                                <td>Monitor and optimize spending</td>
-                                <td>Cost Explorer, Budgets, Reserved Instances</td>
+                                <td><strong>Cost Optimization</strong></td>
+                                <td>Avoid unnecessary costs</td>
+                                <td>How do you run systems at the lowest cost?</td>
                             </tr>
                             <tr>
                                 <td><strong>Sustainability</strong></td>
-                                <td>Maximize resource utilization</td>
-                                <td>Auto Scaling, S3 Intelligent-Tiering, Graviton instances</td>
+                                <td>Minimize environmental impact</td>
+                                <td>How do you minimize environmental impacts?</td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <h3>🚀 Cloud Adoption Framework Best Practices</h3>
+                    <h3>1️⃣ Operational Excellence</h3>
+                    <p><strong>Key Principles:</strong></p>
                     <ul>
-                        <li><strong>Business:</strong> Define clear success metrics before migration</li>
-                        <li><strong>People:</strong> Invest in training 3-6 months before migration</li>
-                        <li><strong>Governance:</strong> Establish cloud governance policies early</li>
-                        <li><strong>Platform:</strong> Build landing zone before workload migration</li>
-                        <li><strong>Security:</strong> Implement security controls from day one</li>
-                        <li><strong>Operations:</strong> Set up monitoring and incident response first</li>
+                        <li>Operations as code (Infrastructure as Code)</li>
+                        <li>Frequent, small, reversible changes</li>
+                        <li>Anticipate failure scenarios</li>
+                        <li>Learn from operational failures</li>
                     </ul>
 
-                    <h3>🔒 Security Hardening Best Practices</h3>
+                    <p><strong>Supporting AWS Services:</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Purpose</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CloudFormation</td>
+                                <td>Infrastructure as Code</td>
+                                <td>Automated resource deployment</td>
+                            </tr>
+                            <tr>
+                                <td>CloudWatch</td>
+                                <td>Monitoring and logging</td>
+                                <td>Track metrics and logs</td>
+                            </tr>
+                            <tr>
+                                <td>AWS Config</td>
+                                <td>Configuration tracking</td>
+                                <td>Compliance and auditing</td>
+                            </tr>
+                            <tr>
+                                <td>CloudTrail</td>
+                                <td>API call logging</td>
+                                <td>Audit trail for security</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-                    <h4>Network Hardening</h4>
+                    <h3>2️⃣ Security</h3>
+                    <p><strong>Design Principles:</strong></p>
                     <ul>
-                        <li><strong>Least Privilege Network Access:</strong> Open only required ports</li>
-                        <li><strong>Source IP Restriction:</strong> Limit SSH to specific IPs</li>
-                        <li><strong>Use Security Groups First:</strong> Primary defense mechanism</li>
-                        <li><strong>Network Segmentation:</strong> Separate public and private subnets</li>
-                        <li><strong>Enable VPC Flow Logs:</strong> Monitor all network traffic</li>
+                        <li>Implement strong identity foundation (IAM)</li>
+                        <li>Enable traceability (logging)</li>
+                        <li>Apply security at all layers</li>
+                        <li>Automate security best practices</li>
+                        <li>Protect data in transit and at rest</li>
+                        <li>Prepare for security events</li>
                     </ul>
 
-                    <h4>System Hardening</h4>
+                    <h3>3️⃣ Reliability</h3>
+                    <p><strong>Design Principles:</strong></p>
                     <ul>
-                        <li><strong>Patch Management:</strong> Automate security updates</li>
-                        <li><strong>Disable Root Login:</strong> Use sudo with regular accounts</li>
-                        <li><strong>Remove Unnecessary Services:</strong> Stop unused daemons</li>
-                        <li><strong>Strong Password Policies:</strong> Or better, use key-based authentication</li>
-                        <li><strong>Enable Logging:</strong> Track all system activities</li>
-                        <li><strong>Use IAM Roles:</strong> Never hardcode credentials</li>
+                        <li>Automatically recover from failure</li>
+                        <li>Test recovery procedures</li>
+                        <li>Scale horizontally for availability</li>
+                        <li>Stop guessing capacity needs</li>
+                        <li>Manage change through automation</li>
+                    </ul>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>AWS Implementation</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>High Availability</td>
+                                <td>Multi-AZ deployment</td>
+                                <td>RDS Multi-AZ, ELB across AZs</td>
+                            </tr>
+                            <tr>
+                                <td>Disaster Recovery</td>
+                                <td>Cross-region replication</td>
+                                <td>S3 Cross-Region Replication</td>
+                            </tr>
+                            <tr>
+                                <td>Auto Scaling</td>
+                                <td>EC2 Auto Scaling Groups</td>
+                                <td>Scale based on metrics</td>
+                            </tr>
+                            <tr>
+                                <td>Backup</td>
+                                <td>AWS Backup</td>
+                                <td>Automated EBS snapshots</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>4️⃣ Performance Efficiency</h3>
+                    <p><strong>Key Considerations:</strong></p>
+                    <ul>
+                        <li>Democratize advanced technologies</li>
+                        <li>Go global in minutes</li>
+                        <li>Use serverless architectures</li>
+                        <li>Experiment more often</li>
+                        <li>Consider mechanical sympathy</li>
+                    </ul>
+
+                    <h3>5️⃣ Cost Optimization</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Strategy</th>
+                                <th>Implementation</th>
+                                <th>Potential Savings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Right-sizing</td>
+                                <td>Use appropriate instance types</td>
+                                <td>20-40%</td>
+                            </tr>
+                            <tr>
+                                <td>Reserved Instances</td>
+                                <td>1-3 year commitments</td>
+                                <td>Up to 75%</td>
+                            </tr>
+                            <tr>
+                                <td>Spot Instances</td>
+                                <td>For fault-tolerant workloads</td>
+                                <td>Up to 90%</td>
+                            </tr>
+                            <tr>
+                                <td>Auto Scaling</td>
+                                <td>Scale down during low usage</td>
+                                <td>30-50%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Common Mistake:</strong> Leaving development/test resources running 24/7. Use Lambda + EventBridge to automate start/stop schedules.</p>
+                    </div>
+
+                    <h3>6️⃣ Sustainability</h3>
+                    <p><strong>Design Principles:</strong></p>
+                    <ul>
+                        <li>Understand your impact (Customer Carbon Footprint Tool)</li>
+                        <li>Establish sustainability goals</li>
+                        <li>Maximize utilization (right-sizing)</li>
+                        <li>Use managed services (AWS operates efficiently at scale)</li>
+                        <li>Reduce downstream impact</li>
+                    </ul>
+
+                    <h3>📊 WAF vs CAP Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>WAF</th>
+                                <th>CAP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Purpose</strong></td>
+                                <td>Technical correctness</td>
+                                <td>Organizational readiness</td>
+                            </tr>
+                            <tr>
+                                <td><strong>When</strong></td>
+                                <td>After migration</td>
+                                <td>Before migration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Focus</strong></td>
+                                <td>Architecture & infrastructure</td>
+                                <td>People, process, change</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Components</strong></td>
+                                <td>6 Pillars</td>
+                                <td>6 Perspectives</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Audience</strong></td>
+                                <td>Technical teams</td>
+                                <td>All stakeholders</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Key Takeaways:</strong></p>
+                        <ul>
+                            <li>WAF ensures technical correctness after cloud migration</li>
+                            <li>Six pillars provide comprehensive architectural guidance</li>
+                            <li>Use AWS Well-Architected Tool for automated reviews</li>
+                            <li>Regular reviews help identify and fix issues early</li>
+                        </ul>
+                    </div>
+                    <div class="diagram-container">
+                        <img src="waf-review-workflow.png" alt="AWS Well-Architected Framework Review Process">
+                        <p class="diagram-caption"><em>Figure 8: Continuous Well-Architected Framework Review Process</em></p>
+                    </div>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="cap">Cloud Adoption Framework (CAP)</h2></summary>
+                <div class="diagram-container">
+                    <img src="caf-migration-journey.png" alt="AWS Cloud Adoption Framework Journey">
+                    <p class="diagram-caption"><em>Figure 2: Cloud Adoption Framework - Four Phase Journey (Envision → Align → Launch → Scale)</em></p>
+                </div>
+                <div class="section-content">
+
+                    <h3>✅ Overview</h3>
+                    <p>The <strong>AWS Cloud Adoption Framework</strong> provides structured guidance for organizations planning cloud migration. It addresses: "Is our organization ready to move to the cloud?"</p>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Key Concept:</strong> Cloud migration is not just infrastructure change—it's organizational transformation affecting people, processes, and technology.</p>
+                    </div>
+
+                    <h3>🎯 Why CAP is Needed</h3>
+                    <p><strong>Common Problems Without Proper Planning:</strong></p>
+                    <ul>
+                        <li>Applications crash frequently after migration</li>
+                        <li>Unexpected cost increases (bill shock)</li>
+                        <li>Security vulnerabilities and compliance gaps</li>
+                        <li>Poor performance despite using cloud resources</li>
+                        <li>Lack of skilled personnel</li>
+                    </ul>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Root Cause:</strong> Organizations fail in cloud not due to technology, but due to poor planning and poor design.</p>
+                    </div>
+
+                    <h3>🏛️ The Six Perspectives</h3>
+                    <div class="diagram-container">
+                        <img src="cloud_adoption_framework.jpeg" alt="AWS Cloud Adoption Framework - Six Perspectives">
+                        <p class="diagram-caption"><em>Figure 3: Cloud Adoption Framework - Six Perspectives with Detailed Focus Areas</em></p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Perspective</th>
+                                <th>Focus</th>
+                                <th>Common Roles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowspan="3"><strong>Business Capabilities</strong></td>
+                                <td>Business</td>
+                                <td>Business value alignment</td>
+                                <td>Business Managers, Finance, Budget Owners</td>
+                            </tr>
+                            <tr>
+                                <td>People</td>
+                                <td>Training & change management</td>
+                                <td>HR, People Managers, L&D</td>
+                            </tr>
+                            <tr>
+                                <td>Governance</td>
+                                <td>Risk & compliance management</td>
+                                <td>CIO, Program Managers, Enterprise Architects</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3"><strong>Technical Capabilities</strong></td>
+                                <td>Platform</td>
+                                <td>Architecture & infrastructure</td>
+                                <td>CTO, Solutions Architects, Cloud Engineers</td>
+                            </tr>
+                            <tr>
+                                <td>Security</td>
+                                <td>Protection & compliance</td>
+                                <td>CISO, Security Managers, Compliance</td>
+                            </tr>
+                            <tr>
+                                <td>Operations</td>
+                                <td>Running cloud workloads</td>
+                                <td>IT Ops Managers, DevOps Engineers, SRE</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>1️⃣ Business Perspective</h3>
+                    <p><strong>Purpose:</strong> Ensure IT investments align with business goals and demonstrate measurable value.</p>
+                    <p><strong>Key Questions:</strong></p>
+                    <ul>
+                        <li>Why are we moving to cloud? (Business case)</li>
+                        <li>What business outcomes do we expect?</li>
+                        <li>How will we measure ROI?</li>
+                        <li>What is our cloud strategy?</li>
+                    </ul>
+
+                    <h3>2️⃣ People Perspective</h3>
+                    <p><strong>Purpose:</strong> Prepare workforce through training, communication, and change management.</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Area</th>
+                                <th>Activities</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Skills Assessment</td>
+                                <td>Identify skill gaps</td>
+                                <td>Team knows on-premises, needs AWS training</td>
+                            </tr>
+                            <tr>
+                                <td>Training Programs</td>
+                                <td>Upskill existing staff</td>
+                                <td>AWS Restart, AWS Training & Certification</td>
+                            </tr>
+                            <tr>
+                                <td>Change Management</td>
+                                <td>Manage resistance</td>
+                                <td>Communication plan, stakeholder buy-in</td>
+                            </tr>
+                            <tr>
+                                <td>New Hiring</td>
+                                <td>Recruit cloud expertise</td>
+                                <td>Hire AWS Solutions Architects</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>3️⃣ Governance Perspective</h3>
+                    <p><strong>Purpose:</strong> Manage and measure cloud investments while minimizing risks.</p>
+                    <p><strong>Key Components:</strong></p>
+                    <ul>
+                        <li>Cloud Center of Excellence (CCoE) establishment</li>
+                        <li>Policies and standards definition</li>
+                        <li>Compliance and regulatory requirements</li>
+                        <li>Cost management and optimization</li>
+                        <li>Risk management framework</li>
+                    </ul>
+
+                    <h3>4️⃣ Platform Perspective</h3>
+                    <p><strong>Purpose:</strong> Design, build, and optimize cloud architecture.</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Decision Area</th>
+                                <th>Considerations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Compute Strategy</td>
+                                <td>EC2 vs Lambda vs Containers (ECS/EKS)</td>
+                            </tr>
+                            <tr>
+                                <td>Storage Strategy</td>
+                                <td>S3 vs EBS vs EFS vs FSx</td>
+                            </tr>
+                            <tr>
+                                <td>Database Strategy</td>
+                                <td>RDS vs DynamoDB vs Aurora vs Redshift</td>
+                            </tr>
+                            <tr>
+                                <td>Networking Design</td>
+                                <td>VPC design, hybrid connectivity, CDN</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>5️⃣ Security Perspective</h3>
+                    <p><strong>Purpose:</strong> Ensure workloads meet security, resiliency, and compliance requirements.</p>
+                    <p><strong>Focus Areas:</strong></p>
+                    <ul>
+                        <li>Identity and Access Management (IAM)</li>
+                        <li>Data protection (encryption at rest and in transit)</li>
+                        <li>Infrastructure protection (network security)</li>
+                        <li>Detective controls (logging, monitoring)</li>
+                        <li>Incident response procedures</li>
+                        <li>Compliance (GDPR, HIPAA, PCI-DSS)</li>
+                    </ul>
+
+                    <h3>6️⃣ Operations Perspective</h3>
+                    <p><strong>Purpose:</strong> Ensure reliable cloud operations with health monitoring and agile response.</p>
+                    <p><strong>Best Practices:</strong></p>
+                    <ul>
+                        <li>Automated deployments (CI/CD pipelines)</li>
+                        <li>Infrastructure as Code (CloudFormation, Terraform)</li>
+                        <li>Monitoring and alerting (CloudWatch, SNS)</li>
+                        <li>Incident management and post-mortems</li>
+                        <li>Disaster recovery testing</li>
+                    </ul>
+
+                    <div class="diagram-container">
+                        <img src="caf-six-perspectives.png" alt="Cloud Adoption Framework - Six Perspectives">
+                        <p class="diagram-caption"><em>Figure 7: Cloud Adoption Framework - Six Perspectives</em></p>
+                    </div>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Key Takeaways:</strong></p>
+                        <ul>
+                            <li>CAF ensures organizational readiness before migration</li>
+                            <li>Addresses both business and technical aspects</li>
+                            <li>Involves stakeholders across entire organization</li>
+                            <li>Use CAP before migration; use WAF after migration</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="security-hardening">System & Network Hardening</h2></summary>
+                <div class="section-content">
+
+                    <h3>✅ Core Security Principle</h3>
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Fundamental Truth:</strong> Security is about controlling access at TWO critical points:</p>
+                        <ul>
+                            <li><strong>Before</strong> reaching the system → Network Hardening</li>
+                            <li><strong>After</strong> reaching the system → System Hardening</li>
+                        </ul>
+                    </div>
+                    <div class="diagram-container">
+                        <img src="defense-in-depth.png" alt="Defense in Depth Security Architecture">
+                        <p class="diagram-caption"><em>Figure 4: Defense in Depth - Multiple Security Layers Protecting Data</em></p>
+                    </div>
+                    <h3>🌐 Network Hardening</h3>
+                    
+                    <h4>Definition</h4>
+                    <p><strong>Network Hardening</strong> controls access <em>before</em> someone reaches your server/system.</p>
+                    
+                    <div class="info-box">
+                        <p>💡 <strong>Core Concept:</strong> If attackers cannot reach your system, they cannot attack it. Network hardening prevents unauthorized connections.</p>
+                    </div>
+
+                    <h4>Key Questions Addressed</h4>
+                    <ul>
+                        <li><strong>Who</strong> is allowed to connect? (IP addresses, user groups)</li>
+                        <li><strong>From where</strong> can they connect? (Specific IPs, VPNs)</li>
+                        <li><strong>On which port?</strong> (SSH port 22, HTTP port 80, HTTPS port 443)</li>
+                    </ul>
+
+                    <h4>Network Hardening Components</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>AWS Implementation</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Firewall</td>
+                                <td>Security Groups</td>
+                                <td>Stateful firewall at instance level</td>
+                            </tr>
+                            <tr>
+                                <td>ACLs</td>
+                                <td>Network ACLs (NACLs)</td>
+                                <td>Stateless firewall at subnet level</td>
+                            </tr>
+                            <tr>
+                                <td>Port Blocking</td>
+                                <td>Security Group rules</td>
+                                <td>Close unused ports</td>
+                            </tr>
+                            <tr>
+                                <td>Geo-blocking</td>
+                                <td>AWS WAF</td>
+                                <td>Block traffic from specific countries</td>
+                            </tr>
+                            <tr>
+                                <td>Network Segmentation</td>
+                                <td>Public/Private Subnets</td>
+                                <td>Isolate resources by sensitivity</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="diagram-container">
+                        <img src="network_hardening.jpeg" alt="Network Hardening Architecture Components">
+                        <p class="diagram-caption"><em>Figure 5: Network Hardening Architecture - Key Components</em></p>
+                    </div>
+                    <h4>⚙️ Practical Implementation</h4>
+
+                    <h5>Method 1: AWS CLI</h5>
+                    <pre><code># Create security group
+aws ec2 create-security-group \
+    --group-name web-server-sg \
+    --description "Security group for web servers" \
+    --vpc-id vpc-12345678
+
+# Allow HTTP from internet
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-12345678 \
+    --protocol tcp \
+    --port 80 \
+    --cidr 0.0.0.0/0
+
+# Allow SSH only from admin IP
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-12345678 \
+    --protocol tcp \
+    --port 22 \
+    --cidr 203.0.113.25/32
+
+# View security group rules
+aws ec2 describe-security-groups \
+    --group-ids sg-12345678</code></pre>
+
+                    <h5>Method 2: AWS Console (GUI)</h5>
+                    <ol>
+                        <li>Navigate to <strong>EC2 Dashboard</strong> → <strong>Security Groups</strong></li>
+                        <li>Click <strong>Create security group</strong></li>
+                        <li>Enter name: <code>web-server-sg</code></li>
+                        <li>Select VPC</li>
+                        <li>Under <strong>Inbound rules</strong>, click <strong>Add rule</strong>:
+                            <ul>
+                                <li>Type: HTTP | Source: 0.0.0.0/0</li>
+                                <li>Type: SSH | Source: My IP</li>
+                            </ul>
+                        </li>
+
+<!-- Continued in Part 2 -->
+ <!-- Part 2 Continuation - NO DOCTYPE, head, or body opening -->
+
+                        <li>Click <strong>Create security group</strong></li>
+                        <li>Attach to EC2 instances as needed</li>
+                    </ol>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Example Configuration:</strong></p>
+                        <ul>
+                            <li>Port 80 (HTTP) from 0.0.0.0/0 (internet)</li>
+                            <li>Port 443 (HTTPS) from 0.0.0.0/0 (internet)</li>
+                            <li>Port 22 (SSH) from admin IP only</li>
+                            <li>Block all other ports (default deny)</li>
+                        </ul>
+                    </div>
+
+                    <h3>💻 System Hardening</h3>
+                    
+                    <h4>Definition</h4>
+                    <p><strong>System Hardening</strong> controls what users can do <em>after</em> reaching your system.</p>
+                    
+                    <div class="info-box">
+                        <p>💡 <strong>Core Concept:</strong> Even after gaining access, system hardening limits what users can see, modify, or execute.</p>
+                    </div>
+                    <div class="diagram-container">
+                        <img src="system-hardening-layers.png" alt="System Hardening Security Layers">
+                        <p class="diagram-caption"><em>Figure 7: System Hardening - Layered Security Architecture</em></p>
+                    </div>
+                    <h4>System Hardening Focus Areas</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>What It Controls</th>
+                                <th>Implementation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>User Management</td>
+                                <td>Who can log in</td>
+                                <td>IAM users, Linux accounts, sudo privileges</td>
+                            </tr>
+                            <tr>
+                                <td>Service Hardening</td>
+                                <td>Which services run</td>
+                                <td>Stop unnecessary services (systemctl)</td>
+                            </tr>
+                            <tr>
+                                <td>OS Hardening</td>
+                                <td>Operating system security</td>
+                                <td>Security patches, disable root login</td>
+                            </tr>
+                            <tr>
+                                <td>Application Security</td>
+                                <td>What software runs</td>
+                                <td>Remove unnecessary packages, updates</td>
+                            </tr>
+                            <tr>
+                                <td>File Permissions</td>
+                                <td>Who can read/write files</td>
+                                <td>chmod, chown, ACLs</td>
+                            </tr>
+                            <tr>
+                                <td>Logging & Monitoring</td>
+                                <td>Track activities</td>
+                                <td>CloudWatch Logs, syslog, audit logs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    html<div class="diagram-container">
+                        <img src="system-hardening-types.jpeg" alt="Five Types of System Hardening">
+                        <p class="diagram-caption"><em>Figure 7b: Five Types of System Hardening - Server, Software, Operating System, Database, and Network Hardening</em></p>
+                    </div>
+                    <h4>1️⃣ User Management</h4>
+                    
+                    <h5>AWS CLI - IAM User Management</h5>
+                    <pre><code># Create IAM user
+aws iam create-user --user-name developer1
+
+# Attach read-only policy
+aws iam attach-user-policy \
+    --user-name developer1 \
+    --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess
+
+# Enable MFA
+aws iam enable-mfa-device \
+    --user-name developer1 \
+    --serial-number arn:aws:iam::123456789012:mfa/developer1 \
+    --authentication-code1 123456 \
+    --authentication-code2 789012</code></pre>
+
+                    <h5>AWS Console - IAM User Creation</h5>
+                    <ol>
+                        <li>Navigate to <strong>IAM Dashboard</strong> → <strong>Users</strong></li>
+                        <li>Click <strong>Add users</strong></li>
+                        <li>Enter username: <code>developer1</code></li>
+                        <li>Select access type: <strong>Programmatic access</strong> and/or <strong>AWS Management Console access</strong></li>
+                        <li>Click <strong>Next: Permissions</strong></li>
+                        <li>Select <strong>Attach existing policies directly</strong></li>
+                        <li>Choose <code>ReadOnlyAccess</code> policy</li>
+                        <li>Click <strong>Next: Tags</strong> → <strong>Next: Review</strong> → <strong>Create user</strong></li>
+                        <li>Enable MFA from user security credentials tab</li>
+                    </ol>
+
+                    <h5>Linux Server - User Management</h5>
+                    <pre><code># Create new user
+sudo adduser developer1
+
+# Add to specific group
+sudo usermod -aG developers developer1
+
+# Disable root SSH login
+sudo nano /etc/ssh/sshd_config
+# Set: PermitRootLogin no
+sudo systemctl restart sshd
+
+# View active users
+w
+who</code></pre>
+
+                    <h4>2️⃣ Service Hardening</h4>
+                    <p><strong>Principle:</strong> Stop and disable unnecessary services to reduce attack surface.</p>
+
+                    <pre><code># List running services
+sudo systemctl list-units --type=service --state=running
+
+# Stop unnecessary service
+sudo systemctl stop bluetooth.service
+
+# Disable from starting at boot
+sudo systemctl disable bluetooth.service
+
+# Check status
+sudo systemctl status apache2</code></pre>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Common Mistake:</strong> Leaving default services running (FTP, Telnet, unused databases) which are common attack vectors.</p>
+                    </div>
+
+                    <h4>3️⃣ Operating System Hardening</h4>
+                    <pre><code># Ubuntu/Debian - Update system
+sudo apt update
+sudo apt upgrade -y
+sudo apt dist-upgrade -y
+
+# Amazon Linux 2 - Update system
+sudo yum update -y
+
+# Enable automatic security updates (Ubuntu)
+sudo apt install unattended-upgrades
+sudo dpkg-reconfigure --priority=low unattended-upgrades</code></pre>
+
+                    <h4>4️⃣ File Permissions</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Permission</th>
+                                <th>Numeric</th>
+                                <th>Meaning</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Read (r)</td>
+                                <td>4</td>
+                                <td>View file contents</td>
+                            </tr>
+                            <tr>
+                                <td>Write (w)</td>
+                                <td>2</td>
+                                <td>Modify file</td>
+                            </tr>
+                            <tr>
+                                <td>Execute (x)</td>
+                                <td>1</td>
+                                <td>Run file as program</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <pre><code># Secure SSH private key
+chmod 400 ~/.ssh/id_rsa
+
+# Web directory permissions
+chmod 644 /var/www/html/index.html
+
+# Script executable by owner only
+chmod 700 /home/user/script.sh
+
+# Change file owner
+sudo chown user:group filename</code></pre>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Recommended Permissions:</strong></p>
+                        <ul>
+                            <li>SSH keys: 400</li>
+                            <li>Configuration files: 640</li>
+                            <li>Executables: 750</li>
+                            <li>Web content: 644</li>
+                            <li>Sensitive directories: 700</li>
+                        </ul>
+                    </div>
+
+                    <h4>5️⃣ Logging and Monitoring</h4>
+
+                    <h5>AWS CLI - Enable CloudWatch Logs</h5>
+                    <pre><code># Install CloudWatch agent
+wget https://s3.amazonaws.com/amazoncloudwatch-agent/linux/amd64/latest/AmazonCloudWatchAgent.zip
+unzip AmazonCloudWatchAgent.zip
+sudo ./install.sh
+
+# Configure and start agent
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard</code></pre>
+
+                    <h5>AWS Console - CloudWatch Logs Setup</h5>
+                    <ol>
+                        <li>Navigate to <strong>CloudWatch</strong> → <strong>Logs</strong> → <strong>Log groups</strong></li>
+                        <li>Click <strong>Create log group</strong></li>
+                        <li>Enter name: <code>/aws/ec2/web-servers</code></li>
+                        <li>On EC2 instance, install and configure CloudWatch agent</li>
+                        <li>Configure agent to send logs to created log group</li>
+                        <li>View logs in CloudWatch Logs console</li>
+                    </ol>
+
+                    <h5>Linux - System Logging</h5>
+                    <pre><code># View login attempts
+sudo tail -f /var/log/auth.log  # Ubuntu
+sudo tail -f /var/log/secure    # RHEL/CentOS
+
+# View system logs
+sudo journalctl -xe
+
+# View failed login attempts
+sudo grep "Failed password" /var/log/auth.log</code></pre>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Key Takeaways:</strong></p>
+                        <ul>
+                            <li>Network Hardening: Control access BEFORE reaching system</li>
+                            <li>System Hardening: Control access AFTER reaching system</li>
+                            <li>Both are essential for defense-in-depth security</li>
+                            <li>Follow principle of least privilege at all layers</li>
+                            <li>Regular audits and updates are critical</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="exam-prep">AWS Certification Exam Preparation</h2></summary>
+                <div class="section-content">
+
+                    <h3>✅ Exam Overview</h3>
+                    <p>AWS Certified Cloud Practitioner is a foundational-level certification validating understanding of AWS Cloud, services, and terminology.</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Exam Detail</th>
+                                <th>Information</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Exam Code</td>
+                                <td>CLF-C02</td>
+                            </tr>
+                            <tr>
+                                <td>Duration</td>
+                                <td>90 minutes (+ 30 min ESL accommodation)</td>
+                            </tr>
+                            <tr>
+                                <td>Questions</td>
+                                <td>65 (multiple choice / multiple response)</td>
+                            </tr>
+                            <tr>
+                                <td>Passing Score</td>
+                                <td>700 out of 1000 points (~70%)</td>
+                            </tr>
+                            <tr>
+                                <td>Cost</td>
+                                <td>$100 USD (+ taxes ≈ $118-120)</td>
+                            </tr>
+                            <tr>
+                                <td>Validity</td>
+                                <td>3 years</td>
+                            </tr>
+                            <tr>
+                                <td>Format</td>
+                                <td>Online proctored OR test center</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Scoring Note:</strong> Questions have different weightage (internal AWS calculation). Focus on answering all questions correctly.</p>
+                    </div>
+
+                    <h3>📋 Registration Process</h3>
+
+                    <h4>Step 1: Create AWS Training Account</h4>
+                    <ol>
+                        <li>Visit: <code>https://www.aws.training</code></li>
+                        <li>Click <strong>Sign In</strong> → <strong>Create new account</strong></li>
+                        <li>Enter email, name (MUST match government ID exactly)</li>
+                        <li>Verify email address</li>
+                        <li>Complete profile information</li>
+                    </ol>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Critical:</strong> Name must match government ID exactly. Mismatches prevent exam access. Contact AWS Support immediately if incorrect.</p>
+                    </div>
+
+                    <h4>Step 2: Request Exam Accommodation</h4>
+                    <ol>
+                        <li>Log in to AWS Training portal</li>
+                        <li>Navigate to <strong>Certification</strong> → <strong>Exam Accommodations</strong></li>
+                        <li>Click <strong>Request Accommodation</strong></li>
+                        <li>Select: <strong>ESL +30 Minutes</strong></li>
+                        <li>Submit (usually approved within 24-48 hours)</li>
+                    </ol>
+
+                    <div class="info-box">
+                        <p>💡 <strong>Recommendation:</strong> Always request accommodation. Extra 30 minutes reduces pressure and improves performance.</p>
+                    </div>
+
+                    <h4>Step 3: Schedule Exam</h4>
+                    <ol>
+                        <li>Go to <strong>Certification</strong> → <strong>Schedule an Exam</strong></li>
+                        <li>Select <strong>AWS Certified Cloud Practitioner (CLF-C02)</strong></li>
+                        <li>Choose format:
+                            <ul>
+                                <li><strong>Test Center:</strong> Professional environment, no internet worries</li>
+                                <li><strong>Online Proctored:</strong> Flexible timing, taken from home</li>
+                            </ul>
+                        </li>
+                        <li>Select date and time</li>
+                        <li>Apply voucher code (if provided)</li>
+                        <li>Complete registration</li>
+                    </ol>
+
+                    <h3>🏢 Test Center Exam</h3>
+
+                    <h4>Advantages</h4>
+                    <ul>
+                        <li>No internet connection concerns</li>
+                        <li>No technical setup required</li>
+                        <li>Professional exam environment</li>
+                        <li>Power backup available</li>
+                    </ul>
+
+                    <h4>On Exam Day</h4>
+                    <ol>
+                        <li>Arrive 30 minutes early</li>
+                        <li>Bring government-issued photo ID (passport, driver's license, Aadhaar)</li>
+                        <li>Check-in: ID verification, photo, signature</li>
+                        <li>Store belongings in locker</li>
+                        <li>Not allowed: phones, smartwatches, bags, notes</li>
+                        <li>Test center provides: computer, headphones (optional), scratch paper</li>
+                        <li>Complete exam</li>
+                        <li>Receive preliminary result immediately</li>
+                    </ol>
+
+                    <h3>💻 Online Proctored Exam</h3>
+
+                    <h4>System Requirements</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Requirement</th>
+                                <th>Specification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Computer</td>
+                                <td>Personal laptop (NOT work computer)</td>
+                            </tr>
+                            <tr>
+                                <td>Internet</td>
+                                <td>Minimum 2 Mbps (5G hotspot recommended)</td>
+                            </tr>
+                            <tr>
+                                <td>Webcam</td>
+                                <td>Built-in or external (720p minimum)</td>
+                            </tr>
+                            <tr>
+                                <td>Microphone</td>
+                                <td>Built-in or external</td>
+                            </tr>
+                            <tr>
+                                <td>Power</td>
+                                <td>Fully charged + plugged in</td>
+                            </tr>
+                            <tr>
+                                <td>Room</td>
+                                <td>Private, quiet, well-lit</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="highlight-box">
+                        <p>⚠️ <strong>Critical Recommendation from Training:</strong></p>
+                        <ul>
+                            <li>Laptop MUST be charged AND plugged in</li>
+                            <li>Use 5G mobile hotspot (more reliable than Wi-Fi)</li>
+                            <li>Why? Prevents disconnection from power/internet failure</li>
+                        </ul>
+                    </div>
+
+                    <h4>Pre-Exam Setup</h4>
+                    <ol>
+                        <li><strong>System Test</strong> (run 1 week, 3 days, and 2 hours before exam):
+                            <ul>
+                                <li>Download OnVUE application</li>
+                                <li>Test internet speed, webcam, microphone</li>
+                            </ul>
+                        </li>
+                        <li><strong>Room Preparation</strong>:
+                            <ul>
+                                <li>Clear desk completely</li>
+                                <li>Remove posters, sticky notes</li>
+                                <li>Close doors and windows</li>
+                                <li>Silence mobile phone (keep for ID upload)</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h4>Exam Day Timeline (Start 30 Minutes Early)</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time Before</th>
+                                <th>Activity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>30 min</td>
+                                <td>Launch OnVUE, run system test</td>
+                            </tr>
+                            <tr>
+                                <td>20 min</td>
+                                <td>Start check-in process</td>
+                            </tr>
+                            <tr>
+                                <td>15 min</td>
+                                <td>Upload ID photos via mobile link</td>
+                            </tr>
+                            <tr>
+                                <td>10 min</td>
+                                <td>Room scan with webcam</td>
+                            </tr>
+                            <tr>
+                                <td>5 min</td>
+                                <td>Proctor reviews setup</td>
+                            </tr>
+                            <tr>
+                                <td>0 min</td>
+                                <td>Exam begins</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Check-In Process</h4>
+                    <ol>
+                        <li><strong>System Test:</strong> Verify internet, webcam, microphone</li>
+                        <li><strong>Room Scan:</strong> Hold laptop, show 360° view of room</li>
+                        <li><strong>ID Verification:</strong> Upload ID photos + selfie + 4 room photos via mobile</li>
+                        <li><strong>Proctor Review:</strong> Proctor confirms setup (2-5 minutes)</li>
+                        <li><strong>Exam Released:</strong> Begin exam</li>
+                    </ol>
+
+                    <div class="error-box">
+                        <p>❌ <strong>Prohibited Actions (Exam Termination):</strong></p>
+                        <ul>
+                            <li>Standing up or leaving chair</li>
+                            <li>Looking away from screen</li>
+                            <li>Talking or mouthing words</li>
+                            <li>Someone else entering room</li>
+                            <li>Wearing headphones/earbuds</li>
+                            <li>Background noise</li>
+                        </ul>
+                    </div>
+
+                    <h3>📚 Study Resources</h3>
+
+                    <h4>Free Official Resources</h4>
+                    <ul>
+                        <li>AWS Cloud Practitioner Essentials (digital course)</li>
+                        <li>AWS Skill Builder (practice labs)</li>
+                        <li>AWS Official Exam Guide</li>
+                        <li>AWS Whitepapers ("Overview of AWS", "Well-Architected Framework")</li>
+                    </ul>
+
+                    <h4>Recommended Third-Party</h4>
+                    <ul>
+                        <li>FreeCodeCamp YouTube (14-hour course) - Free</li>
+                        <li>AWS Educate (hands-on labs) - Free</li>
+                        <li>Tutorials Dojo Practice Exams - ~$15</li>
+                        <li>Udemy (Stephane Maarek) - ~$15</li>
+                    </ul>
+
+                    <h4>1-Month Study Plan</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Week</th>
+                                <th>Focus</th>
+                                <th>Hours/Day</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Week 1</td>
+                                <td>Cloud Concepts, AWS Global Infrastructure</td>
+                                <td>2-3</td>
+                            </tr>
+                            <tr>
+                                <td>Week 2</td>
+                                <td>Core Services (EC2, S3, RDS, VPC, IAM)</td>
+                                <td>2-3</td>
+                            </tr>
+                            <tr>
+                                <td>Week 3</td>
+                                <td>Security, Pricing, Support, Well-Architected</td>
+                                <td>2-3</td>
+                            </tr>
+                            <tr>
+                                <td>Week 4</td>
+                                <td>Practice exams, review weak areas</td>
+                                <td>3-4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="success-box">
+                        <p>✅ <strong>Key Takeaways:</strong></p>
+                        <ul>
+                            <li>Register early, request +30 min accommodation</li>
+                            <li>Choose test center for stability or online for flexibility</li>
+                            <li>For online: Use 5G hotspot + laptop charging</li>
+                            <li>Take 3+ practice exams before real exam</li>
+                            <li>Schedule within 1 month of voucher receipt</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2 id="best-practices">Best Practices Summary</h2></summary>
+                <div class="section-content">
+
+                    <h3>For Well-Architected Framework</h3>
+                    <ul>
+                        <li>Use AWS Well-Architected Tool for automated reviews</li>
+                        <li>Focus on all six pillars equally</li>
+                        <li>Implement continuous improvement cycles</li>
+                        <li>Don't neglect sustainability pillar</li>
+                    </ul>
+
+                    <h3>For Cloud Adoption Framework</h3>
+                    <ul>
+                        <li>Engage stakeholders from all six perspectives</li>
+                        <li>Invest in training (People perspective)</li>
+                        <li>Establish Cloud Center of Excellence (Governance)</li>
+                        <li>Don't skip organizational readiness assessment</li>
+                    </ul>
+
+                    <h3>For Network Hardening</h3>
+                    <ul>
+                        <li>Default deny all, explicitly allow only required traffic</li>
+                        <li>Separate public and private subnets</li>
+                        <li>Use Security Groups (stateful) at instance level</li>
+                        <li>Use NACLs (stateless) at subnet level</li>
+                        <li>Implement geo-blocking for high-risk regions</li>
+                    </ul>
+
+                    <h3>For System Hardening</h3>
+                    <ul>
+                        <li>Principle of least privilege for all users</li>
+                        <li>Disable root SSH login</li>
+                        <li>Use SSH keys instead of passwords</li>
+                        <li>Stop and disable unnecessary services</li>
+                        <li>Apply security patches regularly</li>
+                        <li>Enable automatic security updates</li>
+                        <li>Set correct file permissions (400 for SSH keys)</li>
+                        <li>Enable comprehensive logging and monitoring</li>
+                    </ul>
+
+                    <h3>For Exam Success</h3>
+                    <ul>
+                        <li>Schedule within 1 month of voucher receipt</li>
+                        <li>Take minimum 3 practice exams scoring 80%+</li>
+                        <li>For online exam: Prioritize technical stability</li>
+                        <li>Read questions carefully (keywords: "most cost-effective", "most secure")</li>
+                        <li>Use elimination method for uncertain questions</li>
+                        <li>Mark questions for review, don't waste time</li>
                     </ul>
 
                 </div>
             </details>
 
             <details class="collapsible-section">
-                <summary><h2 id="resources">🔗 Additional Resources</h2></summary>
+                <summary><h2 id="references">Links & References</h2></summary>
                 <div class="section-content">
 
-                    <h3>📚 Official AWS Documentation</h3>
+                    <h3>Official AWS Documentation</h3>
                     <ul>
-                        <li><strong>Well-Architected Framework:</strong> <a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html" target="_blank">https://docs.aws.amazon.com/wellarchitected/</a></li>
-                        <li><strong>Cloud Adoption Framework:</strong> <a href="https://aws.amazon.com/cloud-adoption-framework/" target="_blank">https://aws.amazon.com/cloud-adoption-framework/</a></li>
-                        <li><strong>Security Best Practices:</strong> <a href="https://docs.aws.amazon.com/security/" target="_blank">https://docs.aws.amazon.com/security/</a></li>
-                        <li><strong>AWS Certification:</strong> <a href="https://aws.amazon.com/certification/" target="_blank">https://aws.amazon.com/certification/</a></li>
+                        <li><strong>Well-Architected Framework:</strong> <code>https://aws.amazon.com/architecture/well-architected/</code></li>
+                        <li><strong>Cloud Adoption Framework:</strong> <code>https://aws.amazon.com/cloud-adoption-framework/</code></li>
+                        <li><strong>Security Best Practices:</strong> <code>https://aws.amazon.com/security/best-practices/</code></li>
+                        <!-- Part 3 Final - NO DOCTYPE, head, or body opening -->
+
+                        <li><strong>Training & Certification:</strong> <code>https://aws.amazon.com/training/</code></li>
+                        <li><strong>Skill Builder:</strong> <code>https://explore.skillbuilder.aws/</code></li>
+                        <li><strong>Exam Registration:</strong> <code>https://www.aws.training/certification</code></li>
                     </ul>
 
-                    <h3>🎥 Video Resources</h3>
+                
+
+                    <h3>Study Resources</h3>
                     <ul>
-                        <li><strong>AWS Official YouTube Channel:</strong> <a href="https://www.youtube.com/user/AmazonWebServices" target="_blank">AWS YouTube</a></li>
-                        <li><strong>FreeCodeCamp Cloud Practitioner:</strong> <a href="https://www.youtube.com/watch?v=SOTamWNgDKc" target="_blank">14-hour Full Course</a></li>
-                        <li><strong>AWS re:Invent Sessions:</strong> <a href="https://reinvent.awsevents.com/" target="_blank">Latest AWS Announcements</a></li>
+                        <li><strong>FreeCodeCamp AWS Course:</strong> <code>https://www.youtube.com/watch?v=3hLmDS179YE</code></li>
+                        <li><strong>AWS Educate:</strong> <code>https://aws.amazon.com/education/awseducate/</code></li>
+                        <li><strong>Tutorials Dojo:</strong> <code>https://portal.tutorialsdojo.com/</code></li>
+                        <li><strong>AWS Whitepapers:</strong> <code>https://aws.amazon.com/whitepapers/</code></li>
+                        <li><strong>AWS Architecture Center:</strong> <code>https://aws.amazon.com/architecture/</code></li>
                     </ul>
 
-                    <h3>📖 Recommended Reading</h3>
+                    <h3>Security References</h3>
                     <ul>
-                        <li><strong>AWS Certified Cloud Practitioner Study Guide</strong> (Official)</li>
-                        <li><strong>AWS Well-Architected Framework Whitepaper</strong> (Free)</li>
-                        <li><strong>AWS Security Best Practices Whitepaper</strong> (Free)</li>
-                    </ul>
-
-                    <h3>🧪 Practice Platforms</h3>
-                    <ul>
-                        <li><strong>AWS Skill Builder:</strong> Official practice exams</li>
-                        <li><strong>Whizlabs:</strong> Practice tests and labs</li>
-                        <li><strong>Tutorials Dojo:</strong> Highly rated practice exams</li>
-                        <li><strong>ExamTopics:</strong> Free community-contributed questions</li>
-                    </ul>
-
-                    <h3>🛠️ Hands-On Practice</h3>
-                    <ul>
-                        <li><strong>AWS Free Tier:</strong> <a href="https://aws.amazon.com/free/" target="_blank">12 months free services</a></li>
-                        <li><strong>AWS Educate:</strong> Labs and learning paths</li>
-                        <li><strong>CloudAcademy:</strong> Sandbox environments</li>
-                        <li><strong>A Cloud Guru:</strong> Hands-on labs</li>
+                        <li><strong>CIS Benchmarks:</strong> <code>https://www.cisecurity.org/cis-benchmarks/</code></li>
+                        <li><strong>AWS Security Hub:</strong> <code>https://aws.amazon.com/security-hub/</code></li>
+                        <li><strong>NIST Cybersecurity Framework:</strong> <code>https://www.nist.gov/cyberframework</code></li>
+                        <li><strong>Linux Security Guide:</strong> <code>https://www.linux.org/docs/</code></li>
                     </ul>
 
                 </div>
             </details>
 
-            <h2>📋 Final Preparation Checklist</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Checkpoint</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Understood WAF six pillars</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="waf-pillars"></td>
-                    </tr>
-                    <tr>
-                        <td>Understood CAF six perspectives</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="caf-perspectives"></td>
-                    </tr>
-                    <tr>
-                        <td>Can differentiate WAF vs CAF</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="waf-vs-caf"></td>
-                    </tr>
-                    <tr>
-                        <td>Understood network hardening concepts</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="network-hardening"></td>
-                    </tr>
-                    <tr>
-                        <td>Understood system hardening concepts</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="system-hardening"></td>
-                    </tr>
-                    <tr>
-                        <td>Configured Security Groups in practice</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="sg-practice"></td>
-                    </tr>
-                    <tr>
-                        <td>Configured IAM roles in practice</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="iam-practice"></td>
-                    </tr>
-                    <tr>
-                        <td>Created AWS certification account</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="cert-account"></td>
-                    </tr>
-                    <tr>
-                        <td>Requested exam accommodation (ESL +30 min)</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="exam-accommodation"></td>
-                    </tr>
-                    <tr>
-                        <td>Completed system test for online exam</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="system-test"></td>
-                    </tr>
-                    <tr>
-                        <td>Scheduled exam date within 1 month</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="exam-scheduled"></td>
-                    </tr>
-                    <tr>
-                        <td>Prepared testing environment (room, laptop, internet)</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="testing-env"></td>
-                    </tr>
-                    <tr>
-                        <td>Practiced 100+ MCQs</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="mcq-practice"></td>
-                    </tr>
-                    <tr>
-                        <td>Reviewed all weak areas</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="weak-areas"></td>
-                    </tr>
-                    <tr>
-                        <td>Ready to take the exam!</td>
-                        <td><input type="checkbox" class="checklist-item" data-key="ready-exam"></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="success-box">
-                <p>✅ <strong>Instructor's Final Message:</strong></p>
-                <p>"Every batch is unique, and this batch has been exceptional. I'm proud of your dedication - managing families, kids, and personal responsibilities while completing this program. You've earned this. Now go clear that exam and make yourself proud. All the best! 🎓"</p>
-                <p style="text-align: right;"><em>- Sai Kumar, AWS Instructor</em></p>
-            </div>
-
         </div>
 
         <div class="tags">
             <span class="tag">AWS</span>
-            <span class="tag">Well-Architected Framework</span>
-            <span class="tag">Cloud Adoption Framework</span>
-            <span class="tag">Security</span>
-            <span class="tag">Network Hardening</span>
-            <span class="tag">System Hardening</span>
-            <span class="tag">Certification</span>
             <span class="tag">Cloud Practitioner</span>
+            <span class="tag">Well-Architected</span>
+            <span class="tag">CAF</span>
+            <span class="tag">Security</span>
+            <span class="tag">Certification</span>
         </div>
     </div>
 
     <script src="../../../js/theme.js"></script>
-    <script src="../../../js/notes-template.js"></script>
 </body>
 </html>
