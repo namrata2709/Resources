@@ -112,7 +112,7 @@
           "isCorrect": false,
           "explanation": {
             "summary": "EC2 instances are resources you launch into a VPC after it's created. They're not required for VPC creation itself.",
-            "why": "VPC is the network foundation that must exist before launching compute resources like EC2 instances. The creation order is: create VPC → create subnets → configure routing → launch EC2 instances. EC2 instances are deployed into VPC subnets, but the VPC doesn't need any instances to exist. Empty VPCs are valid and common during initial setup.",
+            "why": "VPC is the network foundation that must exist before launching compute resources like EC2 instances. The creation order is: create VPC \u2192 create subnets \u2192 configure routing \u2192 launch EC2 instances. EC2 instances are deployed into VPC subnets, but the VPC doesn't need any instances to exist. Empty VPCs are valid and common during initial setup.",
             "learnMore": [
               {
                 "title": "AWS - Create a VPC",
@@ -186,7 +186,7 @@
           "isCorrect": false,
           "explanation": {
             "summary": "Load balancers are resources deployed into a VPC after creation, not required for VPC creation itself.",
-            "why": "Elastic Load Balancers (Application Load Balancer, Network Load Balancer, Gateway Load Balancer) are advanced services you deploy within existing VPC infrastructure to distribute traffic across EC2 instances or containers. The creation sequence is: create VPC → create subnets → launch instances → deploy load balancer. Load balancers need VPC and subnets to exist first so they know where to route traffic.",
+            "why": "Elastic Load Balancers (Application Load Balancer, Network Load Balancer, Gateway Load Balancer) are advanced services you deploy within existing VPC infrastructure to distribute traffic across EC2 instances or containers. The creation sequence is: create VPC \u2192 create subnets \u2192 launch instances \u2192 deploy load balancer. Load balancers need VPC and subnets to exist first so they know where to route traffic.",
             "learnMore": [
               {
                 "title": "AWS - Elastic Load Balancing",
@@ -300,13 +300,31 @@
           "id": "A",
           "text": "It determines where all traffic is directed outside the virtual private cloud (VPC).",
           "isCorrect": false,
-          "explanation": {"summary": "Route tables control both internal VPC routing and external destinations, not just outbound traffic.", "why": "Route tables manage all traffic routing including between subnets within VPC, to internet gateway, to VPN connections, and to VPC peering connections. This answer incorrectly limits scope to only external traffic.", "learnMore": [{"title": "AWS Route Tables", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"}]}
+          "explanation": {
+            "summary": "Route tables control both internal VPC routing and external destinations, not just outbound traffic.",
+            "why": "Route tables manage all traffic routing including between subnets within VPC, to internet gateway, to VPN connections, and to VPC peering connections. This answer incorrectly limits scope to only external traffic.",
+            "learnMore": [
+              {
+                "title": "AWS Route Tables",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+              }
+            ]
+          }
         },
         {
           "id": "B",
           "text": "It limits traffic by allowing only specified IP addresses.",
           "isCorrect": false,
-          "explanation": {"summary": "Traffic filtering is done by security groups and NACLs, not route tables.", "why": "Route tables determine paths, security groups and Network ACLs filter/allow/deny traffic. Confusing routing with filtering is common mistake.", "learnMore": [{"title": "AWS VPC Security", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"}]}
+          "explanation": {
+            "summary": "Traffic filtering is done by security groups and NACLs, not route tables.",
+            "why": "Route tables determine paths, security groups and Network ACLs filter/allow/deny traffic. Confusing routing with filtering is common mistake.",
+            "learnMore": [
+              {
+                "title": "AWS VPC Security",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"
+              }
+            ]
+          }
         },
         {
           "id": "C",
@@ -314,17 +332,47 @@
           "isCorrect": true,
           "explanation": {
             "summary": "Route tables contain rules determining how packets are routed from subnets based on destination IP addresses. Each route specifies destination CIDR block and target (internet gateway, NAT, VPC peering, VPN, local).",
-            "keyPoints": ["Controls packet routing decisions", "Associates with one or more subnets", "Contains routes: destination CIDR → target", "Local routes for VPC CIDR automatic", "Can route to IGW, NAT, VGW, peering, endpoints", "Main route table created with VPC", "Custom tables for different routing needs"],
-            "examples": ["10.0.0.0/16 → local (VPC traffic)", "0.0.0.0/0 → igw-xxx (internet)", "192.168.0.0/16 → vgw-xxx (VPN)"],
+            "keyPoints": [
+              "Controls packet routing decisions",
+              "Associates with one or more subnets",
+              "Contains routes: destination CIDR \u2192 target",
+              "Local routes for VPC CIDR automatic",
+              "Can route to IGW, NAT, VGW, peering, endpoints",
+              "Main route table created with VPC",
+              "Custom tables for different routing needs"
+            ],
+            "examples": [
+              "10.0.0.0/16 \u2192 local (VPC traffic)",
+              "0.0.0.0/0 \u2192 igw-xxx (internet)",
+              "192.168.0.0/16 \u2192 vgw-xxx (VPN)"
+            ],
             "additionalInfo": "Route tables are essential traffic control mechanism. Each subnet must associate with exactly one route table. Routes evaluated most-specific-first. Public subnets route 0.0.0.0/0 to internet gateway, private subnets to NAT gateway or no internet route.",
-            "learnMore": [{"title": "AWS Configure Route Tables", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"}, {"title": "AWS Routing", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"}]
+            "learnMore": [
+              {
+                "title": "AWS Configure Route Tables",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+              },
+              {
+                "title": "AWS Routing",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+              }
+            ]
           }
         },
         {
           "id": "D",
           "text": "It is responsible for only the network traffic in a subnet.",
           "isCorrect": false,
-          "explanation": {"summary": "Route tables control routing beyond single subnets - between subnets and external destinations.", "why": "Route tables manage traffic between multiple subnets and to/from external networks. This answer incorrectly limits scope.", "learnMore": [{"title": "AWS Routing", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"}]}
+          "explanation": {
+            "summary": "Route tables control routing beyond single subnets - between subnets and external destinations.",
+            "why": "Route tables manage traffic between multiple subnets and to/from external networks. This answer incorrectly limits scope.",
+            "learnMore": [
+              {
+                "title": "AWS Routing",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+              }
+            ]
+          }
         }
       ]
     },
@@ -336,13 +384,31 @@
           "id": "A",
           "text": "It acts as a stateless firewall that controls inbound traffic only.",
           "isCorrect": false,
-          "explanation": {"summary": "Security groups are stateful (not stateless) and control both inbound and outbound traffic.", "why": "Stateful means return traffic automatically allowed. Security groups track connections. Network ACLs are stateless.", "learnMore": [{"title": "AWS Security Groups", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"}]}
+          "explanation": {
+            "summary": "Security groups are stateful (not stateless) and control both inbound and outbound traffic.",
+            "why": "Stateful means return traffic automatically allowed. Security groups track connections. Network ACLs are stateless.",
+            "learnMore": [
+              {
+                "title": "AWS Security Groups",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"
+              }
+            ]
+          }
         },
         {
           "id": "B",
           "text": "It acts as a stateful firewall that allows all traffic by default.",
           "isCorrect": false,
-          "explanation": {"summary": "Security groups deny all inbound by default, must explicitly allow.", "why": "Default deny inbound (implicit), default allow outbound. Must add rules to permit inbound traffic.", "learnMore": [{"title": "Security Group Rules", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"}]}
+          "explanation": {
+            "summary": "Security groups deny all inbound by default, must explicitly allow.",
+            "why": "Default deny inbound (implicit), default allow outbound. Must add rules to permit inbound traffic.",
+            "learnMore": [
+              {
+                "title": "Security Group Rules",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"
+              }
+            ]
+          }
         },
         {
           "id": "C",
@@ -350,20 +416,50 @@
           "isCorrect": true,
           "explanation": {
             "summary": "Security groups are stateful virtual firewalls operating at instance/ENI level. They control both inbound and outbound traffic. Stateful means return traffic automatically permitted - if you allow inbound HTTPS, response outbound automatically flows regardless of outbound rules.",
-            "keyPoints": ["Stateful firewall at instance level", "Controls inbound and outbound", "Return traffic auto-allowed", "Rules specify allow only (no deny)", "Default deny inbound, allow outbound", "Can reference other security groups", "Changes apply immediately", "Connection tracking maintains state"],
-            "examples": ["Allow port 443 inbound → auto-allows response outbound", "Allow SSH from bastion SG", "Web tier SG allows traffic from ALB SG"],
+            "keyPoints": [
+              "Stateful firewall at instance level",
+              "Controls inbound and outbound",
+              "Return traffic auto-allowed",
+              "Rules specify allow only (no deny)",
+              "Default deny inbound, allow outbound",
+              "Can reference other security groups",
+              "Changes apply immediately",
+              "Connection tracking maintains state"
+            ],
+            "examples": [
+              "Allow port 443 inbound \u2192 auto-allows response outbound",
+              "Allow SSH from bastion SG",
+              "Web tier SG allows traffic from ALB SG"
+            ],
             "additionalInfo": "Security groups are fundamental VPC security. Stateful behavior critical - TCP connection initiated from instance allowed back in automatically. Rules are permissive only (allow, not deny). Use NACLs for deny rules. Best practice: least privilege, specific sources/ports.",
-            "learnMore": [{"title": "AWS Security Groups", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"}, {"title": "Stateful Tracking", "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html"}]
+            "learnMore": [
+              {
+                "title": "AWS Security Groups",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"
+              },
+              {
+                "title": "Stateful Tracking",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html"
+              }
+            ]
           }
         },
         {
           "id": "D",
           "text": "It acts as a stateless firewall that controls outbound network traffic only.",
           "isCorrect": false,
-          "explanation": {"summary": "Security groups are stateful (not stateless) and control both directions.", "why": "This describes neither security groups (which are stateful, both directions) nor NACLs accurately.", "learnMore": [{"title": "Compare SG and NACLs", "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"}]}
+          "explanation": {
+            "summary": "Security groups are stateful (not stateless) and control both directions.",
+            "why": "This describes neither security groups (which are stateful, both directions) nor NACLs accurately.",
+            "learnMore": [
+              {
+                "title": "Compare SG and NACLs",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Security.html"
+              }
+            ]
+          }
         }
       ]
     }
   ]
 }
-  

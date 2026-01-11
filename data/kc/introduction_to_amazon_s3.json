@@ -68,7 +68,7 @@
             "keyPoints": [
               "Unique within bucket: Each object key must be unique within a given bucket, though different buckets can have objects with identical keys",
               "User-defined: You specify the object key when uploading data, giving you complete control over naming and organization",
-              "Immutable identifier: Once created, an object key cannot be changed—you must copy the object with a new key and delete the old one",
+              "Immutable identifier: Once created, an object key cannot be changed\u2014you must copy the object with a new key and delete the old one",
               "Path-like structure: Keys can include forward slashes (/) to simulate folder hierarchies like documents/2024/report.pdf",
               "UTF-8 encoding: Keys can use any UTF-8 character and can be up to 1,024 bytes long",
               "Global addressing: The combination bucket-name + object-key creates a unique identifier across AWS",
@@ -128,7 +128,7 @@
               "Financial archives: Banks trust S3 to preserve transaction records for 7-10+ years without data loss",
               "Media libraries: Netflix and other streaming services rely on S3's durability to protect massive video archives"
             ],
-            "additionalInfo": "S3 achieves this remarkable durability through sophisticated engineering including storing multiple redundant copies of data, using checksums to detect bit rot and corruption, implementing erasure coding that splits data into fragments allowing reconstruction from subsets, maintaining persistent connections to quickly rebuild lost data, and running automated systems that continuously verify and repair data integrity. The 11 nines guarantee applies within a single AWS region. For even higher protection against regional disasters, customers can enable Cross-Region Replication. It's important to distinguish durability from availability—S3 Standard has 99.99% availability (designed for 52.56 minutes of downtime per year) but 11 nines durability (virtually no data loss). Durability protects against permanent data loss, while availability ensures you can access your data when needed.",
+            "additionalInfo": "S3 achieves this remarkable durability through sophisticated engineering including storing multiple redundant copies of data, using checksums to detect bit rot and corruption, implementing erasure coding that splits data into fragments allowing reconstruction from subsets, maintaining persistent connections to quickly rebuild lost data, and running automated systems that continuously verify and repair data integrity. The 11 nines guarantee applies within a single AWS region. For even higher protection against regional disasters, customers can enable Cross-Region Replication. It's important to distinguish durability from availability\u2014S3 Standard has 99.99% availability (designed for 52.56 minutes of downtime per year) but 11 nines durability (virtually no data loss). Durability protects against permanent data loss, while availability ensures you can access your data when needed.",
             "learnMore": [
               {
                 "title": "AWS S3 Storage Classes - Durability Details",
@@ -154,7 +154,7 @@
           "text": "6 9s (99.9999%)",
           "isCorrect": false,
           "explanation": {
-            "summary": "99.9999% (six nines) durability would mean significantly higher data loss risk than S3 actually provides—about 100,000 times less durable than S3's actual design.",
+            "summary": "99.9999% (six nines) durability would mean significantly higher data loss risk than S3 actually provides\u2014about 100,000 times less durable than S3's actual design.",
             "why": "Six nines durability would translate to losing approximately one object per million objects per year, which is far below S3's actual 11 nines standard. With six nines, storing 10 million objects might result in losing 10 objects annually. This level of durability is more typical of traditional on-premises storage systems or consumer-grade hardware, not enterprise cloud storage like S3. AWS invested heavily in redundancy, erasure coding, and multi-facility replication specifically to far exceed six nines durability.",
             "learnMore": [
               {
@@ -170,7 +170,7 @@
           "isCorrect": false,
           "explanation": {
             "summary": "99.999999% (eight nines) durability would represent better protection than six nines but still falls short of S3's actual 11 nines durability by a factor of 1,000.",
-            "why": "Eight nines durability means you might expect to lose one object per 100 million objects over a very long period. While this sounds impressive, it's still 1,000 times less durable than S3's actual design. The difference between eight and 11 nines is enormous in practical terms—it's the difference between potentially losing data from a large dataset within decades versus millennia. AWS specifically engineered S3 to exceed eight nines by implementing advanced replication, erasure coding, and continuous integrity checking across multiple Availability Zones.",
+            "why": "Eight nines durability means you might expect to lose one object per 100 million objects over a very long period. While this sounds impressive, it's still 1,000 times less durable than S3's actual design. The difference between eight and 11 nines is enormous in practical terms\u2014it's the difference between potentially losing data from a large dataset within decades versus millennia. AWS specifically engineered S3 to exceed eight nines by implementing advanced replication, erasure coding, and continuous integrity checking across multiple Availability Zones.",
             "learnMore": [
               {
                 "title": "AWS Glacier Storage Classes - Durability Specifications",
@@ -185,7 +185,7 @@
           "isCorrect": false,
           "explanation": {
             "summary": "99.99% (four nines) is actually S3 Standard's availability metric, not its durability. This represents the designed uptime percentage, meaning S3 aims for about 52 minutes of potential downtime per year, not data loss.",
-            "why": "Four nines durability would be unacceptable for enterprise cloud storage, as it would mean losing one object per 10,000 objects over time—a catastrophic failure rate. This confusion often arises because S3 has two different metrics: 99.99% availability (four nines, referring to uptime) and 99.999999999% durability (11 nines, referring to data preservation). Availability measures how often you can access your data, while durability measures whether your data is permanently preserved. Four nines describes S3's access reliability, not its data protection capability.",
+            "why": "Four nines durability would be unacceptable for enterprise cloud storage, as it would mean losing one object per 10,000 objects over time\u2014a catastrophic failure rate. This confusion often arises because S3 has two different metrics: 99.99% availability (four nines, referring to uptime) and 99.999999999% durability (11 nines, referring to data preservation). Availability measures how often you can access your data, while durability measures whether your data is permanently preserved. Four nines describes S3's access reliability, not its data protection capability.",
             "learnMore": [
               {
                 "title": "Cloud Institution - Understanding Durability vs Availability",
@@ -205,7 +205,7 @@
           "text": "S3 Standard-Infrequent Access (S3 Standard-IA)",
           "isCorrect": false,
           "explanation": {
-            "summary": "S3 Standard-IA is designed for data accessed less frequently but requires rapid access when needed—typically once per month or quarter, not once or twice per year.",
+            "summary": "S3 Standard-IA is designed for data accessed less frequently but requires rapid access when needed\u2014typically once per month or quarter, not once or twice per year.",
             "why": "Standard-IA costs $0.0125 per GB per month (in US East), which is significantly more expensive than Glacier Deep Archive at $0.00099 per GB per month. Standard-IA provides millisecond access times and is ideal for data you might need quickly but infrequently, such as disaster recovery backups or quarterly reports. For data accessed only once or twice yearly, you're overpaying for fast retrieval capabilities you rarely use. Standard-IA also has a 30-day minimum storage duration and retrieval charges, making it cost-effective only when you need occasional rapid access. When access is this rare, Glacier Deep Archive's significantly lower storage costs outweigh the slower retrieval times.",
             "examples": [
               "Good for Standard-IA: Monthly backup restores, quarterly audit documents",
@@ -224,7 +224,7 @@
           "text": "S3 Glacier Deep Archive",
           "isCorrect": true,
           "explanation": {
-            "summary": "S3 Glacier Deep Archive provides the absolute lowest-cost storage in AWS at just $0.00099 per GB per month (approximately $1 per TB per month), making it ideal for long-term archival data that is accessed rarely—once or twice per year or less. Designed specifically for regulated industries like finance, healthcare, and media that must retain data for 7-10+ years for compliance, Deep Archive offers massive cost savings for infrequently accessed archives while maintaining the same 11 nines durability as other S3 storage classes.",
+            "summary": "S3 Glacier Deep Archive provides the absolute lowest-cost storage in AWS at just $0.00099 per GB per month (approximately $1 per TB per month), making it ideal for long-term archival data that is accessed rarely\u2014once or twice per year or less. Designed specifically for regulated industries like finance, healthcare, and media that must retain data for 7-10+ years for compliance, Deep Archive offers massive cost savings for infrequently accessed archives while maintaining the same 11 nines durability as other S3 storage classes.",
             "keyPoints": [
               "Lowest cost: At $1 per TB per month, it's up to 75% cheaper than S3 Glacier Flexible Retrieval and up to 95% cheaper than S3 Standard",
               "12-hour retrieval: Standard retrieval provides data within 12 hours, suitable for infrequent access needs",
@@ -268,7 +268,7 @@
           "isCorrect": false,
           "explanation": {
             "summary": "S3 Standard is the default storage class designed for frequently accessed data requiring immediate, high-performance access. At $0.023 per GB per month, it's approximately 23 times more expensive than Glacier Deep Archive.",
-            "why": "S3 Standard is optimized for active workloads with unpredictable or frequent access patterns—websites, mobile applications, gaming applications, big data analytics, and content distribution. You pay a premium ($23 per TB per month versus $1 per TB for Deep Archive) for millisecond latency, high throughput, and immediate availability. When data is accessed only once or twice annually, you're wasting money on instant-access capabilities that sit unused 99.7% of the time. The question specifically states long-term storage with minimal access, making Standard an extremely cost-inefficient choice that would result in paying 23x more than necessary.",
+            "why": "S3 Standard is optimized for active workloads with unpredictable or frequent access patterns\u2014websites, mobile applications, gaming applications, big data analytics, and content distribution. You pay a premium ($23 per TB per month versus $1 per TB for Deep Archive) for millisecond latency, high throughput, and immediate availability. When data is accessed only once or twice annually, you're wasting money on instant-access capabilities that sit unused 99.7% of the time. The question specifically states long-term storage with minimal access, making Standard an extremely cost-inefficient choice that would result in paying 23x more than necessary.",
             "examples": [
               "Appropriate for Standard: Active websites, real-time analytics, frequently updated databases",
               "Inappropriate for Standard: Annual financial audits, compliance archives accessed twice yearly"
@@ -287,7 +287,7 @@
           "isCorrect": false,
           "explanation": {
             "summary": "S3 One Zone-IA stores data in a single Availability Zone rather than across multiple zones, offering lower cost than Standard-IA at $0.01 per GB per month. However, it's still 10 times more expensive than Glacier Deep Archive and provides faster access than needed for once-or-twice-yearly retrieval.",
-            "why": "One Zone-IA trades redundancy for cost savings compared to Standard-IA, but it's designed for data you can recreate if lost and need occasional rapid access—like thumbnails, transcoded media, or non-critical backups. At $10 per TB per month, it's significantly more expensive than Deep Archive's $1 per TB. Financial companies specifically mentioned in the question need maximum durability for compliance archives that cannot be recreated, making single-zone storage inappropriate. The immediate access capabilities of One Zone-IA are also unnecessary and wasteful for data accessed only once or twice annually. Additionally, losing an entire Availability Zone would result in complete data loss with One Zone-IA, unacceptable for financial compliance archives.",
+            "why": "One Zone-IA trades redundancy for cost savings compared to Standard-IA, but it's designed for data you can recreate if lost and need occasional rapid access\u2014like thumbnails, transcoded media, or non-critical backups. At $10 per TB per month, it's significantly more expensive than Deep Archive's $1 per TB. Financial companies specifically mentioned in the question need maximum durability for compliance archives that cannot be recreated, making single-zone storage inappropriate. The immediate access capabilities of One Zone-IA are also unnecessary and wasteful for data accessed only once or twice annually. Additionally, losing an entire Availability Zone would result in complete data loss with One Zone-IA, unacceptable for financial compliance archives.",
             "learnMore": [
               {
                 "title": "AWS S3 Storage Classes - One Zone-IA Details",
@@ -308,7 +308,7 @@
           "isCorrect": false,
           "explanation": {
             "summary": "Data transfer INTO Amazon S3 from the internet is free regardless of file size, whether you're uploading 5 MB, 500 GB, or 5 TB. AWS does not charge for inbound data transfer to S3.",
-            "why": "AWS's pricing model encourages customers to move data into the cloud by making inbound transfers free. This applies to uploads via the internet, AWS Direct Connect, or any other method. The 5 MB threshold mentioned in the option is irrelevant to pricing—it actually relates to S3's multipart upload recommendations (AWS recommends using multipart upload for objects larger than 100 MB). You will incur PUT request charges ($0.005 per 1,000 PUT requests for S3 Standard) when uploading objects, but the data transfer itself is free regardless of size.",
+            "why": "AWS's pricing model encourages customers to move data into the cloud by making inbound transfers free. This applies to uploads via the internet, AWS Direct Connect, or any other method. The 5 MB threshold mentioned in the option is irrelevant to pricing\u2014it actually relates to S3's multipart upload recommendations (AWS recommends using multipart upload for objects larger than 100 MB). You will incur PUT request charges ($0.005 per 1,000 PUT requests for S3 Standard) when uploading objects, but the data transfer itself is free regardless of size.",
             "examples": [
               "Uploading a 10 GB database backup to S3: data transfer cost is $0 (only PUT requests cost applies)",
               "Migrating 100 TB of on-premises data to S3: inbound data transfer cost is $0"
@@ -346,7 +346,7 @@
           "isCorrect": false,
           "explanation": {
             "summary": "Data transfer from S3 to CloudFront is free. AWS does not charge for moving data between S3 and CloudFront because they are both AWS services designed to work together for content delivery.",
-            "why": "AWS explicitly waives data transfer charges from S3 to CloudFront to encourage using CloudFront as a CDN for S3-hosted content. This architecture is optimal—S3 stores your content while CloudFront caches and distributes it globally for low-latency access. You will pay CloudFront's data transfer out rates when users download content from CloudFront edge locations ($0.085 per GB for the first 10 TB in North America and Europe), but the S3-to-CloudFront transfer itself is free. This makes CloudFront + S3 highly cost-effective compared to serving content directly from S3, which would incur S3's internet data transfer charges ($0.09 per GB for the first 10 TB).",
+            "why": "AWS explicitly waives data transfer charges from S3 to CloudFront to encourage using CloudFront as a CDN for S3-hosted content. This architecture is optimal\u2014S3 stores your content while CloudFront caches and distributes it globally for low-latency access. You will pay CloudFront's data transfer out rates when users download content from CloudFront edge locations ($0.085 per GB for the first 10 TB in North America and Europe), but the S3-to-CloudFront transfer itself is free. This makes CloudFront + S3 highly cost-effective compared to serving content directly from S3, which would incur S3's internet data transfer charges ($0.09 per GB for the first 10 TB).",
             "examples": [
               "Video streaming: CloudFront pulls 100 GB from S3 to edge locations at $0 transfer cost",
               "Website assets: S3 serves images to CloudFront with no data transfer charges"
@@ -441,7 +441,7 @@
           "isCorrect": false,
           "explanation": {
             "summary": "This statement is incorrect. S3 bucket names must be globally unique across ALL AWS accounts worldwide, not just within a single account. The S3 namespace is shared globally across every AWS customer.",
-            "why": "S3 bucket names are part of the DNS system and form part of URLs used to access objects (bucket-name.s3.amazonaws.com), requiring global uniqueness. If bucket names were only unique per account, multiple accounts could create buckets with the same name, creating DNS conflicts and making it impossible to address buckets via URLs. When you create a bucket named 'my-company-data,' no other AWS customer anywhere in the world can use that exact name. This is why you sometimes see error messages like 'BucketAlreadyExists' when trying creative bucket names—someone else globally has already claimed them.",
+            "why": "S3 bucket names are part of the DNS system and form part of URLs used to access objects (bucket-name.s3.amazonaws.com), requiring global uniqueness. If bucket names were only unique per account, multiple accounts could create buckets with the same name, creating DNS conflicts and making it impossible to address buckets via URLs. When you create a bucket named 'my-company-data,' no other AWS customer anywhere in the world can use that exact name. This is why you sometimes see error messages like 'BucketAlreadyExists' when trying creative bucket names\u2014someone else globally has already claimed them.",
             "examples": [
               "If user A creates 'financial-reports' bucket, user B cannot create a bucket with the same name globally",
               "Common names like 'images' or 'data' are already taken by other AWS customers"
@@ -461,7 +461,7 @@
           "explanation": {
             "summary": "Amazon S3 provides built-in static website hosting functionality, allowing you to host websites consisting of HTML, CSS, JavaScript, images, and other static files directly from S3 buckets without requiring web servers. S3 serves these files over HTTP/HTTPS at high performance and global scale, making it an excellent, cost-effective solution for static websites, single-page applications (SPAs), and frontend web assets.",
             "keyPoints": [
-              "Static content only: Hosts HTML, CSS, JavaScript, images, videos, and downloadable files—no server-side processing",
+              "Static content only: Hosts HTML, CSS, JavaScript, images, videos, and downloadable files\u2014no server-side processing",
               "Custom domain support: Configure Route 53 to use your own domain name (www.example.com) pointing to your S3 bucket",
               "Index and error documents: Configure default index.html and custom error pages like 404.html",
               "HTTPS support: Use CloudFront in front of S3 to provide SSL/TLS encryption for secure connections",
@@ -476,7 +476,7 @@
               "Landing pages: Create and host marketing landing pages with forms (using client-side JavaScript to call APIs)",
               "Many companies use S3 to host their marketing websites with millions of monthly visitors"
             ],
-            "additionalInfo": "S3 static website hosting is ideal for JAMstack architectures where dynamic functionality is handled by JavaScript calling APIs (like API Gateway and Lambda) rather than server-side rendering. To enable hosting, you configure the bucket for static website hosting in the S3 console, upload your files, and make the bucket publicly readable. The website endpoint follows the format bucket-name.s3-website-region.amazonaws.com. For production sites, it's recommended to use CloudFront in front of S3 for benefits including SSL/HTTPS support (S3 website endpoints only support HTTP), global CDN distribution for faster loading worldwide, custom domain names, and protection against traffic spikes. S3 website hosting cannot execute server-side code like PHP, Python, or Ruby—for dynamic applications requiring server-side processing, use EC2, Elastic Beanstalk, or Lambda.",
+            "additionalInfo": "S3 static website hosting is ideal for JAMstack architectures where dynamic functionality is handled by JavaScript calling APIs (like API Gateway and Lambda) rather than server-side rendering. To enable hosting, you configure the bucket for static website hosting in the S3 console, upload your files, and make the bucket publicly readable. The website endpoint follows the format bucket-name.s3-website-region.amazonaws.com. For production sites, it's recommended to use CloudFront in front of S3 for benefits including SSL/HTTPS support (S3 website endpoints only support HTTP), global CDN distribution for faster loading worldwide, custom domain names, and protection against traffic spikes. S3 website hosting cannot execute server-side code like PHP, Python, or Ruby\u2014for dynamic applications requiring server-side processing, use EC2, Elastic Beanstalk, or Lambda.",
             "learnMore": [
               {
                 "title": "AWS S3 Static Website Hosting Tutorial",
@@ -502,7 +502,7 @@
           "text": "Bucket names are universal, and they must be unique across all existing bucket names in Amazon S3",
           "isCorrect": true,
           "explanation": {
-            "summary": "S3 bucket names exist in a global namespace shared by all AWS customers worldwide. Each bucket name must be completely unique across every AWS account in every region—no two buckets anywhere in the world can have the same name. This global uniqueness requirement exists because bucket names are used in DNS and URL addressing, requiring universal uniqueness for proper routing and access.",
+            "summary": "S3 bucket names exist in a global namespace shared by all AWS customers worldwide. Each bucket name must be completely unique across every AWS account in every region\u2014no two buckets anywhere in the world can have the same name. This global uniqueness requirement exists because bucket names are used in DNS and URL addressing, requiring universal uniqueness for proper routing and access.",
             "keyPoints": [
               "Global namespace: Bucket names are unique worldwide across all AWS accounts and regions",
               "DNS integration: Bucket names appear in URLs (bucket-name.s3.amazonaws.com) requiring DNS-compatible, globally unique names",
@@ -516,7 +516,7 @@
               "If Amazon creates 'aws-documentation' bucket, no other customer anywhere can use that name",
               "Common names like 'images', 'backup', or 'data' were likely claimed years ago by early AWS adopters",
               "Companies often use unique prefixes: 'acme-corp-production-data' instead of just 'production-data'",
-              "Your company in us-east-1 creates 'mycompany-assets'—now no one in eu-west-1, ap-south-1, or any region can create that name"
+              "Your company in us-east-1 creates 'mycompany-assets'\u2014now no one in eu-west-1, ap-south-1, or any region can create that name"
             ],
             "additionalInfo": "The global namespace requirement is fundamental to S3's architecture and sometimes surprises new AWS users who expect account-level or region-level uniqueness. This design decision dates to S3's launch in 2006 when AWS chose DNS-based addressing for simplicity and compatibility. Best practices for bucket naming include using company-specific prefixes (company-project-environment), incorporating region or purpose (myorg-logs-us-east-1), adding random suffixes for programmatic creation (app-data-a3f89b), and checking name availability before building automation around specific names. The global namespace has occasionally caused issues like bucket name squatting (reserving popular names) or naming conflicts during company mergers, but it provides the benefit of simple, predictable URL structures. When a bucket is deleted, AWS may hold the name briefly before releasing it, and some names are permanently reserved by AWS for internal use.",
             "learnMore": [
@@ -545,7 +545,7 @@
           "isCorrect": false,
           "explanation": {
             "summary": "S3 cannot host dynamic websites that require server-side processing. S3 only serves static files and cannot execute server-side code like PHP, Python, Java, Ruby, or Node.js that generates pages dynamically based on user input or database queries.",
-            "why": "Dynamic websites need application servers to process code, query databases, handle user sessions, generate personalized content, and perform authentication—capabilities S3 doesn't provide. S3 is object storage that simply serves files as-is without any processing. For dynamic applications, you need compute services like EC2 (virtual servers), Elastic Beanstalk (managed application hosting), Lambda (serverless functions), or ECS (containers). However, S3 can be part of a dynamic application architecture by serving static assets (images, CSS, JavaScript) while APIs handle dynamic functionality, which is the JAMstack pattern.",
+            "why": "Dynamic websites need application servers to process code, query databases, handle user sessions, generate personalized content, and perform authentication\u2014capabilities S3 doesn't provide. S3 is object storage that simply serves files as-is without any processing. For dynamic applications, you need compute services like EC2 (virtual servers), Elastic Beanstalk (managed application hosting), Lambda (serverless functions), or ECS (containers). However, S3 can be part of a dynamic application architecture by serving static assets (images, CSS, JavaScript) while APIs handle dynamic functionality, which is the JAMstack pattern.",
             "examples": [
               "Cannot run on S3: WordPress (PHP + MySQL), Django applications, e-commerce sites with shopping carts",
               "Can run on S3: React/Vue/Angular SPAs that call backend APIs for dynamic data"
