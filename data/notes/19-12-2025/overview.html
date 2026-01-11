@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Containerization & Docker - Overview Part 1</title>
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+</head>
+<body>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-icon"></span>
+    </button>
+
+    <div class="note-container">
+        <div class="note-header">
+            <h1>Containerization & Docker - Overview Part 1</h1>
+            <p class="note-date">📅 December 19, 2024</p>
+        </div>
+
+        <div class="note-content">
+
+            <h2 id="introduction">🎯 Introduction</h2>
+
+            <p>Welcome to your comprehensive guide on <strong>Containerization and Docker</strong>! This document covers the evolution from traditional virtualization to modern container technology.</p>
+
+            <p>Key topics covered:</p>
+
+            <ul>
+                <li>🖥️ <strong>Virtualization:</strong> Running multiple virtual machines on single physical hardware</li>
+                <li>📦 <strong>Containerization:</strong> Lightweight alternative to VMs for running isolated applications</li>
+                <li>🐳 <strong>Docker:</strong> Industry-standard tool for creating and managing containers</li>
+                <li>⚙️ <strong>CI/CD Integration:</strong> How containers fit into modern DevOps workflows</li>
+            </ul>
+
+            <div class="info-box">
+                <p>💡 <strong>How to Use This Document:</strong></p>
+                <ul>
+                    <li>Understand the problems virtualization solved and its limitations</li>
+                    <li>Learn why containers emerged as the modern solution</li>
+                    <li>Master Docker concepts: Dockerfiles, Images, and Containers</li>
+                    <li>See how containerization integrates with CI/CD pipelines</li>
+                </ul>
+            </div>
+
+            <h2 id="table-of-contents">📚 Table of Contents</h2>
+            <ol>
+                <li><a href="#cicd-workflow">CI/CD Workflow Overview</a></li>
+                <li><a href="#virtualization">Virtualization Technology</a></li>
+                <li><a href="#virtualization-advantages">Advantages of Virtualization</a></li>
+                <li><a href="#virtualization-disadvantages">Disadvantages of Virtualization</a></li>
+                <li><a href="#containerization">Containerization Fundamentals</a></li>
+                <li><a href="#docker-architecture">Docker Architecture</a></li>
+                <li><a href="#docker-components">Docker Components</a></li>
+                <li><a href="#overall-summary">Overall Summary</a></li>
+                <li><a href="#links-references">Links & References</a></li>
+            </ol>
+
+            <details class="collapsible-section" id="cicd-workflow">
+                <summary><h2>🔄 CI/CD Workflow Overview</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>In modern software development using Agile methodologies with DevOps practices, developers work in sprints where continuous testing and integration happen throughout the day. When a developer makes code changes, those changes go through an automated pipeline that ensures quality and readiness for deployment.</p>
+
+                    <p>The workflow starts with developers writing code on their local machines. They use Git for version control, creating snapshots of their work through commits. Once code is ready, it's pushed to a feature branch in GitHub (or GitLab, Bitbucket, AWS CodeCommit). From there, a Pull Request (PR) is created to merge changes into the main branch.</p>
+
+                    <p>When code reaches the main branch or when a PR is created, the CI/CD pipeline automatically triggers. This automation catches bugs early, prevents broken code from reaching production, and ensures consistent quality across all changes.</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>Version Control (Git):</strong> Tracks all code changes and maintains history of modifications</li>
+                        <li><strong>Local Repository (.git):</strong> Stores version snapshots on developer's machine</li>
+                        <li><strong>Remote Repository (GitHub):</strong> Central location for code storage and collaboration</li>
+                        <li><strong>Feature Branch:</strong> Isolated branch where developers work on specific features</li>
+                        <li><strong>Main Branch:</strong> Primary branch containing production-ready code</li>
+                        <li><strong>Pull Request (PR):</strong> Request to merge feature branch code into main branch</li>
+                        <li><strong>Webhooks:</strong> Automated triggers that start CI/CD pipelines when code changes</li>
+                        <li><strong>CI Pipeline:</strong> Automated process that builds, tests, and validates code</li>
+                    </ul>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="cicd-workflow-architecture.png" alt="CI/CD workflow showing developer to production pipeline">
+                        <p class="diagram-caption"><em>Figure 1: Complete CI/CD Workflow from Development to Deployment</em></p>
+                    </div>
+
+                    <h3>🔄 CI Pipeline Stages</h3>
+                    <p>The Continuous Integration (CI) pipeline executes automatically when code is pushed or a PR is created:</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Stage</th>
+                                <th>Purpose</th>
+                                <th>Tools Used</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Checkout</strong></td>
+                                <td>Retrieve code from repository</td>
+                                <td>Git, Webhooks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Build/Compile</strong></td>
+                                <td>Convert source code to executable format</td>
+                                <td>Maven (Java), NPM (Node.js), PIP (Python)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Static Code Analysis</strong></td>
+                                <td>Analyze code without running it for bugs and security issues</td>
+                                <td>SonarQube, Checkstyle</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Unit Testing</strong></td>
+                                <td>Test small code units/functions</td>
+                                <td>JUnit (Java), PyTest (Python)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Code Coverage</strong></td>
+                                <td>Measure how much code is tested</td>
+                                <td>JaCoCo (Java), Coverage.py (Python), Istanbul (JavaScript)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Package</strong></td>
+                                <td>Create final deployable artifact</td>
+                                <td>Maven, NPM, Docker</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🛠️ Git Workflow Commands</h3>
+                    
+                    <p><strong>Setting Up Git:</strong></p>
+                    <pre><code># Initialize Git in project directory
+git init
+
+# Configure Git credentials
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"</code></pre>
+
+                    <p><strong>Creating Version Snapshots:</strong></p>
+                    <pre><code># Stage files for commit
+git add filename.py
+
+# Create version snapshot
+git commit -m "Added login feature"
+
+# Push to remote repository
+git push origin feature-branch</code></pre>
+
+                    <p><strong>Collaboration Commands:</strong></p>
+                    <pre><code># Clone repository to local machine
+git clone https://github.com/username/repo.git
+
+# Pull latest changes
+git pull origin main
+
+# Create and switch to new branch
+git checkout -b feature-login-page</code></pre>
+
+                    <h3>⚙️ CI/CD Tools</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Tools</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Source Code Management</strong></td>
+                                <td>GitHub, GitLab, Bitbucket, AWS CodeCommit</td>
+                                <td>Store and manage code repositories</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CI/CD Orchestration</strong></td>
+                                <td>Jenkins, GitHub Actions, GitLab CI, AWS CodeBuild, CircleCI</td>
+                                <td>Automate build, test, and deployment processes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Build Tools</strong></td>
+                                <td>Maven, Gradle, NPM, PIP</td>
+                                <td>Compile code and manage dependencies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Testing</strong></td>
+                                <td>JUnit, PyTest, Selenium</td>
+                                <td>Automated testing of code functionality</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Code Quality</strong></td>
+                                <td>SonarQube, Checkstyle</td>
+                                <td>Static analysis and quality checks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Use feature branches</td>
+                                <td>Isolates work and prevents conflicts in main branch</td>
+                                <td>Create new branch for each feature: git checkout -b feature-name</td>
+                            </tr>
+                            <tr>
+                                <td>Write meaningful commit messages</td>
+                                <td>Makes code history understandable and trackable</td>
+                                <td>Use descriptive messages: "Fixed login authentication bug" not "fix"</td>
+                            </tr>
+                            <tr>
+                                <td>Commit frequently</td>
+                                <td>Creates smaller, manageable changesets easier to review</td>
+                                <td>Commit after completing each logical unit of work</td>
+                            </tr>
+                            <tr>
+                                <td>Pull before push</td>
+                                <td>Prevents merge conflicts and integration issues</td>
+                                <td>Always git pull before git push to sync with latest changes</td>
+                            </tr>
+                            <tr>
+                                <td>Use Pull Requests for code review</td>
+                                <td>Ensures code quality through peer validation</td>
+                                <td>Never push directly to main; always create PR for review</td>
+                            </tr>
+                            <tr>
+                                <td>Automate CI pipeline triggers</td>
+                                <td>Catches bugs immediately after code changes</td>
+                                <td>Configure webhooks to trigger CI on every push/PR</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="git-workflow-branching.png" alt="Git branching strategy with feature and main branches">
+                        <p class="diagram-caption"><em>Figure 2: Git Branching Strategy and Pull Request Workflow</em></p>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="virtualization">
+                <summary><h2>🖥️ Virtualization Technology</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>Virtualization is the technology that allows running multiple virtual computers (Virtual Machines) on a single physical server. Before virtualization, organizations had to purchase separate physical servers for different applications, leading to poor resource utilization and high costs.</p>
+
+                    <p>A physical server contains hardware components (CPU, RAM, hard disk) and a base operating system. Without virtualization, if you run multiple applications directly on this server, they compete for the same resources. One resource-hungry application can starve others, causing performance issues.</p>
+
+                    <p>Virtualization solves this by creating isolated virtual machines (VMs), each with its own allocated resources and operating system. A hypervisor (virtualization software) sits between the physical hardware and virtual machines, managing resource allocation and ensuring isolation between VMs.</p>
+
+                    <p>Each VM operates independently with pre-allocated CPU cores, RAM, and disk space. If one VM crashes or gets compromised, others continue running normally. This isolation and resource management revolutionized data center operations and cloud computing.</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>Physical Server:</strong> Actual hardware machine with CPU, RAM, and storage</li>
+                        <li><strong>Virtual Machine (VM):</strong> Software-based computer running inside physical hardware</li>
+                        <li><strong>Hypervisor:</strong> Software layer that creates and manages virtual machines (VMware, VirtualBox, Xen)</li>
+                        <li><strong>Guest OS:</strong> Operating system running inside each virtual machine</li>
+                        <li><strong>Host OS:</strong> Operating system running on physical hardware</li>
+                        <li><strong>Resource Allocation:</strong> Pre-assigning CPU, RAM, and disk to each VM</li>
+                        <li><strong>Isolation:</strong> VMs are separated from each other for security and stability</li>
+                        <li><strong>Hardware Abstraction:</strong> VMs see virtualized hardware instead of physical components</li>
+                    </ul>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="virtualization-architecture.png" alt="Virtualization architecture showing hypervisor and multiple VMs">
+                        <p class="diagram-caption"><em>Figure 3: Virtualization Architecture with Hypervisor Layer</em></p>
+                    </div>
+
+                    <h3>🔧 How Virtualization Works</h3>
+                    
+                    <p><strong>Physical Server Configuration:</strong></p>
+                    <ul>
+                        <li>Hardware: 32-core CPU, 128 GB RAM, 2 TB Storage</li>
+                        <li>Host Operating System: Ubuntu Server, Windows Server, or VMware ESXi</li>
+                        <li>Hypervisor: VMware, VirtualBox, Xen, or KVM</li>
+                    </ul>
+
+                    <p><strong>Creating Virtual Machines:</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>VM</th>
+                                <th>CPU Cores</th>
+                                <th>RAM</th>
+                                <th>Storage</th>
+                                <th>OS</th>
+                                <th>Application</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>VM-1</td>
+                                <td>8 cores</td>
+                                <td>32 GB</td>
+                                <td>500 GB</td>
+                                <td>Ubuntu 22.04</td>
+                                <td>E-commerce Website</td>
+                            </tr>
+                            <tr>
+                                <td>VM-2</td>
+                                <td>4 cores</td>
+                                <td>16 GB</td>
+                                <td>200 GB</td>
+                                <td>CentOS 8</td>
+                                <td>Database Server</td>
+                            </tr>
+                            <tr>
+                                <td>VM-3</td>
+                                <td>4 cores</td>
+                                <td>8 GB</td>
+                                <td>100 GB</td>
+                                <td>Debian 11</td>
+                                <td>Mail Server</td>
+                            </tr>
+                            <tr>
+                                <td>VM-4</td>
+                                <td>8 cores</td>
+                                <td>32 GB</td>
+                                <td>400 GB</td>
+                                <td>Windows Server</td>
+                                <td>Web Application</td>
+                            </tr>
+                            <tr>
+                                <td>VM-5</td>
+                                <td>4 cores</td>
+                                <td>16 GB</td>
+                                <td>200 GB</td>
+                                <td>Ubuntu 20.04</td>
+                                <td>Analytics Service</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🛠️ Virtualization Tools</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Type</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>VMware ESXi</strong></td>
+                                <td>Bare-metal (Type 1)</td>
+                                <td>Enterprise production environments</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Xen</strong></td>
+                                <td>Bare-metal (Type 1)</td>
+                                <td>Cloud providers, AWS EC2 backend</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VirtualBox</strong></td>
+                                <td>Hosted (Type 2)</td>
+                                <td>Development, testing, learning</td>
+                            </tr>
+                            <tr>
+                                <td><strong>KVM</strong></td>
+                                <td>Kernel-based</td>
+                                <td>Linux-based virtualization, OpenStack</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hyper-V</strong></td>
+                                <td>Bare-metal (Type 1)</td>
+                                <td>Windows Server environments, Azure</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Right-size VM resources</td>
+                                <td>Prevents resource wastage and ensures optimal performance</td>
+                                <td>Monitor actual usage and adjust CPU/RAM based on application needs</td>
+                            </tr>
+                            <tr>
+                                <td>Use snapshots wisely</td>
+                                <td>Enables quick recovery but can consume significant storage</td>
+                                <td>Take snapshots before major changes, delete old snapshots regularly</td>
+                            </tr>
+                            <tr>
+                                <td>Implement resource limits</td>
+                                <td>Prevents one VM from monopolizing resources</td>
+                                <td>Set CPU and memory limits in hypervisor configuration</td>
+                            </tr>
+                            <tr>
+                                <td>Regular backups</td>
+                                <td>Protects against data loss and system failures</td>
+                                <td>Schedule automated backups of critical VMs daily or weekly</td>
+                            </tr>
+                            <tr>
+                                <td>Monitor VM performance</td>
+                                <td>Identifies resource bottlenecks and optimization opportunities</td>
+                                <td>Use hypervisor monitoring tools and set up alerts for resource thresholds</td>
+                            </tr>
+                            <tr>
+                                <td>Patch and update regularly</td>
+                                <td>Maintains security and stability of guest operating systems</td>
+                                <td>Schedule maintenance windows for OS and application updates</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="virtualization-advantages">
+                <summary><h2>✅ Advantages of Virtualization</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>Virtualization transformed IT infrastructure by solving critical resource utilization and management problems. Before virtualization, organizations faced poor hardware utilization (typically 10-15%), high costs for multiple physical servers, and complex management of distributed hardware.</p>
+
+                    <p>The three primary advantages of virtualization are better hardware utilization, application isolation, and simplified server management. These benefits have made virtualization the foundation of modern cloud computing platforms like AWS EC2.</p>
+
+                    <h3>🎯 Key Advantages</h3>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Advantage</th>
+                                <th>Description</th>
+                                <th>Business Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Better Hardware Utilization</strong></td>
+                                <td>Multiple VMs share same physical hardware, increasing utilization from 15% to 70-80%</td>
+                                <td>Reduces hardware costs, lowers power consumption, smaller data center footprint</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Isolation Between Applications</strong></td>
+                                <td>Each VM runs independently; crashes or security breaches don't affect other VMs</td>
+                                <td>Improved security, better stability, easier troubleshooting</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Easier Server Management</strong></td>
+                                <td>Create, clone, snapshot, and migrate VMs with simple commands</td>
+                                <td>Faster deployment, simplified disaster recovery, reduced maintenance time</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Resource Flexibility</strong></td>
+                                <td>Allocate and adjust CPU, RAM, storage per VM as needed</td>
+                                <td>Optimize costs, scale resources dynamically, match capacity to demand</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Simplified Backup & Recovery</strong></td>
+                                <td>Snapshot entire VM state including OS, apps, and data</td>
+                                <td>Faster recovery from failures, easier testing and development</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hardware Independence</strong></td>
+                                <td>VMs can run on different physical hardware without modification</td>
+                                <td>Easy migration between servers, vendor flexibility</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Resource Utilization Comparison</h3>
+                    <div class="diagram-container">
+                        <img src="virtualization-resource-utilization.png" alt="Comparison of resource utilization before and after virtualization">
+                        <p class="diagram-caption"><em>Figure 4: Hardware Utilization Improvement with Virtualization</em></p>
+                    </div>
+
+                    <h3>💰 Cost Savings Example</h3>
+                    
+                    <p><strong>Before Virtualization:</strong></p>
+                    <ul>
+                        <li>5 physical servers @ $5,000 each = $25,000</li>
+                        <li>Power consumption: 5 servers × 500W × 24h × 365 days = 21,900 kWh/year</li>
+                        <li>Cooling costs: Additional 40% of power costs</li>
+                        <li>Data center space: 5 server racks</li>
+                        <li>Average utilization: 15% per server</li>
+                    </ul>
+
+                    <p><strong>After Virtualization:</strong></p>
+                    <ul>
+                        <li>1 powerful server @ $15,000 = $15,000</li>
+                        <li>Power consumption: 1 server × 800W × 24h × 365 days = 7,008 kWh/year</li>
+                        <li>Cooling costs: Proportionally reduced</li>
+                        <li>Data center space: 1 server rack</li>
+                        <li>Average utilization: 75% per server</li>
+                        <li><strong>Total savings: $10,000 in hardware + 68% reduction in power costs</strong></li>
+                    </ul>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Plan VM sizing carefully</td>
+                                <td>Maximizes benefits while avoiding resource contention</td>
+                                <td>Analyze application requirements before allocating resources</td>
+                            </tr>
+                            <tr>
+                                <td>Monitor resource usage</td>
+                                <td>Ensures optimal utilization and identifies issues early</td>
+                                <td>Use hypervisor monitoring tools to track CPU, RAM, disk usage</td>
+                            </tr>
+                            <tr>
+                                <td>Implement high availability</td>
+                                <td>Leverages VM mobility for better uptime</td>
+                                <td>Configure VM replication and automatic failover</td>
+                            </tr>
+                            <tr>
+                                <td>Use templates for deployment</td>
+                                <td>Speeds up provisioning and ensures consistency</td>
+                                <td>Create master VM images for common configurations</td>
+                            </tr>
+                            <tr>
+                                <td>Regular capacity planning</td>
+                                <td>Prevents resource exhaustion as VM count grows</td>
+                                <td>Review utilization quarterly and plan hardware upgrades</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="virtualization-disadvantages">
+                <summary><h2>❌ Disadvantages of Virtualization</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>While virtualization solved many problems, it introduced new challenges that become apparent in modern application architectures. The three main disadvantages are operating system duplication, resource wastage from pre-allocation, and slow startup times.</p>
+
+                    <p>These limitations become critical when running microservices-based applications that require lightweight, fast-starting, and resource-efficient execution environments. This is where containerization emerges as the solution.</p>
+
+                    <h3>⚠️ Key Disadvantages</h3>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Disadvantage</th>
+                                <th>Description</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Operating System Duplication</strong></td>
+                                <td>Each VM runs a complete OS (kernel, libraries, utilities, shell)</td>
+                                <td>Consumes significant RAM (2-4 GB per OS) and disk space (10-20 GB per OS)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Resource Wastage (Pre-allocation)</strong></td>
+                                <td>Resources allocated to VM remain reserved even when not fully used</td>
+                                <td>If VM allocated 8 GB RAM but uses only 2 GB, remaining 6 GB sits idle</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Slow Startup Time</strong></td>
+                                <td>VMs take minutes to boot because full OS must initialize</td>
+                                <td>Slow scaling in response to traffic spikes, delayed deployments</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Large VM Size</strong></td>
+                                <td>VM images include full OS, making them tens of GBs in size</td>
+                                <td>Slow deployment, high storage costs, bandwidth-intensive transfers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Management Overhead</strong></td>
+                                <td>Each VM OS requires separate patching, updates, and maintenance</td>
+                                <td>Increased administrative work, security update complexity</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Limited Density</strong></td>
+                                <td>Can run only 10-20 VMs per physical server due to OS overhead</td>
+                                <td>Lower consolidation ratios, higher per-application costs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Comparison</h3>
+                    <div class="diagram-container">
+                        <img src="vm-resource-wastage.png" alt="Diagram showing resource wastage in virtual machines">
+                        <p class="diagram-caption"><em>Figure 5: Resource Wastage in Virtual Machine Architecture</em></p>
+                    </div>
+
+                    <h3>🔍 Problem 1: Operating System Duplication</h3>
+                    
+                    <p><strong>What a Full Operating System Contains:</strong></p>
+                    <ul>
+                        <li><strong>Kernel:</strong> Core OS component managing hardware (200-500 MB)</li>
+                        <li><strong>Libraries:</strong> System libraries for applications (500 MB - 1 GB)</li>
+                        <li><strong>Utilities:</strong> Command-line tools, system programs (300-500 MB)</li>
+                        <li><strong>Shell:</strong> Bash, command interpreters (50-100 MB)</li>
+                        <li><strong>GNU Tools:</strong> Text editors, compilers, utilities (500 MB - 1 GB)</li>
+                    </ul>
+
+                    <p><strong>Impact:</strong> If you run 5 VMs, you're running 5 complete operating systems, consuming 10-20 GB RAM and 50-100 GB disk just for the OS layer.</p>
+
+                    <h3>🔍 Problem 2: Resource Wastage from Pre-allocation</h3>
+                    
+                    <p><strong>Example Scenario:</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>VM</th>
+                                <th>Allocated RAM</th>
+                                <th>Actual Usage</th>
+                                <th>Wasted RAM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Web Server</td>
+                                <td>8 GB</td>
+                                <td>2 GB</td>
+                                <td>6 GB (75% waste)</td>
+                            </tr>
+                            <tr>
+                                <td>Database</td>
+                                <td>16 GB</td>
+                                <td>10 GB</td>
+                                <td>6 GB (37% waste)</td>
+                            </tr>
+                            <tr>
+                                <td>App Server</td>
+                                <td>4 GB</td>
+                                <td>1 GB</td>
+                                <td>3 GB (75% waste)</td>
+                            </tr>
+                            <tr>
+                                <td>Mail Server</td>
+                                <td>4 GB</td>
+                                <td>1.5 GB</td>
+                                <td>2.5 GB (62% waste)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TOTAL</strong></td>
+                                <td><strong>32 GB</strong></td>
+                                <td><strong>14.5 GB</strong></td>
+                                <td><strong>17.5 GB (54% waste)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Impact:</strong> Over half the allocated resources sit idle, yet cannot be used by other VMs because they're pre-reserved.</p>
+
+                    <h3>🔍 Problem 3: Slow Startup Times</h3>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Operation</th>
+                                <th>VM Time</th>
+                                <th>Impact on Business</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Boot VM</td>
+                                <td>1-3 minutes</td>
+                                <td>Slow response to traffic spikes</td>
+                            </tr>
+                            <tr>
+                                <td>Deploy application update</td>
+                                <td>5-10 minutes</td>
+                                <td>Longer deployment windows</td>
+                            </tr>
+                            <tr>
+                                <td>Scale from 5 to 50 instances</td>
+                                <td>45-135 minutes</td>
+                                <td>Cannot handle sudden viral traffic</td>
+                            </tr>
+                            <tr>
+                                <td>Restart after crash</td>
+                                <td>2-4 minutes</td>
+                                <td>Extended downtime during incidents</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>✅ Best Practices (Within Limitations)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Use minimal OS installations</td>
+                                <td>Reduces OS overhead and attack surface</td>
+                                <td>Install only required packages, use minimal Linux distributions</td>
+                            </tr>
+                            <tr>
+                                <td>Dynamic resource adjustment</td>
+                                <td>Partially addresses wastage issues</td>
+                                <td>Enable memory ballooning and CPU hot-add where supported</td>
+                            </tr>
+                            <tr>
+                                <td>Template optimization</td>
+                                <td>Faster VM deployment times</td>
+                                <td>Create lean VM templates without unnecessary software</td>
+                            </tr>
+                            <tr>
+                                <td>Regular right-sizing reviews</td>
+                                <td>Identifies and corrects over-allocation</td>
+                                <td>Monitor usage monthly and adjust allocations accordingly</td>
+                            </tr>
+                            <tr>
+                                <td>Consider containers for microservices</td>
+                                <td>Addresses fundamental VM limitations</td>
+                                <td>Evaluate containerization for new application deployments</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="info-box">
+                        <p><strong>💡 Key Insight:</strong> These disadvantages led to the development of containerization technology, which addresses OS duplication, resource wastage, and slow startup times while maintaining application isolation.</p>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="containerization">
+                <summary><h2>📦 Containerization Fundamentals</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>Containerization is a lightweight alternative to full virtualization that runs applications in isolated environments without requiring a full operating system for each instance. Unlike VMs that include a complete OS, containers share the host operating system's kernel while maintaining application isolation.</p>
+
+                    <p>Think of VMs as owning a full house (complete infrastructure), while containers are like renting rooms in a shared building (shared infrastructure with private spaces). Containers package only what the application needs: code, runtime libraries, and dependencies. Everything else is shared from the host system.</p>
+
+                    <p>This approach dramatically reduces resource consumption, speeds up startup times (seconds instead of minutes), and allows much higher density - running 100+ containers on hardware that might support only 10-20 VMs.</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>Container:</strong> Lightweight, isolated process running application with its dependencies</li>
+                        <li><strong>Host OS Kernel Sharing:</strong> All containers share the same OS kernel from host machine</li>
+                        <li><strong>No OS Duplication:</strong> Containers don't include full operating system</li>
+                        <li><strong>CGroups (Control Groups):</strong> Linux kernel feature for dynamic resource allocation</li>
+                        <li><strong>Namespaces:</strong> Linux kernel feature providing process isolation</li>
+                        <li><strong>Lightweight:</strong> Container images are MBs instead of GBs (VM images)</li>
+                        <li><strong>Fast Startup:</strong> Containers start in seconds because no OS boot required</li>
+                        <li><strong>Portable:</strong> Containers run consistently across different environments</li>
+                    </ul>
+
+                    <h3>📊 VMs vs Containers Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="vm-vs-container-architecture.png" alt="Side-by-side comparison of VM and container architecture">
+                        <p class="diagram-caption"><em>Figure 6: Architectural Difference Between Virtual Machines and Containers</em></p>
+                    </div>
+
+                    <h3>🔄 How Containers Share Resources</h3>
+                    
+                    <p><strong>Resource Sharing Mechanism:</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Virtual Machines</th>
+                                <th>Containers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Operating System</strong></td>
+                                <td>Full OS per VM (2-4 GB RAM each)</td>
+                                <td>Shares host OS kernel (0 GB per container)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CPU</strong></td>
+                                <td>Pre-allocated cores (e.g., 4 cores reserved)</td>
+                                <td>Dynamic sharing via CGroups (use what's needed, release when done)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Memory (RAM)</strong></td>
+                                <td>Pre-allocated (e.g., 8 GB reserved)</td>
+                                <td>Dynamic sharing via CGroups (allocate on demand)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Disk Storage</strong></td>
+                                <td>Pre-allocated virtual disk (e.g., 100 GB reserved)</td>
+                                <td>Shared host disk with isolated namespaces</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network</strong></td>
+                                <td>Virtual network interfaces</td>
+                                <td>Virtual network interfaces with namespaces</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>⚙️ CGroups and Namespaces</h3>
+                    
+                    <p><strong>Control Groups (CGroups):</strong></p>
+                    <ul>
+                        <li>Linux kernel feature for resource allocation and limiting</li>
+                        <li>Dynamically shares CPU, memory, and disk among containers</li>
+                        <li>When container needs resources, CGroups allocate from host</li>
+                        <li>When container finishes work, resources released back to host</li>
+                        <li>No pre-allocation - prevents resource wastage</li>
+                    </ul>
+
+                    <p><strong>Namespaces:</strong></p>
+                    <ul>
+                        <li>Linux kernel feature for process isolation</li>
+                        <li>Creates separate virtual environments for processes</li>
+                        <li>Types: PID (process), NET (network), MNT (filesystem), UTS (hostname), IPC (inter-process communication)</li>
+                        <li>Each container has its own isolated namespace</li>
+                        <li>Prevents containers from interfering with each other</li>
+                    </ul>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="container-resource-sharing.png" alt="How containers dynamically share host resources">
+                        <p class="diagram-caption"><em>Figure 7: Container Resource Sharing with CGroups</em></p>
+                    </div>
+
+                    <h3>🆚 Containers vs Virtual Machines</h3>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Virtual Machines</th>
+                                <th>Containers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Size</strong></td>
+                                <td>GBs (includes full OS)</td>
+                                <td>MBs (app + libraries only)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Startup Time</strong></td>
+                                <td>Minutes (full OS boot)</td>
+                                <td>Seconds (process start)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Resource Usage</strong></td>
+                                <td>High (OS overhead + pre-allocation)</td>
+                                <td>Low (no OS, dynamic allocation)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Density</strong></td>
+                                <td>10-20 VMs per server</td>
+                                <td>100+ containers per server</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Isolation</strong></td>
+                                <td>Strong (hardware-level)</td>
+                                <td>Good (process-level)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Portability</strong></td>
+                                <td>Limited (hypervisor-dependent)</td>
+                                <td>High (runs anywhere with container engine)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>Running different OS, strong isolation needs</td>
+                                <td>Microservices, cloud-native apps, CI/CD</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🛠️ Containerization Tools</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Description</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Docker</strong></td>
+                                <td>Most popular container platform with rich ecosystem</td>
+                                <td>General-purpose containerization, development, production</td>
+                            </tr>
+                            <tr>
+                                <td><strong>containerd</strong></td>
+                                <td>Industry-standard container runtime (Docker's backend)</td>
+                                <td>Kubernetes, production environments</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Podman</strong></td>
+                                <td>Daemonless container engine, rootless containers</td>
+                                <td>Secure environments, Red Hat ecosystems</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CRI-O</strong></td>
+                                <td>Lightweight container runtime for Kubernetes</td>
+                                <td>Kubernetes-specific deployments</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>One process per container</td>
+                                <td>Easier debugging, better resource management, cleaner logs</td>
+                                <td>Run single application per container, not multiple services</td>
+                            </tr>
+                            <tr>
+                                <td>Keep containers ephemeral</td>
+                                <td>Enables easy scaling and replacement</td>
+                                <td>Don't store persistent data inside containers; use volumes</td>
+                            </tr>
+                            <tr>
+                                <td>Use official base images</td>
+                                <td>Security and stability from trusted sources</td>
+                                <td>Start from official images (nginx, python, node) not random images</td>
+                            </tr>
+                            <tr>
+                                <td>Minimize image layers</td>
+                                <td>Smaller images, faster deployment</td>
+                                <td>Combine RUN commands, remove unnecessary files</td>
+                            </tr>
+                            <tr>
+                                <td>Don't run as root</td>
+                                <td>Security best practice limits potential damage</td>
+                                <td>Create non-root user in Dockerfile, run as that user</td>
+                            </tr>
+                            <tr>
+                                <td>Tag images properly</td>
+                                <td>Version control and rollback capability</td>
+                                <td>Use semantic versioning: app:1.2.3 not app:latest in production</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="docker-architecture">
+                <summary><h2>🐳 Docker Architecture</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>Docker is the most popular containerization platform, consisting of several components that work together to create, manage, and run containers. Understanding Docker's architecture is essential for working with containers effectively.</p>
+
+                    <p>Docker uses a client-server architecture where the Docker CLI (client) communicates with the Docker daemon (server) that does the actual work of building, running, and managing containers. This separation allows remote management and better resource control.</p>
+
+                    <h3>🔑 Key Components</h3>
+                    <ul>
+                        <li><strong>Docker Client (CLI):</strong> Command-line interface where users issue commands</li>
+                        <li><strong>Docker Daemon:</strong> Background service that manages Docker objects (images, containers, networks)</li>
+                        <li><strong>Docker Images:</strong> Read-only templates for creating containers</li>
+                        <li><strong>Docker Containers:</strong> Running instances of Docker images</li>
+                        <li><strong>Docker Registry:</strong> Repository for storing and distributing Docker images (Docker Hub)</li>
+                        <li><strong>Dockerfile:</strong> Text file with instructions to build Docker images</li>
+                        <li><strong>Docker Volumes:</strong> Persistent storage mechanism for container data</li>
+                        <li><strong>Docker Networks:</strong> Virtual networks connecting containers</li>
+                    </ul>
+
+                    <h3>📊 Docker Architecture Diagram</h3>
+                    <div class="diagram-container">
+                        <img src="docker-architecture-complete.png" alt="Complete Docker architecture showing client, daemon, and registry">
+                        <p class="diagram-caption"><em>Figure 8: Docker Architecture - Client-Server Model</em></p>
+                    </div>
+
+                    <h3>🔄 How Docker Works</h3>
+                    
+                    <p><strong>Step 1: Install Docker</strong></p>
+                    <ul>
+                        <li>Docker installation includes Docker CLI and Docker Daemon</li>
+                        <li>Docker Daemon runs as background service</li>
+                        <li>Docker CLI communicates with daemon via REST API</li>
+                    </ul>
+
+                    <p><strong>Step 2: Docker Command Flow</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>CLI Action</th>
+                                <th>Daemon Action</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>docker build</td>
+                                <td>Sends Dockerfile to daemon</td>
+                                <td>Reads Dockerfile, builds image layer by layer</td>
+                                <td>Docker image created</td>
+                            </tr>
+                            <tr>
+                                <td>docker pull</td>
+                                <td>Sends image name to daemon</td>
+                                <td>Downloads image from Docker Hub to local storage</td>
+                                <td>Image available locally</td>
+                            </tr>
+                            <tr>
+                                <td>docker run</td>
+                                <td>Sends run request to daemon</td>
+                                <td>Creates container from image, starts process</td>
+                                <td>Container running</td>
+                            </tr>
+                            <tr>
+                                <td>docker push</td>
+                                <td>Sends push request to daemon</td>
+                                <td>Uploads image to Docker Hub registry</td>
+                                <td>Image stored remotely</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🏗️ Docker Daemon Responsibilities</h3>
+                    
+                    <ul>
+                        <li><strong>Image Management:</strong> Builds, stores, and manages Docker images</li>
+                        <li><strong>Container Lifecycle:</strong> Creates, starts, stops, and removes containers</li>
+                        <li><strong>Network Management:</strong> Creates virtual networks for container communication</li>
+                        <li><strong>Volume Management:</strong> Manages persistent storage for containers</li>
+                        <li><strong>Registry Communication:</strong> Pulls and pushes images to Docker Hub or private registries</li>
+                        <li><strong>Resource Allocation:</strong> Works with CGroups to allocate CPU, memory to containers</li>
+                    </ul>
+
+                    <h3>📦 Docker Registry (Docker Hub)</h3>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Public Registry</strong></td>
+                                <td>Docker Hub - free public image repository</td>
+                                <td>Share images publicly, use official images</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Private Registry</strong></td>
+                                <td>Secure private repositories for proprietary images</td>
+                                <td>Enterprise applications, sensitive code</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Official Images</strong></td>
+                                <td>Verified images maintained by Docker and vendors</td>
+                                <td>Production base images (nginx, python, mysql)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Image Versioning</strong></td>
+                                <td>Tag-based versioning system</td>
+                                <td>Track image versions, enable rollbacks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="docker-client-daemon-registry.png" alt="Docker client communicating with daemon and registry">
+                        <p class="diagram-caption"><em>Figure 9: Docker Client-Daemon-Registry Communication Flow</em></p>
+                    </div>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Use Docker Compose for multi-container apps</td>
+                                <td>Simplifies management of applications with multiple services</td>
+                                <td>Define services in docker-compose.yml, use docker-compose up</td>
+                            </tr>
+                            <tr>
+                                <td>Secure daemon socket</td>
+                                <td>Prevents unauthorized access to Docker daemon</td>
+                                <td>Use TLS certificates, restrict access to socket file</td>
+                            </tr>
+                            <tr>
+                                <td>Limit resource usage</td>
+                                <td>Prevents containers from consuming all host resources</td>
+                                <td>Use --memory and --cpus flags when running containers</td>
+                            </tr>
+                            <tr>
+                                <td>Regular image cleanup</td>
+                                <td>Prevents disk space exhaustion from old images</td>
+                                <td>Use docker system prune regularly to remove unused images</td>
+                            </tr>
+                            <tr>
+                                <td>Use health checks</td>
+                                <td>Ensures containers are running correctly</td>
+                                <td>Define HEALTHCHECK in Dockerfile to monitor container health</td>
+                            </tr>
+                            <tr>
+                                <td>Implement logging strategy</td>
+                                <td>Essential for debugging and monitoring</td>
+                                <td>Use logging drivers to send logs to centralized systems</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="docker-components">
+                <summary><h2>🔧 Docker Components</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>Docker components work together to create a complete containerization workflow. The three main components are Dockerfile (blueprint), Docker Image (template), and Docker Container (running instance). Understanding how these components relate to each other is crucial for effective container management.</p>
+
+                    <h3>📄 Dockerfile</h3>
+                    
+                    <p><strong>What is a Dockerfile?</strong></p>
+                    <ul>
+                        <li>Plain text file containing step-by-step instructions</li>
+                        <li>Blueprint for building Docker images</li>
+                        <li>Default name: <code>Dockerfile</code> (no extension)</li>
+                        <li>Written in Domain Specific Language (DSL)</li>
+                        <li>Each instruction creates a new layer in the image</li>
+                    </ul>
+
+                    <p><strong>Common Dockerfile Instructions:</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Instruction</th>
+                                <th>Purpose</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>FROM</strong></td>
+                                <td>Specifies base image (starting point)</td>
+                                <td>FROM python:3.9</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WORKDIR</strong></td>
+                                <td>Sets working directory inside container</td>
+                                <td>WORKDIR /app</td>
+                            </tr>
+                            <tr>
+                                <td><strong>COPY</strong></td>
+                                <td>Copies files from host to container</td>
+                                <td>COPY . /app</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RUN</strong></td>
+                                <td>Executes commands during image build</td>
+                                <td>RUN npm install</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CMD</strong></td>
+                                <td>Specifies command to run when container starts</td>
+                                <td>CMD ["npm", "start"]</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EXPOSE</strong></td>
+                                <td>Documents which port container listens on</td>
+                                <td>EXPOSE 8080</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ENV</strong></td>
+                                <td>Sets environment variables</td>
+                                <td>ENV NODE_ENV=production</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Example Dockerfile:</strong></p>
+                    <pre><code># Start from Node.js base image
+FROM node:18
+
+# Set working directory
+WORKDIR /app
+
+# Copy application files
+COPY package*.json ./
+COPY . .
+
+# Install dependencies
+RUN npm install
+
+# Expose port
+EXPOSE 3000
+
+# Start application
+CMD ["npm", "start"]</code></pre>
+
+                    <h3>🖼️ Docker Image</h3>
+                    
+                    <p><strong>What is a Docker Image?</strong></p>
+                    <ul>
+                        <li>Read-only template created from Dockerfile</li>
+                        <li>Contains everything needed to run application</li>
+                        <li>Layered filesystem (each Dockerfile instruction = one layer)</li>
+                        <li>Portable across different environments</li>
+                        <li>Can be stored in Docker Registry</li>
+                    </ul>
+
+                    <p><strong>Image Contents:</strong></p>
+                    <ul>
+                        <li><strong>Application Code:</strong> Your source files</li>
+                        <li><strong>Runtime Environment:</strong> Python, Node.js, Java, etc.</li>
+                        <li><strong>Dependencies:</strong> Libraries and packages</li>
+                        <li><strong>Configuration Files:</strong> App settings</li>
+                        <li><strong>Minimal OS Files:</strong> Basic system files (not full OS)</li>
+                    </ul>
+
+                    <p><strong>Building Docker Images:</strong></p>
+                    <pre><code># Build image from Dockerfile
+docker build -t myapp:1.0 .
+
+# Build with specific Dockerfile name
+docker build -f Dockerfile.prod -t myapp:prod .
+
+# List all images
+docker images
+
+# Remove image
+docker rmi myapp:1.0</code></pre>
+
+                    <h3>📦 Docker Container</h3>
+                    
+                    <p><strong>What is a Docker Container?</strong></p>
+                    <ul>
+                        <li>Running instance of Docker image</li>
+                        <li>Isolated process with its own filesystem, network, and resources</li>
+                        <li>Can be started, stopped, restarted, and deleted</li>
+                        <li>Multiple containers can run from same image</li>
+                        <li>Each container has unique ID and name</li>
+                    </ul>
+
+                    <p><strong>Container Lifecycle:</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>State</th>
+                                <th>Description</th>
+                                <th>Command</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Created</strong></td>
+                                <td>Container created but not started</td>
+                                <td>docker create myapp:1.0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Running</strong></td>
+                                <td>Container is actively running</td>
+                                <td>docker run myapp:1.0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Paused</strong></td>
+                                <td>Container processes suspended</td>
+                                <td>docker pause container_id</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stopped</strong></td>
+                                <td>Container stopped but exists</td>
+                                <td>docker stop container_id</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Removed</strong></td>
+                                <td>Container deleted</td>
+                                <td>docker rm container_id</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Working with Containers:</strong></p>
+                    <pre><code># Run container from image
+docker run -d -p 8080:80 --name webapp myapp:1.0
+
+# List running containers
+docker ps
+
+# List all containers (including stopped)
+docker ps -a
+
+# Stop container
+docker stop webapp
+
+# Start stopped container
+docker start webapp
+
+# View container logs
+docker logs webapp
+
+# Execute command in running container
+docker exec -it webapp bash
+
+# Remove container
+docker rm webapp</code></pre>
+
+                    <h3>🔗 Port Mapping</h3>
+                    
+                    <p><strong>Why Port Mapping?</strong></p>
+                    <ul>
+                        <li>Containers have their own isolated network by default</li>
+                        <li>Cannot access container from outside without port mapping</li>
+                        <li>Maps host machine port to container port</li>
+                        <li>Allows external access to containerized applications</li>
+                    </ul>
+
+                    <p><strong>Port Mapping Syntax:</strong>
+                        <pre><code># Syntax: -p host_port:container_port
+docker run -p 8080:80 nginx
+
+# Multiple port mappings
+docker run -p 8080:80 -p 443:443 nginx
+
+# Map to random available host port
+docker run -P nginx</code></pre>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mapping</th>
+                                <th>Access URL</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>-p 8080:80</td>
+                                <td>http://host-ip:8080</td>
+                                <td>Host port 8080 → Container port 80</td>
+                            </tr>
+                            <tr>
+                                <td>-p 3000:3000</td>
+                                <td>http://host-ip:3000</td>
+                                <td>Same port on host and container</td>
+                            </tr>
+                            <tr>
+                                <td>-p 127.0.0.1:8080:80</td>
+                                <td>http://127.0.0.1:8080</td>
+                                <td>Bind to specific host interface</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Dockerfile → Image → Container Flow</h3>
+                    <div class="diagram-container">
+                        <img src="dockerfile-image-container-flow.png" alt="Complete flow from Dockerfile to running container">
+                        <p class="diagram-caption"><em>Figure 10: Docker Workflow - From Dockerfile to Running Container</em></p>
+                    </div>
+
+                    <h3>🔄 Complete Docker Workflow Example</h3>
+                    
+                    <p><strong>Step 1: Create Application</strong></p>
+                    <pre><code># app.js
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Hello from Docker!');
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});</code></pre>
+
+                    <p><strong>Step 2: Create Dockerfile</strong></p>
+                    <pre><code># Dockerfile
+FROM node:18
+WORKDIR /app
+COPY package.json .
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["node", "app.js"]</code></pre>
+
+                    <p><strong>Step 3: Build Image</strong></p>
+                    <pre><code>docker build -t myapp:1.0 .</code></pre>
+
+                    <p><strong>Step 4: Run Container</strong></p>
+                    <pre><code>docker run -d -p 8080:3000 --name myapp-container myapp:1.0</code></pre>
+
+                    <p><strong>Step 5: Access Application</strong></p>
+                    <pre><code>curl http://localhost:8080
+# Output: Hello from Docker!</code></pre>
+
+                    <p><strong>Step 6: Push to Docker Hub</strong></p>
+                    <pre><code># Login to Docker Hub
+docker login
+
+# Tag image with repository name
+docker tag myapp:1.0 username/myapp:1.0
+
+# Push to Docker Hub
+docker push username/myapp:1.0</code></pre>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="docker-image-layers.png" alt="Docker image layered filesystem structure">
+                        <p class="diagram-caption"><em>Figure 11: Docker Image Layers and Container Read-Write Layer</em></p>
+                    </div>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Use .dockerignore file</td>
+                                <td>Prevents unnecessary files from being added to image</td>
+                                <td>Create .dockerignore listing node_modules, .git, logs, etc.</td>
+                            </tr>
+                            <tr>
+                                <td>Multi-stage builds</td>
+                                <td>Creates smaller production images by separating build and runtime</td>
+                                <td>Use multiple FROM statements to build and copy only artifacts</td>
+                            </tr>
+                            <tr>
+                                <td>Order Dockerfile instructions properly</td>
+                                <td>Leverages layer caching for faster builds</td>
+                                <td>Put frequently changing instructions (COPY code) last</td>
+                            </tr>
+                            <tr>
+                                <td>Use specific image tags</td>
+                                <td>Ensures reproducible builds and prevents breaking changes</td>
+                                <td>Use python:3.9.18 instead of python:latest</td>
+                            </tr>
+                            <tr>
+                                <td>Run containers in detached mode</td>
+                                <td>Prevents terminal from being blocked</td>
+                                <td>Use -d flag: docker run -d myapp:1.0</td>
+                            </tr>
+                            <tr>
+                                <td>Name your containers</td>
+                                <td>Easier management and identification</td>
+                                <td>Use --name flag: docker run --name webapp myapp:1.0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🔍 Common Docker Commands Reference</h3>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowspan="3"><strong>Images</strong></td>
+                                <td>docker images</td>
+                                <td>List all local images</td>
+                            </tr>
+                            <tr>
+                                <td>docker pull nginx</td>
+                                <td>Download image from registry</td>
+                            </tr>
+                            <tr>
+                                <td>docker rmi image_id</td>
+                                <td>Remove image</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="4"><strong>Containers</strong></td>
+                                <td>docker ps</td>
+                                <td>List running containers</td>
+                            </tr>
+                            <tr>
+                                <td>docker ps -a</td>
+                                <td>List all containers</td>
+                            </tr>
+                            <tr>
+                                <td>docker stop container_id</td>
+                                <td>Stop running container</td>
+                            </tr>
+                            <tr>
+                                <td>docker rm container_id</td>
+                                <td>Remove stopped container</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3"><strong>Debugging</strong></td>
+                                <td>docker logs container_id</td>
+                                <td>View container logs</td>
+                            </tr>
+                            <tr>
+                                <td>docker exec -it container_id bash</td>
+                                <td>Access container shell</td>
+                            </tr>
+                            <tr>
+                                <td>docker inspect container_id</td>
+                                <td>View detailed container info</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="2"><strong>Cleanup</strong></td>
+                                <td>docker system prune</td>
+                                <td>Remove unused resources</td>
+                            </tr>
+                            <tr>
+                                <td>docker volume prune</td>
+                                <td>Remove unused volumes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="overall-summary">
+                <summary><h2>📝 Overall Summary</h2></summary>
+                <div class="section-content">
+                    <ul>
+                        <li>CI/CD pipelines automate code integration, testing, and deployment through stages like checkout, build, test, and package creation</li>
+                        <li>Virtualization creates multiple VMs on single hardware, each with full OS and pre-allocated resources</li>
+                        <li>Virtualization advantages include better hardware utilization (70-80%), application isolation, and simplified management</li>
+                        <li>Virtualization disadvantages are OS duplication (consuming GBs per VM), resource wastage from pre-allocation, and slow startup times (minutes)</li>
+                        <li>Containerization runs applications in isolated environments without full OS, sharing host kernel and using dynamic resource allocation</li>
+                        <li>Containers are lightweight (MBs vs GBs), start in seconds, and allow 100+ instances per server vs 10-20 VMs</li>
+                        <li>Docker uses client-server architecture where CLI sends commands to daemon that manages images and containers</li>
+                        <li>Dockerfile is a blueprint with instructions, Docker Image is read-only template, Docker Container is running instance</li>
+                        <li>CGroups enable dynamic resource sharing between containers, allocating CPU/RAM on demand and releasing when done</li>
+                        <li>Port mapping connects host machine ports to container ports, enabling external access to containerized applications</li>
+                    </ul>
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="links-references">
+                <summary><h2>🔗 Links & References</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📚 Official Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.docker.com/" target="_blank" rel="noopener noreferrer">Docker Official Documentation</a></td>
+                                <td>Complete Docker documentation and guides</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.docker.com/engine/reference/builder/" target="_blank" rel="noopener noreferrer">Dockerfile Reference</a></td>
+                                <td>All Dockerfile instructions explained</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.docker.com/engine/reference/commandline/cli/" target="_blank" rel="noopener noreferrer">Docker CLI Reference</a></td>
+                                <td>Complete Docker command-line reference</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://kubernetes.io/docs/home/" target="_blank" rel="noopener noreferrer">Kubernetes Documentation</a></td>
+                                <td>Official Kubernetes documentation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://git-scm.com/doc" target="_blank" rel="noopener noreferrer">Git Documentation</a></td>
+                                <td>Official Git documentation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🎓 Recommended Learning Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://www.docker.com/play-with-docker/" target="_blank" rel="noopener noreferrer">Play with Docker</a></td>
+                                <td>Free online Docker playground</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://training.play-with-kubernetes.com/" target="_blank" rel="noopener noreferrer">Play with Kubernetes</a></td>
+                                <td>Free online Kubernetes environment</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://hub.docker.com/" target="_blank" rel="noopener noreferrer">Docker Hub</a></td>
+                                <td>Official Docker image registry</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.katacoda.com/courses/docker" target="_blank" rel="noopener noreferrer">Katacoda Docker Courses</a></td>
+                                <td>Interactive Docker learning scenarios</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://learngitbranching.js.org/" target="_blank" rel="noopener noreferrer">Learn Git Branching</a></td>
+                                <td>Interactive Git tutorial</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🔧 Additional Tools & Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://github.com/docker/awesome-compose" target="_blank" rel="noopener noreferrer">Awesome Docker Compose</a></td>
+                                <td>Sample Docker Compose applications</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.docker.com/develop/dev-best-practices/" target="_blank" rel="noopener noreferrer">Docker Best Practices</a></td>
+                                <td>Official Docker development best practices</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.jenkins.io/doc/" target="_blank" rel="noopener noreferrer">Jenkins Documentation</a></td>
+                                <td>CI/CD automation with Jenkins</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.github.com/en/actions" target="_blank" rel="noopener noreferrer">GitHub Actions</a></td>
+                                <td>CI/CD workflows with GitHub</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.sonarqube.org/documentation/" target="_blank" rel="noopener noreferrer">SonarQube Documentation</a></td>
+                                <td>Code quality and security analysis</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </details>
+
+        </div>
+
+        <div class="tags">
+            <span class="tag">Docker</span>
+            <span class="tag">Containerization</span>
+            <span class="tag">CI/CD</span>
+            <span class="tag">DevOps</span>
+            <span class="tag">Virtualization</span>
+            <span class="tag">Git</span>
+        </div>
+    </div>
+
+    <script src="../../../js/theme.js"></script>
+    <script src="../../../js/notes-template.js"></script>
+</body>
+</html>

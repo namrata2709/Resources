@@ -704,56 +704,97 @@
     }
 
     // ============================================
-    // CODE BLOCK ENHANCEMENTS
-    // ============================================
+// CODE BLOCK COPY FUNCTIONALITY
+// ============================================
 
-    function initCodeBlocks() {
-        const codeBlocks = document.querySelectorAll('pre code');
-        codeBlocks.forEach((block, index) => {
-            // Wrap in container if not already wrapped
-            if (!block.parentElement.parentElement.classList.contains('code-block-wrapper')) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'code-block-wrapper';
-                block.parentElement.parentNode.insertBefore(wrapper, block.parentElement);
-                wrapper.appendChild(block.parentElement);
-                
-                // Add copy button
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-code-btn';
-                copyBtn.textContent = '📋 Copy';
-                copyBtn.onclick = () => copyCodeBlock(copyBtn);
-                wrapper.appendChild(copyBtn);
-            }
+document.addEventListener('DOMContentLoaded', function() {
+    // Add copy buttons to all code blocks
+    addCopyButtonsToCodeBlocks();
+});
+
+function addCopyButtonsToCodeBlocks() {
+    // Find all <pre><code> blocks
+    const codeBlocks = document.querySelectorAll('pre code');
+    
+    codeBlocks.forEach((codeBlock, index) => {
+        const pre = codeBlock.parentElement;
+        
+        // Create copy button
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-code-btn';
+        copyButton.setAttribute('aria-label', 'Copy code to clipboard');
+        copyButton.setAttribute('data-code-index', index);
+        
+        // Add button text
+        const buttonText = document.createElement('span');
+        buttonText.textContent = 'Copy';
+        copyButton.appendChild(buttonText);
+        
+        // Add click event
+        copyButton.addEventListener('click', function() {
+            copyCodeToClipboard(codeBlock, copyButton, buttonText);
         });
         
-        if (codeBlocks.length > 0) {
-            console.log(`💻 Enhanced ${codeBlocks.length} code blocks`);
-        }
-    }
+        // Insert button into pre element
+        pre.style.position = 'relative';
+        pre.insertBefore(copyButton, pre.firstChild);
+    });
+}
 
-    function copyCodeBlock(button) {
-        const wrapper = button.closest('.code-block-wrapper');
-        if (!wrapper) return;
+function copyCodeToClipboard(codeBlock, button, buttonText) {
+    // Get the code text
+    const codeText = codeBlock.textContent;
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(codeText).then(function() {
+        // Success - change button appearance
+        button.classList.add('copied');
+        buttonText.textContent = 'Copied!';
         
-        const codeBlock = wrapper.querySelector('code');
-        if (!codeBlock) return;
+        // Reset button after 2 seconds
+        setTimeout(function() {
+            button.classList.remove('copied');
+            buttonText.textContent = 'Copy';
+        }, 2000);
+    }).catch(function(err) {
+        // Fallback for older browsers
+        copyCodeFallback(codeText, button, buttonText);
+    });
+}
+
+function copyCodeFallback(text, button, buttonText) {
+    // Create temporary textarea
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    
+    // Select and copy
+    textarea.select();
+    try {
+        document.execCommand('copy');
         
-        const text = codeBlock.textContent;
+        // Success
+        button.classList.add('copied');
+        buttonText.textContent = 'Copied!';
         
-        navigator.clipboard.writeText(text).then(() => {
-            const originalText = button.textContent;
-            button.textContent = '✓ Copied!';
-            button.style.background = 'var(--success)';
-            
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.style.background = 'var(--accent)';
-            }, 2000);
-        }).catch(err => {
-            console.error('Failed to copy code:', err);
-            alert('Failed to copy to clipboard. Please copy manually.');
-        });
+        setTimeout(function() {
+            button.classList.remove('copied');
+            buttonText.textContent = 'Copy';
+        }, 2000);
+    } catch (err) {
+        console.error('Failed to copy code:', err);
+        buttonText.textContent = 'Failed';
+        
+        setTimeout(function() {
+            buttonText.textContent = 'Copy';
+        }, 2000);
     }
+    
+    // Remove textarea
+    document.body.removeChild(textarea);
+}
 
     // ============================================
     // UTILITY FUNCTIONS
