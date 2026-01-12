@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS VPC Advanced Networking - Overview</title>
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+</head>
+<body>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-icon"></span>
+    </button>
+
+    <div class="note-container">
+        <div class="note-header">
+            <h1>AWS VPC Advanced Networking</h1>
+            <p class="note-date">📅 December 17, 2024</p>
+        </div>
+
+        <div class="note-content">
+
+            <h2 id="introduction">🎯 Introduction</h2>
+
+            <p>Welcome to your comprehensive AWS VPC Advanced Networking notes! This document is designed for <strong>IT professionals</strong> who need practical implementation guidance.</p>
+
+            <p>This guide covers advanced VPC networking features that enable secure, private, and efficient communication within AWS:</p>
+
+            <ul>
+                <li>🔍 <strong>VPC Flow Logs:</strong> Network traffic monitoring and troubleshooting</li>
+                <li>🔗 <strong>VPC Peering:</strong> Private connectivity between VPCs</li>
+                <li>🔌 <strong>VPC Endpoints:</strong> Private access to AWS services without internet gateway</li>
+                <li>🚪 <strong>API Gateway:</strong> Creating RESTful APIs for serverless architectures</li>
+            </ul>
+
+            <div class="info-box">
+                <p>💡 <strong>How to Use This Document:</strong></p>
+                <ul>
+                    <li>Reference technical specifications for VPC networking services</li>
+                    <li>Follow implementation steps for production environments</li>
+                    <li>Use troubleshooting tables for common connectivity issues</li>
+                    <li>Review best practices for secure network architecture</li>
+                </ul>
+            </div>
+
+            <h2 id="table-of-contents">📚 Table of Contents</h2>
+            <ol>
+                <li><a href="#vpc-flow-logs">VPC Flow Logs</a></li>
+                <li><a href="#vpc-peering">VPC Peering Connection</a></li>
+                <li><a href="#vpc-endpoints">VPC Endpoints</a></li>
+                <li><a href="#api-gateway">API Gateway</a></li>
+                <li><a href="#overall-summary">Overall Summary</a></li>
+                <li><a href="#links-references">Links & References</a></li>
+            </ol>
+
+            <details class="collapsible-section" id="vpc-flow-logs">
+                <summary><h2>🔍 VPC Flow Logs</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>VPC Flow Logs is a feature that captures network traffic metadata flowing to and from network interfaces within your VPC. It provides visibility into network traffic patterns, helping you monitor, troubleshoot, and analyze network connectivity issues.</p>
+
+                    <p>Flow logs capture information about IP traffic going to and from network interfaces in your VPC. They record allowed and rejected traffic, helping you diagnose overly restrictive security group rules, monitor traffic reaching your instances, and determine the direction of traffic to and from network interfaces.</p>
+
+                    <p>Unlike packet capture tools, VPC Flow Logs capture metadata about the traffic, not the actual packet contents. This makes them efficient for large-scale monitoring without impacting network performance.</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>Capture Scope:</strong> Flow logs can be created at VPC level (all resources), subnet level (subnet resources), or network interface level (specific resource)</li>
+                        <li><strong>Traffic Types:</strong> Configure to capture accepted traffic, rejected traffic, or all traffic</li>
+                        <li><strong>Aggregation Interval:</strong> Data captured at 1-minute or 10-minute intervals</li>
+                        <li><strong>Destination Options:</strong> Logs stored in CloudWatch Logs, S3 buckets, or Amazon Kinesis Data Firehose</li>
+                        <li><strong>Log Format:</strong> Includes source/destination IP, ports, protocol, packets, bytes, action (ACCEPT/REJECT)</li>
+                        <li><strong>No Performance Impact:</strong> Flow logs run outside the path of network traffic and don't affect network throughput or latency</li>
+                    </ul>
+
+                    <h3>📊 Flow Log Data Captured</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Source IP Address</td>
+                                <td>IP address of the traffic source</td>
+                                <td>Identify which clients are accessing resources</td>
+                            </tr>
+                            <tr>
+                                <td>Destination IP Address</td>
+                                <td>IP address of the traffic destination</td>
+                                <td>Determine which resources are being accessed</td>
+                            </tr>
+                            <tr>
+                                <td>Source Port</td>
+                                <td>Port number used by source</td>
+                                <td>Understand client-side connection details</td>
+                            </tr>
+                            <tr>
+                                <td>Destination Port</td>
+                                <td>Port number of destination service</td>
+                                <td>Identify which services are being accessed (80=HTTP, 443=HTTPS, 22=SSH)</td>
+                            </tr>
+                            <tr>
+                                <td>Protocol</td>
+                                <td>IANA protocol number (6=TCP, 17=UDP, 1=ICMP)</td>
+                                <td>Analyze traffic patterns by protocol type</td>
+                            </tr>
+                            <tr>
+                                <td>Action</td>
+                                <td>ACCEPT or REJECT</td>
+                                <td>Debug security group and NACL rules</td>
+                            </tr>
+                            <tr>
+                                <td>Packets/Bytes</td>
+                                <td>Number of packets and bytes transferred</td>
+                                <td>Analyze bandwidth usage and traffic volume</td>
+                            </tr>
+                            <tr>
+                                <td>Account ID</td>
+                                <td>AWS account ID of the network interface owner</td>
+                                <td>Track cross-account traffic</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="provided-image-03.png" alt="VPC Flow Logs architecture showing data flow from ENI to storage">
+                        <p class="diagram-caption"><em>Figure 1: VPC Flow Logs capture network traffic metadata from network interfaces and store in CloudWatch Logs or S3</em></p>
+                    </div>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Enable at VPC level for comprehensive coverage</td>
+                                <td>Captures all traffic across all resources in VPC</td>
+                                <td>Create flow log with VPC as resource type during VPC creation</td>
+                            </tr>
+                            <tr>
+                                <td>Use S3 for long-term storage</td>
+                                <td>More cost-effective than CloudWatch for archive purposes</td>
+                                <td>Configure S3 bucket as destination with lifecycle policies</td>
+                            </tr>
+                            <tr>
+                                <td>Filter for specific traffic types</td>
+                                <td>Reduces storage costs and focuses on relevant data</td>
+                                <td>Capture only rejected traffic for security analysis or only accepted for traffic analysis</td>
+                            </tr>
+                            <tr>
+                                <td>Set appropriate IAM permissions</td>
+                                <td>Ensures flow logs can write to destination and maintains security</td>
+                                <td>Use AWS-created service role or create custom role with required permissions</td>
+                            </tr>
+                            <tr>
+                                <td>Use 1-minute intervals for troubleshooting</td>
+                                <td>Provides faster insights during active debugging</td>
+                                <td>Configure aggregation interval to 1 minute when creating flow log</td>
+                            </tr>
+                            <tr>
+                                <td>Implement log analysis automation</td>
+                                <td>Enables proactive detection of security issues and anomalies</td>
+                                <td>Use CloudWatch Insights, Athena queries on S3, or third-party SIEM tools</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="vpc-flow-logs-architecture.png" alt="Complete VPC Flow Logs architecture with VPC, subnets, and log destinations">
+                        <p class="diagram-caption"><em>Figure 2: VPC Flow Logs Architecture - Traffic captured from EC2 instances through ENIs, stored in CloudWatch Logs and S3</em></p>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="vpc-peering">
+                <summary><h2>🔗 VPC Peering Connection</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>VPC Peering is a networking connection between two VPCs that enables you to route traffic between them using private IPv4 or IPv6 addresses. Instances in either VPC can communicate with each other as if they were within the same network, without requiring an internet gateway, VPN connection, or separate network appliance.</p>
+
+                    <p>VPC Peering connections work across AWS accounts and regions, enabling you to create private network connections between VPCs regardless of where they reside. Traffic between peered VPCs stays on the AWS private network and never traverses the public internet, providing enhanced security and lower latency.</p>
+
+                    <p>The peering connection is a one-to-one relationship - you cannot create transitive peering. If VPC-A peers with VPC-B, and VPC-B peers with VPC-C, VPC-A cannot communicate with VPC-C through VPC-B. Each peering relationship must be explicitly established.</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>Requester and Accepter:</strong> One VPC initiates the peering request, the other accepts it</li>
+                        <li><strong>Non-overlapping CIDR Blocks:</strong> VPCs must have different IP address ranges to peer successfully</li>
+                        <li><strong>Route Table Updates:</strong> Manual route entries required in both VPC route tables to enable traffic flow</li>
+                        <li><strong>Security Group References:</strong> Can reference security groups from peered VPC (same region only)</li>
+                        <li><strong>No Transitive Peering:</strong> Traffic cannot route through an intermediate VPC</li>
+                        <li><strong>Cross-Region Support:</strong> Peering connections work across AWS regions with data transfer charges</li>
+                        <li><strong>Cross-Account Support:</strong> VPCs in different AWS accounts can be peered</li>
+                    </ul>
+
+                    <h3>📊 Peering Connection Requirements</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Requirement</th>
+                                <th>Details</th>
+                                <th>Consequence if Not Met</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Non-overlapping CIDR blocks</td>
+                                <td>VPC-A: 10.0.0.0/16, VPC-B: 10.1.0.0/16 ✅<br>VPC-A: 10.0.0.0/16, VPC-B: 10.0.0.0/16 ❌</td>
+                                <td>Peering connection creation will fail</td>
+                            </tr>
+                            <tr>
+                                <td>Manual route table updates</td>
+                                <td>Add route to peer VPC CIDR via peering connection in both VPCs</td>
+                                <td>Traffic cannot flow between VPCs even if peering is active</td>
+                            </tr>
+                            <tr>
+                                <td>Security group rules</td>
+                                <td>Allow inbound/outbound traffic from/to peer VPC CIDR or security group</td>
+                                <td>Instances cannot communicate despite routing being configured</td>
+                            </tr>
+                            <tr>
+                                <td>NACL rules</td>
+                                <td>Both inbound and outbound rules must allow traffic</td>
+                                <td>Traffic blocked at subnet level</td>
+                            </tr>
+                            <tr>
+                                <td>Accepted peering request</td>
+                                <td>Accepter VPC must approve the peering connection</td>
+                                <td>Peering remains in pending-acceptance state</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="provided-image-04.png" alt="VPC Peering connection showing two VPCs with route table entries">
+                        <p class="diagram-caption"><em>Figure 3: VPC Peering Connection - EC2 instances in VPC-A (10.0.0.0/16) communicate privately with EC2 in VPC-B (10.1.0.0/16)</em></p>
+                    </div>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Plan CIDR blocks carefully</td>
+                                <td>Prevents future peering limitations and addressing conflicts</td>
+                                <td>Use RFC 1918 ranges strategically: 10.x for prod, 172.x for dev, 192.168.x for test</td>
+                            </tr>
+                            <tr>
+                                <td>Use specific route entries</td>
+                                <td>More secure than allowing entire VPC CIDR when only subnet access needed</td>
+                                <td>Add routes for specific subnet CIDRs instead of entire VPC range</td>
+                            </tr>
+                            <tr>
+                                <td>Document peering relationships</td>
+                                <td>Complex peering topologies become difficult to manage without documentation</td>
+                                <td>Maintain network diagrams and routing tables in documentation</td>
+                            </tr>
+                            <tr>
+                                <td>Consider AWS Transit Gateway for complex topologies</td>
+                                <td>Simplifies management when peering more than 3-4 VPCs</td>
+                                <td>Use Transit Gateway instead of mesh peering for hub-and-spoke architectures</td>
+                            </tr>
+                            <tr>
+                                <td>Implement least privilege security</td>
+                                <td>Peering doesn't bypass security - still need proper security group/NACL rules</td>
+                                <td>Only allow specific ports/protocols needed between VPCs</td>
+                            </tr>
+                            <tr>
+                                <td>Monitor peering connection status</td>
+                                <td>Ensures connections remain active and identifies issues quickly</td>
+                                <td>Set up CloudWatch alarms for peering connection state changes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="vpc-peering-architecture.png" alt="VPC Peering architecture showing private communication between VPCs">
+                        <p class="diagram-caption"><em>Figure 4: VPC Peering Private Network - Secure communication without internet gateway or NAT gateway</em></p>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="vpc-endpoints">
+                <summary><h2>🔌 VPC Endpoints</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>VPC Endpoints enable you to privately connect your VPC to supported AWS services without requiring an internet gateway, NAT device, VPN connection, or AWS Direct Connect. Traffic between your VPC and AWS services does not leave the Amazon network, providing enhanced security and lower latency.</p>
+
+                    <p>There are two types of VPC endpoints: Gateway Endpoints (for S3 and DynamoDB) and Interface Endpoints (powered by AWS PrivateLink for other services). Gateway endpoints are free and use route table entries, while interface endpoints create elastic network interfaces in your subnets and incur hourly charges plus data transfer costs.</p>
+
+                    <p>VPC endpoints eliminate the need for public IP addresses and internet connectivity for resources accessing AWS services. This is particularly valuable for resources in private subnets that need to access services like S3, DynamoDB, or other AWS services without exposing them to the internet.</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>Gateway Endpoints:</strong> Free endpoints for S3 and DynamoDB using route table entries</li>
+                        <li><strong>Interface Endpoints:</strong> Powered by AWS PrivateLink, create ENIs in subnets for most AWS services</li>
+                        <li><strong>Private Connectivity:</strong> Traffic stays on AWS private network, never traverses public internet</li>
+                        <li><strong>Endpoint Policies:</strong> IAM policies to control access to services through the endpoint</li>
+                        <li><strong>No Internet Gateway Required:</strong> Resources in private subnets can access AWS services</li>
+                        <li><strong>Security Group Support:</strong> Interface endpoints support security groups for access control</li>
+                        <li><strong>DNS Resolution:</strong> Interface endpoints provide private DNS names for service access</li>
+                    </ul>
+
+                    <h3>📊 Endpoint Types Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Gateway Endpoint</th>
+                                <th>Interface Endpoint</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Supported Services</td>
+                                <td>S3, DynamoDB only</td>
+                                <td>Most AWS services (EC2, SNS, SQS, Lambda, etc.)</td>
+                            </tr>
+                            <tr>
+                                <td>Implementation</td>
+                                <td>Route table target</td>
+                                <td>Elastic Network Interface (ENI) in subnet</td>
+                            </tr>
+                            <tr>
+                                <td>Pricing</td>
+                                <td>Free</td>
+                                <td>Hourly charge + data transfer fees</td>
+                            </tr>
+                            <tr>
+                                <td>Availability</td>
+                                <td>Regional (highly available by default)</td>
+                                <td>Zonal (deploy in multiple AZs for HA)</td>
+                            </tr>
+                            <tr>
+                                <td>Security Groups</td>
+                                <td>Not supported</td>
+                                <td>Supported</td>
+                            </tr>
+                            <tr>
+                                <td>Endpoint Policy</td>
+                                <td>Supported</td>
+                                <td>Supported</td>
+                            </tr>
+                            <tr>
+                                <td>Private DNS</td>
+                                <td>Not applicable</td>
+                                <td>Supported</td>
+                            </tr>
+                            <tr>
+                                <td>Use Case</td>
+                                <td>Cost-effective access to S3/DynamoDB</td>
+                                <td>Private access to other AWS services from private subnets</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="provided-image-01.png" alt="VPC Endpoints showing private connectivity to S3 without internet gateway">
+                        <p class="diagram-caption"><em>Figure 5: VPC Endpoint Architecture - EC2 in private subnet accesses S3 privately via VPC Endpoint</em></p>
+                    </div>
+
+                    <div class="diagram-container">
+                        <img src="provided-image-02.png" alt="Problem scenario showing traffic going through public internet without VPC endpoint">
+                        <p class="diagram-caption"><em>Figure 6: Problem Without VPC Endpoint - Traffic must traverse internet gateway and public internet to reach AWS services</em></p>
+                    </div>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Use Gateway Endpoints for S3/DynamoDB</td>
+                                <td>Free and performant - no reason not to use them</td>
+                                <td>Create gateway endpoint and update route tables for private subnets</td>
+                            </tr>
+                            <tr>
+                                <td>Deploy Interface Endpoints in multiple AZs</td>
+                                <td>Ensures high availability and fault tolerance</td>
+                                <td>Select multiple subnets across different AZs when creating interface endpoint</td>
+                            </tr>
+                            <tr>
+                                <td>Use endpoint policies for least privilege access</td>
+                                <td>Restricts which resources/actions can be accessed through endpoint</td>
+                                <td>Define IAM policy on endpoint limiting access to specific S3 buckets or DynamoDB tables</td>
+                            </tr>
+                            <tr>
+                                <td>Enable Private DNS for interface endpoints</td>
+                                <td>Applications can use standard service endpoints without code changes</td>
+                                <td>Enable "Private DNS Name" option when creating interface endpoint</td>
+                            </tr>
+                            <tr>
+                                <td>Monitor endpoint usage</td>
+                                <td>Track usage patterns and optimize costs for interface endpoints</td>
+                                <td>Use VPC Flow Logs and CloudWatch metrics to monitor traffic through endpoints</td>
+                            </tr>
+                            <tr>
+                                <td>Remove internet gateway routes when using endpoints</td>
+                                <td>Ensures traffic definitely uses private endpoint path</td>
+                                <td>Remove 0.0.0.0/0 route to IGW from route tables of private subnets</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="vpc-endpoints-complete-architecture.png" alt="Complete VPC Endpoints architecture with both gateway and interface endpoints">
+                        <p class="diagram-caption"><em>Figure 7: Complete VPC Endpoints Architecture - Gateway endpoints for S3/DynamoDB and Interface endpoints for other services</em></p>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="api-gateway">
+                <summary><h2>🚪 API Gateway</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>Amazon API Gateway is a fully managed service that makes it easy to create, publish, maintain, monitor, and secure APIs at any scale. It acts as a "front door" for applications to access data, business logic, or functionality from backend services such as Lambda functions, EC2 instances, or any HTTP endpoint.</p>
+
+                    <p>API Gateway handles all the tasks involved in accepting and processing up to hundreds of thousands of concurrent API calls, including traffic management, authorization and access control, monitoring, and API version management. It supports RESTful APIs, WebSocket APIs, and HTTP APIs for real-time two-way communication applications.</p>
+
+                    <p>In serverless architectures, API Gateway is commonly used as the entry point that triggers Lambda functions. The API Gateway receives HTTP requests, invokes the appropriate Lambda function with the request data, and returns the Lambda response to the client. This pattern enables building scalable, pay-per-use backend services without managing servers.</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>REST API:</strong> RESTful API with full feature set including caching, request/response transformations</li>
+                        <li><strong>HTTP API:</strong> Simplified, lower-cost option for HTTP proxy integrations with Lambda</li>
+                        <li><strong>WebSocket API:</strong> For real-time two-way communication (chat apps, streaming dashboards)</li>
+                        <li><strong>Resources:</strong> URL paths like /orders, /payment representing different endpoints</li>
+                        <li><strong>Methods:</strong> HTTP verbs (GET, POST, PUT, DELETE) allowed on each resource</li>
+                        <li><strong>Integration:</strong> Backend service the API Gateway connects to (Lambda, HTTP endpoint, AWS service)</li>
+                        <li><strong>Stages:</strong> Different deployment environments (dev, staging, prod) with unique URLs</li>
+                        <li><strong>CORS:</strong> Cross-Origin Resource Sharing enabling web applications to call your API from different domains</li>
+                    </ul>
+
+                    <h3>📊 API Gateway Components</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Purpose</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Resource</td>
+                                <td>URL path representing a logical entity</td>
+                                <td>/orders, /users, /payment</td>
+                            </tr>
+                            <tr>
+                                <td>Method</td>
+                                <td>HTTP operation allowed on resource</td>
+                                <td>GET /orders (retrieve), POST /orders (create)</td>
+                            </tr>
+                            <tr>
+                                <td>Integration Type</td>
+                                <td>How API Gateway connects to backend</td>
+                                <td>Lambda function, HTTP endpoint, Mock, AWS Service</td>
+                            </tr>
+                            <tr>
+                                <td>Request Mapping</td>
+                                <td>Transform incoming request before sending to backend</td>
+                                <td>Convert query params to JSON body for Lambda</td>
+                            </tr>
+                            <tr>
+                                <td>Response Mapping</td>
+                                <td>Transform backend response before returning to client</td>
+                                <td>Format Lambda response as HTTP 200 with JSON body</td>
+                            </tr>
+                            <tr>
+                                <td>Stage</td>
+                                <td>Deployment environment with unique invoke URL</td>
+                                <td>dev: https://abc.execute-api.region.amazonaws.com/dev</td>
+                            </tr>
+                            <tr>
+                                <td>Authorizer</td>
+                                <td>Controls access to APIs</td>
+                                <td>Lambda authorizer, Cognito User Pool, IAM</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Enable API caching</td>
+                                <td>Reduces Lambda invocations and improves response times</td>
+                                <td>Enable caching on API Gateway stage with appropriate TTL</td>
+                            </tr>
+                            <tr>
+                                <td>Implement request throttling</td>
+                                <td>Protects backend from being overwhelmed by too many requests</td>
+                                <td>Set throttle limits (rate and burst) on API Gateway methods/stages</td>
+                            </tr>
+                            <tr>
+                                <td>Use stages for different environments</td>
+                                <td>Safely test changes before deploying to production</td>
+                                <td>Create separate stages (dev, staging, prod) with stage variables</td>
+                            </tr>
+                            <tr>
+                                <td>Enable detailed CloudWatch logging</td>
+                                <td>Essential for troubleshooting API issues and monitoring performance</td>
+                                <td>Enable CloudWatch Logs for full request/response logging and metrics</td>
+                            </tr>
+                            <tr>
+                                <td>Use Lambda proxy integration</td>
+                                <td>Simplifies development by passing full request to Lambda</td>
+                                <td>Enable "Use Lambda Proxy integration" when creating method</td>
+                            </tr>
+                            <tr>
+                                <td>Implement proper authorization</td>
+                                <td>Ensures only authorized users can access your APIs</td>
+                                <td>Use Lambda authorizers, Cognito User Pools, or IAM authorization</td>
+                            </tr>
+                            <tr>
+                                <td>Version your APIs</td>
+                                <td>Allows backward compatibility when making breaking changes</td>
+                                <td>Include version in URL path (/v1/orders, /v2/orders)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="api-gateway-lambda-architecture.png" alt="API Gateway architecture with Lambda integration">
+                        <p class="diagram-caption"><em>Figure 8: API Gateway with Lambda Integration - Client requests trigger Lambda functions through API Gateway resources and methods</em></p>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2>📝 Overall Summary</h2></summary>
+                <div class="section-content">
+                    <ul>
+                        <li>VPC Flow Logs capture network traffic metadata for monitoring, troubleshooting, and security analysis without impacting performance</li>
+                        <li>Flow logs can be <li>Flow logs can be created at VPC level, subnet level, or network interface level depending on monitoring requirements</li>
+                        <li>VPC Peering enables private connectivity between two VPCs using AWS private network without internet gateway or NAT</li>
+                        <li>Peering requires non-overlapping CIDR blocks and manual route table updates in both VPCs</li>
+                        <li>VPC Peering does not support transitive routing - each connection must be explicitly established</li>
+                        <li>VPC Endpoints provide private connectivity to AWS services without internet gateway, reducing security risks and latency</li>
+                        <li>Gateway Endpoints (free) are used for S3 and DynamoDB, while Interface Endpoints (charged) support most other AWS services</li>
+                        <li>VPC Endpoints eliminate the need for internet gateways, NAT gateways, or public IP addresses when accessing AWS services</li>
+                        <li>API Gateway acts as a managed front door for serverless applications, handling request routing, authorization, and throttling</li>
+                        <li>API Gateway integrates seamlessly with Lambda functions to create serverless REST APIs with resources, methods, and stages</li>
+                        <li>VPC Peering enables private connectivity between VPCs but requires non-overlapping CIDR blocks and manual route table configuration</li>
+                    </ul>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2>🔗 Links & References</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html" target="_blank" rel="noopener noreferrer">VPC Flow Logs Documentation</a></td>
+                                <td>Official AWS documentation for VPC Flow Logs</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html" target="_blank" rel="noopener noreferrer">VPC Peering Guide</a></td>
+                                <td>Comprehensive guide to VPC peering connections</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html" target="_blank" rel="noopener noreferrer">VPC Endpoints Documentation</a></td>
+                                <td>Official AWS documentation for VPC endpoints</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html" target="_blank" rel="noopener noreferrer">API Gateway Developer Guide</a></td>
+                                <td>Complete guide for API Gateway implementation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🎓 Recommended Reading for Students</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://www.youtube.com/watch?v=3hLmDS179YE" target="_blank" rel="noopener noreferrer">FreeCodeCamp AWS Course</a></td>
+                                <td>14-hour Free Video Course on AWS Fundamentals</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://explore.skillbuilder.aws/" target="_blank" rel="noopener noreferrer">AWS Skill Builder</a></td>
+                                <td>Official Free Labs and Courses</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/training/digital/" target="_blank" rel="noopener noreferrer">AWS Digital Training</a></td>
+                                <td>Free Self-Paced Learning</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🔧 Additional Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/architecture/" target="_blank" rel="noopener noreferrer">AWS Architecture Center</a></td>
+                                <td>Reference architectures and best practices</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/introduction.html" target="_blank" rel="noopener noreferrer">VPC Connectivity Options</a></td>
+                                <td>Whitepaper on VPC networking patterns</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/blogs/networking-and-content-delivery/" target="_blank" rel="noopener noreferrer">AWS Networking Blog</a></td>
+                                <td>Latest networking features and best practices</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </details>
+
+        </div>
+
+        <div class="tags">
+            <span class="tag">AWS</span>
+            <span class="tag">VPC</span>
+            <span class="tag">Networking</span>
+            <span class="tag">Flow Logs</span>
+            <span class="tag">Peering</span>
+            <span class="tag">Endpoints</span>
+            <span class="tag">API Gateway</span>
+        </div>
+    </div>
+
+    <script src="../../../js/theme.js"></script>
+    <script src="../../../js/notes-template.js"></script>
+</body>
+</html>
