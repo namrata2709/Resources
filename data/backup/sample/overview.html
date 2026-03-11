@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS WAF, CAF & Security Fundamentals - Overview</title>
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+</head>
+<body>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-icon"></span>
+    </button>
+
+    <div class="note-container">
+        <div class="note-header">
+            <h1>AWS Well-Architected Framework, Cloud Adoption Framework & Security Fundamentals</h1>
+            <p class="note-date">📅 December 29, 2024</p>
+        </div>
+
+        <div class="note-content">
+
+            <h2 id="introduction">🎯 Introduction</h2>
+
+            <p>Welcome to your comprehensive AWS training notes! This document is designed for <strong>IT professionals</strong> with basic cloud knowledge who want to understand AWS best practices, migration frameworks, and security fundamentals.</p>
+
+            <p>This technical reference covers:</p>
+
+            <ul>
+                <li>🏗️ <strong>AWS Well-Architected Framework (WAF):</strong> Six pillars for building robust cloud applications with best practices for operational excellence, security, reliability, performance efficiency, cost optimization, and sustainability</li>
+                <li>🚀 <strong>AWS Cloud Adoption Framework (CAF):</strong> Six perspectives for successful cloud migration covering business, people, governance, platform, security, and operations readiness</li>
+                <li>🔒 <strong>Security Fundamentals:</strong> Network hardening and system hardening principles to protect cloud resources before and after system access</li>
+            </ul>
+
+            <div class="info-box">
+                <p>💡 <strong>How to Use This Document:</strong></p>
+                <ul>
+                    <li>Review architecture diagrams and framework pillars for quick reference</li>
+                    <li>Reference implementation best practices for cloud design decisions</li>
+                    <li>Use as technical guide for AWS Cloud Practitioner exam preparation</li>
+                    <li>Apply frameworks during cloud migration planning and application reviews</li>
+                </ul>
+            </div>
+
+            <h2 id="table-of-contents">📚 Table of Contents</h2>
+            <ol>
+                <li><a href="#waf-overview">AWS Well-Architected Framework (WAF)</a></li>
+                <li><a href="#caf-overview">AWS Cloud Adoption Framework (CAF)</a></li>
+                <li><a href="#security-fundamentals">Security Fundamentals</a></li>
+                <li><a href="#network-hardening">Network Hardening</a></li>
+                <li><a href="#system-hardening">System Hardening</a></li>
+                <li><a href="#overall-summary">Overall Summary</a></li>
+                <li><a href="#links-references">Links & References</a></li>
+            </ol>
+
+            <details class="collapsible-section" id="waf-overview">
+                <summary><h2>🏗️ AWS Well-Architected Framework (WAF)</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>The AWS Well-Architected Framework is a comprehensive set of best practices designed to help cloud architects build secure, high-performing, resilient, and efficient infrastructure for applications and workloads. It provides a consistent approach for evaluating cloud architectures and implementing designs that scale over time.</p>
+
+                    <p>The framework answers critical questions about cloud deployments: Is your application deployed correctly on AWS? Is it built the right way? Are you following industry best practices? It serves as a technical correctness guide after migration, helping organizations avoid common pitfalls such as unexpected cost increases, security gaps, performance issues, and application downtime.</p>
+
+                    <p>Organizations moving to AWS often face repeated failures not because of technology limitations, but due to poor planning and poor design. The Well-Architected Framework addresses this by providing structured guidance across six fundamental pillars, each focusing on a specific aspect of cloud architecture excellence.</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>Framework Purpose:</strong> Provides best practices to design, build, and review workloads on AWS with focus on technical correctness after migration</li>
+                        <li><strong>Six Pillars Architecture:</strong> Comprehensive coverage across operational excellence, security, reliability, performance efficiency, cost optimization, and sustainability</li>
+                        <li><strong>Continuous Improvement:</strong> Framework supports ongoing architectural reviews and iterative improvements throughout application lifecycle</li>
+                        <li><strong>Design Validation:</strong> Helps validate whether applications are deployed and built correctly on AWS infrastructure</li>
+                        <li><strong>Risk Mitigation:</strong> Addresses common cloud migration failures caused by poor planning rather than technology limitations</li>
+                        <li><strong>Industry Standards:</strong> Based on AWS's extensive experience with millions of customer workloads across diverse industries</li>
+                        <li><strong>Well-Architected Tool:</strong> AWS provides a service to review workloads against framework best practices and receive improvement recommendations</li>
+                        <li><strong>Exam Relevance:</strong> 1-2 questions typically appear in AWS Cloud Practitioner exam covering pillar definitions and use cases</li>
+                    </ul>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Conduct Regular Reviews</td>
+                                <td>Cloud architectures evolve over time and need periodic assessment against current best practices</td>
+                                <td>Use AWS Well-Architected Tool quarterly to review workloads, document findings, and track improvements</td>
+                            </tr>
+                            <tr>
+                                <td>Prioritize Pillar Balance</td>
+                                <td>Focusing on one pillar at expense of others creates architectural debt and future problems</td>
+                                <td>Evaluate all six pillars equally during design phase, make conscious trade-off decisions, document rationale</td>
+                            </tr>
+                            <tr>
+                                <td>Document Architecture Decisions</td>
+                                <td>Undocumented decisions lead to repeated mistakes and difficulty onboarding new team members</td>
+                                <td>Maintain architecture decision records (ADRs) explaining choices made for each pillar requirement</td>
+                            </tr>
+                            <tr>
+                                <td>Automate Compliance Checks</td>
+                                <td>Manual compliance verification is error-prone and doesn't scale across multiple workloads</td>
+                                <td>Use AWS Config rules and custom Lambda functions to continuously monitor framework compliance</td>
+                            </tr>
+                            <tr>
+                                <td>Train Teams on Framework</td>
+                                <td>Framework adoption fails when teams don't understand principles or how to apply them</td>
+                                <td>Conduct workshops, share case studies, include framework review in deployment approval process</td>
+                            </tr>
+                            <tr>
+                                <td>Start Before Migration</td>
+                                <td>Applying framework after migration is more expensive than designing correctly from the start</td>
+                                <td>Incorporate framework principles in migration planning, design phase, and architecture reviews</td>
+                            </tr>
+                            <tr>
+                                <td>Measure Improvement Over Time</td>
+                                <td>Without metrics, it's impossible to know if architectural changes are improving workload quality</td>
+                                <td>Track high/medium/low risk issues over time, measure MTTR, monitor cost trends, review security posture</td>
+                            </tr>
+                            <tr>
+                                <td>Engage AWS Solutions Architects</td>
+                                <td>AWS experts provide valuable insights specific to your workload and industry requirements</td>
+                                <td>Request Well-Architected Reviews through AWS support, attend AWS architecture days, use partner network</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="images/waf-six-pillars.png" alt="AWS Well-Architected Framework showing six pillars in hexagonal arrangement: Operational Excellence, Security, Reliability at top; Performance Efficiency, Cost Optimization, Sustainability at bottom, with central pillar describing WAF purpose">
+                        <p class="diagram-caption"><em>Figure 1: AWS Well-Architected Framework - Six Pillars Architecture</em></p>
+                    </div>
+
+                    <h3>🔍 Six Pillars Overview</h3>
+
+                    <h4>1. Operational Excellence</h4>
+                    <p><strong>Focus:</strong> Running and monitoring systems to deliver business value and continually improve processes and procedures.</p>
+                    <p><strong>Key Areas:</strong> Operations as code, frequent small changes, learning from failures, anticipating failure scenarios, documenting operational procedures.</p>
+
+                    <h4>2. Security</h4>
+                    <p><strong>Focus:</strong> Protecting information systems and assets while delivering business value through risk assessments and mitigation strategies.</p>
+                    <p><strong>Key Areas:</strong> Identity and access management, detective controls, infrastructure protection, data protection, incident response.</p>
+
+                    <h4>3. Reliability</h4>
+                    <p><strong>Focus:</strong> Ensuring a workload performs its intended function correctly and consistently when expected, recovering from failures quickly.</p>
+                    <p><strong>Key Areas:</strong> Automatically recover from failure, test recovery procedures, scale horizontally, manage change through automation.</p>
+
+                    <h4>4. Performance Efficiency</h4>
+                    <p><strong>Focus:</strong> Using IT and computing resources efficiently to meet system requirements and maintain efficiency as demand changes.</p>
+                    <p><strong>Key Areas:</strong> Democratize advanced technologies, go global in minutes, use serverless architectures, experiment more often.</p>
+
+                    <h4>5. Cost Optimization</h4>
+                    <p><strong>Focus:</strong> Avoiding unnecessary costs and understanding spending patterns to deliver business value at lowest price point.</p>
+                    <p><strong>Key Areas:</strong> Adopt consumption model, measure overall efficiency, analyze and attribute expenditure, optimize over time.</p>
+
+                    <h4>6. Sustainability</h4>
+                    <p><strong>Focus:</strong> Minimizing environmental impacts of running cloud workloads through energy efficiency and resource utilization optimization.</p>
+                    <p><strong>Key Areas:</strong> Understand impact, establish sustainability goals, maximize utilization, adopt efficient hardware and software.</p>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="caf-overview">
+                <summary><h2>🚀 AWS Cloud Adoption Framework (CAF)</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>The AWS Cloud Adoption Framework (CAF) is a comprehensive organizational readiness guide that helps companies plan and execute successful cloud migrations. Unlike the Well-Architected Framework which focuses on technical correctness after migration, CAF addresses the critical question: Is your organization ready to migrate to the cloud?</p>
+
+                    <p>Moving to cloud is not just an infrastructure change—it's a complete organizational transformation. CAF recognizes this reality and provides structured guidance across six perspectives that cover both business and technical aspects of cloud adoption. It helps organizations avoid common migration pitfalls by ensuring proper planning, skill development, governance, and operational readiness before committing to migration.</p>
+
+                    <p>Companies that attempt cloud migration without proper organizational preparation often face repeated failures including cost overruns, security breaches, operational disruptions, and poor application performance. CAF addresses these challenges by helping organizations answer fundamental questions: Why are we moving to cloud? Do we have skilled people? What rules and regulations apply? Is our base platform ready?</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>Organizational Readiness:</strong> CAF ensures organization is prepared for cloud migration from people, process, and technology perspectives</li>
+                        <li><strong>Six Perspectives Model:</strong> Covers business, people, governance, platform, security, and operations—each addressing specific readiness areas</li>
+                        <li><strong>Migration Planning:</strong> Provides structured approach to assess current state, identify gaps, and develop transformation roadmap</li>
+                        <li><strong>Change Management:</strong> Recognizes cloud adoption as organizational change requiring training, communication, and culture shift</li>
+                        <li><strong>Stakeholder Alignment:</strong> Identifies common roles across perspectives to ensure all stakeholders are engaged and prepared</li>
+                        <li><strong>Pre-Migration Framework:</strong> Applied before migration to ensure readiness, unlike WAF which guides post-migration technical excellence</li>
+                        <li><strong>Risk Reduction:</strong> Addresses root causes of cloud migration failures—poor planning and poor design—through comprehensive readiness assessment</li>
+                        <li><strong>Continuous Evolution:</strong> Framework supports iterative improvement as organization's cloud maturity increases over time</li>
+                    </ul>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Assess All Six Perspectives</td>
+                                <td>Incomplete readiness assessment leads to migration failures in overlooked areas</td>
+                                <td>Use CAF assessment tool, conduct workshops for each perspective, document capability gaps</td>
+                            </tr>
+                            <tr>
+                                <td>Identify Executive Sponsors</td>
+                                <td>Cloud transformation requires top-down support to overcome organizational resistance</td>
+                                <td>Engage C-level executives early, establish cloud center of excellence with executive backing</td>
+                            </tr>
+                            <tr>
+                                <td>Develop Skills Before Migration</td>
+                                <td>Migrating without trained staff results in operational issues and security vulnerabilities</td>
+                                <td>Create training plan 6 months before migration, use AWS Training, certify key personnel</td>
+                            </tr>
+                            <tr>
+                                <td>Establish Cloud Governance</td>
+                                <td>Without governance, cloud costs spiral and compliance requirements are violated</td>
+                                <td>Define policies for account structure, cost controls, security baselines before first workload</td>
+                            </tr>
+                            <tr>
+                                <td>Start with Pilot Workloads</td>
+                                <td>Full-scale migration without proof of concept increases risk of expensive failures</td>
+                                <td>Identify 2-3 low-risk applications, migrate them first, learn and adjust approach</td>
+                            </tr>
+                            <tr>
+                                <td>Build Landing Zone First</td>
+                                <td>Migrating applications before establishing foundation creates technical debt and rework</td>
+                                <td>Use AWS Control Tower or Landing Zone Accelerator to set up multi-account environment</td>
+                            </tr>
+                            <tr>
+                                <td>Create Migration Wave Plans</td>
+                                <td>Ad-hoc migration leads to resource conflicts, missed dependencies, and extended timelines</td>
+                                <td>Group applications by dependency, prioritize by business value, schedule migration waves</td>
+                            </tr>
+                            <tr>
+                                <td>Measure Readiness Progress</td>
+                                <td>Without metrics, impossible to know if organization is ready to begin migration</td>
+                                <td>Track capability maturity scores per perspective, monitor training completion, assess pilot outcomes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="images/caf-six-perspectives.png" alt="AWS Cloud Adoption Framework showing six perspectives: Business perspective with building icon, People perspective with team icon, Governance perspective with shield icon, Platform perspective with server stack icon, Operations perspective with gear icon, Security perspective with lock icon, each with associated roles">
+                        <p class="diagram-caption"><em>Figure 2: AWS Cloud Adoption Framework - Six Perspectives with Common Roles</em></p>
+                    </div>
+
+                    <h3>🔍 Six Perspectives Overview</h3>
+
+                    <h4>1. Business Perspective</h4>
+                    <p><strong>Focus:</strong> Business support capabilities to optimize business value with cloud adoption.</p>
+                    <p><strong>Common Roles:</strong> Business Managers, Finance Managers, Budget Owners, Strategy Stakeholders</p>
+                    <p><strong>Key Questions:</strong> Why move to cloud? What business value will we achieve? How do we measure ROI?</p>
+
+                    <h4>2. People Perspective</h4>
+                    <p><strong>Focus:</strong> People development, training, communications, and change management.</p>
+                    <p><strong>Common Roles:</strong> Human Resources, Staffing Teams, People Managers</p>
+                    <p><strong>Key Questions:</strong> Are people skilled enough? Do we have adequate staffing? How do we manage organizational change?</p>
+
+                    <h4>3. Governance Perspective</h4>
+                    <p><strong>Focus:</strong> Managing and measuring resulting business outcomes to ensure value realization.</p>
+                    <p><strong>Common Roles:</strong> CIO, Program Managers, Project Managers, Enterprise Architects, Business Analysts, Portfolio Managers</p>
+                    <p><strong>Key Questions:</strong> What governance model do we need? How do we track progress? What compliance requirements exist?</p>
+
+                    <h4>4. Platform Perspective</h4>
+                    <p><strong>Focus:</strong> Develop, maintain, and optimize cloud solutions and services.</p>
+                    <p><strong>Common Roles:</strong> CTO, IT Managers, Solution Architects</p>
+                    <p><strong>Key Questions:</strong> Is our base platform ready? What technical capabilities do we need? How do we architect solutions?</p>
+
+                    <h4>5. Security Perspective</h4>
+                    <p><strong>Focus:</strong> Ensure workloads align to security control, resiliency, and compliance requirements.</p>
+                    <p><strong>Common Roles:</strong> CISO, IT Security Managers, IT Security Analysts, Head of Audit and Compliance</p>
+                    <p><strong>Key Questions:</strong> How do we secure cloud workloads? What compliance frameworks apply? How do we maintain security posture?</p>
+
+                    <h4>6. Operations Perspective</h4>
+                    <p><strong>Focus:</strong> System health and reliability through cloud migration, delivering agile operations.</p>
+                    <p><strong>Common Roles:</strong> IT Operations Managers, IT Support Managers</p>
+                    <p><strong>Key Questions:</strong> How do we operate in cloud? What monitoring do we need? How do we ensure reliability?</p>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="security-fundamentals">
+                <summary><h2>🔒 Security Fundamentals</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>Security in AWS (and any IT environment) is fundamentally about <strong>controlling access</strong> to valuable resources and data. This control must be implemented at two critical stages: <strong>before someone reaches the system</strong> and <strong>after someone reaches the system</strong>. Think of protecting a valuable asset like gold—you don't just throw it on a table. You place it in a locker, inside an almirah (cupboard), within a bedroom, inside a house, behind a gate, with CCTV cameras monitoring entry points, and only authorized people with keys can access it.</p>
+
+                    <p>In the digital world, we protect IT resources—physical servers, applications, databases, and sensitive data—using the same layered approach. This is achieved through two complementary security disciplines: <strong>Network Hardening</strong> (controlling access before reaching the system) and <strong>System Hardening</strong> (controlling what can be done after reaching the system).</p>
+
+                    <p>By default, when operating systems and servers are installed, they are configured to be "open" for ease of use and compatibility. This default openness creates security vulnerabilities. Hardening is the process of securing these systems by reducing the attack surface—closing unnecessary ports, disabling unused services, removing default accounts, and implementing strict access controls.</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>Core Truth:</strong> Security is about controlling access at every layer—network, system, application, and data levels</li>
+                        <li><strong>Two-Stage Defense:</strong> Security must address both preventing unauthorized access (network hardening) and limiting actions after access (system hardening)</li>
+                        <li><strong>Layered Security Model:</strong> Like physical security with multiple barriers, digital security requires multiple defensive layers</li>
+                        <li><strong>Default Insecurity:</strong> Systems are open by default for functionality; security requires deliberate hardening configuration</li>
+                        <li><strong>Attack Surface Reduction:</strong> Minimize potential entry points by disabling unnecessary services, ports, and features</li>
+                        <li><strong>Defense in Depth:</strong> Multiple security controls ensure that if one layer fails, others remain protective</li>
+                        <li><strong>Principle of Least Privilege:</strong> Grant minimum necessary access rights to users, services, and applications</li>
+                        <li><strong>Continuous Monitoring:</strong> Security is not one-time configuration but ongoing monitoring and adjustment</li>
+                    </ul>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Implement Defense in Depth</td>
+                                <td>Single security layer creates single point of failure; multiple layers ensure comprehensive protection</td>
+                                <td>Combine network hardening (security groups, NACLs), system hardening (OS patches, IAM), and application security</td>
+                            </tr>
+                            <tr>
+                                <td>Apply Least Privilege Principle</td>
+                                <td>Excessive permissions allow attackers to cause maximum damage if credentials are compromised</td>
+                                <td>Grant minimal permissions required for each role, use IAM policies with specific actions and resources</td>
+                            </tr>
+                            <tr>
+                                <td>Enable Comprehensive Logging</td>
+                                <td>Without logs, impossible to detect breaches, investigate incidents, or prove compliance</td>
+                                <td>Enable CloudTrail for API logging, VPC Flow Logs for network traffic, CloudWatch Logs for application events</td>
+                            </tr>
+                            <tr>
+                                <td>Automate Security Patching</td>
+                                <td>Manual patching is slow and error-prone, leaving systems vulnerable to known exploits</td>
+                                <td>Use AWS Systems Manager Patch Manager for automated OS patching on defined maintenance windows</td>
+                            </tr>
+                            <tr>
+                                <td>Segment Networks Properly</td>
+                                <td>Flat networks allow attackers to move laterally after initial breach, accessing all resources</td>
+                                <td>Use VPC subnets to isolate public/private resources, NACLs for subnet-level filtering</td>
+                            </tr>
+                            <tr>
+                                <td>Encrypt Data at Rest and in Transit</td>
+                                <td>Unencrypted data can be read by anyone who gains access to storage or intercepts network traffic</td>
+                                <td>Enable EBS encryption, S3 default encryption, use TLS/SSL for all network communications</td>
+                            </tr>
+                            <tr>
+                                <td>Implement Strong Authentication</td>
+                                <td>Weak passwords and single-factor authentication are easily compromised by attackers</td>
+                                <td>Enforce MFA for all users, especially privileged accounts, use AWS IAM Identity Center for SSO</td>
+                            </tr>
+                            <tr>
+                                <td>Regular Security Audits</td>
+                                <td>Security configurations drift over time; regular reviews identify gaps before exploitation</td>
+                                <td>Use AWS Security Hub for continuous compliance checking, conduct quarterly manual security reviews</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🔐 Security Control Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Network Hardening</th>
+                                <th>System Hardening</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Primary Goal</strong></td>
+                                <td>Control who can reach the system</td>
+                                <td>Control what can be done inside the system</td>
+                            </tr>
+                            <tr>
+                                <td><strong>When Applied</strong></td>
+                                <td>Before system access</td>
+                                <td>After system access</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Key Question</strong></td>
+                                <td>Can you reach the system?</td>
+                                <td>What can you do inside the system?</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Services</strong></td>
+                                <td>Security Groups, NACLs, AWS WAF, Shield</td>
+                                <td>IAM, Systems Manager, Security patching</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Focus Areas</strong></td>
+                                <td>Ports, protocols, IP addresses, network paths</td>
+                                <td>Users, services, permissions, configurations</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Example Controls</strong></td>
+                                <td>Block all ports except 80/443, whitelist admin IPs</td>
+                                <td>Disable root login, remove unused packages, enforce file permissions</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="network-hardening">
+                <summary><h2>🌐 Network Hardening</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>Network hardening is the practice of securing network infrastructure by controlling access <strong>before someone reaches the system</strong>. It answers three fundamental questions: Who is allowed to connect? From where can they connect? On which port can they connect? If someone cannot reach the system at all, they cannot attack it—this is the core principle of network hardening.</p>
+
+                    <p>Consider a server running an application accessible on port 80 (HTTP). With network hardening, you implement controls to ensure only internet users can access port 80, while administrative access on port 22 (SSH) is restricted to specific IP addresses of admin laptops. All other ports are blocked entirely. This creates a secure perimeter around your resources.</p>
+
+                    <p>In AWS, network hardening is primarily implemented through Security Groups (stateful firewalls at instance level), Network ACLs (stateless firewalls at subnet level), AWS WAF (web application firewall), and network segmentation using VPC architecture. These controls work together to create multiple defensive layers that protect resources from unauthorized network access.</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>Perimeter Defense:</strong> Controls who can reach systems before any interaction occurs, preventing unauthorized access attempts</li>
+                        <li><strong>Port Management:</strong> Selectively opening only required ports while blocking all others reduces attack surface significantly</li>
+                        <li><strong>IP Whitelisting:</strong> Restricting access to specific trusted IP addresses prevents access from unknown or malicious sources</li>
+                        <li><strong>Security Groups (AWS):</strong> Stateful firewalls that track connections and automatically allow return traffic for established connections</li>
+                        <li><strong>Network ACLs (AWS):</strong> Stateless firewalls at subnet level requiring explicit rules for both inbound and outbound traffic</li>
+                        <li><strong>Network Segmentation:</strong> Separating public and private resources using subnets limits blast radius of security breaches</li>
+                        <li><strong>Traffic Flow Control:</strong> Defining and monitoring network paths ensures traffic follows expected routes with appropriate security controls</li>
+                        <li><strong>Deny by Default:</strong> All traffic is blocked unless explicitly allowed by security rules, following zero-trust principles</li>
+                    </ul>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Use Security Groups as Primary Defense</td>
+                                <td>Security groups provide stateful filtering with automatic return traffic handling for easier management</td>
+                                <td>Create separate security groups for web, app, and database tiers with minimal required access rules</td>
+                            </tr>
+                            <tr>
+                                <td>Implement Network ACLs for Subnet Protection</td>
+                                <td>NACLs provide additional defense layer at subnet level, protecting entire groups of resources</td>
+                                <td>Configure NACLs to block known malicious IPs, restrict cross-subnet traffic based on tier requirements</td>
+                            </tr>
+                            <tr>
+                                <td>Restrict SSH/RDP to Specific IPs</td>
+                                <td>Administrative ports exposed to internet are primary target for brute force attacks and compromise</td>
+                                <td>Allow port 22/3389 only from corporate VPN IPs or bastion hosts, never from 0.0.0.0/0</td>
+                            </tr>
+                            <tr>
+                                <td>Separate Public and Private Subnets</td>
+                                <td>Mixing public and private resources in same subnet increases risk of unauthorized access</td>
+                                <td>Place web servers in public subnets, application and database servers in private subnets with no internet gateway</td>
+                            </tr>
+                            <tr>
+                                <td>Use AWS WAF for Web Protection</td>
+                                <td>Application-layer attacks bypass network firewalls, requiring specialized web application filtering</td>
+                                <td>Enable AWS WAF on CloudFront and ALB with managed rule sets for OWASP Top 10 protection</td>
+                            </tr>
+                            <tr>
+                                <td>Enable VPC Flow Logs</td>
+                                <td>Without network traffic visibility, impossible to detect suspicious activity or troubleshoot connectivity</td>
+                                <td>Enable Flow Logs for entire VPC, publish to CloudWatch Logs, create alarms for unusual patterns</td>
+                            </tr>
+                            <tr>
+                                <td>Implement Geo-Blocking When Appropriate</td>
+                                <td>If application serves specific regions, blocking other geographies reduces attack surface</td>
+                                <td>Use AWS WAF geo-match rules or CloudFront geographic restrictions to block unwanted countries</td>
+                            </tr>
+                            <tr>
+                                <td>Minimize Open Ports</td>
+                                <td>Every open port is potential entry point for attackers exploiting service vulnerabilities</td>
+                                <td>Open only ports 80/443 for web traffic, specific database ports only from app tier, close all others</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="images/network-hardening-components.png" alt="Network hardening architecture diagram showing central Network hardening hub connected to Firewall with ACLs/port blocking/geo-blocking, IDPS system with real-time alerts and anomaly detection, Core infrastructure with router/switch/wireless access point, VPN gateway with IPsec tunnels and MFA, and Internet connection at bottom">
+                        <p class="diagram-caption"><em>Figure 3: Network Hardening Components - Multiple defensive layers protecting network infrastructure</em></p>
+                    </div>
+
+                    <h3>🛡️ Network Hardening Components</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Purpose</th>
+                                <th>AWS Implementation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Firewall</strong></td>
+                                <td>Control traffic based on rules for ports, protocols, and IP addresses</td>
+                                <td>Security Groups (instance-level), Network ACLs (subnet-level)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ACLs (Access Control Lists)</strong></td>
+                                <td>Define which traffic is permitted or denied at network boundaries</td>
+                                <td>VPC Network ACLs with numbered rules for inbound/outbound traffic</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Port Blocking</strong></td>
+                                <td>Close unnecessary ports to reduce attack surface</td>
+                                <td>Security Group rules allowing only required ports (80, 443, specific app ports)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Geo-Blocking</strong></td>
+                                <td>Restrict access based on geographic location of requests</td>
+                                <td>AWS WAF geo-match conditions, CloudFront geographic restrictions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IDPS (Intrusion Detection/Prevention)</strong></td>
+                                <td>Monitor network traffic for suspicious activity and block threats</td>
+                                <td>AWS GuardDuty for threat detection, third-party IDPS on EC2</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VPN Gateway</strong></td>
+                                <td>Secure encrypted connections for remote access and site-to-site connectivity</td>
+                                <td>AWS VPN (Site-to-Site VPN, Client VPN with MFA)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Segmentation</strong></td>
+                                <td>Isolate resources into separate network zones based on security requirements</td>
+                                <td>VPC subnets (public/private), multiple VPCs, Transit Gateway for inter-VPC routing</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🔒 Example Security Group Configuration</h3>
+                    <div class="code-block">
+                        <p><strong>Web Server Security Group (Inbound Rules):</strong></p>
+                        <ul>
+                            <li>Port 80 (HTTP) - Source: 0.0.0.0/0 (Allow internet access to web content)</li>
+                            <li>Port 443 (HTTPS) - Source: 0.0.0.0/0 (Allow secure internet access)</li>
+                            <li>Port 22 (SSH) - Source: 203.0.113.0/24 (Admin network only - NOT from internet)</li>
+                        </ul>
+                        <p><strong>Database Security Group (Inbound Rules):</strong></p>
+                        <ul>
+                            <li>Port 3306 (MySQL) - Source: sg-webapp123 (Only from application tier security group)</li>
+                            <li>Port 22 (SSH) - Source: sg-bastion456 (Only from bastion host security group)</li>
+                            <li>All other ports: BLOCKED (Implicit deny)</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section" id="system-hardening">
+                <summary><h2>💻 System Hardening</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📖 Detailed Explanation</h3>
+                    <p>System hardening focuses on securing systems <strong>after someone has reached them</strong> through network controls. It answers the critical question: What can users and processes do inside the system? Even after passing network security, access must be strictly controlled at the operating system, application, and data levels.</p>
+
+                    <p>System hardening involves multiple security layers: managing user accounts and permissions (who can access what), controlling running services (what processes are active), maintaining operating system security (keeping systems patched and updated), securing applications (removing unnecessary software), enforcing file permissions (protecting sensitive data), and implementing comprehensive logging (tracking all activities for security monitoring).</p>
+
+                    <p>In AWS environments, system hardening is implemented through IAM for identity and access management, Systems Manager for patch management and configuration control, security best practices for EC2 instances, database security configurations, and continuous monitoring through CloudWatch and CloudTrail. These controls ensure that even if attackers bypass network defenses, they face additional security barriers inside the system.</p>
+
+                    <h3>🔑 Key Concepts</h3>
+                    <ul>
+                        <li><strong>Post-Access Control:</strong> Security measures that limit what can be done after network access is granted</li>
+                        <li><strong>User Management:</strong> Controlling which users exist, what permissions they have, and monitoring their activities</li>
+                        <li><strong>Service Hardening:</strong> Running only necessary services, disabling insecure protocols, configuring secure service settings</li>
+                        <li><strong>OS Hardening:</strong> Keeping operating systems patched, removing unnecessary packages, configuring secure settings</li>
+                        <li><strong>Application Security:</strong> Installing only required applications, keeping them updated, removing vulnerable software</li>
+                        <li><strong>File System Security:</strong> Enforcing proper file and directory permissions to prevent unauthorized access</li>
+                        <li><strong>Logging and Monitoring:</strong> Tracking login attempts, command execution, file access, and suspicious activities</li>
+                        <li><strong>Privilege Escalation Prevention:</strong> Restricting ability to gain higher privileges through vulnerabilities or misconfigurations</li>
+                    </ul>
+
+                    <h3>✅ Best Practices</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Why It Matters</th>
+                                <th>How to Implement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Implement Least Privilege with IAM</td>
+                                <td>Users with excessive permissions can accidentally or maliciously cause significant damage</td>
+                                <td>Create specific IAM roles per function, use managed policies, regularly review and remove unused permissions</td>
+                            </tr>
+                            <tr>
+                                <td>Disable Root User Login</td>
+                                <td>Root account has unlimited privileges; compromise means complete system control for attackers</td>
+                                <td>Create sudo users for admin tasks, lock root account, enable MFA on root for emergency access only</td>
+                            </tr>
+                            <tr>
+                                <td>Automate Security Patching</td>
+                                <td>Unpatched systems are vulnerable to known exploits that attackers actively scan for and target</td>
+                                <td>Use AWS Systems Manager Patch Manager with maintenance windows to automatically apply security updates</td>
+                            </tr>
+                            <tr>
+                                <td>Remove Unnecessary Software</td>
+                                <td>Every installed package is potential vulnerability; unused software still requires security maintenance</td>
+                                <td>Audit installed packages regularly, remove development tools from production, use minimal base AMIs</td>
+                            </tr>
+                            <tr>
+                                <td>Stop Unused Services</td>
+                                <td>Running services consume resources and may have vulnerabilities even if not actively used</td>
+                                <td>Review running processes, disable services not required for application functionality, monitor service states</td>
+                            </tr>
+                            <tr>
+                                <td>Enforce Strong File Permissions</td>
+                                <td>Incorrect file permissions allow unauthorized users to read sensitive data or modify critical files</td>
+                                <td>Set restrictive permissions (644 for files, 755 for directories), protect config files with 600, audit regularly</td>
+                            </tr>
+                            <tr>
+                                <td>Enable Comprehensive Logging</td>
+                                <td>Without logs, security incidents go undetected until significant damage occurs</td>
+                                <td>Enable CloudTrail for API calls, CloudWatch Logs for application logs, configure log retention policies</td>
+                            </tr>
+                            <tr>
+                                <td>Monitor Login Attempts</td>
+                                <td>Failed login attempts indicate brute force attacks or unauthorized access attempts in progress</td>
+                                <td>Configure CloudWatch alarms for failed SSH attempts, monitor AWS Console login failures, alert on anomalies</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>📊 Visual Architecture</h3>
+                    <div class="diagram-container">
+                        <img src="images/system-hardening-types.png" alt="System hardening diagram showing central Systems Hardening circle connected to five types: Server Hardening (pink), Software Hardening (purple), Operating System Hardening (light blue), Database Hardening (orange), and Network Hardening (green) in circular arrangement">
+                        <p class="diagram-caption"><em>Figure 4: System Hardening Types - Five key areas of system security hardening</em></p>
+                    </div>
+
+                    <h3>🔧 System Hardening Areas</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hardening Area</th>
+                                <th>Focus</th>
+                                <th>Key Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Operating System Hardening</strong></td>
+                                <td>Securing OS configuration and keeping systems updated</td>
+                                <td>Apply security patches regularly, disable unnecessary features, configure secure boot, remove default accounts</td>
+                            </tr>
+                            <tr>
+                                <td><strong>User Account Hardening</strong></td>
+                                <td>Managing user access and permissions through IAM</td>
+                                <td>Implement least privilege, enforce MFA, disable inactive accounts, use IAM roles instead of access keys</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Service Hardening</strong></td>
+                                <td>Controlling running services and processes</td>
+                                <td>Stop unused services, disable insecure protocols (Telnet, FTP), configure service-specific security settings</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Application Hardening</strong></td>
+                                <td>Securing installed applications and dependencies</td>
+                                <td>Remove unnecessary software, keep applications updated, avoid outdated packages, use security scanning tools</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File System Hardening</strong></td>
+                                <td>Enforcing proper file and directory permissions</td>
+                                <td>Set restrictive permissions (principle of least privilege), protect configuration files, encrypt sensitive data</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Database Hardening</strong></td>
+                                <td>Securing database configurations and access</td>
+                                <td>Disable default accounts, enforce strong passwords, encrypt at rest and in transit, audit database activities</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Logging & Monitoring</strong></td>
+                                <td>Tracking system activities and detecting suspicious behavior</td>
+                                <td>Enable system logs, track login attempts, monitor command execution, configure alerting for anomalies</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🔍 System Hardening Checklist</h3>
+                    <div class="info-box">
+                        <p><strong>Operating System:</strong></p>
+                        <ul>
+                            <li>✅ Regular security patch updates scheduled</li>
+                            <li>✅ Unnecessary features and services disabled</li>
+                            <li>✅ Default accounts removed or renamed</li>
+                            <li>✅ Strong password policies enforced</li>
+                        </ul>
+                        <p><strong>User Management:</strong></p>
+                        <ul>
+                            <li>✅ Least privilege access implemented via IAM</li>
+                            <li>✅ Root/administrator login disabled</li>
+                            <li>✅ Multi-factor authentication enabled</li>
+                            <li>✅ Inactive accounts identified and removed</li>
+                        </ul>
+                        <p><strong>Services & Applications:</strong></p>
+                        <ul>
+                            <li>✅ Only required services running</li>
+                            <li>✅ Unnecessary software packages removed</li>
+                            <li>✅ Applications kept up-to-date with security patches</li>
+                            <li>✅ Insecure protocols (Telnet, FTP) disabled</li>
+                        </ul>
+                        <p><strong>File System:</strong></p>
+                        <ul>
+                            <li>✅ Restrictive file permissions enforced (644 files, 755 directories)</li>
+                            <li>✅ Configuration files protected (600 permissions)</li>
+                            <li>✅ Sensitive data encrypted at rest</li>
+                        </ul>
+                        <p><strong>Monitoring:</strong></p>
+                        <ul>
+                            <li>✅ System logs enabled and centralized (CloudWatch Logs)</li>
+                            <li>✅ Login attempts monitored and alerted</li>
+                            <li>✅ Suspicious activities tracked (GuardDuty)</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2>📝 Overall Summary</h2></summary>
+                <div class="section-content">
+                    <ul>
+                        <li><strong>AWS Well-Architected Framework (WAF):</strong> Six pillars (Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization, Sustainability) provide best practices for technical correctness after cloud migration, helping organizations avoid high bills, security gaps, and recovery plan failures</li>
+                        <li><strong>Cloud Adoption Framework (CAF):</strong> Six perspectives (Business, People, Governance, Platform, Security, Operations) ensure organizational readiness before migration, addressing common failure causes of poor planning and poor design</li>
+                        <li><strong>WAF vs CAF Purpose:</strong> CAF prepares organizations for migration (organizational readiness), while WAF ensures technical excellence after migration (technical correctness), working together for successful cloud adoption</li>
+                        <li><strong>Security Core Principle:</strong> Security is fundamentally about controlling access at two stages—before reaching systems (network hardening) and after reaching systems (system hardening)</li>
+                        <li><strong>Network Hardening:</strong> Controls who can reach systems by managing ports, protocols, IP addresses, implementing firewalls (Security Groups, NACLs), WAF protection, and network segmentation to prevent unauthorized access attempts</li>
+                        <li><strong>System Hardening:</strong> Controls what can be done inside systems through IAM user management, service control, OS patching, application security, file permissions, and comprehensive logging after access is granted</li>
+                        <li><strong>Defense in Depth:</strong> Multiple security layers ensure comprehensive protection—if attackers bypass network controls, system hardening provides additional barriers preventing damage</li>
+                        <li><strong>Default Insecurity:</strong> Systems are open by default for functionality; deliberate hardening configuration is required to secure operating systems, close unnecessary ports, disable unused services, and implement strict access controls</li>
+                        <li><strong>Exam Relevance:</strong> AWS Cloud Practitioner exam includes 1-2 questions on WAF pillars, CAF perspectives, and security hardening concepts—understanding definitions and use cases is sufficient for exam success</li>
+                        <li><strong>Migration Success Factors:</strong> Organizations succeed in cloud when they follow CAF for pre-migration preparation, apply WAF for post-migration technical excellence, and implement comprehensive security hardening across network and system layers</li>
+                    </ul>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary><h2>🔗 Links & References</h2></summary>
+                <div class="section-content">
+                    
+                    <h3>📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/architecture/well-architected/" target="_blank" rel="noopener noreferrer">AWS Well-Architected Framework</a></td>
+                                <td>Official framework documentation with detailed pillar guides and best practices</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/professional-services/CAF/" target="_blank" rel="noopener noreferrer">AWS Cloud Adoption Framework</a></td>
+                                <td>Complete CAF documentation covering all six perspectives and migration strategies</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html" target="_blank" rel="noopener noreferrer">Well-Architected Framework Whitepaper</a></td>
+                                <td>Comprehensive whitepaper with detailed guidance on each pillar</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html" target="_blank" rel="noopener noreferrer">VPC Security Groups Documentation</a></td>
+                                <td>Official guide for implementing network hardening with security groups</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html" target="_blank" rel="noopener noreferrer">IAM Best Practices</a></td>
+                                <td>Security best practices for identity and access management (system hardening)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🎓 Recommended Reading for Students</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/architecture/well-architected/serverless/" target="_blank" rel="noopener noreferrer">Well-Architected Serverless Lens</a></td>
+                                <td>Specialized guidance for serverless applications following WAF principles</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/blogs/security/" target="_blank" rel="noopener noreferrer">AWS Security Blog</a></td>
+                                <td>Latest security best practices, announcements, and hardening techniques</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://explore.skillbuilder.aws/learn/course/external/view/elearning/14724/aws-well-architected" target="_blank" rel="noopener noreferrer">AWS Skill Builder - Well-Architected Training</a></td>
+                                <td>Free official training course on Well-Architected Framework fundamentals</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/prescriptive-guidance/" target="_blank" rel="noopener noreferrer">AWS Prescriptive Guidance</a></td>
+                                <td>Time-tested strategies and patterns for cloud migration and modernization</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://cisecurity.org/benchmark/amazon_web_services" target="_blank" rel="noopener noreferrer">CIS AWS Foundations Benchmark</a></td>
+                                <td>Industry-standard security configuration baseline for AWS environments</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>🔧 Additional Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/whitepapers/" target="_blank" rel="noopener noreferrer">AWS Whitepapers</a></td>
+                                <td>Technical whitepapers library covering architecture, security, and best practices</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://wellarchitectedlabs.com/" target="_blank" rel="noopener noreferrer">Well-Architected Labs</a></td>
+                                <td>Hands-on labs to learn and apply Well-Architected Framework principles</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/architecture/" target="_blank" rel="noopener noreferrer">AWS Architecture Center</a></td>
+                                <td>Reference architectures, diagrams, and best practices for common workloads</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/what-is-systems-manager.html" target="_blank" rel="noopener noreferrer">AWS Systems Manager Documentation</a></td>
+                                <td>Complete guide for patch management and system hardening automation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/security/security-resources/" target="_blank" rel="noopener noreferrer">AWS Security Resources</a></td>
+                                <td>Comprehensive collection of security documentation, tools, and training materials</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                </div>
+            </details>
+
+        </div>
+
+        <div class="tags">
+            <span class="tag">AWS</span>
+            <span class="tag">Well-Architected-Framework</span>
+            <span class="tag">Cloud-Adoption-Framework</span>
+            <span class="tag">Security</span>
+            <span class="tag">Network-Hardening</span>
+            <span class="tag">System-Hardening</span>
+            <span class="tag">Cloud-Practitioner</span>
+            <span class="tag">Best-Practices</span>
+        </div>
+    </div>
+
+    <script src="../../../js/theme.js"></script>
+    <script src="../../../js/notes-template.js"></script>
+</body>
+</html>

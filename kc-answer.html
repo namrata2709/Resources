@@ -3,17 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Interactive AWS knowledge check with detailed answer explanations. Learn AWS concepts through guided quiz questions with comprehensive explanations and resources.">
+    <meta name="keywords" content="AWS knowledge check, AWS quiz, AWS practice questions, AWS certification prep, interactive AWS learning">
+    <meta name="author" content="Namrata Mulwani">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Knowledge Check - AWS Learning Dashboard">
+    <meta property="og:description" content="Interactive AWS knowledge check with detailed answer explanations and learning resources.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://namrata2709.github.io/Resources/kc-answer.html">
+    <meta property="og:image" content="https://namrata2709.github.io/Resources/images/kc-preview.png">
+    <meta property="og:site_name" content="AWS Learning Dashboard">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Knowledge Check - AWS Learning Dashboard">
+    <meta name="twitter:description" content="Interactive AWS knowledge check with detailed explanations.">
+    <meta name="twitter:image" content="https://namrata2709.github.io/Resources/images/kc-preview.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://namrata2709.github.io/Resources/kc-answer.html">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    
+    <!-- Theme -->
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="color-scheme" content="light dark">
+    
     <title>Knowledge Check - AWS Learning Dashboard</title>
     <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Quiz",
+      "name": "AWS Knowledge Check",
+      "description": "Interactive knowledge check with detailed answer explanations for AWS concepts",
+      "url": "https://namrata2709.github.io/Resources/kc-answer.html",
+      "author": {
+        "@type": "Person",
+        "name": "Namrata Mulwani",
+        "email": "awslecturenotes@gmail.com"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Namrata Mulwani"
+      },
+      "inLanguage": "en",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "AWS Learning Dashboard",
+        "url": "https://namrata2709.github.io/Resources/"
+      },
+      "educationalUse": "Assessment",
+      "educationalLevel": "Beginner to Intermediate"
+    }
+    </script>
 </head>
 <body>
-    <button id="themeToggle" class="theme-toggle">
+    <!-- Loading State -->
+    <div id="pageLoader" class="page-loader">
+        <div class="loader-spinner"></div>
+        <p class="loader-text">Loading questions...</p>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="theme-icon"></span>
     </button>
 
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+            <li><a href="index.html">🏠 Home</a></li>
+            <li><a href="kc-list.html">📝 KC Answer Keys</a></li>
+            <li aria-current="page" id="breadcrumbTitle">Knowledge Check</li>
+        </ol>
+    </nav>
+
     <div class="page-container">
         <header class="page-header">
-            <button class="back-btn" onclick="location.href='kc-list.html'">← Back to KC List</button>
+            <a href="kc-list.html" class="back-btn">← Back to KC List</a>
             <h1 id="pageTitle">📝 Knowledge Check</h1>
         </header>
 
@@ -21,6 +98,35 @@
             <div class="loading">Loading questions...</div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="content-footer">
+        <div class="footer-container">
+            
+            <!-- Copyright & License -->
+            <div class="footer-block">
+                <p class="footer-copyright">© 2025 Namrata Mulwani. All rights reserved.</p>
+                <p class="footer-license">Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer">Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)</a></p>
+            </div>
+
+            <!-- Usage Terms -->
+            <div class="footer-block">
+                <h4 class="footer-heading">📜 Usage Terms</h4>
+                <ul class="footer-list">
+                    <li><strong>You are free to:</strong> Share and adapt this material for educational purposes.</li>
+                    <li><strong>You must:</strong> Give appropriate credit and link to the license.</li>
+                    <li><strong>You cannot:</strong> Use this material for commercial purposes without permission.</li>
+                </ul>
+                <p class="footer-contact">For commercial licensing: <a href="mailto:awslecturenotes@gmail.com">awslecturenotes@gmail.com</a></p>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="footer-disclaimer">
+                <p><strong>⚠️ Disclaimer:</strong> This content is for educational purposes only. AWS, Amazon Web Services, and all AWS service names are trademarks of Amazon.com, Inc. or its affiliates. This training material is not officially affiliated with, authorized, or endorsed by Amazon Web Services.</p>
+            </div>
+
+        </div>
+    </footer>
 
     <!-- External JS -->
     <script src="js/theme.js"></script>
@@ -31,14 +137,18 @@
         const kcFile = urlParams.get('kc');
         const kcTitle = urlParams.get('title');
 
-        // Update page title
+        // Update page title and breadcrumb
         if (kcTitle) {
             document.getElementById('pageTitle').textContent = `📝 ${kcTitle}`;
+            document.getElementById('breadcrumbTitle').textContent = kcTitle;
+            document.title = `${kcTitle} - AWS Learning Dashboard`;
         } else if (kcFile) {
             const title = kcFile.split('_').map(word => 
                 word.charAt(0).toUpperCase() + word.slice(1)
             ).join(' ');
             document.getElementById('pageTitle').textContent = `📝 ${title}`;
+            document.getElementById('breadcrumbTitle').textContent = title;
+            document.title = `${title} - AWS Learning Dashboard`;
         }
 
         // Initialize and load KC
@@ -50,12 +160,28 @@
                 <div class="error">
                     <h2>Error</h2>
                     <p>No knowledge check specified. Please select a KC from the list.</p>
-                    <button class="back-btn" onclick="location.href='kc-list.html'" style="margin-top: 1rem;">
+                    <a href="kc-list.html" class="back-btn" style="margin-top: 1rem; display: inline-block;">
                         ← Go to KC List
-                    </button>
+                    </a>
                 </div>
             `;
         }
+    </script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4JFX5WTGFN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-4JFX5WTGFN');
+    </script>
+    
+    <!-- Loading State Handler -->
+    <script>
+        window.addEventListener('load', function() {
+            document.getElementById('pageLoader').classList.add('hidden');
+        });
     </script>
 </body>
 </html>

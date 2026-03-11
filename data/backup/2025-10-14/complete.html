@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Beginner-friendly complete guide to Linux operating system fundamentals, architecture, file system hierarchy, and practical examples for AWS cloud engineers. Learn Linux from scratch with real-world analogies.">
+    <meta name="keywords"
+        content="AWS, Linux, Operating System, Unix, File System, Cloud Computing, EC2, Linux Tutorial, Beginner Linux, Shell, Kernel">
+    <meta property="og:title" content="Linux Fundamentals - Complete Guide - AWS Training">
+    <meta property="og:description"
+        content="Beginner-friendly complete guide to Linux operating system fundamentals, architecture, file system hierarchy, and practical examples for AWS cloud engineers. Learn Linux from scratch with real-world analogies.">
+    <meta property="og:type" content="article">
+    <meta property="og:url"
+        content="https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/linux-fundamentals-complete.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/images/linux-architecture-layers.png">
+    <meta name="twitter:title" content="Linux Fundamentals - Complete Guide - AWS Training">
+    <meta name="twitter:description"
+        content="Beginner-friendly complete guide to Linux operating system fundamentals, architecture, file system hierarchy, and practical examples for AWS cloud engineers. Learn Linux from scratch with real-world analogies.">
+    <meta name="twitter:image"
+        content="https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/images/linux-architecture-layers.png">
+    <link rel="canonical"
+        href="https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/linux-fundamentals-complete.html">
+    <title>Linux Fundamentals - Complete Guide - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+    <script src="../../../js/theme.js"></script>
+</head>
+
+<body class="complete-notes">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Linux Fundamentals - Complete Beginner's Guide","description":"Beginner-friendly complete guide to Linux operating system fundamentals, architecture, file system hierarchy, and practical examples for AWS cloud engineers. Learn Linux from scratch with real-world analogies.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-10-14","dateModified":"2025-10-14","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/linux-fundamentals-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/images/linux-architecture-layers.png","articleSection":"AWS Training","keywords":["AWS","Linux","Operating System","Unix","File System","Cloud Computing","EC2","Linux Tutorial","Beginner Linux","Shell","Kernel"],"educationalLevel":"Beginner to Intermediate","educationalUse":"Professional Development"}</script>
+    <div class="note-container">
+        <div class="note-header">
+            <h1>🐧 Linux Fundamentals - Complete Guide</h1>
+            <p class="note-date">📅 October 14, 2025</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> October 14, 2025</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="note-content">
+            <h2 id="introduction">🎯 Introduction</h2>
+            <p>Welcome to the world of Linux! If you're planning to work with AWS cloud services, understanding Linux is
+                absolutely essential. Why? Because the majority of cloud servers run on Linux operating systems.</p>
+            <p><span class="exam-highlight-sentence">Linux is an open-source, Unix-like operating system that powers
+                    over 90% of cloud infrastructure worldwide</span>. Unlike Windows, which you interact with using a
+                mouse and graphical windows, <span class="exam-highlight-sentence">Linux servers primarily use a
+                    text-based command-line interface (CLI) for efficiency and automation</span>.</p>
+            <div class="info-box">
+                <p><strong>💡 Why Learn Linux for AWS?</strong></p>
+                <p>When you launch an EC2 instance (virtual server) in AWS, you'll most likely choose a Linux-based
+                    operating system like Amazon Linux or Ubuntu. To manage these servers—installing software, checking
+                    logs, running applications—you need to understand how Linux works.</p>
+            </div>
+            <div class="diagram-container"><img src="images/linux-architecture-layers.png" decoding="async"
+                    alt="Linux architecture diagram showing five layers stacked vertically: hardware at bottom, kernel layer, shell interface, system libraries, and user applications at top with bidirectional arrows showing interaction">
+                <p class="diagram-caption"><em>Figure 1: Linux Architecture - Like a building with hardware as
+                        foundation and applications at the top</em></p>
+            </div>
+            <p>In this guide, you'll learn:</p>
+            <ul>
+                <li>What an operating system actually does</li>
+                <li>How Linux was born from Unix in the 1990s</li>
+                <li>How Linux architecture works (hardware to user)</li>
+                <li>The Linux file system—where everything lives</li>
+                <li>Key differences between Windows and Linux</li>
+                <li>Popular Linux distributions and when to use them</li>
+            </ul>
+            <p>Don't worry if terms like "kernel" or "shell" sound confusing right now. We'll explain everything
+                step-by-step with real-world analogies!</p>
+            <h2 id="toc">📑 Table of Contents</h2>
+            <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#os-fundamentals">What is an Operating System?</a></li>
+                <li><a href="#unix-story">The Unix Story (1960s)</a></li>
+                <li><a href="#linux-birth">How Linux Was Born (1991)</a></li>
+                <li><a href="#linux-architecture">How Linux Works - Architecture Explained</a></li>
+                <li><a href="#file-system">Linux File System - Where Everything Lives</a></li>
+                <li><a href="#windows-vs-linux">Windows vs Linux - What's Different?</a></li>
+                <li><a href="#linux-distros">Linux Flavors (Distributions)</a></li>
+                <li><a href="#ec2-connection">Connecting to Linux EC2 Instance</a></li>
+                <li><a href="#summary">Overall Summary</a></li>
+                <li><a href="#glossary">Glossary</a></li>
+                <li><a href="#interview">Interview Questions</a></li>
+                <li><a href="#mcq">Multiple Choice Questions</a></li>
+                <li><a href="#projects">Hands-On Projects</a></li>
+                <li><a href="#checklist">Learning Checklist</a></li>
+                <li><a href="#reflection">Reflection Questions</a></li>
+                <li><a href="#references">Links & References</a></li>
+            </ul>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="os-fundamentals">💻 What is an Operating System?</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>The Bridge Between You and Your Computer</h3>
+                    <p>Imagine you want to watch a movie on your laptop. You double-click the video file, and it plays.
+                        Simple, right? But behind the scenes, a lot is happening:</p>
+                    <ul>
+                        <li>The file needs to be read from your hard disk</li>
+                        <li>Video data needs to be loaded into RAM (memory)</li>
+                        <li>The CPU needs to decode the video</li>
+                        <li>The graphics card needs to display it on your screen</li>
+                        <li>The speakers need to play audio</li>
+                    </ul>
+                    <p>Who coordinates all of this? <span class="exam-highlight-term">The Operating System (OS)</span>.
+                    </p>
+                    <div class="info-box">
+                        <p><strong>💡 Operating System in Simple Terms:</strong></p>
+                        <p>An operating system is like a <strong>manager of a restaurant kitchen</strong>. You (the
+                            customer) place an order. The manager takes your order, tells the chef (CPU) what to cook,
+                            asks the pantry staff (storage) to bring ingredients, coordinates with waiters (memory) to
+                            serve you, and makes sure everything runs smoothly. You don't need to know how the kitchen
+                            works—you just enjoy your meal!</p>
+                    </div>
+                    <p><span class="exam-highlight-sentence">An operating system is software that acts as an
+                            intermediary between users or applications and the computer's hardware</span>. It manages
+                        resources like the CPU, memory (RAM), storage (hard disk), and input/output devices.</p>
+                    <h3>What Does an Operating System Do?</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>What OS Does</th>
+                                <th>Real-World Analogy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Process Management</strong></td>
+                                <td>Runs multiple programs at once</td>
+                                <td>Like juggling multiple tasks—cooking, cleaning, talking on phone</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Memory Management</strong></td>
+                                <td>Allocates RAM to programs</td>
+                                <td>Like giving each worker in a kitchen their workspace</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File Management</strong></td>
+                                <td>Organizes files and folders</td>
+                                <td>Like organizing books in a library with sections and shelves</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security</strong></td>
+                                <td>Controls who can access what</td>
+                                <td>Like a security guard checking IDs before entry</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Device Management</strong></td>
+                                <td>Talks to keyboard, mouse, printer</td>
+                                <td>Like a translator helping people who speak different languages</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Core Components of an OS</h3>
+                    <p>Every operating system has these key parts:</p>
+                    <ul>
+                        <li><strong>Kernel:</strong> The brain of the OS—manages hardware directly</li>
+                        <li><strong>Shell:</strong> The interface where you type commands (in Linux)</li>
+                        <li><strong>System Libraries:</strong> Pre-written code that programs use</li>
+                        <li><strong>Utilities:</strong> Tools like file viewers, text editors, calculators</li>
+                    </ul>
+                    <div class="diagram-container"><img src="images/os-hardware-interaction.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing user at computer sending request through operating system layers down to hardware CPU RAM disk, then response flowing back up to user">
+                        <p class="diagram-caption"><em>Figure 2: How you interact with hardware through the OS</em></p>
+                    </div>
+                    <h3>Why Can't We Use Hardware Directly?</h3>
+                    <p>Imagine if every time you wanted to save a file, you had to write code telling the hard disk
+                        exactly which sectors to write to, at what speed, with what voltage. That would be a nightmare!
+                    </p>
+                    <p><span class="exam-highlight-sentence">The operating system provides abstraction—it hides the
+                            complexity of hardware and gives you simple commands like "save file" or "print
+                            document"</span>.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="unix-story">📜 The Unix Story (1960s)</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Where It All Began</h3>
+                    <p>In the 1960s, computers were massive machines that filled entire rooms. They were expensive and
+                        only big companies or universities could afford them. Each computer had its own custom operating
+                        system, and if you wanted to run your program on a different computer, you'd have to rewrite it
+                        from scratch.</p>
+                    <p>Then, something revolutionary happened. A group of developers created an operating system called
+                        <span class="exam-highlight-term">Unix</span> using a programming language called <span
+                            class="exam-highlight-term">C</span>.</p>
+                    <div class="diagram-container"><img src="images/unix-timeline.png" loading="lazy" decoding="async"
+                            alt="Timeline showing 1960s Unix creation with C programming, 1980s GNU project start, 1991 Linux kernel by Linus Torvalds, 1990s complete Linux OS formation">
+                        <p class="diagram-caption"><em>Figure 3: From Unix (1960s) to Linux (1990s) - A 30-year
+                                journey</em></p>
+                    </div>
+                    <h3>What Made Unix Special?</h3>
+                    <p><span class="exam-highlight-sentence">Unix introduced multi-user and multi-tasking capabilities,
+                            allowing multiple people to use the same computer simultaneously</span>. Think of it like
+                        multiple people cooking in the same kitchen at the same time without interfering with each
+                        other.</p>
+                    <p>Key Unix innovations:</p>
+                    <ul>
+                        <li><strong>Hierarchical File System:</strong> Organized files like a family tree (we still use
+                            this today!)</li>
+                        <li><strong>Command Line Interface:</strong> Type commands instead of clicking buttons</li>
+                        <li><strong>Portable:</strong> Because it was written in C, Unix could run on different types of
+                            computers</li>
+                        <li><strong>Everything is a file:</strong> Devices, programs, data—all treated as files</li>
+                    </ul>
+                    <div class="info-box">
+                        <p><strong>💡 The "Everything is a File" Philosophy:</strong></p>
+                        <p>In Unix (and Linux), even your keyboard is a file! Your mouse is a file! Your hard disk is a
+                            file! This might sound weird, but it makes things simpler. Instead of having different ways
+                            to interact with different devices, you use the same file operations (read, write, open,
+                            close) for everything.</p>
+                    </div>
+                    <h3>The Problem with Unix</h3>
+                    <p>Unix was amazing, but there was a catch: <span class="exam-highlight-sentence">Unix was
+                            proprietary software that required expensive licensing fees</span>. Companies had to pay to
+                        use it, and you couldn't see or modify the source code.</p>
+                    <p>This created a barrier. Students, hobbyists, and small companies couldn't afford Unix. The world
+                        needed a free alternative...</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="linux-birth">🚀 How Linux Was Born (1991)</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Two Heroes of the Story</h3>
+                    <p>The birth of Linux involved two key players:</p>
+                    <h4>1. Richard Stallman and the GNU Project (1980s)</h4>
+                    <p>Richard Stallman started the <span class="exam-highlight-term">GNU Project</span> (GNU's Not
+                        Unix) to create a free Unix-like operating system. His team developed:</p>
+                    <ul>
+                        <li>The <strong>Bash shell</strong> (where you type commands)</li>
+                        <li><strong>Utilities</strong> like ls, cp, mv (we'll learn these soon!)</li>
+                        <li><strong>Libraries</strong> that programs need</li>
+                        <li>The <strong>GCC compiler</strong> to compile programs</li>
+                    </ul>
+                    <p>But they were missing one crucial piece: the <strong>kernel</strong> (the core of the OS).</p>
+                    <h4>2. Linus Torvalds and the Linux Kernel (1991)</h4>
+                    <p>In 1991, a 21-year-old Finnish student named <span class="exam-highlight-term">Linus
+                            Torvalds</span> was frustrated with the limitations of existing systems. He decided to
+                        create his own kernel as a hobby project.</p>
+                    <div class="highlight-box">
+                        <p><strong>⚡ Fun Fact:</strong></p>
+                        <p>Linus originally wanted to call it "Freax" (a combination of "free," "freak," and "Unix").
+                            But the person who hosted it on a server named the directory "Linux" (Linus + Unix), and the
+                            name stuck!</p>
+                    </div>
+                    <p><span class="exam-highlight-sentence">Linus released the Linux kernel under the GPL (GNU General
+                            Public License), making it free and open-source</span>. This meant anyone could use it,
+                        modify it, and share it.</p>
+                    <h3>GNU + Linux = Complete Operating System</h3>
+                    <div class="diagram-container"><img src="images/linux-kernel-gnu.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing Linux kernel circle in center with GNU tools surrounding it: bash shell, utilities like ls cp mv, gcc compiler, glibc libraries, forming complete Linux OS">
+                        <p class="diagram-caption"><em>Figure 4: Linux kernel + GNU tools = Complete Linux OS</em></p>
+                    </div>
+                    <p>When you combine:</p>
+                    <ul>
+                        <li><strong>Linux kernel</strong> (created by Linus Torvalds) +</li>
+                        <li><strong>GNU tools</strong> (created by Richard Stallman's team)</li>
+                    </ul>
+                    <p>You get a complete, free, open-source operating system!</p>
+                    <h3>What Does "Open Source" Mean?</h3>
+                    <p>Imagine if you bought a car, but the hood was welded shut. You can drive it, but you can't see
+                        how the engine works, and you can't fix or modify it yourself. That's <strong>proprietary
+                            software</strong> (like Windows).</p>
+                    <p>Now imagine the car comes with a complete manual showing every part, and you're allowed to modify
+                        the engine, add new features, and even share your improvements with others. That's <strong>open
+                            source</strong> (like Linux)!</p>
+                    <div class="success-box">
+                        <p><strong>✅ Benefits of Open Source Linux:</strong></p>
+                        <ul>
+                            <li><strong>Free of cost:</strong> No licensing fees</li>
+                            <li><strong>Transparency:</strong> You can see exactly how it works</li>
+                            <li><strong>Security:</strong> Thousands of developers review the code</li>
+                            <li><strong>Customization:</strong> Modify it to suit your needs</li>
+                            <li><strong>Community support:</strong> Global community helps each other</li>
+                        </ul>
+                    </div>
+                    <p><span class="exam-highlight-sentence">Linux is maintained by a global community of developers who
+                            contribute code, fix bugs, and improve security</span>. It's not controlled by a single
+                        company—it belongs to everyone!</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="linux-architecture">🏗️ How Linux Works - Architecture Explained</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Think of Linux as a Building</h3>
+                    <p>Linux architecture is like a multi-story building:</p>
+                    <ul>
+                        <li><strong>Foundation:</strong> Hardware (CPU, RAM, disk)</li>
+                        <li><strong>Ground floor:</strong> Kernel (building security and management)</li>
+                        <li><strong>First floor:</strong> System libraries (shared facilities like elevators)</li>
+                        <li><strong>Second floor:</strong> Shell (reception desk where you make requests)</li>
+                        <li><strong>Top floors:</strong> Applications (offices where actual work happens)</li>
+                    </ul>
+                    <div class="diagram-container"><img src="images/linux-architecture-detailed.png" loading="lazy"
+                            decoding="async"
+                            alt="Detailed layered diagram showing hardware at base, kernel with process scheduler and memory manager, system libraries glibc, shell bash, and applications at top with arrows showing request response flow">
+                        <p class="diagram-caption"><em>Figure 5: Linux architecture layers - Each layer serves the layer
+                                above</em></p>
+                    </div>
+                    <h3>Layer-by-Layer Explanation</h3>
+                    <h4>Layer 1: Hardware (The Foundation)</h4>
+                    <p>This is your physical computer:</p>
+                    <ul>
+                        <li><strong>CPU:</strong> The brain that processes instructions</li>
+                        <li><strong>RAM:</strong> Short-term memory for running programs</li>
+                        <li><strong>Storage (HDD/SSD):</strong> Long-term memory for files</li>
+                        <li><strong>Network card:</strong> Connects to the internet</li>
+                        <li><strong>Keyboard, mouse, monitor:</strong> Input/output devices</li>
+                    </ul>
+                    <h4>Layer 2: Kernel (The Manager)</h4>
+                    <p><span class="exam-highlight-sentence">The kernel is the core of the Linux operating system that
+                            directly manages hardware resources</span>. Think of it as the building manager who has keys
+                        to everything.</p>
+                    <p>The kernel handles:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Analogy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Process Management</strong></td>
+                                <td>Like a chef managing multiple dishes cooking at once</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Memory Management</strong></td>
+                                <td>Like a librarian assigning reading desks to students</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File System Management</strong></td>
+                                <td>Like a filing clerk organizing documents</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Device Drivers</strong></td>
+                                <td>Like translators helping you talk to foreigners</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security</strong></td>
+                                <td>Like a bouncer checking IDs at the door</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="info-box">
+                        <p><strong>💡 Why You Can't Talk to Hardware Directly:</strong></p>
+                        <p>Imagine if every time you wanted to save a file, you had to tell the hard disk: "Move the
+                            read/write head to cylinder 42, sector 18, track 7, and write these bits: 01101000..."
+                            Impossible!</p>
+                        <p>The kernel does this for you. You just say "save file," and the kernel handles all the
+                            complex hardware operations.</p>
+                    </div>
+                    <h4>Layer 3: System Libraries (The Helpers)</h4>
+                    <p><span class="exam-highlight-sentence">System libraries are collections of pre-written code that
+                            programs use to perform common tasks</span>. The most important is <span
+                            class="exam-highlight-term">glibc</span> (GNU C Library).</p>
+                    <p>Analogy: Instead of every chef making their own knife, cutting board, and pots, they share common
+                        kitchen tools. Libraries are like shared tools that save programmers time.</p>
+                    <h4>Layer 4: Shell (The Reception Desk)</h4>
+                    <p><span class="exam-highlight-sentence">The shell is a command interpreter that accepts commands
+                            from users and translates them into actions the kernel can perform</span>.</p>
+                    <p>Think of the shell as a receptionist at a hotel:</p>
+                    <ul>
+                        <li>You (guest): "I'd like room service."</li>
+                        <li>Receptionist (shell): "Sure! Let me call the kitchen (kernel) for you."</li>
+                        <li>Kitchen (kernel): "Got it! Sending food up."</li>
+                    </ul>
+                    <p>Popular shells in Linux:</p>
+                    <ul>
+                        <li><strong>Bash:</strong> Bourne Again Shell (most common, default in most Linux systems)</li>
+                        <li><strong>Zsh:</strong> Z Shell (fancy features, used in macOS now)</li>
+                        <li><strong>Fish:</strong> Friendly Interactive Shell (beginner-friendly)</li>
+                    </ul>
+                    <h4>Layer 5: Utilities and Applications (The Workers)</h4>
+                    <p>These are the programs you actually use:</p>
+                    <ul>
+                        <li><strong>Utilities:</strong> Built-in tools like <code>ls</code> (list files),
+                            <code>cp</code> (copy), <code>grep</code> (search)</li>
+                        <li><strong>Applications:</strong> Software like web servers (Apache, Nginx), databases (MySQL),
+                            text editors (vim, nano)</li>
+                    </ul>
+                    <h3>How a Command Travels Through the Layers</h3>
+                    <p>Let's trace what happens when you type <code>ls</code> (list files) in the terminal:</p>
+                    <pre style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; overflow-x: auto;">
+<strong>Step 1:</strong> You type: ls /home
+         ↓
+<strong>Step 2:</strong> Shell receives the command
+         ↓
+<strong>Step 3:</strong> Shell finds the ls program (usually in /bin/ls)
+         ↓
+<strong>Step 4:</strong> ls program uses system libraries (glibc)
+         ↓
+<strong>Step 5:</strong> Libraries make system calls to the kernel
+         ↓
+<strong>Step 6:</strong> Kernel accesses the file system on the hard disk
+         ↓
+<strong>Step 7:</strong> Hard disk returns directory contents
+         ↓
+<strong>Step 8:</strong> Data flows back up: Kernel → Libraries → ls program
+         ↓
+<strong>Step 9:</strong> Shell displays the result on your screen
+</pre>
+                    <div class="highlight-box">
+                        <p><strong>⚠️ Important Concept:</strong></p>
+                        <p><span class="exam-highlight-sentence">Users and programs cannot directly access hardware in
+                                Linux—all hardware access must go through the kernel for security and stability</span>.
+                        </p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="file-system">📁 Linux File System - Where Everything Lives</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>The "Everything is a File" Philosophy</h3>
+                    <p>Remember we mentioned this earlier? In Linux, <strong>everything</strong> is treated as a file:
+                    </p>
+                    <ul>
+                        <li>Regular files (documents, photos) = Files ✓</li>
+                        <li>Directories (folders) = Files ✓</li>
+                        <li>Your keyboard = File ✓</li>
+                        <li>Your hard disk = File ✓</li>
+                        <li>Running programs (processes) = Files ✓</li>
+                        <li>Network connections = Files ✓</li>
+                    </ul>
+                    <p>This might seem weird, but it's actually brilliant! Instead of having different ways to interact
+                        with different things, you use the same file operations (read, write, open, close) for
+                        everything.</p>
+                    <h3>The Single Root Structure</h3>
+                    <p><span class="exam-highlight-sentence">Unlike Windows which has multiple drives (C:, D:, E:),
+                            Linux has a single root directory denoted by forward slash /</span>.</p>
+                    <div class="info-box">
+                        <p><strong>💡 The Tree Analogy:</strong></p>
+                        <p>Think of the Linux file system as a tree:</p>
+                        <ul>
+                            <li><strong>Root (/):</strong> The trunk of the tree</li>
+                            <li><strong>Branches:</strong> Main directories like /home, /etc, /var</li>
+                            <li><strong>Leaves:</strong> Files and subdirectories</li>
+                        </ul>
+                        <p>Everything grows from the root!</p>
+                    </div>
+                    <div class="diagram-container"><img src="images/file-system-hierarchy.png" loading="lazy"
+                            decoding="async"
+                            alt="Tree diagram with root slash at top branching down to bin boot etc home root usr var tmp dev proc sys opt mnt media directories">
+                        <p class="diagram-caption"><em>Figure 6: Linux file system tree - All paths start from /
+                                (root)</em></p>
+                    </div>
+                    <h3>Important Directories Explained</h3>
+                    <p>When you connect to a Linux EC2 instance, you'll see these directories. Let's understand what
+                        each one does:</p>
+                    <h4>/ (Root Directory)</h4>
+                    <p>The top-level directory. Everything starts here. Think of it like "This PC" in Windows.</p>
+                    <h4>/home (User Home Directories)</h4>
+                    <p><span class="exam-highlight-sentence">/home contains personal directories for all standard users
+                            on the system</span>.</p>
+                    <p>Analogy: Like an apartment building where each resident has their own apartment:</p>
+                    <ul>
+                        <li><code>/home/ec2-user</code> = EC2 user's apartment</li>
+                        <li><code>/home/john</code> = John's apartment</li>
+                        <li><code>/home/mary</code> = Mary's apartment</li>
+                    </ul>
+                    <p>Each user can only access their own apartment (directory) by default.</p>
+                    <h4>/root (Root User's Home)</h4>
+                    <p>The home directory for the <strong>root</strong> user (administrator). <span
+                            class="exam-highlight-sentence">The root user has complete control over the entire
+                            system</span>—like the building owner who has keys to all apartments.</p>
+                    <div class="highlight-box">
+                        <p><strong>⚠️ Important Distinction:</strong></p>
+                        <ul>
+                            <li><code>/</code> = Root directory (the tree trunk)</li>
+                            <li><code>/root</code> = Root user's home directory (admin's apartment)</li>
+                        </ul>
+                        <p>These are different things!</p>
+                    </div>
+                    <h4>/bin (Essential Binaries)</h4>
+                    <p><span class="exam-highlight-sentence">/bin contains essential command-line programs that all
+                            users need</span>, like:</p>
+                    <ul>
+                        <li><code>ls</code> (list files)</li>
+                        <li><code>cp</code> (copy)</li>
+                        <li><code>mv</code> (move)</li>
+                        <li><code>cat</code> (view file contents)</li>
+                        <li><code>bash</code> (the shell itself)</li>
+                    </ul>
+                    <p>Think of /bin like a toolbox everyone can access.</p>
+                    <h4>/sbin (System Binaries)</h4>
+                    <p>Similar to /bin, but these are <strong>system administration</strong> tools that usually only the
+                        root user needs:</p>
+                    <ul>
+                        <li><code>fdisk</code> (partition disks)</li>
+                        <li><code>reboot</code> (restart system)</li>
+                        <li><code>iptables</code> (firewall configuration)</li>
+                    </ul>
+                    <h4>/etc (Configuration Files)</h4>
+                    <p><span class="exam-highlight-sentence">/etc stores system-wide configuration files in plain text
+                            format</span>.</p>
+                    <p>Examples:</p>
+                    <ul>
+                        <li><code>/etc/passwd</code> - List of all user accounts</li>
+                        <li><code>/etc/ssh/sshd_config</code> - SSH server configuration</li>
+                        <li><code>/etc/hosts</code> - DNS hostname mappings</li>
+                    </ul>
+                    <p>Analogy: Like the main office of an apartment building where all records, rules, and settings are
+                        kept.</p>
+                    <h4>/var (Variable Data)</h4>
+                    <p><span class="exam-highlight-sentence">/var contains files that change frequently during system
+                            operation, especially log files</span>.</p>
+                    <ul>
+                        <li><code>/var/log</code> - System and application logs</li>
+                        <li><code>/var/log/messages</code> - General system logs</li>
+                        <li><code>/var/log/auth.log</code> - Authentication logs (who logged in)</li>
+                    </ul>
+                    <p>When troubleshooting, you'll spend a lot of time in /var/log!</p>
+                    <h4>/tmp (Temporary Files)</h4>
+                    <p><span class="exam-highlight-sentence">/tmp stores temporary files that are automatically deleted
+                            when the system reboots</span>.</p>
+                    <p>Analogy: Like scratch paper—useful for a moment, then thrown away.</p>
+                    <h4>/usr (User Programs)</h4>
+                    <p>Despite the name, <span class="exam-highlight-term">/usr</span> doesn't mean "user files"—it
+                        stands for "Unix System Resources." This is where most user-installed applications and their
+                        files live:</p>
+                    <ul>
+                        <li><code>/usr/bin</code> - Additional user programs</li>
+                        <li><code>/usr/local</code> - Locally installed software</li>
+                        <li><code>/usr/share</code> - Shared data like documentation</li>
+                    </ul>
+                    <h4>/opt (Optional Software)</h4>
+                    <p>For <strong>third-party applications</strong> that don't come with the OS. If you manually
+                        download and install software (like Java, custom applications), it often goes here.</p>
+                    <h4>/dev (Device Files)</h4>
+                    <p><span class="exam-highlight-sentence">/dev contains device files that represent hardware
+                            components</span>.</p>
+                    <p>Examples:</p>
+                    <ul>
+                        <li><code>/dev/sda</code> - First hard disk</li>
+                        <li><code>/dev/sda1</code> - First partition on first disk</li>
+                        <li><code>/dev/null</code> - A "black hole" that discards all data (useful in scripts!)</li>
+                    </ul>
+                    <p>Remember: Everything is a file! Your hard disk is the file <code>/dev/sda</code>.</p>
+                    <h4>/proc (Process Information)</h4>
+                    <p>A <strong>virtual file system</strong> that provides information about running processes and the
+                        kernel. These aren't real files on disk—they're created on-the-fly.</p>
+                    <ul>
+                        <li><code>/proc/cpuinfo</code> - CPU information</li>
+                        <li><code>/proc/meminfo</code> - Memory information</li>
+                        <li><code>/proc/[PID]</code> - Information about process with ID [PID]</li>
+                    </ul>
+                    <h4>/sys (System Information)</h4>
+                    <p>Another virtual file system with kernel and device information, similar to /proc but more
+                        organized.</p>
+                    <h4>/boot (Boot Files)</h4>
+                    <p>Files needed to boot the system:</p>
+                    <ul>
+                        <li>Linux kernel</li>
+                        <li>Bootloader configuration (GRUB)</li>
+                    </ul>
+                    <h4>/mnt and /media (Mount Points)</h4>
+                    <p><span class="exam-highlight-sentence">/mnt and /media are used to temporarily mount external
+                            storage devices like USB drives</span>.</p>
+                    <p>In Windows, when you plug in a USB, it gets a drive letter (E:, F:). In Linux, it gets "mounted"
+                        to a directory like <code>/media/usb</code>.</p>
+                    <h3>Understanding Paths</h3>
+                    <p>Paths in Linux use <strong>forward slashes /</strong> to separate directories (Windows uses
+                        backslashes \).</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Path Type</th>
+                                <th>Example</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Absolute Path</strong></td>
+                                <td><code>/home/ec2-user/documents/file.txt</code></td>
+                                <td>Starts from root (/), shows full location</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Relative Path</strong></td>
+                                <td><code>documents/file.txt</code></td>
+                                <td>Relative to current directory</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Special Symbols in Linux</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Meaning</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/</code></td>
+                                <td>Root directory</td>
+                                <td>Top level of file system</td>
+                            </tr>
+                            <tr>
+                                <td><code>~</code></td>
+                                <td>User's home directory</td>
+                                <td><code>~</code> = <code>/home/ec2-user</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>.</code></td>
+                                <td>Current directory</td>
+                                <td><code>./script.sh</code> = run script in current folder</td>
+                            </tr>
+                            <tr>
+                                <td><code>..</code></td>
+                                <td>Parent directory (one level up)</td>
+                                <td><code>cd ..</code> = go up one level</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Navigating Directories</h3>
+                    <p>Let's say you're currently in <code>/home/ec2-user</code> and want to go to the root directory:
+                    </p>
+                    <pre><code># Check where you are now
+pwd
+Output: /home/ec2-user
+
+# Go up one level to /home
+cd ..
+pwd
+Output: /home
+
+# Go up one more level to /
+cd ..
+pwd
+Output: /
+
+# List everything at root level
+ls
+Output: bin  boot  dev  etc  home  lib  opt  proc  root  sbin  sys  tmp  usr  var</code></pre>
+                    <div class="success-box">
+                        <p><strong>✅ Pro Tip:</strong></p>
+                        <p>The <code>pwd</code> command (Print Working Directory) shows your current location. Use it
+                            often when learning!</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="windows-vs-linux">⚖️ Windows vs Linux - What's Different?</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Two Different Worlds</h3>
+                    <p>If you're coming from Windows, Linux will feel different. Let's compare them side-by-side:</p>
+                    <div class="diagram-container"><img src="images/windows-vs-linux-structure.png" loading="lazy"
+                            decoding="async"
+                            alt="Split diagram showing Windows with C drive D drive folders on left versus Linux with single root slash tree structure on right">
+                        <p class="diagram-caption"><em>Figure 7: Windows (drive-based) vs Linux (single root)</em></p>
+                    </div>
+                    <h3>Key Differences Table</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Windows</th>
+                                <th>Linux</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>File System Root</strong></td>
+                                <td>Multiple drives: C:, D:, E:</td>
+                                <td>Single root: /</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Path Separator</strong></td>
+                                <td>Backslash: <code>C:\Users\John</code></td>
+                                <td>Forward slash: <code>/home/john</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Case Sensitivity</strong></td>
+                                <td>Not case-sensitive</td>
+                                <td><strong>Case-sensitive</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Primary Interface</strong></td>
+                                <td>GUI (click and drag)</td>
+                                <td>CLI (type commands)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Administrator Account</strong></td>
+                                <td>Administrator</td>
+                                <td>root</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Configuration</strong></td>
+                                <td>Registry + config files</td>
+                                <td>Text files in /etc</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Software Installation</strong></td>
+                                <td>Download .exe, double-click</td>
+                                <td>Package managers: apt, yum</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Devices</strong></td>
+                                <td>Drive letters: D:, E:</td>
+                                <td>Files in /dev: /dev/sda</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cost</strong></td>
+                                <td>Paid license</td>
+                                <td>Free and open-source</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security</strong></td>
+                                <td>Antivirus needed</td>
+                                <td>File permissions, no antivirus needed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Case Sensitivity - A Critical Difference!</h3>
+                    <p>This trips up many Windows users:</p>
+                    <div class="error-box">
+                        <p><strong>❌ In Windows:</strong></p>
+                        <pre><code>File.txt = file.txt = FILE.TXT
+(All refer to the SAME file)</code></pre>
+                    </div>
+                    <div class="success-box">
+                        <p><strong>✅ In Linux:</strong></p>
+                        <pre><code>File.txt ≠ file.txt ≠ FILE.TXT
+(These are THREE DIFFERENT files!)</code></pre>
+                    </div>
+                    <p><span class="exam-highlight-sentence">Linux is strictly case-sensitive—File.txt and file.txt are
+                            treated as completely different files</span>.</p>
+                    <p>Real-world example: If you type <code>CD /home</code> instead of <code>cd /home</code>, Linux
+                        will say "command not found" because <code>CD</code> and <code>cd</code> are different!</p>
+                    <h3>GUI vs CLI</h3>
+                    <p>Windows is primarily GUI-based:</p>
+                    <ul>
+                        <li>You click on folders to open them</li>
+                        <li>You drag files to move them</li>
+                        <li>You double-click programs to run them</li>
+                    </ul>
+                    <p>Linux servers are primarily CLI-based:</p>
+                    <ul>
+                        <li>You type <code>cd folder</code> to open folders</li>
+                        <li>You type <code>mv file.txt /home/</code> to move files</li>
+                        <li>You type <code>./program</code> to run programs</li>
+                    </ul>
+                    <div class="info-box">
+                        <p><strong>💡 Why CLI for Servers?</strong></p>
+                        <p>GUI requires a lot of resources (RAM, CPU) to display graphics. Servers don't need fancy
+                            windows and buttons—they just need to run applications and serve data. CLI is faster, uses
+                            fewer resources, and is easier to automate with scripts.</p>
+                    </div>
+                    <h3>How Software Installation Differs</h3>
+                    <p><strong>In Windows:</strong></p>
+                    <ol>
+                        <li>Open browser</li>
+                        <li>Search for "download Git"</li>
+                        <li>Download .exe file</li>
+                        <li>Double-click to install</li>
+                        <li>Click Next, Next, Finish</li>
+                    </ol>
+                    <p><strong>In Linux:</strong></p>
+                    <pre><code>sudo yum install git -y</code></pre>
+                    <p>One command! The <span class="exam-highlight-term">package manager</span> (yum in this case)
+                        knows where to find Git, downloads it, installs it, and configures it automatically.</p>
+                    <h3>Windows Equivalent to Linux Directories</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Windows</th>
+                                <th>Linux Equivalent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>C:\Windows</code></td>
+                                <td><code>/bin</code>, <code>/sbin</code>, <code>/boot</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>C:\Program Files</code></td>
+                                <td><code>/usr</code>, <code>/opt</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>C:\Users</code></td>
+                                <td><code>/home</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>C:\Users\John</code></td>
+                                <td><code>/home/john</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>C:\Users\Administrator</code></td>
+                                <td><code>/root</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>C:\Temp</code></td>
+                                <td><code>/tmp</code></td>
+                            </tr>
+                            <tr>
+                                <td>Device Manager</td>
+                                <td><code>/dev</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="linux-distros">🌐 Linux Flavors (Distributions)</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>One Kernel, Many Flavors</h3>
+                    <p>Remember, Linux is just the kernel. Different groups take the Linux kernel, add their own tools
+                        and software, and create complete operating systems called <span
+                            class="exam-highlight-term">distributions</span> or <span
+                            class="exam-highlight-term">distros</span>.</p>
+                    <p>It's like ice cream: vanilla is the base flavor (Linux kernel), but you can add different
+                        toppings to create different varieties!</p>
+                    <div class="diagram-container"><img src="images/linux-distros-families.png" loading="lazy"
+                            decoding="async"
+                            alt="Family tree showing Debian branch with Ubuntu and Kali, Red Hat branch with CentOS Fedora Amazon Linux, and independent branches Arch and Alpine">
+                        <p class="diagram-caption"><em>Figure 8: Major Linux distribution families</em></p>
+                    </div>
+                    <h3>Why So Many Distros?</h3>
+                    <p>Because Linux is open-source, anyone can create their own version! Different distros are
+                        optimized for different purposes:</p>
+                    <ul>
+                        <li>Some for servers (stable, secure)</li>
+                        <li>Some for desktops (user-friendly, pretty)</li>
+                        <li>Some for security testing (hacking tools pre-installed)</li>
+                        <li>Some for old computers (lightweight)</li>
+                    </ul>
+                    <h3>Popular Linux Distributions</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Distribution</th>
+                                <th>Purpose</th>
+                                <th>Who Uses It</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Amazon Linux</strong></td>
+                                <td>AWS EC2 instances</td>
+                                <td>AWS cloud engineers, optimized for AWS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ubuntu</strong></td>
+                                <td>General purpose, beginner-friendly</td>
+                                <td>Developers, students, desktop users</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CentOS / Rocky Linux</strong></td>
+                                <td>Enterprise servers</td>
+                                <td>Companies running production servers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Red Hat Enterprise Linux (RHEL)</strong></td>
+                                <td>Enterprise servers with paid support</td>
+                                <td>Large corporations, banks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fedora</strong></td>
+                                <td>Desktop, testing new features</td>
+                                <td>Developers, enthusiasts</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Debian</strong></td>
+                                <td>Server, very stable</td>
+                                <td>Experienced Linux users</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kali Linux</strong></td>
+                                <td>Cybersecurity, penetration testing</td>
+                                <td>Ethical hackers, security professionals</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Parrot OS</strong></td>
+                                <td>Security testing, privacy-focused</td>
+                                <td>Security researchers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Alpine Linux</strong></td>
+                                <td>Docker containers, minimal</td>
+                                <td>DevOps engineers (very small size)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Package Managers by Distro</h3>
+                    <p><span class="exam-highlight-sentence">Different Linux distributions use different package
+                            managers to install software</span>.</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Distro Family</th>
+                                <th>Package Manager</th>
+                                <th>Install Command</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Debian/Ubuntu</td>
+                                <td>apt</td>
+                                <td><code>sudo apt install nginx</code></td>
+                            </tr>
+                            <tr>
+                                <td>Red Hat/CentOS/Amazon Linux</td>
+                                <td>yum or dnf</td>
+                                <td><code>sudo yum install nginx</code></td>
+                            </tr>
+                            <tr>
+                                <td>Arch Linux</td>
+                                <td>pacman</td>
+                                <td><code>sudo pacman -S nginx</code></td>
+                            </tr>
+                            <tr>
+                                <td>Alpine Linux</td>
+                                <td>apk</td>
+                                <td><code>apk add nginx</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="info-box">
+                        <p><strong>💡 For AWS Users:</strong></p>
+                        <p>When you launch an EC2 instance, you'll typically choose:</p>
+                        <ul>
+                            <li><strong>Amazon Linux 2:</strong> AWS's own distro, free tier eligible, includes AWS CLI
+                                pre-installed</li>
+                            <li><strong>Ubuntu Server:</strong> Very popular, great for web applications</li>
+                            <li><strong>Red Hat:</strong> If you need commercial support (costs extra)</li>
+                        </ul>
+                    </div>
+                    <h3>What About Kali Linux and Parrot OS?</h3>
+                    <p>These are special distros for <strong>cybersecurity professionals</strong>. They come with
+                        hundreds of pre-installed hacking tools for:</p>
+                    <ul>
+                        <li>Penetration testing (finding security vulnerabilities)</li>
+                        <li>Network analysis</li>
+                        <li>Password cracking</li>
+                        <li>Wireless security testing</li>
+                    </ul>
+                    <div class="highlight-box">
+                        <p><strong>⚠️ Important Note:</strong></p>
+                        <p>Kali and Parrot are for <strong>ethical hacking only</strong>—authorized security testing
+                            with permission. Using these tools maliciously is illegal!</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="ec2-connection">🔌 Connecting to Linux EC2 Instance</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Your First Linux Experience in AWS</h3>
+                    <p>When you launch a Linux EC2 instance in AWS, you can connect to it using SSH (Secure Shell).
+                        Let's understand what you see when you connect.</p>
+                    <h3>EC2 Instance Connect</h3>
+                    <p>AWS provides a browser-based SSH client called <span class="exam-highlight-term">EC2 Instance
+                            Connect</span>. This is the easiest way to connect to your Linux instance without needing
+                        external software.</p>
+                    <div class="success-box">
+                        <p><strong>✅ When to Use EC2 Instance Connect:</strong></p>
+                        <ul>
+                            <li>Your instance has a public IP address</li>
+                            <li>You're using a Linux-based AMI (Amazon Linux, Ubuntu)</li>
+                            <li>You don't have SSH client software installed</li>
+                            <li>You launched the instance without a key pair</li>
+                        </ul>
+                    </div>
+                    <h3>Understanding the Linux Prompt</h3>
+                    <p>When you connect, you'll see something like this:</p>
+                    <pre><code>[ec2-user@ip-172-31-10-88 ~]$</code></pre>
+                    <p>Let's decode this:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Part</th>
+                                <th>Meaning</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ec2-user</code></td>
+                                <td>Current logged-in username</td>
+                            </tr>
+                            <tr>
+                                <td><code>@</code></td>
+                                <td>Separator (at)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ip-172-31-10-88</code></td>
+                                <td>Hostname (based on private IP)</td>
+                            </tr>
+                            <tr>
+                                <td><code>~</code></td>
+                                <td>Current directory (tilde = home directory)</td>
+                            </tr>
+                            <tr>
+                                <td><code>$</code></td>
+                                <td>Standard user (not root)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>User Accounts in Linux</h3>
+                    <p><span class="exam-highlight-sentence">Linux is a multi-user operating system where each user has
+                            their own account and home directory</span>.</p>
+                    <p>When you log in as <code>ec2-user</code>, you're in <code>/home/ec2-user</code>. This is your
+                        personal workspace.</p>
+                    <h3>Standard User vs Root User</h3>
+                    <p>There are two types of users:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User Type</th>
+                                <th>Symbol</th>
+                                <th>Permissions</th>
+                                <th>Home Directory</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Standard User</strong></td>
+                                <td><code>$</code></td>
+                                <td>Limited (can't modify system files)</td>
+                                <td><code>/home/username</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Root User</strong></td>
+                                <td><code>#</code></td>
+                                <td>Full control over everything</td>
+                                <td><code>/root</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>To switch to root user temporarily:</p>
+                    <pre><code>sudo su -</code></pre>
+                    <p>The prompt changes to:</p>
+                    <pre><code>[root@ip-172-31-10-88 ~]#</code></pre>
+                    <p>Notice the <code>#</code> symbol—this means you're now root (administrator)!</p>
+                    <div class="error-box">
+                        <p><strong>❌ Warning:</strong></p>
+                        <p>Be extremely careful when you're root! You can delete critical system files with no warning.
+                            With great power comes great responsibility!</p>
+                    </div>
+                    <h3>Basic Navigation Commands</h3>
+                    <p>Try these commands when you connect to your EC2 instance:</p>
+                    <pre><code># Check where you are
+pwd
+Output: /home/ec2-user
+
+# List files in current directory
+ls
+Output: (shows files and folders)
+
+# Go to root directory
+cd /
+
+# List everything at root
+ls
+Output: bin  boot  dev  etc  home  lib  opt  proc  root  sbin  sys  tmp  usr  var
+
+# Go back to your home directory
+cd ~
+
+# Check again where you are
+pwd
+Output: /home/ec2-user</code></pre>
+                    <h3>The Tilde (~) Symbol</h3>
+                    <p>The tilde <code>~</code> is a shortcut for your home directory:</p>
+                    <ul>
+                        <li>For <code>ec2-user</code>, <code>~</code> means <code>/home/ec2-user</code></li>
+                        <li>For <code>root</code>, <code>~</code> means <code>/root</code></li>
+                    </ul>
+                    <p>So instead of typing:</p>
+                    <pre><code>cd /home/ec2-user/documents</code></pre>
+                    <p>You can type:</p>
+                    <pre><code>cd ~/documents</code></pre>
+                    <p>Much shorter!</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="summary">📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Let's recap everything we learned about Linux fundamentals:</p>
+                    <ul>
+                        <li><strong>Operating Systems:</strong> An OS is software that acts as a bridge between
+                            users/applications and hardware. It manages CPU, memory, storage, and devices. Without an
+                            OS, applications can't run.</li>
+                        <li><strong>Unix History (1960s):</strong> Unix was the first multi-user, multi-tasking OS
+                            developed using C programming. It introduced the hierarchical file system and "everything is
+                            a file" philosophy. However, it was proprietary and expensive.</li>
+                        <li><strong>Linux Birth (1991):</strong> Linus Torvalds created the Linux kernel as a free
+                            alternative to Unix. Combined with GNU tools (shell, utilities, libraries), it formed a
+                            complete open-source operating system. Linux is maintained by a global community.</li>
+                        <li><strong>Linux Architecture:</strong> Layered system from bottom to top: Hardware → Kernel
+                            (core OS) → System Libraries (helper code) → Shell (command interpreter) → Utilities and
+                            Applications. The kernel manages all hardware access.</li>
+                        <li><strong>File System Hierarchy:</strong> Linux uses a single root directory (/) instead of
+                            multiple drives. Everything branches from /. Key directories: /home (user files), /etc
+                            (configuration), /var (logs), /bin (commands), /root (admin home), /tmp (temporary files).
+                        </li>
+                        <li><strong>Everything is a File:</strong> In Linux, devices, directories, processes, and
+                            regular files are all treated as files. This provides a unified way to interact with the
+                            system.</li>
+                        <li><strong>Windows vs Linux:</strong> Windows uses drive letters (C:, D:) and backslashes;
+                            Linux uses single root (/) and forward slashes. Windows is case-insensitive; Linux is
+                            case-sensitive. Windows is GUI-first; Linux servers are CLI-first.</li>
+                        <li><strong>Linux Distributions:</strong> Different groups create Linux distros for different
+                            purposes. Popular ones: Amazon Linux (AWS), Ubuntu (general), CentOS/RHEL (enterprise), Kali
+                            (security testing). Each uses different package managers (apt, yum, dnf).</li>
+                        <li><strong>CLI Importance:</strong> Linux servers use command-line interfaces because they're
+                            faster, more efficient, and easier to automate than GUIs. Cloud engineers must be
+                            comfortable with CLI.</li>
+                        <li><strong>Case Sensitivity:</strong> File.txt and file.txt are different files in Linux. This
+                            is a common source of errors for Windows users transitioning to Linux.</li>
+                        <li><strong>EC2 Connection:</strong> When you SSH into an EC2 instance, you land in
+                            /home/ec2-user. The prompt shows username@hostname, current directory (~), and user type
+                            ($=standard, #=root). Use pwd to check location, ls to list files, cd to navigate.</li>
+                        <li><strong>User Types:</strong> Standard users (like ec2-user) have limited permissions. Root
+                            user has complete control. Use sudo su - to become root temporarily, but be careful—you can
+                            break the system!</li>
+                    </ul>
+                    <p>Understanding these Linux fundamentals is crucial before diving into commands, file permissions,
+                        process management, and shell scripting in upcoming sessions.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="glossary">📖 Glossary</h2>
+                </summary>
+                <div class="section-content">
+                    <div id="glossaryContainer" data-glossary-source="json/glossary.json"></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="interview">🎤 Interview Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <p class="interview-intro">📚 Test your understanding with these carefully curated questions. Click
+                        through each question and reveal answers to check your knowledge.</p>
+                    <div class="interview-progress">
+                        <p id="interviewProgress">Progress: 0/25 (0%)</p>
+                    </div>
+                    <div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn"
+                            id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1
+                            / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn"
+                            id="nextInterviewBtn">Next →</button></div>
+                    <div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json">
+                    </div>
+                    <div style="margin-top: 2rem; text-align: center;"><button onclick="resetInterviewProgress()"
+                            class="quiz-reset-btn">🔄 Reset Progress</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="mcq">📝 Multiple Choice Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="quiz-header-info">
+                        <p>📝 Test your knowledge with these multiple choice questions. Navigate through questions one
+                            at a time, select your answer, and get immediate feedback with detailed explanations.</p>
+                    </div>
+                    <div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn"
+                            id="prevBtn">← Previous</button>
+                        <div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span
+                                class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button
+                            onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button>
+                    </div>
+                    <div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div>
+                    <div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊
+                            View Quiz Summary</button><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄
+                            Reset All Answers</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="projects">💼 Hands-On Projects</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites</h4>
+                        <ul>
+                            <li>✅ AWS account with free tier access</li>
+                            <li>✅ Basic understanding of EC2 from previous sessions</li>
+                            <li>✅ Knowledge of how to launch EC2 instances</li>
+                            <li>✅ Understanding of SSH connection methods</li>
+                        </ul>
+                    </div>
+                    <h3>Project 1: Exploring the Linux File System</h3>
+                    <div class="info-box">
+                        <p><strong>🎯 Objective:</strong> Navigate the Linux file system, understand directory
+                            structure, and practice basic navigation commands</p>
+                        <p><strong>⏱️ Time:</strong> 20-30 minutes</p>
+                        <p><strong>💰 Cost:</strong> Free tier eligible</p>
+                    </div>
+                    <h4>What You'll Learn</h4>
+                    <ul>
+                        <li>How to navigate directories using cd command</li>
+                        <li>How to list files and directories with ls</li>
+                        <li>Understanding absolute vs relative paths</li>
+                        <li>Exploring important system directories</li>
+                    </ul>
+                    <h4>Step-by-Step Instructions</h4>
+                    <p><strong>Step 1: Connect to Your EC2 Instance</strong></p>
+                    <ol>
+                        <li>Launch a t2.micro Amazon Linux 2 instance (or use existing)</li>
+                        <li>Connect using EC2 Instance Connect</li>
+                        <li>Verify you're in the home directory</li>
+                    </ol>
+                    <pre><code>pwd
+# Output: /home/ec2-user</code></pre>
+                    <p><strong>Step 2: Explore Your Home Directory</strong></p>
+                    <pre><code># List files in current directory
+ls
+
+# List with details (permissions, size, date)
+ls -l
+
+# List including hidden files (files starting with .)
+ls -la</code></pre>
+                    <p><strong>Step 3: Navigate to Root Directory</strong></p>
+                    <pre><code># Go to root directory
+cd /
+
+# Check where you are
+pwd
+# Output: /
+
+# List all directories at root level
+ls</code></pre>
+                    <p><strong>Step 4: Explore Important Directories</strong></p>
+                    <pre><code># Go to /etc and list configuration files
+cd /etc
+ls
+
+# Check SSH configuration directory
+ls /etc/ssh
+
+# Go to /var/log to see log files
+cd /var/log
+ls
+
+# View a log file (don't worry about understanding it yet)
+tail /var/log/messages</code></pre>
+                    <p><strong>Step 5: Navigate Using Relative Paths</strong></p>
+                    <pre><code># From /var/log, go up one level to /var
+cd ..
+pwd
+# Output: /var
+
+# Go up one more level to /
+cd ..
+pwd
+# Output: /
+
+# Go directly to home using ~
+cd ~
+pwd
+# Output: /home/ec2-user</code></pre>
+                    <p><strong>Step 6: Practice Absolute vs Relative Paths</strong></p>
+                    <pre><code># Absolute path (starts with /)
+cd /var/log
+
+# Relative path (doesn't start with /)
+# First, go to /var
+cd /var
+# Then use relative path to go to log
+cd log
+pwd
+# Output: /var/log</code></pre>
+                    <h4>Verification Checklist</h4>
+                    <div class="success-box">
+                        <p><strong>✅ Success Indicators:</strong></p>
+                        <ul>
+                            <li>You can use pwd to check your current location</li>
+                            <li>You can use ls to list files in any directory</li>
+                            <li>You can navigate to / (root) and back to ~ (home)</li>
+                            <li>You understand the difference between / (root) and /root (root user's home)</li>
+                            <li>You can use cd .. to go up one level</li>
+                        </ul>
+                    </div>
+                    <h4>Common Mistakes</h4>
+                    <div class="error-box">
+                        <p><strong>❌ Issue:</strong> Typing CD instead of cd</p>
+                        <p><strong>Solution:</strong> Linux is case-sensitive. Always use lowercase cd</p>
+                    </div>
+                    <div class="error-box">
+                        <p><strong>❌ Issue:</strong> Using backslashes like Windows: cd \home\ec2-user</p>
+                        <p><strong>Solution:</strong> Linux uses forward slashes: cd /home/ec2-user</p>
+                    </div>
+                    <h4>Clean Up</h4>
+                    <p>No cleanup needed for this project—you only navigated directories, didn't create anything!</p>
+                    <h3>Project 2: Understanding User Types and Switching</h3>
+                    <div class="info-box">
+                        <p><strong>🎯 Objective:</strong> Understand the difference between standard user and root user
+                        </p>
+                        <p><strong>⏱️ Time:</strong> 15-20 minutes</p>
+                        <p><strong>💰 Cost:</strong> Free tier eligible</p>
+                    </div>
+                    <h4>Step-by-Step Instructions</h4>
+                    <p><strong>Step 1: Check Current User</strong></p>
+                    <pre><code># Check who you are
+whoami
+# Output: ec2-user
+
+# Check your home directory
+echo $HOME
+# Output: /home/ec2-user</code></pre>
+                    <p><strong>Step 2: Switch to Root User</strong></p>
+                    <pre><code># Become root user
+sudo su -
+
+# Notice the prompt changed from $ to #
+# Check who you are now
+whoami
+# Output: root
+
+# Check root's home directory
+echo $HOME
+# Output: /root
+
+pwd
+# Output: /root</code></pre>
+                    <p><strong>Step 3: Explore Root's Home</strong></p>
+                    <pre><code># As root, list files in root's home
+ls -la
+
+# Try to go to ec2-user's home
+cd /home/ec2-user
+ls
+# You can access it! Root can access everything</code></pre>
+                    <p><strong>Step 4: Switch Back to Standard User</strong></p>
+                    <pre><code># Exit root user
+exit
+
+# Check who you are now
+whoami
+# Output: ec2-user
+
+# Notice prompt changed back to $</code></pre>
+                    <p><strong>Step 5: Test Permissions</strong></p>
+                    <pre><code># As ec2-user, try to access /root
+cd /root
+# Output: Permission denied
+
+# This demonstrates that standard users can't access root's home</code></pre>
+                    <h4>Verification</h4>
+                    <div class="success-box">
+                        <p><strong>✅ You Should Understand:</strong></p>
+                        <ul>
+                            <li>$ symbol means standard user</li>
+                            <li># symbol means root user</li>
+                            <li>Root can access everything, standard users have limits</li>
+                            <li>sudo su - switches you to root</li>
+                            <li>exit brings you back to standard user</li>
+                        </ul>
+                    </div>
+                    <h4>Clean Up</h4>
+                    <p>Make sure you exit back to ec2-user before ending the session:</p>
+                    <pre><code># If you're still root, exit
+exit
+
+# Verify you're ec2-user
+whoami</code></pre>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="checklist">☑️ Learning Checklist</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="checklist-progress">
+                        <p>Progress: <span id="checklistProgress">0/15</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                    <div id="checklistContainer" data-checklist-source="json/checklist.json"></div>
+                    <div style="margin-top: 2rem; text-align: center;"><button onclick="resetChecklist()"
+                            class="quiz-reset-btn">🔄 Reset Checklist</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="reflection">🤔 Reflection Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Test your understanding with these thought-provoking questions. Try to answer before viewing
+                        hints.</p>
+                    <div class="question-block">
+                        <h4>1. Why does Linux use a single root directory (/) instead of multiple drives like Windows?
+                        </h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Think about simplicity and how external devices (USB drives, network shares) are
+                                    handled. In Windows, each gets a new drive letter. What's the Linux approach?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>2. Explain the "everything is a file" philosophy in your own words. Why is this beneficial?
+                        </h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Consider how you interact with regular files. Now think about applying those same
+                                    operations (read, write, open, close) to devices, processes, and network
+                                    connections. What does this consistency provide?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>3. Why would a cloud engineer choose Amazon Linux over Ubuntu, or vice versa?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Consider AWS-specific optimizations, community support, package availability, and
+                                    familiarity. What matters most for your use case?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>4. What could go wrong if you work as the root user all the time instead of using a standard
+                            user?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Think about typos, accidental deletions, and the phrase "with great power comes great
+                                    responsibility." Root has no safety nets.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>5. How would you explain to a non-technical friend why Linux servers use CLI instead of GUI?
+                        </h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Use an analogy. Think about a race car vs a family SUV. What does each prioritize?
+                                    Speed and efficiency vs comfort and ease of use?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>6. Why is case sensitivity important in Linux? Give a real-world scenario where it matters.
+                        </h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Imagine you have database_backup.sh and Database_Backup.sh. One is the current
+                                    script, one is an old version. How does case sensitivity help avoid confusion?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>7. What's the difference between / and /root? Why do beginners often confuse these?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>One is a location (top of file system tree), the other is a specific directory
+                                    (administrator's home). The word "root" has two different meanings here.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>8. How does the layered architecture of Linux improve security compared to applications
+                            directly accessing hardware?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Think about a security checkpoint. If everyone could walk directly into restricted
+                                    areas vs. everyone must go through security first. What does the kernel provide?</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="references">🔗 Links & References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/linux/" target="_blank"
+                                        rel="noopener noreferrer">AWS Linux User Guide</a></td>
+                                <td>Official Amazon Linux documentation and best practices</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html"
+                                        target="_blank" rel="noopener noreferrer">Amazon Machine Images (AMI)</a></td>
+                                <td>Guide to selecting and using EC2 AMIs</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html"
+                                        target="_blank" rel="noopener noreferrer">Getting Started with EC2</a></td>
+                                <td>Launch your first EC2 instance</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html"
+                                        target="_blank" rel="noopener noreferrer">Connecting to Linux Instances</a></td>
+                                <td>SSH connection methods for EC2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🎓 Recommended Reading for Students</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://linuxjourney.com/" target="_blank" rel="noopener noreferrer">Linux
+                                        Journey</a></td>
+                                <td>Free beginner-friendly Linux tutorials with interactive exercises</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://ubuntu.com/tutorials" target="_blank"
+                                        rel="noopener noreferrer">Ubuntu Tutorials</a></td>
+                                <td>Step-by-step guides for common Linux tasks</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.tldp.org/LDP/intro-linux/html/index.html" target="_blank"
+                                        rel="noopener noreferrer">Introduction to Linux - TLDP</a></td>
+                                <td>Comprehensive beginner's guide to Linux</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.kernel.org/" target="_blank" rel="noopener noreferrer">Linux
+                                        Kernel Archives</a></td>
+                                <td>Official Linux kernel source and documentation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.gnu.org/" target="_blank" rel="noopener noreferrer">GNU
+                                        Project</a></td>
+                                <td>Learn about GNU tools and philosophy</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🔧 Additional Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://explainshell.com/" target="_blank"
+                                        rel="noopener noreferrer">Explain Shell</a></td>
+                                <td>Type any command and get detailed explanation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://man7.org/linux/man-pages/" target="_blank"
+                                        rel="noopener noreferrer">Linux Man Pages Online</a></td>
+                                <td>Complete Linux manual pages</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://distrowatch.com/" target="_blank"
+                                        rel="noopener noreferrer">DistroWatch</a></td>
+                                <td>Information on all Linux distributions</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.linuxfoundation.org/training/" target="_blank"
+                                        rel="noopener noreferrer">Linux Foundation Training</a></td>
+                                <td>Professional Linux certification courses</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">Linux</span><span class="tag">Operating
+                System</span><span class="tag">Unix</span><span class="tag">File System</span><span
+                class="tag">EC2</span><span class="tag">Cloud Computing</span><span class="tag">Shell</span><span
+                class="tag">Kernel</span></div>
+    </div>
+    <script defer src="../../../js/notes-template.js"></script>
+</body>
+
+</html>

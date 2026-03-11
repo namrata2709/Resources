@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Learn AWS Multi-Factor Authentication (MFA) and Budget Alerts - essential security and cost management tools for AWS accounts. Complete guide with hands-on setup instructions.">
+    <meta name="keywords"
+        content="AWS, MFA, Multi-Factor Authentication, Budget Alerts, AWS Budgets, Cloud Security, Cost Management, AWS Training">
+    
+    
+    <meta property="og:title" content="MFA & Budget Alerts - AWS Training">
+    <meta property="og:description"
+        content="Learn AWS Multi-Factor Authentication (MFA) and Budget Alerts - essential security and cost management tools for AWS accounts.">
+    <meta property="og:type" content="article">
+    <meta property="og:url"
+        content="https://namrata2709.github.io/Resources/data/notes/mfa-budget-alerts/mfa-budget-alerts-complete.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/mfa-budget-alerts/images/mfa-budget-workflow.png">
+    
+    
+    <meta name="twitter:title" content="MFA & Budget Alerts - AWS Training">
+    <meta name="twitter:description"
+        content="Learn AWS Multi-Factor Authentication (MFA) and Budget Alerts - essential security and cost management tools.">
+    <meta name="twitter:image"
+        content="https://namrata2709.github.io/Resources/data/notes/mfa-budget-alerts/images/mfa-budget-workflow.png">
+    <link rel="canonical"
+        href="https://namrata2709.github.io/Resources/data/notes/mfa-budget-alerts/mfa-budget-alerts-complete.html">
+    
+    
+    <title>MFA & Budget Alerts - Complete - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/notes-template.css?v=1.0">
+    <script src="../../../js/theme.js?v=1.0"></script>
+</head>
+
+<body class="complete-notes">
+    
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://namrata2709.github.io/Resources/"},{"@type":"ListItem","position":2,"name":"Notes","item":"https://namrata2709.github.io/Resources/notes.html"},{"@type":"ListItem","position":3,"name":"MFA & Budget Alerts"}]}</script>
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"MFA & Budget Alerts","description":"Learn AWS Multi-Factor Authentication (MFA) and Budget Alerts - essential security and cost management tools for AWS accounts.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-10-03","dateModified":"2025-10-03","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/mfa-budget-alerts/mfa-budget-alerts-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/mfa-budget-alerts/images/mfa-budget-workflow.png","articleSection":"AWS Training","keywords":["AWS","MFA","Budget Alerts","Security","Cost Management"],"educationalLevel":"Beginner to Intermediate","educationalUse":"Professional Development"}</script>
+    
+    <div class="note-container">
+        <div class="note-header">
+            <h1>🔐 MFA & Budget Alerts</h1>
+            <p class="note-date">📅 October 03, 2025</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> October 03, 2025</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="note-content">
+            <h2 id="introduction">🎯 Introduction</h2>
+            <p>Welcome to Session 4! Today we're covering two critical topics that work together to protect your AWS
+                account: <strong>security</strong> (through MFA) and <strong>cost control</strong> (through Budget
+                Alerts).</p>
+            <p>Think of your AWS account like your home. <span class="exam-highlight-term">MFA</span> is like having a
+                deadbolt lock and alarm system - multiple layers of security to keep intruders out. <span
+                    class="exam-highlight-term">Budget Alerts</span> are like setting spending limits on your credit
+                card - you get notified before you accidentally overspend.</p>
+            <div class="info-box">
+                <p><strong>💡 Why This Matters:</strong></p>
+                <p>Every year, countless AWS accounts get compromised because users don't enable MFA. And every month,
+                    new users get surprise bills because they didn't set up budget alerts. These two simple settings can
+                    save you from major headaches!</p>
+            </div>
+            <p>By the end of this session, you'll know how to:</p>
+            <ul>
+                <li>Enable Multi-Factor Authentication to secure your AWS account</li>
+                <li>Set up Budget Alerts to avoid unexpected charges</li>
+                <li>Understand when and why to use each security layer</li>
+                <li>Configure both features step-by-step</li>
+            </ul>
+            <h2 id="toc">📑 Table of Contents</h2>
+            <ol>
+                <li><a href="#mfa-intro">Multi-Factor Authentication (MFA)</a>
+                    <ul>
+                        <li><a href="#mfa-what">What is MFA?</a></li>
+                        <li><a href="#mfa-how">How MFA Works</a></li>
+                        <li><a href="#mfa-types">Types of MFA Devices</a></li>
+                        <li><a href="#mfa-setup">Setting Up MFA Step-by-Step</a></li>
+                        <li><a href="#mfa-best">MFA Best Practices</a></li>
+                    </ul>
+                </li>
+                <li><a href="#budget-intro">AWS Budget Alerts</a>
+                    <ul>
+                        <li><a href="#budget-what">What are Budget Alerts?</a></li>
+                        <li><a href="#budget-how">How Budget Alerts Work</a></li>
+                        <li><a href="#budget-types">Types of Budgets</a></li>
+                        <li><a href="#budget-setup">Setting Up Budget Alerts</a></li>
+                        <li><a href="#budget-best">Budget Best Practices</a></li>
+                    </ul>
+                </li>
+                <li><a href="#comparison">MFA vs Budget Alerts Comparison</a></li>
+                <li><a href="#real-world">Real-World Security Setup</a></li>
+                <li><a href="#summary">Overall Summary</a></li>
+                <li><a href="#glossary">Glossary</a></li>
+                <li><a href="#interview">Interview Questions</a></li>
+                <li><a href="#mcq">Multiple Choice Questions</a></li>
+                <li><a href="#projects">Hands-On Projects</a></li>
+                <li><a href="#checklist">Learning Checklist</a></li>
+                <li><a href="#reflection">Reflection Questions</a></li>
+                <li><a href="#links">Links & References</a></li>
+            </ol>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="mfa-intro">🔐 1. Multi-Factor Authentication (MFA)</h2>
+                </summary>
+                <div class="section-content">
+                    <h3 id="mfa-what">What is MFA?</h3>
+                    <p><strong>Multi-Factor Authentication (MFA)</strong> means using <span
+                            class="exam-highlight-term">two or more verification methods</span> to prove your identity
+                        when logging into AWS.</p>
+                    <div class="definition-box">
+                        <p><strong>Definition:</strong> <span class="exam-highlight-sentence">MFA requires both
+                                something you know (password) and something you have (one-time code from a device) to
+                                access your AWS account</span>.</p>
+                    </div>
+                    <p>Let's use a real-world analogy:</p>
+                    <div class="analogy-box">
+                        <p><strong>🏦 The Bank Vault Analogy</strong></p>
+                        <p>Imagine a bank vault that requires two keys to open:</p>
+                        <ul>
+                            <li><strong>Key 1:</strong> Your password (something you memorized)</li>
+                            <li><strong>Key 2:</strong> A physical key card (something you physically carry)</li>
+                        </ul>
+                        <p>A thief might steal one key, but having BOTH keys at the same time is much harder. That's
+                            exactly how MFA protects your AWS account!</p>
+                    </div>
+                    <div class="diagram-container"><img decoding="async" src="images/mfa-two-factor-concept.png"
+                            alt="Diagram showing MFA concept with password as first factor and one-time code as second factor, with a hacker blocked symbol">
+                        <p class="diagram-caption"><em>Figure 1: MFA Two-Factor Protection - Password alone isn't
+                                enough</em></p>
+                    </div>
+                    <h3 id="mfa-how">How MFA Works in AWS</h3>
+                    <p>Here's the complete authentication flow when MFA is enabled:</p>
+                    <div class="diagram-container"><img decoding="async" src="images/mfa-login-workflow.png"
+                            alt="Flowchart showing AWS login process: User enters email and password, AWS validates credentials, prompt for MFA code, user checks authenticator app, enters 6-digit code, AWS verifies code, access granted or denied">
+                        <p class="diagram-caption"><em>Figure 2: Complete MFA Login Workflow</em></p>
+                    </div>
+                    <p><strong>Step-by-Step Login Process:</strong></p>
+                    <ol>
+                        <li><strong>Step 1:</strong> You enter your email and password (something you know)</li>
+                        <li><strong>Step 2:</strong> AWS validates your credentials</li>
+                        <li><strong>Step 3:</strong> AWS prompts you for an MFA code</li>
+                        <li><strong>Step 4:</strong> You open your <span class="exam-highlight-term">authenticator
+                                app</span> on your phone</li>
+                        <li><strong>Step 5:</strong> You see a <span class="exam-highlight-term">6-digit code</span>
+                            that changes every 30 seconds</li>
+                        <li><strong>Step 6:</strong> You enter this code in AWS</li>
+                        <li><strong>Step 7:</strong> AWS verifies the code and grants access</li>
+                    </ol>
+                    <div class="highlight-box">
+                        <p><strong>⚡ Key Security Point:</strong></p>
+                        <p><span class="exam-highlight-sentence">Even if a hacker steals your password, they cannot log
+                                in without the MFA code from your physical device</span>. This is why MFA is considered
+                            essential for all production AWS accounts.</p>
+                    </div>
+                    <h3 id="mfa-types">Types of MFA Devices in AWS</h3>
+                    <p>AWS supports three main types of MFA devices:</p>
+                    <div class="diagram-container"><img decoding="async" src="images/mfa-device-types-comparison.png"
+                            alt="Comparison chart showing three MFA types: Virtual MFA with smartphone icon, Hardware MFA with physical token, Security Key with YubiKey device, each with pros and cons listed">
+                        <p class="diagram-caption"><em>Figure 3: MFA Device Types - Choose what works best for you</em>
+                        </p>
+                    </div>
+                    <h4>1️⃣ Virtual MFA (Most Common)</h4>
+                    <p>Virtual MFA uses an <span class="exam-highlight-term">app on your smartphone</span> to generate
+                        codes.</p>
+                    <p><strong>Popular Virtual MFA Apps:</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>App Name</th>
+                                <th>Platforms</th>
+                                <th>Why Use It</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Google Authenticator</strong></td>
+                                <td>iOS, Android</td>
+                                <td>Simple, free, widely used</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Authy</strong></td>
+                                <td>iOS, Android, Desktop</td>
+                                <td>Cloud backup, multi-device sync</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Microsoft Authenticator</strong></td>
+                                <td>iOS, Android</td>
+                                <td>Good for Microsoft ecosystem</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Virtual MFA</strong></td>
+                                <td>Browser extension</td>
+                                <td>AWS-specific, desktop option</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="success-box">
+                        <p><strong>✅ Recommended Choice:</strong> Use <strong>Google Authenticator</strong> or
+                            <strong>Authy</strong> for beginners. They're free, easy to set up, and work with all AWS
+                            accounts.</p>
+                    </div>
+                    <h4>2️⃣ Hardware MFA Token</h4>
+                    <p>A physical device that generates codes without needing a phone.</p>
+                    <div class="info-box">
+                        <p><strong>When to Use Hardware MFA:</strong></p>
+                        <ul>
+                            <li>High-security environments (banks, government)</li>
+                            <li>Users without smartphones</li>
+                            <li>Offline environments</li>
+                            <li>Compliance requirements</li>
+                        </ul>
+                        <p><strong>Cost:</strong> $10-$50 per device</p>
+                    </div>
+                    <h4>3️⃣ Security Key (U2F/FIDO)</h4>
+                    <p>A <span class="exam-highlight-term">USB physical key</span> like <strong>YubiKey</strong> that
+                        you plug into your computer.</p>
+                    <div class="info-box">
+                        <p><strong>Security Key Features:</strong></p>
+                        <ul>
+                            <li>Most secure option (phishing-resistant)</li>
+                            <li>No codes to type (tap the key)</li>
+                            <li>Works offline</li>
+                            <li>Popular choice: YubiKey ($25-$80)</li>
+                        </ul>
+                    </div>
+                    <h3 id="mfa-setup">Setting Up MFA Step-by-Step</h3>
+                    <p>Let's walk through enabling <strong>Virtual MFA</strong> using Google Authenticator (the most
+                        common method).</p>
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites</h4>
+                        <ul>
+                            <li>✅ AWS account with Root user access</li>
+                            <li>✅ Smartphone (iOS or Android)</li>
+                            <li>✅ Google Authenticator app installed (free from App Store/Play Store)</li>
+                        </ul>
+                    </div>
+                    <h4>Part 1: Install the Authenticator App</h4>
+                    <p><strong>Step 1: Download Google Authenticator</strong></p>
+                    <ul>
+                        <li><strong>iPhone:</strong> Open App Store → Search "Google Authenticator" → Install</li>
+                        <li><strong>Android:</strong> Open Play Store → Search "Google Authenticator" → Install</li>
+                    </ul>
+                    <div class="info-box">
+                        <p><strong>💡 Alternative:</strong> You can use Authy, Microsoft Authenticator, or any app that
+                            supports <span class="exam-highlight-term">TOTP (Time-based One-Time Password)</span>.</p>
+                    </div>
+                    <h4>Part 2: Enable MFA in AWS Console</h4>
+                    <p><strong>Step 2: Sign in as Root User</strong></p>
+                    <pre><code>1. Go to: https://aws.amazon.com
+2. Click "Sign In to the Console"
+3. Select "Root user"
+4. Enter your root email and password
+5. Click "Sign in"</code></pre>
+                    <p><strong>Step 3: Navigate to Security Credentials</strong></p>
+                    <pre><code>1. Click your account name (top-right corner)
+2. Select "Security credentials"
+3. Or go directly to IAM Dashboard → Your Security Credentials</code></pre>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/aws-console-security-credentials-path.png"
+                            alt="Screenshot showing AWS Console navigation: account dropdown menu with Security Credentials option highlighted">
+                        <p class="diagram-caption"><em>Figure 4: Finding Security Credentials in AWS Console</em></p>
+                    </div>
+                    <p><strong>Step 4: Assign MFA Device</strong></p>
+                    <pre><code>1. Scroll down to "Multi-factor authentication (MFA)" section
+2. Click "Assign MFA device" button
+3. You'll see a popup window</code></pre>
+                    <p><strong>Step 5: Choose Device Type</strong></p>
+                    <pre><code>1. Enter a device name: "my-phone-mfa" (or any name you like)
+2. Select "Authenticator app"
+3. Click "Next"</code></pre>
+                    <p><strong>Step 6: Scan the QR Code</strong></p>
+                    <pre><code>1. AWS displays a QR code on screen
+2. Open Google Authenticator app on your phone
+3. Tap the "+" button (bottom-right)
+4. Select "Scan a QR code"
+5. Point your camera at the QR code on your computer screen
+6. The app adds AWS to your account list</code></pre>
+                    <div class="highlight-box">
+                        <p><strong>⚠️ Can't Scan QR Code?</strong></p>
+                        <p>Click "Show secret key" under the QR code. Manually enter this text into your authenticator
+                            app instead.</p>
+                    </div>
+                    <p><strong>Step 7: Enter Two Consecutive MFA Codes</strong></p>
+                    <pre><code>1. Look at Google Authenticator app
+2. You'll see a 6-digit code (e.g., 123456)
+3. Enter this code in "MFA code 1" field
+4. Wait 30 seconds for the code to refresh
+5. Enter the NEW code in "MFA code 2" field
+6. Click "Add MFA"</code></pre>
+                    <div class="info-box">
+                        <p><strong>💡 Why Two Codes?</strong></p>
+                        <p>AWS asks for two consecutive codes to verify your authenticator app is correctly synchronized
+                            with AWS servers. This prevents timing issues.</p>
+                    </div>
+                    <p><strong>Step 8: Verification</strong></p>
+                    <div class="success-box">
+                        <p><strong>✅ Success Indicators:</strong></p>
+                        <ul>
+                            <li>Green success message appears</li>
+                            <li>MFA device shows "Active" status</li>
+                            <li>Device name appears in MFA section</li>
+                        </ul>
+                    </div>
+                    <h4>Part 3: Test Your MFA Setup</h4>
+                    <p><strong>Step 9: Sign Out and Test</strong></p>
+                    <pre><code>1. Click your account name → Sign out
+2. Sign in again with email and password
+3. AWS now prompts for MFA code
+4. Open Google Authenticator → Copy the 6-digit code
+5. Enter code in AWS → Sign in
+6. ✅ You're in!</code></pre>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/mfa-login-test-flow.png"
+                            alt="Diagram showing test login flow: logout, enter credentials, MFA prompt appears, check authenticator app, enter code, successful login">
+                        <p class="diagram-caption"><em>Figure 5: Testing Your MFA Setup - The Complete Flow</em></p>
+                    </div>
+                    <h3 id="mfa-best">MFA Best Practices</h3>
+                    <div class="best-practices-section">
+                        <h4>🔒 Security Best Practices</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Practice</th>
+                                    <th>Why It Matters</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="exam-highlight-sentence">Always enable MFA on the Root user
+                                            account</span></td>
+                                    <td>Root user has unlimited access - highest security priority</td>
+                                </tr>
+                                <tr>
+                                    <td>Enable MFA on all IAM admin users</td>
+                                    <td>Admin users can create/delete resources and incur costs</td>
+                                </tr>
+                                <tr>
+                                    <td>Save backup codes in a secure location</td>
+                                    <td>You can recover access if you lose your phone</td>
+                                </tr>
+                                <tr>
+                                    <td>Use <span class="exam-highlight-term">Authy</span> for cloud backup</td>
+                                    <td>Allows multi-device access and recovery</td>
+                                </tr>
+                                <tr>
+                                    <td>Never share MFA codes</td>
+                                    <td>Defeats the purpose of two-factor authentication</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="error-box">
+                        <h4>❌ Common MFA Mistakes to Avoid</h4>
+                        <p><strong>Mistake #1: Only enabling MFA on IAM users, not Root</strong></p>
+                        <p><strong>Impact:</strong> Root account remains vulnerable - hackers target root access first
+                        </p>
+                        <p class="solution"><strong>✅ Solution:</strong> Enable MFA on Root user FIRST, then on IAM
+                            users</p>
+                        <hr>
+                        <p><strong>Mistake #2: Losing phone without backup</strong></p>
+                        <p><strong>Impact:</strong> You're locked out of your own AWS account</p>
+                        <p class="solution"><strong>✅ Solution:</strong> Save backup codes during setup OR use Authy
+                            with cloud backup</p>
+                        <hr>
+                        <p><strong>Mistake #3: Using same MFA app for personal and work accounts</strong></p>
+                        <p><strong>Impact:</strong> Security risk if phone is compromised</p>
+                        <p class="solution"><strong>✅ Solution:</strong> Use separate MFA apps or dedicated work phone
+                            for company AWS accounts</p>
+                    </div>
+                    <h3>🎓 Exam Tips for MFA</h3>
+                    <div class="exam-tip-box">
+                        <p><strong>💡 For AWS Certification Exams:</strong></p>
+                        <ul>
+                            <li><span class="exam-highlight-sentence">MFA is always the recommended answer for securing
+                                    root and privileged IAM accounts</span></li>
+                            <li>Know the <span class="exam-highlight-term">three MFA types</span>: Virtual, Hardware
+                                Token, Security Key</li>
+                            <li><span class="exam-highlight-sentence">Virtual MFA uses TOTP (Time-based One-Time
+                                    Password) protocol</span></li>
+                            <li>MFA codes change every <span class="exam-highlight-term">30 seconds</span></li>
+                            <li><span class="exam-highlight-sentence">AWS requires two consecutive MFA codes during
+                                    device registration to verify synchronization</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="budget-intro">💰 2. AWS Budget Alerts</h2>
+                </summary>
+                <div class="section-content">
+                    <h3 id="budget-what">What are Budget Alerts?</h3>
+                    <p><strong>AWS Budget Alerts</strong> are <span class="exam-highlight-term">notifications</span>
+                        that warn you when your AWS spending reaches certain thresholds.</p>
+                    <div class="definition-box">
+                        <p><strong>Definition:</strong> <span class="exam-highlight-sentence">AWS Budgets is a service
+                                that lets you set custom spending limits and receive email alerts when actual or
+                                forecasted costs exceed your defined thresholds</span>.</p>
+                    </div>
+                    <p>Think of it like this:</p>
+                    <div class="analogy-box">
+                        <p><strong>💳 The Credit Card Limit Analogy</strong></p>
+                        <p>Imagine your credit card company sending you alerts:</p>
+                        <ul>
+                            <li><strong>Alert 1:</strong> "You've spent $80 of your $100 monthly limit" (80% warning)
+                            </li>
+                            <li><strong>Alert 2:</strong> "You've reached your $100 limit!" (100% warning)</li>
+                        </ul>
+                        <p>AWS Budget Alerts work the same way - you set a spending limit, and AWS notifies you as you
+                            approach it. This prevents surprise bills at the end of the month!</p>
+                    </div>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/budget-alert-concept.png"
+                            alt="Diagram showing AWS spending over time with threshold line and alert points at 80% and 100%, email notification icons at each alert point">
+                        <p class="diagram-caption"><em>Figure 6: Budget Alert Concept - Get warned before you
+                                overspend</em></p>
+                    </div>
+                    <h3 id="budget-how">How Budget Alerts Work</h3>
+                    <p>Here's the complete budget monitoring flow:</p>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/budget-monitoring-workflow.png"
+                            alt="Flowchart showing: AWS services generate costs, billing tracks usage, budget monitors spending, compares to threshold, if exceeded sends email alert, user takes action">
+                        <p class="diagram-caption"><em>Figure 7: Budget Monitoring Workflow</em></p>
+                    </div>
+                    <p><strong>The Budget Monitoring Process:</strong></p>
+                    <ol>
+                        <li><strong>You create AWS resources:</strong> EC2 instances, S3 buckets, databases, etc.</li>
+                        <li><strong>AWS tracks usage:</strong> Every action (compute time, storage, data transfer)
+                            generates costs</li>
+                        <li><strong>Billing system updates:</strong> AWS calculates your running total</li>
+                        <li><strong>Budget service monitors:</strong> Compares your spending to your budget threshold
+                        </li>
+                        <li><strong>Alert triggers:</strong> When threshold is crossed, email is sent</li>
+                        <li><strong>You take action:</strong> Stop resources, optimize usage, or increase budget</li>
+                    </ol>
+                    <h3>Types of Budget Tracking</h3>
+                    <p>AWS can alert you based on two types of costs:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cost Type</th>
+                                <th>Description</th>
+                                <th>When to Use</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Actual Cost</strong></td>
+                                <td>What you've <em>already spent</em></td>
+                                <td>Track current spending in real-time</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Forecasted Cost</strong></td>
+                                <td>What AWS <em>predicts</em> you'll spend by month-end</td>
+                                <td>Get early warnings before month ends</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="info-box">
+                        <p><strong>💡 Understanding Forecasted Costs:</strong></p>
+                        <p>AWS analyzes your spending pattern and predicts your end-of-month total. For example:</p>
+                        <ul>
+                            <li>Day 15 of month: You've spent $30</li>
+                            <li>AWS forecast: "At this rate, you'll spend $60 by month-end"</li>
+                            <li>If your budget is $50, you get an alert NOW (not later)</li>
+                        </ul>
+                    </div>
+                    <h3 id="budget-types">Types of AWS Budgets</h3>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/budget-types-overview.png"
+                            alt="Four-quadrant diagram showing budget types: Zero Spend Budget for free tier, Monthly Cost Budget with dollar limit, Usage Budget with service hours, Savings Budget with Reserved Instances">
+                        <p class="diagram-caption"><em>Figure 8: Four Main Types of AWS Budgets</em></p>
+                    </div>
+                    <h4>1️⃣ Zero Spend Budget</h4>
+                    <p><strong>Purpose:</strong> <span class="exam-highlight-sentence">Alerts you if spending exceeds
+                            $0.01 - perfect for Free Tier users</span></p>
+                    <div class="success-box">
+                        <p><strong>✅ Best For:</strong></p>
+                        <ul>
+                            <li>Brand new AWS accounts</li>
+                            <li>Students learning AWS</li>
+                            <li>Free Tier users who want zero charges</li>
+                            <li>Sandbox/learning environments</li>
+                        </ul>
+                    </div>
+                    <p><strong>How it works:</strong></p>
+                    <pre><code>Budget Amount: $0.01
+Alert Threshold: Any spending above $0.01
+Result: Email sent the MOMENT you incur charges</code></pre>
+                    <div class="highlight-box">
+                        <p><strong>⚡ Pro Tip:</strong> This is the FIRST budget you should set up when creating an AWS
+                            account. It prevents accidental charges from misconfigured services.</p>
+                    </div>
+                    <h4>2️⃣ Monthly Cost Budget</h4>
+                    <p><strong>Purpose:</strong> Set a monthly spending limit (e.g., $10, $50, $100)</p>
+                    <div class="info-box">
+                        <p><strong>💡 Example Scenario:</strong></p>
+                        <p>You're a student with $20/month to spend on AWS learning:</p>
+                        <ul>
+                            <li>Set budget: $20/month</li>
+                            <li>Alert at 80%: Email when you hit $16</li>
+                            <li>Alert at 100%: Email when you hit $20</li>
+                            <li>Alert at 110%: Email if you go over $22</li>
+                        </ul>
+                    </div>
+                    <p><strong>Configuration Options:</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alert Point</th>
+                                <th>Budget Amount: $50</th>
+                                <th>When Alert Triggers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>50% threshold</td>
+                                <td>$25</td>
+                                <td>Halfway through budget</td>
+                            </tr>
+                            <tr>
+                                <td>80% threshold</td>
+                                <td>$40</td>
+                                <td>Getting close to limit</td>
+                            </tr>
+                            <tr>
+                                <td>100% threshold</td>
+                                <td>$50</td>
+                                <td>Reached your limit</td>
+                            </tr>
+                            <tr>
+                                <td>110% threshold</td>
+                                <td>$55</td>
+                                <td>Over budget - take action!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h4>3️⃣ Usage Budgets</h4>
+                    <p><strong>Purpose:</strong> Track <span class="exam-highlight-term">service usage</span> instead of
+                        costs (e.g., EC2 hours, S3 storage GB)</p>
+                    <div class="info-box">
+                        <p><strong>When to Use Usage Budgets:</strong></p>
+                        <p><strong>Example 1:</strong> Track EC2 running hours</p>
+                        <ul>
+                            <li>Budget: 100 hours/month</li>
+                            <li>Alert at 80 hours</li>
+                            <li>Useful for: Ensuring instances are stopped when not in use</li>
+                        </ul>
+                        <p><strong>Example 2:</strong> Track S3 storage</p>
+                        <ul>
+                            <li>Budget: 100 GB storage</li>
+                            <li>Alert at 90 GB</li>
+                            <li>Useful for: Preventing runaway storage costs</li>
+                        </ul>
+                    </div>
+                    <h4>4️⃣ Savings/Reservation Budgets</h4>
+                    <p><strong>Purpose:</strong> Monitor <span class="exam-highlight-term">Reserved Instances</span> and
+                        <span class="exam-highlight-term">Savings Plans</span> utilization</p>
+                    <div class="info-box">
+                        <p><strong>💼 Advanced Use Case:</strong></p>
+                        <p>This is for organizations with Reserved Instances (RIs) or Savings Plans who want to ensure
+                            they're getting their money's worth.</p>
+                        <p><strong>Example:</strong> You bought $1000/month in Reserved Instances, but only using 70% of
+                            capacity - budget alerts you to optimize usage.</p>
+                    </div>
+                    <h3 id="budget-setup">Setting Up Budget Alerts Step-by-Step</h3>
+                    <p>Let's set up the most important budget: <strong>Zero Spend Budget</strong></p>
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites</h4>
+                        <ul>
+                            <li>✅ AWS account (any type)</li>
+                            <li>✅ Valid email address for alerts</li>
+                            <li>✅ Billing access enabled</li>
+                        </ul>
+                    </div>
+                    <h4>Part 1: Access AWS Budgets Console</h4>
+                    <p><strong>Step 1: Sign in to AWS Console</strong></p>
+                    <pre><code>1. Go to: https://aws.amazon.com
+2. Sign in with your account credentials
+3. (Root user or IAM user with billing permissions)</code></pre>
+                    <p><strong>Step 2: Navigate to Billing Dashboard</strong></p>
+                    <pre><code>1. Click your account name (top-right)
+2. Select "Billing and Cost Management"
+3. Or search "Billing" in the AWS search bar</code></pre>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/aws-console-billing-path.png"
+                            alt="Screenshot showing AWS Console with account dropdown menu and Billing and Cost Management option highlighted">
+                        <p class="diagram-caption"><em>Figure 9: Finding Billing Console in AWS</em></p>
+                    </div>
+                    <p><strong>Step 3: Go to Budgets Section</strong></p>
+                    <pre><code>1. In left sidebar, click "Budgets"
+2. You'll see "AWS Budgets" page
+3. Click "Create budget" button (orange button, top-right)</code></pre>
+                    <h4>Part 2: Create Zero Spend Budget</h4>
+                    <p><strong>Step 4: Choose Budget Template</strong></p>
+                    <pre><code>1. Select "Use a template (simplified)"
+2. Choose "Zero spend budget"
+3. This is pre-configured for $0.01 threshold</code></pre>
+                    <div class="info-box">
+                        <p><strong>💡 Why This Template?</strong></p>
+                        <p>AWS provides ready-made templates for common scenarios. <span
+                                class="exam-highlight-sentence">Zero Spend Budget template is designed specifically for
+                                Free Tier users to catch any unexpected charges immediately</span>.</p>
+                    </div>
+                    <p><strong>Step 5: Configure Budget Details</strong>
+                    <pre><code>Budget name: "MyZeroSpendBudget" (or any name you prefer)
+Email recipients: your-email@example.com
+(You can add multiple emails separated by commas)</code></pre>
+                    <p><strong>Step 6: Set Budget Scope</strong></p>
+                    <pre><code>Scope: "All AWS Services" (default)
+This monitors spending across ALL services
+(EC2, S3, Lambda, everything)</code></pre>
+                    <p><strong>Step 7: Review and Create</strong></p>
+                    <pre><code>1. Click "Create budget" button
+2. Wait 3-5 seconds for confirmation
+3. ✅ Budget is now active!</code></pre>
+                    <div class="success-box">
+                        <p><strong>✅ Success Indicators:</strong></p>
+                        <ul>
+                            <li>Green success message appears</li>
+                            <li>"MyZeroSpendBudget" shows in budgets list</li>
+                            <li>Status shows "Active"</li>
+                            <li>Email confirmation sent to your inbox</li>
+                        </ul>
+                    </div>
+                    <h4>Part 3: Create Monthly Cost Budget (Optional)</h4>
+                    <p>If you want to set a monthly spending limit instead of zero spend:</p>
+                    <p><strong>Alternative Steps for Monthly Budget:</strong></p>
+                    <pre><code>Step 1: Create budget → Choose "Customize (advanced)"
+Step 2: Budget type: "Cost budget"
+Step 3: Set period: "Monthly"
+Step 4: Budget amount: "$10" (or your preferred amount)
+Step 5: Alert thresholds:
+  - 80% of budget ($8.00)
+  - 100% of budget ($10.00)
+Step 6: Email: your-email@example.com
+Step 7: Create budget</code></pre>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/budget-setup-workflow-complete.png"
+                            alt="Complete flowchart of budget creation process from AWS Console to receiving email alerts">
+                        <p class="diagram-caption"><em>Figure 10: Complete Budget Setup Workflow</em></p>
+                    </div>
+                    <h3 id="budget-best">Budget Best Practices</h3>
+                    <div class="best-practices-section">
+                        <h4>💡 Cost Management Best Practices</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Practice</th>
+                                    <th>Why It Matters</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="exam-highlight-sentence">Set Zero Spend Budget for all new
+                                            accounts</span></td>
+                                    <td>Catches accidental charges immediately</td>
+                                </tr>
+                                <tr>
+                                    <td>Configure multiple alert thresholds (50%, 80%, 100%)</td>
+                                    <td>Gives you time to take action before overspending</td>
+                                </tr>
+                                <tr>
+                                    <td>Use forecasted cost alerts</td>
+                                    <td>Get early warnings before month-end</td>
+                                </tr>
+                                <tr>
+                                    <td>Set budgets for specific services (EC2, S3)</td>
+                                    <td>Identify which services are driving costs</td>
+                                </tr>
+                                <tr>
+                                    <td>Review budget reports monthly</td>
+                                    <td>Understand spending patterns and optimize</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="error-box">
+                        <h4>❌ Common Budget Mistakes</h4>
+                        <p><strong>Mistake #1: Not setting any budgets</strong></p>
+                        <p><strong>Impact:</strong> You get a surprise $500 bill because you forgot to stop an EC2
+                            instance</p>
+                        <p class="solution"><strong>✅ Solution:</strong> Set up Zero Spend or Monthly Budget on day one
+                            of account creation</p>
+                        <hr>
+                        <p><strong>Mistake #2: Setting budget too high</strong></p>
+                        <p><strong>Impact:</strong> Alert threshold of $1000 doesn't help students who only want to
+                            spend $10</p>
+                        <p class="solution"><strong>✅ Solution:</strong> Set realistic budgets based on your actual
+                            planned spending</p>
+                        <hr>
+                        <p><strong>Mistake #3: Ignoring alert emails</strong></p>
+                        <p><strong>Impact:</strong> You receive alert at $8/$10 budget but don't take action - end up
+                            spending $50</p>
+                        <p class="solution"><strong>✅ Solution:</strong> When you receive alerts, immediately check AWS
+                            Cost Explorer and stop unnecessary resources</p>
+                    </div>
+                    <h3>🎓 Exam Tips for AWS Budgets</h3>
+                    <div class="exam-tip-box">
+                        <p><strong>💡 For AWS Certification Exams:</strong></p>
+                        <ul>
+                            <li><span class="exam-highlight-sentence">AWS Budgets can alert based on actual costs or
+                                    forecasted costs</span></li>
+                            <li><span class="exam-highlight-sentence">Zero Spend Budget alerts when spending exceeds
+                                    $0.01</span></li>
+                            <li>Budget alerts are sent via <span class="exam-highlight-term">email</span> or <span
+                                    class="exam-highlight-term">Amazon SNS</span></li>
+                            <li><span class="exam-highlight-sentence">You can set multiple threshold alerts (e.g., 50%,
+                                    80%, 100%, 110%)</span></li>
+                            <li>Budgets can track <span class="exam-highlight-term">cost</span>, <span
+                                    class="exam-highlight-term">usage</span>, <span class="exam-highlight-term">Reserved
+                                    Instance utilization</span>, or <span class="exam-highlight-term">Savings
+                                    Plans</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="comparison">⚖️ MFA vs Budget Alerts Comparison</h2>
+                </summary>
+                <div class="section-content">
+                    <p>While MFA and Budget Alerts seem unrelated, they both protect your AWS account - just from
+                        different threats.</p>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/mfa-vs-budget-venn-diagram.png"
+                            alt="Venn diagram showing MFA protecting against security threats (left circle) and Budget Alerts protecting against cost threats (right circle), with overlap showing both protect your AWS account">
+                        <p class="diagram-caption"><em>Figure 11: MFA vs Budget Alerts - Protecting Different
+                                Aspects</em></p>
+                    </div>
+                    <h3>Side-by-Side Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>MFA (Multi-Factor Authentication)</th>
+                                <th>Budget Alerts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Purpose</strong></td>
+                                <td>Protects account from <span class="exam-highlight-term">unauthorized access</span>
+                                </td>
+                                <td>Protects your wallet from <span class="exam-highlight-term">unexpected costs</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>What It Prevents</strong></td>
+                                <td>Hackers logging into your account</td>
+                                <td>Surprise bills from forgotten resources</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Who Sets It Up</strong></td>
+                                <td>Security admin (Root/IAM user)</td>
+                                <td>Account owner (Billing access)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>When It Triggers</strong></td>
+                                <td>Every time you log in</td>
+                                <td>When spending crosses threshold</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tools Used</strong></td>
+                                <td>Authenticator app, Hardware token</td>
+                                <td>AWS Budgets console, Email, SNS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Best Practice</strong></td>
+                                <td>Enable on Root + important IAM users</td>
+                                <td>Set Zero Spend for Free Tier accounts</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cost to Use</strong></td>
+                                <td>Free (virtual MFA)</td>
+                                <td>First 2 budgets free, $0.02/day after</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Real-World Threat Scenarios</h3>
+                    <p>Let's see how MFA and Budget Alerts protect against different real-world threats:</p>
+                    <div class="scenario-box">
+                        <h4>🚨 Scenario 1: Password Leak</h4>
+                        <p><strong>Threat:</strong> Your AWS password gets leaked in a data breach</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Without MFA</th>
+                                    <th>With MFA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>❌ Hacker logs in with stolen password</td>
+                                    <td>✅ Login blocked - hacker doesn't have your phone</td>
+                                </tr>
+                                <tr>
+                                    <td>❌ Hacker launches 100 EC2 instances</td>
+                                    <td>✅ Your account stays secure</td>
+                                </tr>
+                                <tr>
+                                    <td>❌ You get $10,000 bill</td>
+                                    <td>✅ Zero damage</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="scenario-box">
+                        <h4>💸 Scenario 2: Forgotten EC2 Instance</h4>
+                        <p><strong>Threat:</strong> You launch an EC2 instance for testing and forget to stop it</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Without Budget Alert</th>
+                                    <th>With Budget Alert</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>❌ Instance runs for 30 days unnoticed</td>
+                                    <td>✅ Alert email after 1 day of spending</td>
+                                </tr>
+                                <tr>
+                                    <td>❌ You discover it at month-end</td>
+                                    <td>✅ You stop it immediately</td>
+                                </tr>
+                                <tr>
+                                    <td>❌ Bill: $73 for t2.medium running 720 hours</td>
+                                    <td>✅ Bill: $2.40 for 24 hours only</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <h3>When to Use Each</h3>
+                    <div class="decision-tree-section">
+                        <p><strong>Use This Decision Guide:</strong></p>
+                        <div class="diagram-container"><img loading="lazy" decoding="async" src="images/mfa-budget-decision-tree.png"
+                                alt="Decision tree flowchart: Start with 'What are you protecting?'. If Security branch leads to MFA options. If Costs branch leads to Budget Alert options.">
+                            <p class="diagram-caption"><em>Figure 12: Decision Tree - MFA or Budget Alerts?</em></p>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Your Situation</th>
+                                    <th>Recommendation</th>
+                                    <th>Why</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Creating new AWS account</td>
+                                    <td><strong>Set up BOTH</strong></td>
+                                    <td>MFA protects security, Budget protects costs</td>
+                                </tr>
+                                <tr>
+                                    <td>Root user account</td>
+                                    <td><strong>MFA is mandatory</strong></td>
+                                    <td>Root has unlimited permissions</td>
+                                </tr>
+                                <tr>
+                                    <td>Free Tier student account</td>
+                                    <td><strong>Zero Spend Budget</strong></td>
+                                    <td>Avoid any charges beyond free tier</td>
+                                </tr>
+                                <tr>
+                                    <td>Production company account</td>
+                                    <td><strong>MFA + Multiple Budgets</strong></td>
+                                    <td>High security + cost monitoring needed</td>
+                                </tr>
+                                <tr>
+                                    <td>IAM admin user</td>
+                                    <td><strong>MFA required</strong></td>
+                                    <td>Admin can launch expensive resources</td>
+                                </tr>
+                                <tr>
+                                    <td>Learning/sandbox environment</td>
+                                    <td><strong>Zero Spend + MFA</strong></td>
+                                    <td>Maximum protection for learners</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="real-world">🌍 Real-World Security Setup</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Let's walk through setting up a production-grade AWS account from scratch with both MFA and
+                        Budget Alerts.</p>
+                    <h3>Day 1: New AWS Account Security Checklist</h3>
+                    <div class="checklist-visual">
+                        <p><strong>⏱️ Time Required:</strong> 20-30 minutes</p>
+                        <p><strong>🎯 Goal:</strong> Secure account from both security threats and cost overruns</p>
+                        <h4>Step 1: Enable Root User MFA (Priority #1)</h4>
+                        <pre><code>✅ Sign in as Root user
+✅ Go to Security Credentials
+✅ Assign Virtual MFA device
+✅ Use Google Authenticator or Authy
+✅ Test login with MFA code
+⏱️ Time: 5-7 minutes</code></pre>
+                        <h4>Step 2: Create Zero Spend Budget (Priority #2)</h4>
+                        <pre><code>✅ Navigate to Billing → Budgets
+✅ Create Zero Spend Budget template
+✅ Add your email address
+✅ Verify email confirmation
+⏱️ Time: 3-5 minutes</code></pre>
+                        <h4>Step 3: Create Monthly Cost Budget (Priority #3)</h4>
+                        <pre><code>✅ Create second budget (first 2 are free)
+✅ Set realistic monthly limit ($10, $50, $100)
+✅ Configure alerts at 80% and 100%
+✅ Add multiple notification emails
+⏱️ Time: 5-7 minutes</code></pre>
+                        <h4>Step 4: Create IAM Admin User</h4>
+                        <pre><code>✅ Go to IAM → Users → Add users
+✅ Create admin user (don't use Root daily!)
+✅ Attach AdministratorAccess policy
+✅ Enable MFA on this user too
+⏱️ Time: 5-10 minutes</code></pre>
+                        <h4>Step 5: Document and Save</h4>
+                        <pre><code>✅ Save MFA backup codes in password manager
+✅ Document budget alert email addresses
+✅ Test receiving a budget alert email
+✅ Sign out of Root, sign in with IAM admin
+⏱️ Time: 3-5 minutes</code></pre>
+                    </div>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/aws-account-security-architecture.png"
+                            alt="Architecture diagram showing layers of AWS account security: Root user with MFA at top, IAM users with MFA in middle, Budget Alerts monitoring costs on the side, all protecting AWS resources at bottom">
+                        <p class="diagram-caption"><em>Figure 13: Complete AWS Account Security Architecture</em></p>
+                    </div>
+                    <h3>Real Company Example</h3>
+                    <div class="case-study-box">
+                        <h4>📊 Case Study: Startup "CloudApp Inc."</h4>
+                        <p><strong>Situation:</strong> New startup creating AWS account for first product launch</p>
+                        <p><strong>Security Setup:</strong></p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Configuration</th>
+                                    <th>Result</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Root User</strong></td>
+                                    <td>MFA with Authy (cloud backup)</td>
+                                    <td>Secured against password theft</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>3 IAM Admins</strong></td>
+                                    <td>MFA required for all</td>
+                                    <td>Team members securely access AWS</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Zero Spend Budget</strong></td>
+                                    <td>Alert at $0.01</td>
+                                    <td>Catches accidental charges in dev environment</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Monthly Budget #1</strong></td>
+                                    <td>$500/month for production</td>
+                                    <td>Alerts at $400 (80%) and $500 (100%)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Monthly Budget #2</strong></td>
+                                    <td>$100/month for development</td>
+                                    <td>Keeps dev costs under control</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p><strong>Outcome:</strong></p>
+                        <ul>
+                            <li>✅ No security breaches in 2 years</li>
+                            <li>✅ Caught 3 instances of forgotten EC2 instances (saved ~$200/month)</li>
+                            <li>✅ Never exceeded monthly budget targets</li>
+                            <li>✅ CEO sleeps well knowing account is protected</li>
+                        </ul>
+                    </div>
+                    <h3>The Two-Minute Security Test</h3>
+                    <p>Use this quick test to verify your AWS account security:</p>
+                    <div class="test-checklist">
+                        <h4>✅ MFA Security Test</h4>
+                        <pre><code>□ Can you log out and log back in using MFA?
+□ Do you have backup codes saved somewhere safe?
+□ Is MFA enabled on Root user?
+□ Is MFA enabled on all admin IAM users?
+□ Can you access your MFA app right now?
+
+Score: 5/5 = Excellent | 3-4/5 = Good | <3/5 = Needs Work</code></pre>
+                        <h4>💰 Budget Protection Test</h4>
+                        <pre><code>□ Do you have at least one active budget?
+□ Have you received a test alert email?
+□ Are alerts going to actively monitored email?
+□ Do you check Cost Explorer weekly?
+□ Do you stop resources when not in use?
+
+Score: 5/5 = Excellent | 3-4/5 = Good | <3/5 = Needs Work</code></pre>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="summary">📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Here's everything we covered in Session 4:</p>
+                    <h3>🔐 Multi-Factor Authentication (MFA)</h3>
+                    <ul>
+                        <li><strong>MFA adds extra security layer</strong> requiring password + one-time code from your
+                            phone</li>
+                        <li><strong>Three types available:</strong> Virtual MFA (Google Authenticator), Hardware Token,
+                            Security Key (YubiKey)</li>
+                        <li><strong>Virtual MFA is most common</strong> - free, easy to set up, works on smartphones
+                        </li>
+                        <li><strong>Enable on Root user FIRST</strong> - this is your highest security priority</li>
+                        <li><strong>MFA codes change every 30 seconds</strong> using TOTP (Time-based One-Time Password)
+                        </li>
+                        <li><strong>Always save backup codes</strong> in case you lose your phone</li>
+                        <li><strong>AWS requires two consecutive codes</strong> during setup to verify synchronization
+                        </li>
+                    </ul>
+                    <h3>💰 AWS Budget Alerts</h3>
+                    <ul>
+                        <li><strong>Budget Alerts notify you</strong> when spending crosses thresholds you define</li>
+                        <li><strong>Four budget types:</strong> Zero Spend, Monthly Cost, Usage, Savings/Reservations
+                        </li>
+                        <li><strong>Zero Spend Budget</strong> alerts at $0.01 - perfect for Free Tier accounts</li>
+                        <li><strong>Can track actual OR forecasted costs</strong> - forecasted gives early warnings</li>
+                        <li><strong>First 2 budgets are free</strong> - set up Zero Spend + Monthly Cost on day one</li>
+                        <li><strong>Configure multiple alert thresholds</strong> (50%, 80%, 100%) for better control
+                        </li>
+                        <li><strong>Alerts sent via email or SNS</strong> - make sure emails are actively monitored</li>
+                    </ul>
+                    <h3>⚖️ MFA vs Budget Alerts</h3>
+                    <ul>
+                        <li><strong>MFA protects security</strong> - prevents unauthorized access to your account</li>
+                        <li><strong>Budget Alerts protect costs</strong> - prevents unexpected bills and overspending
+                        </li>
+                        <li><strong>Both are essential</strong> for production AWS accounts</li>
+                        <li><strong>Set up both on day one</strong> when creating new AWS account</li>
+                    </ul>
+                    <h3>🎯 Key Takeaways for Exams</h3>
+                    <ul>
+                        <li>MFA is ALWAYS the right answer for securing root and privileged accounts</li>
+                        <li>Zero Spend Budget is recommended for all Free Tier accounts</li>
+                        <li>AWS Budgets can alert on actual costs, forecasted costs, or service usage</li>
+                        <li>Virtual MFA uses authenticator apps and costs nothing</li>
+                        <li>Budget alerts require email or SNS topic for notifications</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="glossary">📖 Glossary</h2>
+                </summary>
+                <div class="section-content">
+                    <div id="glossaryContainer" data-glossary-source="json/glossary.json"></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="interview">🎤 Interview Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <p class="interview-intro">📚 Test your understanding with these carefully curated questions. Click
+                        through each question and reveal answers to check your knowledge.</p>
+                    <div class="interview-progress">
+                        <p id="interviewProgress">Progress: 0/25 (0%)</p>
+                    </div>
+                    <div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn"
+                            id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1
+                            / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn"
+                            id="nextInterviewBtn">Next →</button></div>
+                    <div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json">
+                    </div>
+                    <div style="margin-top: 2rem; text-align: center;"><button onclick="resetInterviewProgress()"
+                            class="quiz-reset-btn">🔄 Reset Progress</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="mcq">📝 Multiple Choice Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="quiz-header-info">
+                        <p>📝 Test your knowledge with these multiple choice questions. Navigate through questions one
+                            at a time, select your answer, and get immediate feedback with detailed explanations.</p>
+                    </div>
+                    <div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn"
+                            id="prevBtn">← Previous</button>
+                        <div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span
+                                class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button
+                            onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button>
+                    </div>
+                    <div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div>
+                    <div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊
+                            View Quiz Summary</button><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄
+                            Reset All Answers</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="projects">💼 Hands-On Projects</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites</h4>
+                        <ul>
+                            <li>✅ AWS account (Free Tier eligible)</li>
+                            <li>✅ Smartphone with app store access</li>
+                            <li>✅ Valid email address for budget alerts</li>
+                            <li>✅ Knowledge from Sessions 1-3 (AWS account basics)</li>
+                        </ul>
+                    </div>
+                    <h3>Project 1: Enable MFA on Root User Account</h3>
+                    <div class="info-box">
+                        <p><strong>🎯 Objective:</strong> Secure your AWS root account with Multi-Factor Authentication
+                            using a virtual MFA device</p>
+                        <p><strong>⏱️ Time:</strong> 15-20 minutes</p>
+                        <p><strong>💰 Cost:</strong> Free</p>
+                    </div>
+                    <h4>What You'll Build</h4>
+                    <p>You'll add an extra layer of security to your AWS account by requiring both a password and a
+                        one-time code from your smartphone to log in.</p>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/project1-mfa-architecture.png"
+                            alt="Simple diagram showing login flow: User → Password → MFA Code → AWS Account Access">
+                        <p class="diagram-caption"><em>Project 1: MFA Protection Architecture</em></p>
+                    </div>
+                    <h4>Step-by-Step Instructions</h4>
+                    <p><strong>Part 1: Install Authenticator App</strong></p>
+                    <ol>
+                        <li>On your smartphone, open the App Store (iPhone) or Play Store (Android)</li>
+                        <li>Search for "Google Authenticator"</li>
+                        <li>Install the app (it's free)</li>
+                        <li>Open the app - you'll see an empty list of accounts</li>
+                    </ol>
+                    <p><strong>Part 2: Enable MFA in AWS Console</strong></p>
+                    <ol>
+                        <li>Sign in to AWS Console as Root user</li>
+                        <li>Click your account name (top-right) → Security credentials</li>
+                        <li>Scroll to "Multi-factor authentication (MFA)" section</li>
+                        <li>Click "Assign MFA device" button</li>
+                        <li>Device name: Enter "my-phone-mfa"</li>
+                        <li>Select "Authenticator app" → Next</li>
+                    </ol>
+                    <p><strong>Part 3: Link Your Phone</strong></p>
+                    <ol>
+                        <li>AWS shows a QR code on your screen</li>
+                        <li>On your phone, open Google Authenticator</li>
+                        <li>Tap the "+" button → "Scan a QR code"</li>
+                        <li>Point camera at the QR code on your computer</li>
+                        <li>AWS appears in your app with a 6-digit code</li>
+                    </ol>
+                    <p><strong>Part 4: Verify Setup</strong></p>
+                    <ol>
+                        <li>Look at the code in Google Authenticator (e.g., 123456)</li>
+                        <li>Enter it in "MFA code 1" field in AWS</li>
+                        <li>Wait 30 seconds for code to refresh</li>
+                        <li>Enter the NEW code in "MFA code 2" field</li>
+                        <li>Click "Add MFA"</li>
+                        <li>See green success message!</li>
+                    </ol>
+                    <p><strong>Part 5: Test Your MFA</strong></p>
+                    <ol>
+                        <li>Sign out of AWS Console</li>
+                        <li>Sign in again with email + password</li>
+                        <li>AWS now prompts for MFA code</li>
+                        <li>Check Google Authenticator → Enter the code</li>
+                        <li>Successfully log in!</li>
+                    </ol>
+                    <h4>Verification Checklist</h4>
+                    <div class="success-box">
+                        <p><strong>✅ Success Indicators:</strong></p>
+                        <ul>
+                            <li>Green "Success" message appeared after adding MFA</li>
+                            <li>Device shows "Active" status in Security Credentials</li>
+                            <li>You can log out and log back in using MFA code</li>
+                            <li>Google Authenticator shows AWS in your account list</li>
+                        </ul>
+                    </div>
+                    <h4>Troubleshooting</h4>
+                    <div class="error-box">
+                        <p><strong>❌ Problem: "Invalid MFA code" error</strong></p>
+                        <p><strong>Cause:</strong> Code expired (they change every 30 seconds)</p>
+                        <p><strong>Solution:</strong> Wait for new code to appear, enter it immediately</p>
+                        <hr>
+                        <p><strong>❌ Problem: Can't scan QR code</strong></p>
+                        <p><strong>Cause:</strong> Camera access denied or poor lighting</p>
+                        <p><strong>Solution:</strong> Click "Show secret key" → Manually type it into authenticator app
+                        </p>
+                        <hr>
+                        <p><strong>❌ Problem: Lost phone with authenticator</strong></p>
+                        <p><strong>Cause:</strong> No backup codes saved</p>
+                        <p><strong>Solution:</strong> Contact AWS Support OR use backup root email verification</p>
+                    </div>
+                    <h4>Clean Up</h4>
+                    <p><strong>⚠️ DO NOT remove MFA!</strong> This project improves security - keep it enabled
+                        permanently.</p>
+                    <hr>
+                    <h3>Project 2: Create Zero Spend Budget Alert</h3>
+                    <div class="info-box">
+                        <p><strong>🎯 Objective:</strong> Set up a budget alert that notifies you immediately if your
+                            AWS account incurs any charges</p>
+                        <p><strong>⏱️ Time:</strong> 10-15 minutes</p>
+                        <p><strong>💰 Cost:</strong> Free (first 2 budgets are free)</p>
+                    </div>
+                    <h4>What You'll Build</h4>
+                    <p>A budget that monitors all AWS services and sends you an email alert the moment your spending
+                        exceeds $0.01.</p>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/project2-budget-architecture.png"
+                            alt="Diagram showing AWS services generating costs, Budget monitoring, Email alert sent when threshold exceeded">
+                        <p class="diagram-caption"><em>Project 2: Zero Spend Budget Architecture</em></p>
+                    </div>
+                    <h4>Step-by-Step Instructions</h4>
+                    <p><strong>Part 1: Access Billing Console</strong></p>
+                    <ol>
+                        <li>Sign in to AWS Console</li>
+                        <li>Click your account name (top-right) → "Billing and Cost Management"</li>
+                        <li>In left sidebar, click "Budgets"</li>
+                        <li>Click "Create budget" (orange button)</li>
+                    </ol>
+                    <p><strong>Part 2: Choose Budget Template</strong></p>
+                    <ol>
+                        <li>Select "Use a template (simplified)"</li>
+                        <li>Choose "Zero spend budget" option</li>
+                        <li>This pre-configures $0.01 threshold</li>
+                    </ol>
+                    <p><strong>Part 3: Configure Budget</strong></p>
+                    <ol>
+                        <li>Budget name: "MyZeroSpendBudget"</li>
+                        <li>Email recipients: Enter your email address</li>
+                        <li>Can add multiple emails separated by commas</li>
+                        <li>Scope: "All AWS Services" (default - keep it)</li>
+                    </ol>
+                    <p><strong>Part 4: Create and Verify</strong></p>
+                    <ol>
+                        <li>Click "Create budget" button</li>
+                        <li>Wait for green success message</li>
+                        <li>Check your email inbox</li>
+                        <li>You should receive "AWS Budgets: Subscription Confirmation" email</li>
+                        <li>Click "Confirm subscription" link in email</li>
+                    </ol>
+                    <h4>Verification Checklist</h4>
+                    <div class="success-box">
+                        <p><strong>✅ Success Indicators:</strong></p>
+                        <ul>
+                            <li>"MyZeroSpendBudget" appears in budgets list</li>
+                            <li>Status shows "Active"</li>
+                            <li>Email confirmation received and confirmed</li>
+                            <li>Budget details show $0.01 threshold</li>
+                        </ul>
+                    </div>
+                    <h4>Testing Your Budget</h4>
+                    <p><strong>Optional Test (Not Recommended for Free Tier):</strong></p>
+                    <div class="highlight-box">
+                        <p><strong>⚠️ Warning:</strong> This will incur a small charge (~$0.01-0.10). Only do this if
+                            you want to verify alerts work.</p>
+                        <ol>
+                            <li>Launch smallest EC2 instance (t2.micro)</li>
+                            <li>Wait 1-2 hours</li>
+                            <li>Check email - you should receive alert</li>
+                            <li>Immediately terminate instance</li>
+                        </ol>
+                    </div>
+                    <h4>Clean Up</h4>
+                    <p><strong>⚠️ DO NOT delete this budget!</strong> Keep it active for ongoing cost protection.</p>
+                    <hr>
+                    <h3>Project 3: Create Monthly Cost Budget</h3>
+                    <div class="info-box">
+                        <p><strong>🎯 Objective:</strong> Set up a monthly spending limit with multiple alert thresholds
+                        </p>
+                        <p><strong>⏱️ Time:</strong> 15-20 minutes</p>
+                        <p><strong>💰 Cost:</strong> Free (this is your second budget - first 2 are free)</p>
+                    </div>
+                    <h4>What You'll Build</h4>
+                    <p>A budget that tracks monthly spending and alerts you at 80% and 100% of your $20 monthly limit.
+                    </p>
+                    <h4>Step-by-Step Instructions</h4>
+                    <p><strong>Part 1: Create Custom Budget</strong></p>
+                    <ol>
+                        <li>Billing → Budgets → Create budget</li>
+                        <li>Select "Customize (advanced)"</li>
+                        <li>Budget type: "Cost budget"</li>
+                        <li>Click "Next"</li>
+                    </ol>
+                    <p><strong>Part 2: Set Budget Amount</strong></p>
+                    <ol>
+                        <li>Budget name: "MonthlyLimit20"</li>
+                        <li>Period: "Monthly"</li>
+                        <li>Budget effective dates: "Recurring budget"</li>
+                        <li>Start month: Current month</li>
+                        <li>Budgeting method: "Fixed"</li>
+                        <li>Enter budgeted amount: $20.00</li>
+                        <li>Click "Next"</li>
+                    </ol>
+                    <p><strong>Part 3: Configure Alerts</strong></p>
+                    <ol>
+                        <li>Alert #1: 80% of budgeted amount ($16.00)<ul>
+                                <li>Threshold: 80%</li>
+                                <li>Email: your-email@example.com</li>
+                            </ul>
+                        </li>
+                        <li>Click "Add alert threshold"</li>
+                        <li>Alert #2: 100% of budgeted amount ($20.00)<ul>
+                                <li>Threshold: 100%</li>
+                                <li>Email: same email</li>
+                            </ul>
+                        </li>
+                        <li>Click "Next"</li>
+                    </ol>
+                    <p><strong>Part 4: Review and Create</strong></p>
+                    <ol>
+                        <li>Review all settings</li>
+                        <li>Click "Create budget"</li>
+                        <li>Confirm email subscription (check inbox)</li>
+                    </ol>
+                    <h4>Verification Checklist</h4>
+                    <div class="success-box">
+                        <p><strong>✅ Success Indicators:</strong></p>
+                        <ul>
+                            <li>Two active budgets now: "MyZeroSpendBudget" + "MonthlyLimit20"</li>
+                            <li>Both show "Active" status</li>
+                            <li>Email confirmations received for both alert thresholds</li>
+                            <li>Budget details show $16 and $20 thresholds</li>
+                        </ul>
+                    </div>
+                    <h4>Clean Up</h4>
+                    <p><strong>⚠️ Keep both budgets active!</strong> They provide ongoing protection.</p>
+                    <div class="info-box">
+                        <p><strong>💡 Cost Note:</strong> First 2 budgets are free. If you create a 3rd budget, AWS
+                            charges $0.02/day ($0.60/month).</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="checklist">☑️ Learning Checklist</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="checklist-progress">
+                        <p>Progress: <span id="checklistProgress">0/15</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                    <div id="checklistContainer" data-checklist-source="json/checklist.json"></div>
+                    <div style="margin-top: 2rem; text-align: center;"><button onclick="resetChecklist()"
+                            class="quiz-reset-btn">🔄 Reset Checklist</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="reflection">🤔 Reflection Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Test your understanding with these thought-provoking questions. Try to answer before viewing
+                        hints.</p>
+                    <div class="question-block">
+                        <h4>1. Why is MFA called "multi-factor" authentication?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Think about the word "factor" - what different types of proof are you providing?
+                                    Consider "something you know" vs "something you have".</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>2. If you could only set up ONE security measure for a new AWS account, would you choose MFA
+                            or Budget Alerts? Why?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>There's no single "right" answer! Consider: What's more damaging - a hacker gaining
+                                    access or getting a large unexpected bill? What's more likely to happen?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>3. Why does AWS require TWO consecutive MFA codes during device setup instead of just one?
+                        </h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Think about timing. MFA codes change every 30 seconds. What if your phone's clock is
+                                    off by a few minutes? How does AWS know your app is properly synchronized?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>4. How would you explain the difference between "actual cost" and "forecasted cost" budgets
+                            to a non-technical friend?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Use a personal finance analogy. Think about tracking money you've already spent vs
+                                    predicting what you'll spend by month-end based on current habits.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>5. A company has 50 employees who need AWS access. Should they all share one Root user
+                            account with MFA, or should each have their own IAM account? Why?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Consider accountability, security, and the principle of least privilege. What happens
+                                    if someone leaves the company? How do you track who did what?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>6. Why is a Zero Spend Budget better than a $5/month budget for Free Tier users?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Think about Free Tier limits. If you stay within Free Tier, what should your bill be?
+                                    When would you WANT to be notified?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>7. If your phone with Google Authenticator gets stolen, how would you still access your AWS
+                            account?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Think about backup options. What should you have saved during MFA setup? What
+                                    recovery methods does AWS provide?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>8. Why doesn't AWS just enable MFA by default on all accounts if it's so important for
+                            security?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Consider user experience and access. What happens if someone doesn't have a
+                                    smartphone? What if they lose their device? Balance security vs usability.</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="links">🔗 Links & References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa.html"
+                                        target="_blank" rel="noopener noreferrer">AWS MFA Documentation</a></td>
+                                <td>Complete guide to Multi-Factor Authentication in AWS</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html"
+                                        target="_blank" rel="noopener noreferrer">AWS Budgets Documentation</a></td>
+                                <td>Official documentation for AWS Budgets service</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html"
+                                        target="_blank" rel="noopener noreferrer">Enable Virtual MFA Guide</a></td>
+                                <td>Step-by-step instructions for virtual MFA setup</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/budgets-best-practices.html"
+                                        target="_blank" rel="noopener noreferrer">Budget Best Practices</a></td>
+                                <td>AWS recommendations for budget configuration</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🎓 Recommended Reading for Students</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/iam/features/mfa/" target="_blank"
+                                        rel="noopener noreferrer">AWS MFA Overview Page</a></td>
+                                <td>High-level overview of MFA features and benefits</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/aws-cost-management/aws-budgets/" target="_blank"
+                                        rel="noopener noreferrer">AWS Budgets Product Page</a></td>
+                                <td>Features and pricing for AWS Budgets service</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/free/" target="_blank" rel="noopener noreferrer">AWS
+                                        Free Tier Details</a></td>
+                                <td>Complete list of Free Tier services and limits</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://calculator.aws/" target="_blank" rel="noopener noreferrer">AWS
+                                        Pricing Calculator</a></td>
+                                <td>Estimate costs before launching resources</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🔧 Tools & Apps</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
+                                        target="_blank" rel="noopener noreferrer">Google Authenticator (Android)</a>
+                                </td>
+                                <td>Free MFA app for Android devices</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://apps.apple.com/us/app/google-authenticator/id388497605"
+                                        target="_blank" rel="noopener noreferrer">Google Authenticator (iOS)</a></td>
+                                <td>Free MFA app for iPhone/iPad</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://authy.com/" target="_blank" rel="noopener noreferrer">Authy</a>
+                                </td>
+                                <td>Alternative MFA app with cloud backup feature</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.yubico.com/" target="_blank"
+                                        rel="noopener noreferrer">YubiKey</a></td>
+                                <td>Hardware security keys (U2F/FIDO)</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://console.aws.amazon.com/cost-management/home#/budgets"
+                                        target="_blank" rel="noopener noreferrer">AWS Budgets Console</a></td>
+                                <td>Direct link to create and manage budgets</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>📖 Additional Learning Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/getting-started/hands-on/control-your-costs-free-tier-budgets/"
+                                        target="_blank" rel="noopener noreferrer">Tutorial: Control Costs with
+                                        Budgets</a></td>
+                                <td>AWS hands-on tutorial for budget setup</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/premiumsupport/knowledge-center/reset-account-mfa/"
+                                        target="_blank" rel="noopener noreferrer">MFA Troubleshooting Guide</a></td>
+                                <td>How to recover from lost MFA device</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/blogs/security/how-to-use-mfa-in-aws/"
+                                        target="_blank" rel="noopener noreferrer">AWS Security Blog: MFA</a></td>
+                                <td>Detailed blog post on MFA implementation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">MFA</span><span class="tag">Security</span><span
+                class="tag">Budgets</span><span class="tag">Cost Management</span></div>
+    </div>
+    
+    
+    <script defer src="../../../js/notes-template.js?v=1.0"></script>
+    
+    
+    
+    
+    
+    
+</body>
+
+</html>

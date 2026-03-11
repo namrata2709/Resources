@@ -1,15 +1,16 @@
 /**
- * Notes Manager
- * Handles loading, filtering, sorting, and rendering of notes
+ * Notes Manager (Topic-Based)
+ * Handles loading, filtering, sorting, and rendering of topic-based notes
  */
 
-(function() {
+(function () {
     'use strict';
 
     // Global variables
     let notesData = [];
     let filteredData = [];
     let currentFolder = null;
+    let categories = new Set();
 
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
@@ -31,7 +32,17 @@
             const data = await response.json();
             notesData = data.notes;
             filteredData = [...notesData];
-            
+
+            // Extract unique categories
+            notesData.forEach(note => {
+                if (note.category) {
+                    categories.add(note.category);
+                }
+            });
+
+            // Populate category filter
+            populateCategoryFilter();
+
             sortNotes();
         } catch (error) {
             console.error('Error loading notes:', error);
@@ -45,12 +56,28 @@
         }
     }
 
+    // Populate category filter dropdown
+    function populateCategoryFilter() {
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sortedCategories = Array.from(categories).sort();
+
+        sortedCategories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            //categoryFilter.appendChild(option);
+            console.log(categoryFilter);
+
+        });
+
+    }
+
     // Sort notes
     function sortNotes() {
         const sortValue = document.getElementById('sortSelect').value;
-        
+
         filteredData.sort((a, b) => {
-            switch(sortValue) {
+            switch (sortValue) {
                 case 'date-desc':
                     return new Date(b.date) - new Date(a.date);
                 case 'date-asc':
@@ -59,59 +86,91 @@
                     return a.title.localeCompare(b.title);
                 case 'title-desc':
                     return b.title.localeCompare(a.title);
+                case 'category':
+                    return (a.category || '').localeCompare(b.category || '');
                 default:
                     return 0;
             }
         });
-        
+
         renderNotes();
     }
 
     // Filter notes
     function filterNotes() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const typeFilter = document.getElementById('typeFilter').value;
-        
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        const difficultyFilter = document.getElementById('difficultyFilter').value;
+
         filteredData = notesData.filter(note => {
-            const matchesSearch = note.title.toLowerCase().includes(searchTerm) || 
-                                 note.date.includes(searchTerm);
-            const matchesType = !typeFilter || note.type === typeFilter;
-            
-            return matchesSearch && matchesType;
+            const matchesSearch = note.title.toLowerCase().includes(searchTerm) ||
+                (note.category || '').toLowerCase().includes(searchTerm) ||
+                note.date.includes(searchTerm);
+            const matchesCategory = !categoryFilter || note.category === categoryFilter;
+            const matchesDifficulty = !difficultyFilter || note.difficulty === difficultyFilter;
+
+            return matchesSearch && matchesCategory && matchesDifficulty;
         });
-        
+
         sortNotes();
+    }
+
+    // Get difficulty badge HTML
+    function getDifficultyBadge(difficulty) {
+        const badges = {
+            'Beginner': '<span class="difficulty-badge beginner">🟢 Beginner</span>',
+            'Intermediate': '<span class="difficulty-badge intermediate">🟡 Intermediate</span>',
+            'Advanced': '<span class="difficulty-badge advanced">🔴 Advanced</span>'
+        };
+        return badges[difficulty] || '';
     }
 
     // Render notes as folder cards
     function renderNotes() {
         const container = document.getElementById('notesContainer');
-        
+
         if (filteredData.length === 0) {
             container.innerHTML = '<div class="loading">No notes found matching your criteria.</div>';
             return;
         }
 
         container.innerHTML = filteredData.map(note => {
-            const icon = note.type === 'daily' ? '📅' : '📂';
-            const typeLabel = note.type === 'daily' ? 'Daily Note' : 'Additional Note';
+            const icon = getCategoryIcon(note.category);
             const formattedDate = formatDate(note.date);
             const fileCount = note.files ? note.files.length : 0;
-            
+            const difficultyBadge = getDifficultyBadge(note.difficulty);
+
             return `
                 <div class="note-folder" onclick='openFolder(${JSON.stringify(note).replace(/'/g, "&#39;")})'>
                     <div class="folder-icon">${icon}</div>
                     <div class="folder-content">
                         <h3>${note.title}</h3>
                         <div class="note-meta">
-                            <span class="note-date">📆 ${formattedDate}</span>
-                            <span class="note-files">📎 ${fileCount} files</span>
-                            <span class="note-type-badge ${note.type}">${typeLabel}</span>
+                            <span class="note-category">${note.category || 'General'}</span>
+                            ${difficultyBadge}
+                            <span class="note-date">📅 ${formattedDate}</span>
+                            <span class="note-files">📝 ${fileCount} files</span>
                         </div>
                     </div>
                 </div>
             `;
         }).join('');
+    }
+
+    // Get category icon
+    function getCategoryIcon(category) {
+        const icons = {
+            'Compute': '⚙️',
+            'Storage': '💾',
+            'Database': '🗄️',
+            'Networking': '🌐',
+            'Security': '🔒',
+            'Monitoring': '📊',
+            'Management': '🛠️',
+            'Fundamentals': '📚',
+            'General': '📂'
+        };
+        return icons[category] || '📂';
     }
 
     // Format date for display
@@ -124,15 +183,15 @@
     // Open folder modal to show files
     function openFolder(note) {
         currentFolder = note;
-        document.getElementById('modalTitle').textContent = `📂 ${note.title}`;
-        
+        document.getElementById('modalTitle').textContent = `${getCategoryIcon(note.category)} ${note.title}`;
+
         const modalBody = document.getElementById('modalBody');
-        
+
         if (!note.files || note.files.length === 0) {
             modalBody.innerHTML = '<p class="note-description">No files in this folder yet.</p>';
         } else {
             let filesHTML = '<div class="files-list">';
-            
+
             // Add images gallery link first if images exist
             if (note.hasImages && note.images && note.images.length > 0) {
                 filesHTML += `
@@ -146,7 +205,7 @@
                     </div>
                 `;
             }
-            
+
             // Add other files
             note.files.forEach((file, index) => {
                 filesHTML += `
@@ -160,25 +219,25 @@
                     </div>
                 `;
             });
-            
+
             filesHTML += '</div>';
             modalBody.innerHTML = filesHTML;
-            
+
             // Add click handlers to file items
             attachFileClickHandlers(note);
         }
-        
+
         document.getElementById('folderModal').classList.add('active');
     }
 
     // Attach click handlers to file items
     function attachFileClickHandlers(note) {
         const fileItems = document.querySelectorAll('.file-item');
-        
+
         fileItems.forEach(item => {
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function () {
                 const action = this.getAttribute('data-action');
-                
+
                 if (action === 'gallery') {
                     const folder = this.getAttribute('data-folder');
                     openGallery(folder);
@@ -217,14 +276,13 @@
     function openFile(folder, filename, type) {
         // Special handling for external links
         if (type === 'link') {
-            // filename is actually the full URL for link types
             window.open(filename, '_blank');
             return;
         }
-        
+
         // For all other file types, construct the filepath
         const filepath = `data/notes/${folder}/${filename}`;
-        
+
         if (type === 'html') {
             window.open(filepath, '_self');
         } else if (type === 'pdf' || type === 'txt') {
@@ -239,7 +297,7 @@
 
     // Close modal when clicking outside
     function setupModalClickOutside() {
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('folderModal');
             if (event.target === modal) {
                 closeModal();

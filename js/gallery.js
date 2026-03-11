@@ -1,6 +1,7 @@
 /**
- * Image Gallery Manager
+ * Image Gallery Manager v2.0
  * Handles dynamic loading and display of images from notes
+ * Enhanced with stats, empty state, error handling
  */
 
 (function() {
@@ -14,6 +15,7 @@
     let allImages = [];
     let currentImageIndex = 0;
     let filteredImages = [];
+    let currentFolderInfo = null;
 
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
@@ -23,97 +25,218 @@
     }
 
     function init() {
+        showLoading();
         loadImages();
         setupKeyboardNavigation();
+    }
+
+    // Show loading state
+    function showLoading() {
+        const gallery = document.getElementById('gallery');
+        gallery.innerHTML = `
+            <div class="loading" style="grid-column: 1/-1;">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Loading images...</p>
+            </div>
+        `;
+    }
+
+    // Show error state
+    function showError(message) {
+        const gallery = document.getElementById('gallery');
+        const errorState = document.getElementById('errorState');
+        
+        gallery.classList.add('hidden');
+        errorState.classList.remove('hidden');
+        
+        console.error('Gallery Error:', message);
+    }
+
+    // Show empty state
+    function showEmptyState() {
+        const gallery = document.getElementById('gallery');
+        const emptyState = document.getElementById('emptyState');
+        
+        gallery.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+    }
+
+    // Hide empty state
+    function hideEmptyState() {
+        const gallery = document.getElementById('gallery');
+        const emptyState = document.getElementById('emptyState');
+        
+        gallery.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+    }
+
+    // Update gallery stats
+    function updateGalleryStats(folderName, imageCount, dateInfo) {
+        const imageCountEl = document.getElementById('imageCount');
+        const folderNameEl = document.getElementById('folderName');
+        const dateInfoEl = document.getElementById('dateInfo');
+        const breadcrumbFolder = document.getElementById('breadcrumbFolder');
+        
+        if (imageCountEl) {
+            imageCountEl.textContent = `${imageCount} image${imageCount !== 1 ? 's' : ''}`;
+        }
+        
+        if (folderNameEl) {
+            folderNameEl.textContent = folderName || 'All Folders';
+        }
+        
+        if (dateInfoEl) {
+            dateInfoEl.textContent = dateInfo || 'Various Dates';
+        }
+        
+        if (breadcrumbFolder) {
+            breadcrumbFolder.textContent = folderName || 'Images Gallery';
+        }
+        
+        // Update page title
+        document.title = `${folderName || 'Images Gallery'} - AWS Learning Dashboard`;
     }
 
     // Load images from notes-list.json
     async function loadImages() {
         try {
             const response = await fetch('../notes-list.json');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const data = await response.json();
             
             if (folderParam === 'all') {
                 // Load all images from all folders
                 document.querySelector('.gallery-header h1').textContent = '🖼️ All Images';
+                
+                let totalImages = 0;
                 data.notes.forEach(note => {
                     if (note.hasImages && note.images) {
                         note.images.forEach(img => {
                             allImages.push({
                                 name: img.name,
-                                file: `${note.folder}/${img.file}`,
-                                folder: note.title
+                                file: `${note.folder}/images/${img.file}`,
+                                folder: note.title,
+                                date: note.date || 'Unknown'
                             });
+                            totalImages++;
                         });
                     }
                 });
+                
+                updateGalleryStats('All Folders', totalImages, 'Various Dates');
+                
             } else {
                 // Load images from specific folder
                 const note = data.notes.find(n => n.folder === folderParam);
+                
+                if (!note) {
+                    throw new Error(`Folder "${folderParam}" not found`);
+                }
+                
                 if (note && note.hasImages && note.images) {
                     document.querySelector('.gallery-header h1').textContent = `🖼️ Images - ${note.title}`;
+                    
                     allImages = note.images.map(img => ({
                         name: img.name,
-                        file: `${note.folder}/${img.file}`,
-                        folder: note.title
+                        file: `${note.folder}/images/${img.file}`,
+                        folder: note.title,
+                        date: note.date || 'Unknown'
                     }));
+                    
+                    currentFolderInfo = {
+                        name: note.title,
+                        date: note.date || 'Unknown',
+                        count: allImages.length
+                    };
+                    
+                    updateGalleryStats(note.title, allImages.length, note.date || 'Unknown');
+                } else {
+                    // No images in this folder
+                    updateGalleryStats(note.title || folderParam, 0, note.date || 'Unknown');
                 }
             }
             
             filteredImages = [...allImages];
             loadGallery();
+            
         } catch (error) {
             console.error('Error loading images:', error);
-            document.getElementById('gallery').innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
-                    <p>Error loading images. Please ensure notes-list.json exists.</p>
-                </div>
-            `;
+            showError(error.message);
         }
     }
 
     // Render gallery
     function loadGallery() {
         const gallery = document.getElementById('gallery');
-        const imageCount = document.getElementById('imageCount');
         
         if (filteredImages.length === 0) {
-            gallery.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
-                    <p>No images found.</p>
-                </div>
-            `;
-            imageCount.textContent = '0 images';
+            showEmptyState();
+            updateGalleryStats(
+                currentFolderInfo?.name || 'All Folders',
+                0,
+                currentFolderInfo?.date || 'Various Dates'
+            );
             return;
         }
         
+        hideEmptyState();
+        
         gallery.innerHTML = filteredImages.map((img, index) => `
-            <div class="image-card" onclick="openLightbox(${index})">
+            <div class="image-card" onclick="openLightbox(${index})" tabindex="0" role="button" aria-label="View ${img.name}">
                 <div class="image-wrapper">
                     <img 
                         src="${img.file}" 
                         alt="${img.name}" 
                         loading="lazy"
-                        onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'image-error\\'>📷<br>Image not found</div>';"
+                        onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'image-error\\'><div class=\\'image-error-icon\\'>📷</div>Image not found</div>';"
                     >
                 </div>
                 <div class="image-info">
                     <div class="image-name">${img.name}</div>
-                    <div class="image-meta">📁 ${img.folder}</div>
+                    <div class="image-meta">
+                        <div class="meta-item">📁 ${img.folder}</div>
+                    </div>
                 </div>
             </div>
         `).join('');
-
-        imageCount.textContent = `${filteredImages.length} image${filteredImages.length !== 1 ? 's' : ''}`;
+        
+        // Add keyboard support for image cards
+        const cards = gallery.querySelectorAll('.image-card');
+        cards.forEach((card, index) => {
+            card.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openLightbox(index);
+                }
+            });
+        });
+        
+        // Update stats
+        updateGalleryStats(
+            currentFolderInfo?.name || 'All Folders',
+            filteredImages.length,
+            currentFolderInfo?.date || 'Various Dates'
+        );
     }
 
     // Filter images by search term
     function filterImages() {
         const search = document.getElementById('searchBox').value.toLowerCase();
-        filteredImages = allImages.filter(img => 
-            img.name.toLowerCase().includes(search) || 
-            img.folder.toLowerCase().includes(search)
-        );
+        
+        if (!search) {
+            filteredImages = [...allImages];
+        } else {
+            filteredImages = allImages.filter(img => 
+                img.name.toLowerCase().includes(search) || 
+                img.folder.toLowerCase().includes(search) ||
+                img.file.toLowerCase().includes(search)
+            );
+        }
+        
         loadGallery();
     }
 
@@ -130,41 +253,115 @@
         } else {
             gallery.classList.remove('list-view');
         }
+        
+        // Save preference to localStorage
+        try {
+            localStorage.setItem('galleryView', view);
+        } catch (e) {
+            console.warn('Could not save view preference:', e);
+        }
+    }
+
+    // Load saved view preference
+    function loadViewPreference() {
+        try {
+            const savedView = localStorage.getItem('galleryView');
+            if (savedView === 'list') {
+                const listButton = document.querySelector('.view-btn[title="List View"]');
+                if (listButton) {
+                    setView('list', listButton);
+                }
+            }
+        } catch (e) {
+            console.warn('Could not load view preference:', e);
+        }
     }
 
     // Open lightbox
     function openLightbox(index) {
+        if (filteredImages.length === 0) return;
+        
         currentImageIndex = index;
         const img = filteredImages[index];
         
-        document.getElementById('lightboxImage').src = img.file;
-        document.getElementById('lightboxName').textContent = img.name;
-        document.getElementById('lightboxCounter').textContent = `Image ${index + 1} of ${filteredImages.length}`;
-        document.getElementById('lightbox').classList.add('active');
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxName = document.getElementById('lightboxName');
+        const lightboxCounter = document.getElementById('lightboxCounter');
+        const lightbox = document.getElementById('lightbox');
+        
+        lightboxImage.src = img.file;
+        lightboxImage.alt = img.name;
+        lightboxName.textContent = img.name;
+        lightboxCounter.textContent = `${index + 1} of ${filteredImages.length}`;
+        lightbox.classList.add('active');
+        
+        // Update navigation buttons state
+        updateNavigationButtons();
+        
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
     }
 
     // Close lightbox
     function closeLightbox(event) {
-        if (!event || event.target.id === 'lightbox') {
-            document.getElementById('lightbox').classList.remove('active');
+        if (!event || event.target.id === 'lightbox' || event.target.classList.contains('lightbox-close')) {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            
+            // Restore body scroll
+            document.body.style.overflow = '';
         }
     }
 
     // Navigate between images
     function navigateImage(direction) {
+        if (filteredImages.length === 0) return;
+        
         currentImageIndex += direction;
         
-        if (currentImageIndex < 0) currentImageIndex = filteredImages.length - 1;
-        if (currentImageIndex >= filteredImages.length) currentImageIndex = 0;
+        // Wrap around
+        if (currentImageIndex < 0) {
+            currentImageIndex = filteredImages.length - 1;
+        }
+        if (currentImageIndex >= filteredImages.length) {
+            currentImageIndex = 0;
+        }
         
         const img = filteredImages[currentImageIndex];
-        document.getElementById('lightboxImage').src = img.file;
-        document.getElementById('lightboxName').textContent = img.name;
-        document.getElementById('lightboxCounter').textContent = `Image ${currentImageIndex + 1} of ${filteredImages.length}`;
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxName = document.getElementById('lightboxName');
+        const lightboxCounter = document.getElementById('lightboxCounter');
+        
+        lightboxImage.src = img.file;
+        lightboxImage.alt = img.name;
+        lightboxName.textContent = img.name;
+        lightboxCounter.textContent = `${currentImageIndex + 1} of ${filteredImages.length}`;
+        
+        // Update navigation buttons state
+        updateNavigationButtons();
+    }
+
+    // Update navigation button states (disable when at start/end)
+    function updateNavigationButtons() {
+        const prevBtn = document.querySelector('.lightbox-prev');
+        const nextBtn = document.querySelector('.lightbox-next');
+        
+        if (!prevBtn || !nextBtn) return;
+        
+        // For single image, disable both buttons
+        if (filteredImages.length <= 1) {
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+        } else {
+            prevBtn.disabled = false;
+            nextBtn.disabled = false;
+        }
     }
 
     // Download current image
     function downloadImage() {
+        if (filteredImages.length === 0) return;
+        
         const img = filteredImages[currentImageIndex];
         const link = document.createElement('a');
         link.href = img.file;
@@ -177,11 +374,24 @@
         document.addEventListener('keydown', (e) => {
             const lightbox = document.getElementById('lightbox');
             if (lightbox.classList.contains('active')) {
-                if (e.key === 'Escape') closeLightbox();
-                if (e.key === 'ArrowLeft') navigateImage(-1);
-                if (e.key === 'ArrowRight') navigateImage(1);
+                switch(e.key) {
+                    case 'Escape':
+                        closeLightbox();
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        navigateImage(-1);
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        navigateImage(1);
+                        break;
+                }
             }
         });
+        
+        // Load view preference after keyboard setup
+        loadViewPreference();
     }
 
     // Expose functions to global scope for HTML event handlers
@@ -191,4 +401,6 @@
     window.closeLightbox = closeLightbox;
     window.navigateImage = navigateImage;
     window.downloadImage = downloadImage;
+    
+    console.log('🖼️ Gallery.js v2.0 loaded successfully');
 })();

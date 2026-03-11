@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Technical overview of Linux operating system fundamentals, architecture, file system hierarchy, and comparison with Windows. Essential knowledge for cloud engineers working with AWS EC2 Linux instances.">
+    <meta name="keywords"
+        content="AWS, Linux, Operating System, Unix, File System, Cloud Computing, EC2, Linux Distros, Kernel, Shell">
+    <meta property="og:title" content="Linux Fundamentals - Overview - AWS Training">
+    <meta property="og:description"
+        content="Technical overview of Linux operating system fundamentals, architecture, file system hierarchy, and comparison with Windows. Essential knowledge for cloud engineers working with AWS EC2 Linux instances.">
+    <meta property="og:type" content="article">
+    <meta property="og:url"
+        content="https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/linux-fundamentals-overview.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/images/linux-architecture-layers.png">
+    <meta name="twitter:title" content="Linux Fundamentals - Overview - AWS Training">
+    <meta name="twitter:description"
+        content="Technical overview of Linux operating system fundamentals, architecture, file system hierarchy, and comparison with Windows. Essential knowledge for cloud engineers working with AWS EC2 Linux instances.">
+    <meta name="twitter:image"
+        content="https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/images/linux-architecture-layers.png">
+    <link rel="canonical"
+        href="https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/linux-fundamentals-overview.html">
+    <title>Linux Fundamentals - Overview - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+    <script src="../../../js/theme.js"></script>
+</head>
+
+<body class="overview-notes">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Linux Fundamentals - Operating System Architecture and File System Hierarchy","description":"Technical overview of Linux operating system fundamentals, architecture, file system hierarchy, and comparison with Windows. Essential knowledge for cloud engineers working with AWS EC2 Linux instances.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-10-14","dateModified":"2025-10-14","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/linux-fundamentals-overview.html"},"image":"https://namrata2709.github.io/Resources/data/notes/linux-fundamentals/images/linux-architecture-layers.png","articleSection":"AWS Training","keywords":["AWS","Linux","Operating System","Unix","File System","Cloud Computing","EC2","Linux Distros","Kernel","Shell"],"educationalLevel":"Intermediate to Advanced","educationalUse":"Professional Development"}</script>
+    <div class="note-container">
+        <div class="note-header">
+            <h1>🐧 Linux Fundamentals</h1>
+            <p class="note-date">📅 October 14, 2025</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> October 14, 2025</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="note-content">
+            <h2 id="introduction">🎯 Introduction</h2>
+            <p>Linux is an open-source, Unix-like operating system kernel combined with GNU tools to create a complete
+                operating system. It powers the majority of cloud infrastructure, including AWS EC2 instances, web
+                servers, and enterprise systems. Understanding Linux is fundamental for cloud engineers, DevOps
+                practitioners, and system administrators.</p>
+            <div class="diagram-container"><img src="images/linux-architecture-layers.png" decoding="async"
+                    alt="Linux architecture diagram showing hardware layer at bottom, kernel layer, shell interface, system libraries, and user applications at top with arrows indicating interaction flow">
+                <p class="diagram-caption"><em>Figure 1: Linux Architecture - Layered system from hardware to user
+                        applications</em></p>
+            </div>
+            <p>This technical overview covers Linux operating system fundamentals, architectural components, file system
+                hierarchy, and comparisons with Windows-based systems. These concepts are essential for managing AWS EC2
+                Linux instances and understanding cloud infrastructure.</p>
+            <h2 id="toc">📑 Table of Contents</h2>
+            <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#os-fundamentals">Operating System Fundamentals</a></li>
+                <li><a href="#unix-history">Unix History and Evolution</a></li>
+                <li><a href="#linux-development">Linux Development and GNU</a></li>
+                <li><a href="#os-architecture">Operating System Architecture</a></li>
+                <li><a href="#file-system-hierarchy">Linux File System Hierarchy</a></li>
+                <li><a href="#windows-vs-linux">Windows vs Linux Comparison</a></li>
+                <li><a href="#linux-distros">Linux Distributions</a></li>
+                <li><a href="#summary">Overall Summary</a></li>
+                <li><a href="#references">Links & References</a></li>
+            </ul>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="os-fundamentals">💻 Operating System Fundamentals</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>What is an Operating System?</h3>
+                    <p>An operating system is a software program that acts as an intermediary between users/applications
+                        and the underlying hardware. It manages hardware resources (CPU, RAM, storage) and provides
+                        services to applications.</p>
+                    <h3>Core Components</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Function</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Hardware</strong></td>
+                                <td>Physical resources</td>
+                                <td>CPU, RAM, storage, network interfaces</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kernel</strong></td>
+                                <td>Core OS component</td>
+                                <td>Process management, memory management, device drivers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shell</strong></td>
+                                <td>User interface</td>
+                                <td>Command interpreter, accepts user commands</td>
+                            </tr>
+                            <tr>
+                                <td><strong>System Libraries</strong></td>
+                                <td>Pre-defined functions</td>
+                                <td>Standard programming interfaces, reusable code</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Utilities</strong></td>
+                                <td>System tools</td>
+                                <td>Day-to-day operational commands and programs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Applications</strong></td>
+                                <td>User programs</td>
+                                <td>Software that performs user tasks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Why Operating Systems Are Needed</h3>
+                    <p>Without an operating system, software cannot interact with hardware. The OS provides abstraction
+                        layers that allow applications to request resources without knowing hardware-specific details.
+                    </p>
+                    <div class="diagram-container"><img src="images/os-hardware-interaction.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing user application at top sending request through OS layers to hardware at bottom, with return path showing data flow back to application">
+                        <p class="diagram-caption"><em>Figure 2: OS as intermediary between applications and
+                                hardware</em></p>
+                    </div>
+                    <h3>Operating System Responsibilities</h3>
+                    <ul>
+                        <li><strong>Process Management:</strong> Creating, scheduling, and terminating processes</li>
+                        <li><strong>Memory Management:</strong> Allocating and deallocating RAM to processes</li>
+                        <li><strong>File System Management:</strong> Organizing and accessing files on storage devices
+                        </li>
+                        <li><strong>Device Management:</strong> Controlling hardware devices through drivers</li>
+                        <li><strong>Security:</strong> User authentication, access control, permissions</li>
+                        <li><strong>Networking:</strong> Managing network connections and protocols</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="unix-history">📜 Unix History and Evolution</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>The Birth of Unix (1960s)</h3>
+                    <p>In the 1960s, Unix was developed as a multi-user, multi-tasking operating system using the C
+                        programming language. It introduced revolutionary concepts that influenced all modern operating
+                        systems.</p>
+                    <div class="diagram-container"><img src="images/unix-timeline.png" loading="lazy" decoding="async"
+                            alt="Timeline diagram showing Unix development in 1960s, Linux kernel creation in 1991, and GNU project, with key milestones and contributors marked">
+                        <p class="diagram-caption"><em>Figure 3: Unix to Linux Timeline - Evolution from 1960s to
+                                1990s</em></p>
+                    </div>
+                    <h3>Unix Characteristics</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Description</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Multi-user</strong></td>
+                                <td>Multiple users can work simultaneously</td>
+                                <td>Server environments, shared resources</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Multi-tasking</strong></td>
+                                <td>Multiple processes run concurrently</td>
+                                <td>Efficient resource utilization</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hierarchical File System</strong></td>
+                                <td>Tree-like directory structure</td>
+                                <td>Organized data storage</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Command Line Interface</strong></td>
+                                <td>Text-based interaction</td>
+                                <td>Powerful scripting and automation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Portable</strong></td>
+                                <td>Written in C, not assembly</td>
+                                <td>Runs on different hardware platforms</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Unix Philosophy</h3>
+                    <p>Unix introduced key design principles that Linux inherited:</p>
+                    <ul>
+                        <li><strong>Everything is a file:</strong> Devices, processes, and data are treated as files
+                        </li>
+                        <li><strong>Small, single-purpose tools:</strong> Each utility does one thing well</li>
+                        <li><strong>Composability:</strong> Tools can be combined using pipes and redirection</li>
+                        <li><strong>Plain text configuration:</strong> Configuration files are human-readable text</li>
+                    </ul>
+                    <h3>Unix Limitations</h3>
+                    <p>Unix was proprietary and required licensing fees. This created a barrier to adoption and
+                        modification, leading to the need for a free, open-source alternative.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="linux-development">🔧 Linux Development and GNU</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>The Need for Free Unix (1980s-1990s)</h3>
+                    <p>By the 1980s, Unix was widespread but expensive. The GNU Project (GNU's Not Unix) was started to
+                        create a free Unix-like operating system. However, GNU lacked a kernel—the core component of an
+                        OS.</p>
+                    <h3>Linus Torvalds and the Linux Kernel (1991)</h3>
+                    <p>In 1991, Linus Torvalds, a 21-year-old Finnish student, developed the Linux kernel as a free
+                        alternative to commercial Unix kernels. He released it under the GPL (GNU General Public
+                        License), allowing anyone to use, modify, and distribute it.</p>
+                    <div class="diagram-container"><img src="images/linux-kernel-gnu.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing Linux kernel at center with GNU tools surrounding it including shell, utilities, libraries, creating complete Linux operating system">
+                        <p class="diagram-caption"><em>Figure 4: Linux = Kernel + GNU Tools</em></p>
+                    </div>
+                    <h3>GNU + Linux = Complete OS</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Provider</th>
+                                <th>Function</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Kernel</strong></td>
+                                <td>Linus Torvalds</td>
+                                <td>Core OS, hardware management</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shell</strong></td>
+                                <td>GNU Project</td>
+                                <td>Bash shell, user interface</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Utilities</strong></td>
+                                <td>GNU Project</td>
+                                <td>ls, cp, mv, grep, etc.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Libraries</strong></td>
+                                <td>GNU Project</td>
+                                <td>glibc, standard C library</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Compiler</strong></td>
+                                <td>GNU Project</td>
+                                <td>GCC (GNU Compiler Collection)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Open Source Advantages</h3>
+                    <ul>
+                        <li><strong>Free of Cost:</strong> No licensing fees</li>
+                        <li><strong>Source Code Access:</strong> Full visibility into how the OS works</li>
+                        <li><strong>Community Contributions:</strong> Thousands of developers contribute</li>
+                        <li><strong>Security:</strong> Transparent code review, rapid vulnerability patching</li>
+                        <li><strong>Customization:</strong> Modify to suit specific needs</li>
+                    </ul>
+                    <h3>Linux Philosophy</h3>
+                    <p>Linux inherited Unix philosophy and added:</p>
+                    <ul>
+                        <li><strong>Collaboration:</strong> Global community-driven development</li>
+                        <li><strong>Meritocracy:</strong> Code quality determines acceptance</li>
+                        <li><strong>Transparency:</strong> All development is public</li>
+                        <li><strong>Freedom:</strong> Users control their own systems</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="os-architecture">🏗️ Operating System Architecture</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Layered Architecture Model</h3>
+                    <p>Linux uses a layered architecture where each layer provides services to the layer above and uses
+                        services from the layer below.</p>
+                    <div class="diagram-container"><img src="images/linux-architecture-detailed.png" loading="lazy"
+                            decoding="async"
+                            alt="Detailed Linux architecture showing hardware at bottom, kernel with process scheduler and memory manager, system libraries, shell, and user applications at top with bidirectional arrows">
+                        <p class="diagram-caption"><em>Figure 5: Linux Layered Architecture - Request flow from user to
+                                hardware</em></p>
+                    </div>
+                    <h3>Layer Breakdown</h3>
+                    <h4>1. Hardware Layer</h4>
+                    <p>Physical components: CPU, RAM, storage (HDD/SSD), network interfaces, peripherals.</p>
+                    <h4>2. Kernel Layer</h4>
+                    <p>The kernel is the core of the operating system. It has unrestricted access to hardware and
+                        manages:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kernel Subsystem</th>
+                                <th>Responsibility</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Process Scheduler</strong></td>
+                                <td>Allocates CPU time to processes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Memory Manager</strong></td>
+                                <td>Manages RAM allocation and virtual memory</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File System</strong></td>
+                                <td>Organizes and accesses files on disk</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Device Drivers</strong></td>
+                                <td>Interfaces with hardware devices</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Stack</strong></td>
+                                <td>Handles network protocols (TCP/IP)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h4>3. System Libraries Layer</h4>
+                    <p>Pre-compiled functions that programs use to interact with the kernel. The most important is
+                        <code>glibc</code> (GNU C Library), which provides standard C functions like
+                        <code>printf</code>, <code>malloc</code>, etc.</p>
+                    <h4>4. Shell Layer</h4>
+                    <p>The shell is a command interpreter that accepts user commands and translates them into
+                        kernel-level operations. Common shells:</p>
+                    <ul>
+                        <li><strong>Bash:</strong> Bourne Again Shell (most common)</li>
+                        <li><strong>Zsh:</strong> Z Shell (feature-rich)</li>
+                        <li><strong>Fish:</strong> Friendly Interactive Shell</li>
+                        <li><strong>Dash:</strong> Debian Almquist Shell (lightweight)</li>
+                    </ul>
+                    <h4>5. Utilities and Applications Layer</h4>
+                    <p>User-facing programs and tools that perform specific tasks. Examples: <code>ls</code>,
+                        <code>grep</code>, <code>vim</code>, web browsers, databases.</p>
+                    <h3>How a Command Executes</h3>
+                    <pre><code>User types: ls /home
+↓
+Shell parses command
+↓
+Shell calls ls utility
+↓
+ls utility uses system libraries (glibc)
+↓
+Libraries make system calls to kernel
+↓
+Kernel accesses file system
+↓
+Kernel retrieves directory contents from disk
+↓
+Data flows back up the layers
+↓
+Shell displays output to terminal</code></pre>
+                    <h3>System Calls</h3>
+                    <p>System calls are the interface between user space (applications) and kernel space. Examples:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>System Call</th>
+                                <th>Purpose</th>
+                                <th>Example Use</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>open()</code></td>
+                                <td>Open a file</td>
+                                <td>Reading configuration files</td>
+                            </tr>
+                            <tr>
+                                <td><code>read()</code></td>
+                                <td>Read data from file</td>
+                                <td>Loading data into memory</td>
+                            </tr>
+                            <tr>
+                                <td><code>write()</code></td>
+                                <td>Write data to file</td>
+                                <td>Saving logs</td>
+                            </tr>
+                            <tr>
+                                <td><code>fork()</code></td>
+                                <td>Create new process</td>
+                                <td>Starting a program</td>
+                            </tr>
+                            <tr>
+                                <td><code>exec()</code></td>
+                                <td>Execute program</td>
+                                <td>Running commands</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="file-system-hierarchy">📁 Linux File System Hierarchy</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Everything is a File Philosophy</h3>
+                    <p>In Linux, everything is represented as a file: regular files, directories, devices (keyboard,
+                        mouse, disk), processes, network sockets, and even system information.</p>
+                    <h3>Single Root Directory Structure</h3>
+                    <p>Unlike Windows (which has multiple drives: C:, D:, E:), Linux has a single root directory denoted
+                        by <code>/</code> (forward slash). All files and directories branch from this root.</p>
+                    <div class="diagram-container"><img src="images/file-system-hierarchy.png" loading="lazy"
+                            decoding="async"
+                            alt="Tree diagram showing root directory at top with branches to bin, etc, home, root, var, tmp, dev, proc, usr, opt subdirectories">
+                        <p class="diagram-caption"><em>Figure 6: Linux File System Hierarchy - All paths start from
+                                /</em></p>
+                    </div>
+                    <h3>Standard Directory Structure</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Directory</th>
+                                <th>Purpose</th>
+                                <th>Contents</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/</code></td>
+                                <td>Root directory</td>
+                                <td>Top-level directory, everything starts here</td>
+                            </tr>
+                            <tr>
+                                <td><code>/bin</code></td>
+                                <td>Essential binaries</td>
+                                <td>Basic commands: ls, cp, mv, cat, bash</td>
+                            </tr>
+                            <tr>
+                                <td><code>/sbin</code></td>
+                                <td>System binaries</td>
+                                <td>System administration commands: fdisk, iptables, reboot</td>
+                            </tr>
+                            <tr>
+                                <td><code>/etc</code></td>
+                                <td>Configuration files</td>
+                                <td>System-wide configuration: /etc/passwd, /etc/ssh/sshd_config</td>
+                            </tr>
+                            <tr>
+                                <td><code>/home</code></td>
+                                <td>User home directories</td>
+                                <td>/home/ec2-user, /home/john - user files and settings</td>
+                            </tr>
+                            <tr>
+                                <td><code>/root</code></td>
+                                <td>Root user home</td>
+                                <td>Home directory for root/administrator user</td>
+                            </tr>
+                            <tr>
+                                <td><code>/var</code></td>
+                                <td>Variable data</td>
+                                <td>Log files (/var/log), databases, mail spools</td>
+                            </tr>
+                            <tr>
+                                <td><code>/tmp</code></td>
+                                <td>Temporary files</td>
+                                <td>Temporary files, cleared on reboot</td>
+                            </tr>
+                            <tr>
+                                <td><code>/usr</code></td>
+                                <td>User programs</td>
+                                <td>User applications, libraries, documentation</td>
+                            </tr>
+                            <tr>
+                                <td><code>/opt</code></td>
+                                <td>Optional software</td>
+                                <td>Third-party applications manually installed</td>
+                            </tr>
+                            <tr>
+                                <td><code>/lib</code></td>
+                                <td>System libraries</td>
+                                <td>Shared libraries needed by /bin and /sbin</td>
+                            </tr>
+                            <tr>
+                                <td><code>/dev</code></td>
+                                <td>Device files</td>
+                                <td>Hardware devices: /dev/sda (disk), /dev/tty (terminal)</td>
+                            </tr>
+                            <tr>
+                                <td><code>/proc</code></td>
+                                <td>Process information</td>
+                                <td>Virtual filesystem with kernel and process info</td>
+                            </tr>
+                            <tr>
+                                <td><code>/sys</code></td>
+                                <td>System information</td>
+                                <td>Virtual filesystem with device and driver info</td>
+                            </tr>
+                            <tr>
+                                <td><code>/boot</code></td>
+                                <td>Boot files</td>
+                                <td>Kernel, bootloader configuration</td>
+                            </tr>
+                            <tr>
+                                <td><code>/mnt</code></td>
+                                <td>Mount points</td>
+                                <td>Temporary mount points for filesystems</td>
+                            </tr>
+                            <tr>
+                                <td><code>/media</code></td>
+                                <td>Removable media</td>
+                                <td>Auto-mounted USB drives, CDs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Path Representation</h3>
+                    <p>Paths in Linux use forward slashes (<code>/</code>) as separators:</p>
+                    <ul>
+                        <li><strong>Absolute path:</strong> Starts from root: <code>/home/ec2-user/file.txt</code></li>
+                        <li><strong>Relative path:</strong> Relative to current directory:
+                            <code>../folder/file.txt</code></li>
+                    </ul>
+                    <h3>Special Directories</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Meaning</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/</code></td>
+                                <td>Root directory</td>
+                                <td>Topmost directory</td>
+                            </tr>
+                            <tr>
+                                <td><code>~</code></td>
+                                <td>User home directory</td>
+                                <td><code>~</code> = <code>/home/ec2-user</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>.</code></td>
+                                <td>Current directory</td>
+                                <td><code>./script.sh</code> runs script in current dir</td>
+                            </tr>
+                            <tr>
+                                <td><code>..</code></td>
+                                <td>Parent directory</td>
+                                <td><code>cd ..</code> moves up one level</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>File System in AWS EC2</h3>
+                    <p>When you SSH into an EC2 Linux instance, you land in the user's home directory. For Amazon Linux,
+                        this is <code>/home/ec2-user</code>. The prompt shows:</p>
+                    <pre><code>[ec2-user@ip-172-31-10-88 ~]$</code></pre>
+                    <p>Breaking this down:</p>
+                    <ul>
+                        <li><code>ec2-user</code>: Current logged-in username</li>
+                        <li><code>ip-172-31-10-88</code>: Hostname (private IP)</li>
+                        <li><code>~</code>: Current directory (tilde represents /home/ec2-user)</li>
+                        <li><code>$</code>: Standard user (not root)</li>
+                    </ul>
+                    <p>If you switch to root user with <code>sudo su -</code>, the prompt changes:</p>
+                    <pre><code>[root@ip-172-31-10-88 ~]#</code></pre>
+                    <p>The <code>#</code> symbol indicates root/administrator privileges.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="windows-vs-linux">⚖️ Windows vs Linux Comparison</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Structural Differences</h3>
+                    <div class="diagram-container"><img src="images/windows-vs-linux-structure.png" loading="lazy"
+                            decoding="async"
+                            alt="Side-by-side comparison diagram showing Windows with C drive D drive structure versus Linux with single root structure">
+                        <p class="diagram-caption"><em>Figure 7: Windows Drive-Based vs Linux Single Root Structure</em>
+                        </p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Windows</th>
+                                <th>Linux</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>File System Root</strong></td>
+                                <td>Multiple drives (C:, D:, E:)</td>
+                                <td>Single root directory (/)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Path Separator</strong></td>
+                                <td>Backslash (\)</td>
+                                <td>Forward slash (/)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Case Sensitivity</strong></td>
+                                <td>Case-insensitive</td>
+                                <td>Case-sensitive</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Primary Interface</strong></td>
+                                <td>GUI (Graphical)</td>
+                                <td>CLI (Command Line) on servers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>User Model</strong></td>
+                                <td>Administrator + Standard users</td>
+                                <td>Root + Standard users</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Configuration</strong></td>
+                                <td>Registry + config files</td>
+                                <td>Text files in /etc</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Device Representation</strong></td>
+                                <td>Drive letters (C:, D:)</td>
+                                <td>Files in /dev (e.g., /dev/sda1)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>External Devices</strong></td>
+                                <td>Assigned drive letters</td>
+                                <td>Mounted under /mnt or /media</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Licensing</strong></td>
+                                <td>Proprietary, paid</td>
+                                <td>Open source, free</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Model</strong></td>
+                                <td>UAC, Windows Defender</td>
+                                <td>File permissions, SELinux</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Windows Directory Structure</h3>
+                    <p>Windows organizes files under the C: drive (primary OS drive):</p>
+                    <ul>
+                        <li><code>C:\Windows</code>: Operating system files</li>
+                        <li><code>C:\Program Files</code>: Installed applications (64-bit)</li>
+                        <li><code>C:\Program Files (x86)</code>: 32-bit applications</li>
+                        <li><code>C:\Users</code>: User home directories</li>
+                        <li><code>C:\Users\Username</code>: Individual user files, Desktop, Downloads, Documents</li>
+                    </ul>
+                    <p>Additional drives (D:, E:) are used for data storage or partitions.</p>
+                    <h3>Case Sensitivity Example</h3>
+                    <p>In Windows:</p>
+                    <pre><code>File1.txt == file1.txt == FILE1.TXT
+(All refer to the same file)</code></pre>
+                    <p>In Linux:</p>
+                    <pre><code>File1.txt ≠ file1.txt ≠ FILE1.TXT
+(Three different files)</code></pre>
+                    <p>This is critical when working with Linux—typos in capitalization will cause "file not found"
+                        errors.</p>
+                    <h3>Command Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Windows</th>
+                                <th>Linux</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>List files</td>
+                                <td><code>dir</code></td>
+                                <td><code>ls</code></td>
+                            </tr>
+                            <tr>
+                                <td>Change directory</td>
+                                <td><code>cd</code></td>
+                                <td><code>cd</code></td>
+                            </tr>
+                            <tr>
+                                <td>Copy file</td>
+                                <td><code>copy</code></td>
+                                <td><code>cp</code></td>
+                            </tr>
+                            <tr>
+                                <td>Move file</td>
+                                <td><code>move</code></td>
+                                <td><code>mv</code></td>
+                            </tr>
+                            <tr>
+                                <td>Delete file</td>
+                                <td><code>del</code></td>
+                                <td><code>rm</code></td>
+                            </tr>
+                            <tr>
+                                <td>Clear screen</td>
+                                <td><code>cls</code></td>
+                                <td><code>clear</code></td>
+                            </tr>
+                            <tr>
+                                <td>Show path</td>
+                                <td><code>cd</code></td>
+                                <td><code>pwd</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="linux-distros">🌐 Linux Distributions</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>What is a Linux Distribution?</h3>
+                    <p>A Linux distribution (distro) is a complete operating system built around the Linux kernel. Each
+                        distro includes:</p>
+                    <ul>
+                        <li>Linux kernel (core OS)</li>
+                        <li>GNU tools (shell, utilities)</li>
+                        <li>Package manager (software installation system)</li>
+                        <li>Desktop environment (for GUI distros) or minimal tools (for servers)</li>
+                        <li>Pre-installed software and configurations</li>
+                    </ul>
+                    <h3>Why Multiple Distros Exist</h3>
+                    <p>Linux's open-source nature allows anyone to create customized versions. Different distros target
+                        different use cases:</p>
+                    <ul>
+                        <li><strong>Server environments:</strong> Stability and security (CentOS, Ubuntu Server, Amazon
+                            Linux)</li>
+                        <li><strong>Desktop use:</strong> User-friendly GUI (Ubuntu Desktop, Linux Mint, Fedora
+                            Workstation)</li>
+                        <li><strong>Security/Penetration testing:</strong> Pre-installed hacking tools (Kali Linux,
+                            Parrot OS)</li>
+                        <li><strong>Embedded systems:</strong> Lightweight, minimal (Alpine Linux)</li>
+                        <li><strong>Enterprise:</strong> Commercial support (Red Hat Enterprise Linux, SUSE)</li>
+                    </ul>
+                    <div class="diagram-container"><img src="images/linux-distros-families.png" loading="lazy"
+                            decoding="async"
+                            alt="Family tree diagram showing Debian-based distros Ubuntu Kali on left, Red Hat-based CentOS Fedora Amazon Linux center, and independent Arch Alpine on right">
+                        <p class="diagram-caption"><em>Figure 8: Major Linux Distribution Families</em></p>
+                    </div>
+                    <h3>Popular Linux Distributions</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Distribution</th>
+                                <th>Base</th>
+                                <th>Use Case</th>
+                                <th>Package Manager</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Ubuntu</strong></td>
+                                <td>Debian</td>
+                                <td>Desktop, server, beginner-friendly</td>
+                                <td>apt, dpkg</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CentOS</strong></td>
+                                <td>Red Hat</td>
+                                <td>Enterprise servers (deprecated, replaced by Rocky Linux)</td>
+                                <td>yum, rpm</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Amazon Linux</strong></td>
+                                <td>Red Hat</td>
+                                <td>AWS EC2 instances, optimized for AWS</td>
+                                <td>yum, rpm</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Red Hat Enterprise Linux (RHEL)</strong></td>
+                                <td>Independent</td>
+                                <td>Enterprise servers, commercial support</td>
+                                <td>yum, rpm</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fedora</strong></td>
+                                <td>Red Hat</td>
+                                <td>Desktop, testing ground for RHEL features</td>
+                                <td>dnf, rpm</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Debian</strong></td>
+                                <td>Independent</td>
+                                <td>Server, stability-focused</td>
+                                <td>apt, dpkg</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kali Linux</strong></td>
+                                <td>Debian</td>
+                                <td>Penetration testing, cybersecurity</td>
+                                <td>apt, dpkg</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Parrot OS</strong></td>
+                                <td>Debian</td>
+                                <td>Security research, ethical hacking</td>
+                                <td>apt, dpkg</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Alpine Linux</strong></td>
+                                <td>Independent</td>
+                                <td>Docker containers, minimal size</td>
+                                <td>apk</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Arch Linux</strong></td>
+                                <td>Independent</td>
+                                <td>Advanced users, customization</td>
+                                <td>pacman</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>AWS and Linux Distributions</h3>
+                    <p>In AWS EC2, when launching an instance, you select an AMI (Amazon Machine Image). Common Linux
+                        AMIs:</p>
+                    <ul>
+                        <li><strong>Amazon Linux 2:</strong> AWS's own distro, optimized for EC2, free tier eligible
+                        </li>
+                        <li><strong>Ubuntu Server:</strong> Popular for web applications</li>
+                        <li><strong>Red Hat Enterprise Linux:</strong> Enterprise support, costs extra</li>
+                        <li><strong>CentOS:</strong> Free RHEL alternative (being phased out)</li>
+                    </ul>
+                    <h3>Package Managers by Distro</h3>
+                    <p>Different distros use different package managers to install software:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Distro Family</th>
+                                <th>Package Manager</th>
+                                <th>Install Command Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Debian/Ubuntu</td>
+                                <td>apt, apt-get</td>
+                                <td><code>sudo apt install nginx</code></td>
+                            </tr>
+                            <tr>
+                                <td>Red Hat/CentOS/Amazon Linux</td>
+                                <td>yum, dnf</td>
+                                <td><code>sudo yum install nginx</code></td>
+                            </tr>
+                            <tr>
+                                <td>Arch Linux</td>
+                                <td>pacman</td>
+                                <td><code>sudo pacman -S nginx</code></td>
+                            </tr>
+                            <tr>
+                                <td>Alpine Linux</td>
+                                <td>apk</td>
+                                <td><code>apk add nginx</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Choosing a Linux Distro</h3>
+                    <p>For cloud engineers working with AWS:</p>
+                    <ul>
+                        <li><strong>Amazon Linux 2:</strong> Best for AWS-specific workloads, includes AWS CLI
+                            pre-installed</li>
+                        <li><strong>Ubuntu Server:</strong> Large community, extensive documentation
+                        <li><strong>Red Hat Enterprise Linux:</strong> Enterprise support, certified for compliance
+                            requirements</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="summary">📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <p>This session covered the foundational concepts of Linux operating systems:</p>
+                    <ul>
+                        <li><strong>Operating System Fundamentals:</strong> An OS acts as an intermediary between
+                            users/applications and hardware, managing resources like CPU, RAM, and storage through
+                            components including kernel, shell, libraries, and utilities.</li>
+                        <li><strong>Unix History:</strong> Developed in the 1960s using C programming language, Unix
+                            introduced multi-user, multi-tasking capabilities and the hierarchical file system. It was
+                            proprietary and required licensing fees.</li>
+                        <li><strong>Linux Development:</strong> In 1991, Linus Torvalds created the Linux kernel as a
+                            free alternative. Combined with GNU tools (shell, utilities, libraries), it formed a
+                            complete open-source operating system.</li>
+                        <li><strong>Linux Architecture:</strong> Uses a layered approach—hardware at the base, kernel
+                            managing resources, system libraries providing programming interfaces, shell interpreting
+                            commands, and applications/utilities at the top.</li>
+                        <li><strong>File System Hierarchy:</strong> Linux treats everything as files and uses a single
+                            root directory (<code>/</code>) unlike Windows' multiple drives. Important directories
+                            include /bin (binaries), /etc (configuration), /home (user directories), /var (logs), /tmp
+                            (temporary files).</li>
+                        <li><strong>Windows vs Linux:</strong> Key differences include Windows' drive-based structure vs
+                            Linux's single root, case-insensitive vs case-sensitive filenames, GUI-primary vs
+                            CLI-primary interfaces, and proprietary vs open-source models.</li>
+                        <li><strong>Linux Distributions:</strong> Various distros exist for different purposes—Amazon
+                            Linux for AWS, Ubuntu for general use, Kali/Parrot for security testing, CentOS/RHEL for
+                            enterprise servers. Each uses different package managers (apt, yum, dnf).</li>
+                        <li><strong>CLI Importance:</strong> Linux servers primarily use command-line interfaces for
+                            efficiency and automation. Understanding CLI is essential for cloud engineers managing EC2
+                            instances.</li>
+                        <li><strong>Case Sensitivity:</strong> Unlike Windows, Linux treats File.txt and file.txt as
+                            different files, making exact capitalization critical.</li>
+                        <li><strong>AWS Integration:</strong> EC2 instances commonly use Amazon Linux or Ubuntu. When
+                            connecting via SSH, you land in the user's home directory (/home/ec2-user), indicated by the
+                            tilde (~) symbol in the prompt.</li>
+                    </ul>
+                    <p>Understanding these Linux fundamentals is essential before diving into commands, user management,
+                        file permissions, and system administration tasks in subsequent sessions.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="references">🔗 Links & References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>📚 Official Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://www.kernel.org/" target="_blank" rel="noopener noreferrer">Linux
+                                        Kernel Archives</a></td>
+                                <td>Official Linux kernel source code and documentation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.gnu.org/" target="_blank" rel="noopener noreferrer">GNU
+                                        Project</a></td>
+                                <td>GNU tools and philosophy documentation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/linux/" target="_blank"
+                                        rel="noopener noreferrer">AWS Linux Documentation</a></td>
+                                <td>Amazon Linux user guides and references</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://ubuntu.com/server/docs" target="_blank"
+                                        rel="noopener noreferrer">Ubuntu Server Guide</a></td>
+                                <td>Official Ubuntu server documentation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/"
+                                        target="_blank" rel="noopener noreferrer">Red Hat Documentation</a></td>
+                                <td>RHEL and CentOS documentation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🎓 Learning Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://www.linuxfoundation.org/training/" target="_blank"
+                                        rel="noopener noreferrer">Linux Foundation Training</a></td>
+                                <td>Professional Linux certification courses</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://linuxjourney.com/" target="_blank" rel="noopener noreferrer">Linux
+                                        Journey</a></td>
+                                <td>Free beginner-friendly Linux tutorials</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.tldp.org/" target="_blank" rel="noopener noreferrer">The Linux
+                                        Documentation Project</a></td>
+                                <td>Comprehensive guides and HOWTOs</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://explainshell.com/" target="_blank"
+                                        rel="noopener noreferrer">Explain Shell</a></td>
+                                <td>Break down and explain shell commands</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🔧 Tools & Utilities</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://man7.org/linux/man-pages/" target="_blank"
+                                        rel="noopener noreferrer">Linux Man Pages</a></td>
+                                <td>Online manual pages for Linux commands</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://distrowatch.com/" target="_blank"
+                                        rel="noopener noreferrer">DistroWatch</a></td>
+                                <td>Information on all Linux distributions</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html"
+                                        target="_blank" rel="noopener noreferrer">AWS AMI Documentation</a></td>
+                                <td>Guide to selecting and using EC2 AMIs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">Linux</span><span class="tag">Operating
+                System</span><span class="tag">Unix</span><span class="tag">File System</span><span
+                class="tag">EC2</span><span class="tag">Cloud Computing</span></div>
+    </div>
+    <script defer src="../../../js/notes-template.js"></script>
+</body>
+
+</html>

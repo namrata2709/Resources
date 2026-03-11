@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Technical overview of Amazon Machine Images (AMI), Linux system architecture, and EC2 instance configuration for IT professionals preparing for AWS certifications.">
+    <meta name="keywords"
+        content="AWS, AMI, Amazon Machine Image, EC2, Linux, Operating System, Cloud Computing, IaaS, certification">
+    <meta name="author" content="Namrata Mulwani">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="AMI and Linux Fundamentals - AWS Training">
+    <meta property="og:description"
+        content="Technical overview of Amazon Machine Images (AMI), Linux system architecture, and EC2 instance configuration for IT professionals preparing for AWS certifications.">
+    <meta property="og:type" content="article">
+    <meta property="og:url"
+        content="https://namrata2709.github.io/Resources/data/notes/ami-and-linux-fundamentals/ami-and-linux-fundamentals-overview.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/ami-and-linux-fundamentals/images/ami-architecture.png">
+    <meta property="og:site_name" content="AWS Training by Namrata">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AMI and Linux Fundamentals - AWS Training">
+    <meta name="twitter:description"
+        content="Technical overview of Amazon Machine Images (AMI), Linux system architecture, and EC2 instance configuration for IT professionals preparing for AWS certifications.">
+    <meta name="twitter:image"
+        content="https://namrata2709.github.io/Resources/data/notes/ami-and-linux-fundamentals/images/ami-architecture.png">
+    <link rel="canonical"
+        href="https://namrata2709.github.io/Resources/data/notes/ami-and-linux-fundamentals/ami-and-linux-fundamentals-overview.html">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="color-scheme" content="light dark">
+    <title>AMI and Linux Fundamentals - Overview - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+</head>
+
+<body>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+            <li><a href="https://namrata2709.github.io/Resources/">🏠 Home</a></li>
+            <li><a href="https://namrata2709.github.io/Resources/notes.html">📓 Notes</a></li>
+            <li aria-current="page">AMI and Linux Fundamentals</li>
+        </ol>
+    </nav>
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://namrata2709.github.io/Resources/"},{"@type":"ListItem","position":2,"name":"Notes","item":"https://namrata2709.github.io/Resources/notes.html"},{"@type":"ListItem","position":3,"name":"AMI and Linux Fundamentals"}]}</script>
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"AMI and Linux Fundamentals","description":"Technical overview of Amazon Machine Images (AMI), Linux system architecture, and EC2 instance configuration for IT professionals preparing for AWS certifications.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-10-06","dateModified":"2025-10-06","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/ami-and-linux-fundamentals/ami-and-linux-fundamentals-overview.html"},"image":"https://namrata2709.github.io/Resources/data/notes/ami-and-linux-fundamentals/images/ami-architecture.png","articleSection":"AWS Training","keywords":["AWS","AMI","EC2","Linux","cloud computing","IaaS"],"educationalLevel":"Beginner to Intermediate","educationalUse":"Professional Development"}</script>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme"><span class="theme-icon"></span></button>
+    <div class="note-container">
+        <div class="note-header">
+            <h1>AMI and Linux Fundamentals</h1>
+            <p class="note-date">📅 October 06, 2025</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> October 06, 2025</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="note-content">
+            <h2 id="introduction">🎯 Introduction</h2>
+            <p>Amazon Machine Images (AMIs) are fundamental to EC2 deployment, serving as templates that define the
+                software configuration of virtual servers. Understanding AMIs is essential for efficient cloud
+                infrastructure management, as they enable rapid, consistent server provisioning across your AWS
+                environment.</p>
+            <p>This technical overview explores AMI architecture, types, and their relationship to EC2 instances,
+                alongside essential Linux system concepts that underpin most cloud workloads. For IT professionals,
+                mastering these fundamentals is critical for designing scalable, maintainable cloud solutions.</p>
+            <h2 id="toc">📑 Table of Contents</h2>
+            <ul>
+                <li><a href="#ami-fundamentals">Amazon Machine Image (AMI) Fundamentals</a></li>
+                <li><a href="#ami-types">Types of AMIs</a></li>
+                <li><a href="#instance-configuration">EC2 Instance Configuration</a></li>
+                <li><a href="#linux-architecture">Linux System Architecture</a></li>
+                <li><a href="#unix-development">UNIX Development Philosophy</a></li>
+                <li><a href="#software-lifecycle">Software Development and Testing</a></li>
+                <li><a href="#ec2-technical">EC2 Technical Deep Dive</a></li>
+                <li><a href="#summary">Overall Summary</a></li>
+                <li><a href="#references">Links & References</a></li>
+            </ul>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="ami-fundamentals">🖥️ Amazon Machine Image (AMI) Fundamentals</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>What is an AMI?</h3>
+                    <p>An Amazon Machine Image functions as a blueprint for EC2 instance creation. It encapsulates the
+                        complete software stack required to launch a virtual server, eliminating the need for manual OS
+                        installation and application configuration on each new instance.</p>
+                    <div class="diagram-container"><img src="images/ami-architecture.png"
+                            alt="Diagram showing AMI components including operating system, applications, files, and configuration settings, with arrows pointing to an EC2 instance being launched">
+                        <p class="diagram-caption"><em>Figure 1: AMI architecture - How a single template spawns
+                                multiple identical instances</em></p>
+                    </div>
+                    <h3>AMI Components</h3>
+                    <p>Every AMI contains four essential elements:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Description</th>
+                                <th>Technical Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Operating System</strong></td>
+                                <td>Base OS (Linux distributions, Windows Server)</td>
+                                <td>Provides kernel, system libraries, and runtime environment</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Applications</strong></td>
+                                <td>Pre-installed software packages</td>
+                                <td>Web servers, databases, development tools, or custom applications</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Files</strong></td>
+                                <td>Configuration files, scripts, static content</td>
+                                <td>Application-specific data, initialization scripts, certificates</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Configuration Settings</strong></td>
+                                <td>System parameters, environment variables</td>
+                                <td>Network settings, security configurations, service startup parameters</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>AMI Use Cases</h3>
+                    <p>AMIs solve critical operational challenges in cloud infrastructure:</p>
+                    <ul>
+                        <li><strong>Standardization:</strong> Ensure consistent environments across development,
+                            staging, and production by deploying from the same AMI</li>
+                        <li><strong>Rapid Scaling:</strong> Launch hundreds of identical instances in minutes for
+                            auto-scaling groups or batch processing workloads</li>
+                        <li><strong>Disaster Recovery:</strong> Maintain golden images for quick recovery; launch
+                            replacement instances immediately when failures occur</li>
+                        <li><strong>Version Control:</strong> Create AMI snapshots at each release, enabling instant
+                            rollback to previous configurations</li>
+                        <li><strong>Multi-Region Deployment:</strong> Copy AMIs across regions for global application
+                            distribution with identical configurations</li>
+                    </ul>
+                    <div class="info-box">
+                        <p><strong>💡 Technical Note:</strong> AMIs are region-specific resources. To deploy in multiple
+                            regions, you must explicitly copy the AMI to each target region. This regional isolation
+                            ensures compliance with data residency requirements.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="ami-types">📦 Types of AMIs</h2>
+                </summary>
+                <div class="section-content">
+                    <p>AWS provides five distinct AMI categories, each serving different operational requirements and
+                        trust models.</p>
+                    <div class="diagram-container"><img src="images/ami-types-comparison.png"
+                            alt="Visual comparison of five AMI types showing Official AWS AMIs, Marketplace AMIs, Third-party AMIs, Community AMIs, and Custom AMIs with their characteristics">
+                        <p class="diagram-caption"><em>Figure 2: AMI type comparison - Source, trust level, and use
+                                cases</em></p>
+                    </div>
+                    <h3>1. Official AMIs (AWS-Maintained)</h3>
+                    <p>AWS-published and maintained images for common operating systems and configurations.</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Characteristic</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Provider</strong></td>
+                                <td>Amazon Web Services</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Maintenance</strong></td>
+                                <td>Regular security patches and updates by AWS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Common Examples</strong></td>
+                                <td>Amazon Linux 2, Amazon Linux 2023, Ubuntu Server, Red Hat Enterprise Linux, Windows
+                                    Server</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Trust Level</strong></td>
+                                <td>Highest - officially supported and validated</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cost</strong></td>
+                                <td>Some free (Amazon Linux), others include OS licensing fees</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="info-box">
+                        <p><strong>Best Practice:</strong> Start with official AMIs for production workloads. They
+                            receive consistent security updates and have undergone AWS validation for cloud
+                            optimization.</p>
+                    </div>
+                    <h3>2. Marketplace AMIs</h3>
+                    <p>Commercial AMIs from verified vendors, featuring pre-configured software stacks and enterprise
+                        applications.</p>
+                    <ul>
+                        <li><strong>Source:</strong> ISVs and software vendors (e.g., Cisco, F5, SAP, Oracle)</li>
+                        <li><strong>Licensing:</strong> May include software licensing costs in addition to EC2 instance
+                            charges</li>
+                        <li><strong>Use Cases:</strong> Enterprise applications (SAP HANA), security appliances
+                            (firewalls, IDS), specialized databases, development environments</li>
+                        <li><strong>Verification:</strong> Vendor-verified and AWS-approved before marketplace listing
+                        </li>
+                    </ul>
+                    <h3>3. Third-Party AMIs</h3>
+                    <p>AMIs created and maintained by independent vendors outside the AWS Marketplace.</p>
+                    <ul>
+                        <li><strong>Distribution:</strong> Available through vendor websites or partner programs</li>
+                        <li><strong>Support:</strong> Vendor-provided support channels, not through AWS</li>
+                        <li><strong>Evaluation:</strong> Requires due diligence to verify security and compliance</li>
+                    </ul>
+                    <h3>4. Community AMIs</h3>
+                    <p>Publicly shared AMIs created by other AWS users and made available to the community.</p>
+                    <div class="highlight-box">
+                        <p><strong>⚠️ Security Consideration:</strong> Community AMIs are not verified by AWS. Never use
+                            community AMIs for production without thorough security auditing. They may contain malware,
+                            backdoors, or misconfigured security settings.</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Community AMIs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Verification</strong></td>
+                                <td>None - completely unvetted</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Support</strong></td>
+                                <td>No guaranteed support from creators</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Appropriate Use</strong></td>
+                                <td>Testing, learning, proof-of-concept only</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Risk Level</strong></td>
+                                <td>High - unknown provenance</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>5. Custom/Private AMIs</h3>
+                    <p>AMIs you create from your own EC2 instances, tailored to your specific requirements.</p>
+                    <p><strong>Creation Process:</strong></p>
+                    <ol>
+                        <li>Launch an instance from a base AMI (typically official AWS AMI)</li>
+                        <li>Install required applications and dependencies</li>
+                        <li>Configure system settings, security hardening, monitoring agents</li>
+                        <li>Create an AMI snapshot of the configured instance</li>
+                        <li>Use the custom AMI as a template for future deployments</li>
+                    </ol>
+                    <p><strong>Advantages:</strong></p>
+                    <ul>
+                        <li>Complete control over software stack and configuration</li>
+                        <li>Faster instance launch times (software pre-installed)</li>
+                        <li>Consistency across development and production environments</li>
+                        <li>Private to your AWS account (or shareable with specific accounts)</li>
+                    </ul>
+                    <div class="info-box">
+                        <p><strong>💡 Enterprise Pattern:</strong> Most organizations maintain a library of custom AMIs
+                            representing their standard server configurations: web server AMI, application server AMI,
+                            database AMI, monitoring AMI, etc. This approach enforces standards and accelerates
+                            deployment.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="instance-configuration">⚙️ EC2 Instance Configuration</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Understanding the relationship between AMIs and EC2 instances is fundamental to cloud
+                        infrastructure management.</p>
+                    <div class="diagram-container"><img src="images/ami-to-instance-flow.png"
+                            alt="Flowchart showing the relationship between AMI components, instance configuration parameters, and the resulting running EC2 instance">
+                        <p class="diagram-caption"><em>Figure 3: AMI to instance deployment flow</em></p>
+                    </div>
+                    <h3>Key Configuration Concepts</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Element</th>
+                                <th>Definition</th>
+                                <th>Analogy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Instance Name</strong></td>
+                                <td>Optional human-readable identifier</td>
+                                <td>Like naming your laptop "DevServer01" for easy identification</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tags</strong></td>
+                                <td>Key-value metadata pairs</td>
+                                <td>Digital labels like "Environment=Production, Team=Backend, CostCenter=Engineering"
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>AMI (Software Configuration)</strong></td>
+                                <td>The template/blueprint</td>
+                                <td>Factory specifications for building identical machines</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EC2 Instance</strong></td>
+                                <td>Running virtual machine</td>
+                                <td>The actual server running in AWS data center</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>AMI vs Instance Relationship</h3>
+                    <pre><code>AMI (Template/Blueprint)
+    ↓
+Creates
+    ↓
+EC2 Instance (Running Server)
+    ↓
+Can be captured as
+    ↓
+New Custom AMI</code></pre>
+                    <p><strong>Critical Distinction:</strong></p>
+                    <ul>
+                        <li><strong>AMI:</strong> Static template, contains no runtime state, immutable once created
+                        </li>
+                        <li><strong>Instance:</strong> Live server with active processes, changing data, network
+                            connections, and resource consumption</li>
+                    </ul>
+                    <h3>Instance Configuration Parameters</h3>
+                    <p>Beyond the AMI, launching an instance requires additional configuration:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Purpose</th>
+                                <th>Example Values</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Instance Type</strong></td>
+                                <td>Hardware specification (CPU, RAM, network)</td>
+                                <td>t3.micro, m5.large, c5.2xlarge</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Key Pair</strong></td>
+                                <td>SSH authentication credentials</td>
+                                <td>my-key-pair.pem</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Group</strong></td>
+                                <td>Firewall rules (inbound/outbound traffic)</td>
+                                <td>Allow SSH (22), HTTPS (443)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VPC/Subnet</strong></td>
+                                <td>Network placement and IP addressing</td>
+                                <td>vpc-abc123, subnet-def456</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Storage (EBS)</strong></td>
+                                <td>Persistent block storage volumes</td>
+                                <td>30 GB gp3, 100 GB io2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="info-box">
+                        <p><strong>💡 Operational Note:</strong> While AMI determines software configuration, instance
+                            type determines hardware capacity. The same AMI can be used with different instance types to
+                            scale vertically (from t3.small to m5.xlarge) without rebuilding the software stack.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="linux-architecture">🐧 Linux System Architecture</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Linux dominates cloud computing environments due to its open-source nature, stability, and
+                        performance. Understanding Linux architecture is essential for managing EC2 instances
+                        effectively.</p>
+                    <div class="diagram-container"><img src="images/linux-system-layers.png"
+                            alt="Layered diagram showing Linux architecture from bottom to top: Hardware, Linux Kernel, System Libraries and Utilities, Shell, and User Applications">
+                        <p class="diagram-caption"><em>Figure 4: Linux system architecture - Layered approach from
+                                hardware to applications</em></p>
+                    </div>
+                    <h3>Linux System Layers</h3>
+                    <p>Linux operates as a layered system, with each layer building on the one below it:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Layer</th>
+                                <th>Function</th>
+                                <th>Examples</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Hardware</strong></td>
+                                <td>Physical or virtual computing resources</td>
+                                <td>CPU, RAM, disk, network interfaces</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Linux Kernel</strong></td>
+                                <td>Core OS, manages hardware resources</td>
+                                <td>Process scheduling, memory management, device drivers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>System Libraries</strong></td>
+                                <td>Reusable code modules for common tasks</td>
+                                <td>glibc (C library), OpenSSL, zlib</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Utilities (GNU Tools)</strong></td>
+                                <td>Command-line programs for system operations</td>
+                                <td>ls, grep, awk, sed, tar, ssh</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shell</strong></td>
+                                <td>Command interpreter, user interface to OS</td>
+                                <td>bash, zsh, sh</td>
+                            </tr>
+                            <tr>
+                                <td><strong>User Applications</strong></td>
+                                <td>Software programs and services</td>
+                                <td>Web servers (nginx), databases (PostgreSQL), custom apps</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Linux Kernel</h3>
+                    <p>The kernel is the core of the operating system, responsible for low-level system operations:</p>
+                    <ul>
+                        <li><strong>Process Management:</strong> Scheduling CPU time, managing process lifecycle (start,
+                            pause, terminate)</li>
+                        <li><strong>Memory Management:</strong> Allocating RAM, virtual memory, swapping, cache
+                            management</li>
+                        <li><strong>Device Drivers:</strong> Interfacing with hardware devices (disk, network, USB)</li>
+                        <li><strong>File System:</strong> Managing file storage, permissions, directory structures</li>
+                        <li><strong>Network Stack:</strong> TCP/IP implementation, socket operations, network protocols
+                        </li>
+                        <li><strong>Security:</strong> Access control, user authentication, security modules (SELinux,
+                            AppArmor)</li>
+                    </ul>
+                    <div class="info-box">
+                        <p><strong>💡 Cloud Context:</strong> In EC2, you don't interact directly with hardware. The
+                            kernel interfaces with virtualized hardware provided by AWS's hypervisor. This abstraction
+                            allows AWS to manage physical infrastructure while giving you full OS-level control.</p>
+                    </div>
+                    <h3>GNU Tools and Utilities</h3>
+                    <p>GNU (GNU's Not Unix) provides the collection of free software tools that make Linux functional
+                        for users:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Tools</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>File Operations</strong></td>
+                                <td>ls, cp, mv, rm, find</td>
+                                <td>Navigate and manipulate files</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Text Processing</strong></td>
+                                <td>grep, sed, awk, cut, sort</td>
+                                <td>Search, filter, and transform text</td>
+                            </tr>
+                            <tr>
+                                <td><strong>System Info</strong></td>
+                                <td>top, ps, df, free, uptime</td>
+                                <td>Monitor system resources and processes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Networking</strong></td>
+                                <td>ssh, scp, curl, wget, netstat</td>
+                                <td>Network operations and connectivity</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Package Management</strong></td>
+                                <td>yum, apt, dnf, rpm</td>
+                                <td>Install, update, remove software</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>The Shell</h3>
+                    <p>The shell is the command-line interface that interprets user commands and executes them by
+                        communicating with the kernel.</p>
+                    <p><strong>Shell Operation Flow:</strong></p>
+                    <pre><code>User types command → Shell parses command → Shell calls kernel system calls → Kernel executes operation → Shell displays output</code></pre>
+                    <p><strong>Common Shells:</strong></p>
+                    <ul>
+                        <li><strong>bash (Bourne Again Shell):</strong> Default on most Linux distributions,
+                            feature-rich</li>
+                        <li><strong>sh (Bourne Shell):</strong> Original Unix shell, simpler, POSIX-compliant</li>
+                        <li><strong>zsh (Z Shell):</strong> Advanced features, popular for interactive use</li>
+                    </ul>
+                    <div class="info-box">
+                        <p><strong>💡 For AWS Automation:</strong> Shell scripting (bash scripts) is essential for EC2
+                            automation. User data scripts, cron jobs, and deployment automation all leverage shell
+                            capabilities to configure instances programmatically.</p>
+                    </div>
+                    <h3>Linux vs Windows in Cloud</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Linux</th>
+                                <th>Windows</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Licensing</strong></td>
+                                <td>Open-source, free</td>
+                                <td>Proprietary, licensing costs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloud Prevalence</strong></td>
+                                <td>~70% of EC2 instances</td>
+                                <td>~30% of EC2 instances</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Command Interface</strong></td>
+                                <td>Bash shell, SSH</td>
+                                <td>PowerShell, RDP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Resource Efficiency</strong></td>
+                                <td>Lower overhead, smaller footprint</td>
+                                <td>Higher memory/CPU requirements</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Container Support</strong></td>
+                                <td>Native Docker/Kubernetes support</td>
+                                <td>Improving, but less native</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="unix-development">🔧 UNIX Development Philosophy</h2>
+                </summary>
+                <div class="section-content">
+                    <p>The UNIX development philosophy, inherited by Linux, emphasizes modularity and simplicity. These
+                        principles remain relevant in modern cloud architectures.</p>
+                    <h3>Core UNIX Principles</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Principle</th>
+                                <th>Description</th>
+                                <th>Cloud Relevance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Modularity</strong></td>
+                                <td>Small programs that do one thing well</td>
+                                <td>Microservices architecture, single-purpose containers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Composability</strong></td>
+                                <td>Programs work together via standard interfaces</td>
+                                <td>API-driven services, event-driven architectures</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Text Streams</strong></td>
+                                <td>Everything is text, enabling pipe/filter patterns</td>
+                                <td>Log aggregation, stream processing pipelines</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Simplicity</strong></td>
+                                <td>Choose simplicity over complexity</td>
+                                <td>Infrastructure as Code, declarative configurations</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Command-Line Interaction</h3>
+                    <p>UNIX philosophy emphasizes command-line interfaces for:</p>
+                    <ul>
+                        <li><strong>Automation:</strong> Scripts can chain commands to automate complex workflows</li>
+                        <li><strong>Remote Management:</strong> SSH provides secure, lightweight remote access</li>
+                        <li><strong>Efficiency:</strong> Command-line operations consume fewer resources than GUI</li>
+                        <li><strong>Reproducibility:</strong> Commands can be scripted and version-controlled</li>
+                    </ul>
+                    <div class="info-box">
+                        <p><strong>💡 DevOps Connection:</strong> Modern DevOps practices (Infrastructure as Code, CI/CD
+                            pipelines) are built on UNIX principles: modular tools, text-based configuration,
+                            command-line automation, and composable workflows.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="software-lifecycle">📊 Software Development and Testing</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Understanding software development processes is crucial for cloud professionals who manage
+                        application deployments and testing environments.</p>
+                    <h3>Software Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Document</th>
+                                <th>Acronym</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Software Design Document</strong></td>
+                                <td>SDD</td>
+                                <td>Architectural design, component interactions, data models, interface specifications
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Software Requirements Specification</strong></td>
+                                <td>SRRS</td>
+                                <td>Functional and non-functional requirements, acceptance criteria, constraints</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Types of Software Testing</h3>
+                    <p>Cloud environments enable comprehensive testing through isolated, reproducible test instances:
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Test Type</th>
+                                <th>Purpose</th>
+                                <th>Cloud Implementation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Unit Testing</strong></td>
+                                <td>Test individual components in isolation</td>
+                                <td>Developer workstations, ephemeral test instances</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Integration Testing</strong></td>
+                                <td>Verify component interactions</td>
+                                <td>Dedicated test environment with all services</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Testing</strong></td>
+                                <td>Identify vulnerabilities, penetration testing</td>
+                                <td>Isolated VPC, security scanning tools</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance Testing</strong></td>
+                                <td>Load testing, stress testing, scalability validation</td>
+                                <td>Auto-scaling test environment, monitoring tools</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Software Maintenance Types</h3>
+                    <p>Post-deployment maintenance falls into four categories:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Corrective</strong></td>
+                                <td>Fix discovered bugs and defects</td>
+                                <td>Patching security vulnerabilities, fixing crashes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Adaptive</strong></td>
+                                <td>Adapt to environmental changes</td>
+                                <td>OS upgrades, new database versions, API changes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Perfective</strong></td>
+                                <td>Improve performance or features</td>
+                                <td>Optimization, new capabilities, UX enhancements</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Preventive</strong></td>
+                                <td>Prevent future problems</td>
+                                <td>Code refactoring, technical debt reduction, monitoring improvements</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="info-box">
+                        <p><strong>💡 Cloud Advantage:</strong> EC2 and AMIs enable rapid deployment of test
+                            environments. Launch identical instances for each test type, run tests in parallel, and
+                            terminate instances when complete to minimize costs.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="ec2-technical">☁️ EC2 Technical Deep Dive</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>EC2 as Infrastructure as a Service (IaaS)</h3>
+                    <p>EC2 provides virtualized computing resources on-demand, representing the foundational IaaS
+                        offering in AWS.</p>
+                    <div class="diagram-container"><img src="images/ec2-configuration-components.png"
+                            alt="Diagram showing all EC2 configuration components: server configuration, instance type, key pair, security groups, VPC networking, and EBS storage">
+                        <p class="diagram-caption"><em>Figure 5: EC2 instance configuration components</em></p>
+                    </div>
+                    <h3>EC2 Launch Requirements</h3>
+                    <p>Creating an EC2 instance requires six essential configuration elements:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Requirement</th>
+                                <th>Purpose</th>
+                                <th>Technical Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Server Configuration (AMI)</strong></td>
+                                <td>Define software stack</td>
+                                <td>Operating system, pre-installed applications, initial state</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Instance Type</strong></td>
+                                <td>Select hardware specs</td>
+                                <td>CPU cores, RAM, network bandwidth, storage type (EBS-optimized, instance store)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Key Pair</strong></td>
+                                <td>Authentication credentials</td>
+                                <td>RSA public/private key pair for SSH (Linux) or RDP password decryption (Windows)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Groups</strong></td>
+                                <td>Firewall configuration</td>
+                                <td>Stateful firewall rules defining allowed inbound/outbound traffic</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network (VPC)</strong></td>
+                                <td>Network placement</td>
+                                <td>VPC, subnet selection, public/private IP assignment, route table associations</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Storage (EBS)</strong></td>
+                                <td>Persistent block storage</td>
+                                <td>Volume type (gp3, io2), size, IOPS, throughput, encryption settings</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>EC2 Instance Lifecycle</h3>
+                    <p>Understanding instance states is critical for cost management and operational planning:</p>
+                    <pre><code>Pending → Running → Stopping → Stopped → Terminated
+            ↓
+        (can reboot while running)</code></pre>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>State</th>
+                                <th>Billing</th>
+                                <th>Data Persistence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Pending</strong></td>
+                                <td>No charges</td>
+                                <td>N/A (instance launching)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Running</strong></td>
+                                <td>Full instance charges</td>
+                                <td>All data retained</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stopped</strong></td>
+                                <td>Storage charges only</td>
+                                <td>EBS volumes retained, instance store lost</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Terminated</strong></td>
+                                <td>No charges</td>
+                                <td>All data deleted (unless EBS volumes set to persist)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="highlight-box">
+                        <p><strong>⚠️ Cost Optimization:</strong> Stop instances during non-business hours to eliminate
+                            compute charges while preserving configurations. This can reduce costs by 60-80% for
+                            development and testing environments.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="summary">📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <p>This session established critical foundations for EC2 operations and Linux system administration
+                        in AWS:</p>
+                    <ul>
+                        <li><strong>AMI Fundamentals:</strong> AMIs serve as templates containing OS, applications,
+                            files, and configurations. They enable rapid, consistent instance deployment across
+                            environments and regions.</li>
+                        <li><strong>AMI Types:</strong> Five categories exist - Official (AWS-maintained), Marketplace
+                            (vendor-verified), Third-party (external vendors), Community (unverified public), and Custom
+                            (organization-created). Production workloads should use Official or Custom AMIs for security
+                            and support.</li>
+                        <li><strong>Instance Configuration:</strong> EC2 instances require six configuration elements:
+                            AMI, instance type, key pair, security groups, VPC networking, and EBS storage.
+                            Understanding the distinction between AMI (static template) and instance (running server) is
+                            fundamental.</li>
+                        <li><strong>Linux Architecture:</strong> Linux systems operate in layers: hardware → kernel →
+                            system libraries → utilities → shell → applications. The kernel manages resources, GNU tools
+                            provide functionality, and the shell interprets commands.</li>
+                        <li><strong>UNIX Philosophy:</strong> Modularity, composability, and command-line interaction
+                            remain relevant in modern cloud architectures, influencing microservices design and DevOps
+                            practices.</li>
+                        <li><strong>Software Lifecycle:</strong> Cloud environments enable comprehensive testing (unit,
+                            integration, security, performance) through isolated, reproducible instances. Four
+                            maintenance types (corrective, adaptive, perfective, preventive) address different
+                            post-deployment needs.</li>
+                        <li><strong>EC2 Technical Requirements:</strong> Successful EC2 deployment requires
+                            understanding of IaaS model, instance lifecycle states, cost implications of each state, and
+                            the relationship between configuration components.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="references">🔗 Links & References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html"
+                                        target="_blank" rel="noopener noreferrer">Amazon Machine Images (AMI)</a></td>
+                                <td>Comprehensive AMI documentation covering creation, sharing, and management</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html"
+                                        target="_blank" rel="noopener noreferrer">EC2 Concepts</a></td>
+                                <td>Core EC2 concepts including instances, regions, and instance types</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html"
+                                        target="_blank" rel="noopener noreferrer">Instance Lifecycle</a></td>
+                                <td>Detailed explanation of EC2 instance states and transitions</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html"
+                                        target="_blank" rel="noopener noreferrer">Finding AMIs</a></td>
+                                <td>How to find, filter, and select appropriate AMIs for your use case</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-ebs.html"
+                                        target="_blank" rel="noopener noreferrer">Creating AMIs</a></td>
+                                <td>Step-by-step guide to creating custom AMIs from running instances</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🎓 Recommended Reading for Students</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/ec2/getting-started/" target="_blank"
+                                        rel="noopener noreferrer">EC2 Getting Started</a></td>
+                                <td>Official AWS tutorial for launching your first EC2 instance</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.linux.org/pages/download/" target="_blank"
+                                        rel="noopener noreferrer">Linux.org Resources</a></td>
+                                <td>Free Linux tutorials, documentation, and learning materials</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.gnu.org/software/bash/manual/" target="_blank"
+                                        rel="noopener noreferrer">Bash Reference Manual</a></td>
+                                <td>Complete bash shell documentation for command-line proficiency</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/architecture/well-architected/" target="_blank"
+                                        rel="noopener noreferrer">AWS Well-Architected Framework</a></td>
+                                <td>Best practices for designing and operating reliable, secure, efficient systems</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://explore.skillbuilder.aws/learn/course/external/view/elearning/134/aws-cloud-practitioner-essentials"
+                                        target="_blank" rel="noopener noreferrer">AWS Cloud Practitioner Essentials</a>
+                                </td>
+                                <td>Free foundational course covering core AWS services and concepts</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🔧 Additional Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://calculator.aws/" target="_blank" rel="noopener noreferrer">AWS
+                                        Pricing Calculator</a></td>
+                                <td>Estimate costs for EC2 instances and other AWS services</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/marketplace/" target="_blank"
+                                        rel="noopener noreferrer">AWS Marketplace</a></td>
+                                <td>Browse and purchase third-party AMIs and software solutions</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/ec2/instance-types/" target="_blank"
+                                        rel="noopener noreferrer">EC2 Instance Types</a></td>
+                                <td>Complete catalog of available instance types with specifications</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.kernel.org/" target="_blank" rel="noopener noreferrer">The
+                                        Linux Kernel Archives</a></td>
+                                <td>Official Linux kernel source code and documentation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://ubuntu.com/tutorials" target="_blank"
+                                        rel="noopener noreferrer">Ubuntu Tutorials</a></td>
+                                <td>Hands-on Linux tutorials covering common administration tasks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">EC2</span><span class="tag">AMI</span><span
+                class="tag">Linux</span><span class="tag">IaaS</span></div>
+    </div>
+    <footer class="content-footer">
+        <div class="footer-container">
+            <div class="footer-block">
+                <p class="footer-copyright">© 2025 Namrata Mulwani. All rights reserved.</p>
+                <p class="footer-license">Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/"
+                        target="_blank" rel="noopener noreferrer">Creative Commons Attribution-NonCommercial 4.0
+                        International (CC BY-NC 4.0)</a></p>
+            </div>
+            <div class="footer-block">
+                <h4 class="footer-heading">📜 Usage Terms</h4>
+                <ul class="footer-list">
+                    <li><strong>You are free to:</strong> Share and adapt this material for educational purposes.</li>
+                    <li><strong>You must:</strong> Give appropriate credit and link to the license.</li>
+                    <li><strong>You cannot:</strong> Use this material for commercial purposes without permission.</li>
+                </ul>
+                <p class="footer-contact">For commercial licensing: <a
+                        href="mailto:awslecturenotes@gmail.com">awslecturenotes@gmail.com</a></p>
+            </div>
+            <div class="footer-disclaimer">
+                <p><strong>⚠️ Disclaimer:</strong> This content is for educational purposes only. AWS, Amazon Web
+                    Services, and all AWS service names are trademarks of Amazon.com, Inc. or its affiliates. This
+                    training material is not officially affiliated with, authorized, or endorsed by Amazon Web Services.
+                </p>
+            </div>
+        </div>
+    </footer>
+    <script src="../../../js/theme.js"></script>
+    <script src="../../../js/notes-template.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4JFX5WTGFN"></script>
+    <script>window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag('js', new Date()); gtag('config', 'G-4JFX5WTGFN');</script>
+</body>
+
+</html>

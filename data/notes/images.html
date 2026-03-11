@@ -3,53 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Browse AWS training session images including architecture diagrams, whiteboards, screenshots, and visual learning resources. Free educational materials for AWS certification.">
+    <meta name="keywords" content="AWS diagrams, AWS architecture images, AWS training screenshots, cloud computing diagrams, AWS visual resources, whiteboard notes">
+    <meta name="author" content="Namrata Mulwani">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Images Gallery - AWS Learning Dashboard">
+    <meta property="og:description" content="Visual learning resources including architecture diagrams, whiteboards, and training session screenshots.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://namrata2709.github.io/Resources/data/notes/images.html">
+    <meta property="og:image" content="https://namrata2709.github.io/Resources/images/gallery-preview.png">
+    <meta property="og:site_name" content="AWS Learning Dashboard">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Images Gallery - AWS Learning Dashboard">
+    <meta name="twitter:description" content="Visual learning resources including architecture diagrams and training screenshots.">
+    <meta name="twitter:image" content="https://namrata2709.github.io/Resources/images/gallery-preview.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://namrata2709.github.io/Resources/data/notes/images.html">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../../images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../images/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../images/apple-touch-icon.png">
+    
+    <!-- Theme -->
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="color-scheme" content="light dark">
+    
     <title>Images Gallery - AWS Learning Dashboard</title>
     <link rel="stylesheet" href="../../css/notes-template.css">
     <link rel="stylesheet" href="../../css/gallery.css">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ImageGallery",
+      "name": "AWS Training Images Gallery",
+      "description": "Visual learning resources including architecture diagrams, whiteboards, and training screenshots",
+      "url": "https://namrata2709.github.io/Resources/data/notes/images.html",
+      "author": {
+        "@type": "Person",
+        "name": "Namrata Mulwani",
+        "email": "awslecturenotes@gmail.com"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Namrata Mulwani"
+      },
+      "inLanguage": "en",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "AWS Learning Dashboard",
+        "url": "https://namrata2709.github.io/Resources/"
+      },
+      "educationalUse": "Visual Learning",
+      "educationalLevel": "Beginner to Intermediate"
+    }
+    </script>
 </head>
 <body>
-    <button id="themeToggle" class="theme-toggle">
+    <!-- Loading State -->
+    <div id="pageLoader" class="page-loader">
+        <div class="loader-spinner"></div>
+        <p class="loader-text">Loading images...</p>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="theme-icon"></span>
     </button>
 
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+            <li><a href="../../index.html">🏠 Home</a></li>
+            <li><a href="../../notes.html">📓 Notes</a></li>
+            <li aria-current="page" id="breadcrumbFolder">Images Gallery</li>
+        </ol>
+    </nav>
+
     <div class="gallery-container">
-        <button class="back-btn" onclick="history.back()">← Back</button>
+        <a href="javascript:history.back()" class="back-btn">← Back</a>
 
         <div class="gallery-header">
             <h1>🖼️ Images Gallery</h1>
-            <p id="imageCount">Loading images...</p>
-        </div>
-
-        <div class="controls">
-            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search images..." oninput="filterImages()">
-            <div class="view-toggle">
-                <button class="view-btn active" onclick="setView('grid', this)" title="Grid View">⊞</button>
-                <button class="view-btn" onclick="setView('list', this)" title="List View">☰</button>
+            <p id="galleryDescription">Visual learning resources from training sessions</p>
+            
+            <!-- Gallery Stats -->
+            <div class="gallery-stats">
+                <div class="stat-item">
+                    <span class="stat-icon">🖼️</span>
+                    <span id="imageCount">0 images</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">📁</span>
+                    <span id="folderName">All Folders</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">📅</span>
+                    <span id="dateInfo">Various Dates</span>
+                </div>
             </div>
         </div>
 
+        <div class="controls">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search images..." oninput="filterImages()" aria-label="Search images">
+            <div class="view-toggle">
+                <button class="view-btn active" onclick="setView('grid', this)" title="Grid View" aria-label="Grid view">⊞</button>
+                <button class="view-btn" onclick="setView('list', this)" title="List View" aria-label="List view">☰</button>
+            </div>
+        </div>
+
+        <!-- Gallery -->
         <div class="gallery" id="gallery">
-            <!-- Images will be loaded here -->
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Loading images...</p>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state hidden" id="emptyState">
+            <div class="empty-state-icon">🔍</div>
+            <h3>No images found</h3>
+            <p>Try adjusting your search or check back later</p>
+        </div>
+
+        <!-- Error State -->
+        <div class="error-message hidden" id="errorState">
+            <h3>⚠️ Failed to Load Images</h3>
+            <p>Could not load images from the specified folder.</p>
+            <button class="retry-btn" onclick="location.reload()">🔄 Retry</button>
         </div>
     </div>
 
     <!-- Lightbox Modal -->
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
         <div class="lightbox-content" onclick="event.stopPropagation()">
-            <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-            <button class="lightbox-nav lightbox-prev" onclick="navigateImage(-1)">‹</button>
-            <button class="lightbox-nav lightbox-next" onclick="navigateImage(1)">›</button>
+            <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close lightbox">✕</button>
+            <button class="lightbox-nav lightbox-prev" onclick="navigateImage(-1)" aria-label="Previous image">‹</button>
+            <button class="lightbox-nav lightbox-next" onclick="navigateImage(1)" aria-label="Next image">›</button>
             <img class="lightbox-image" id="lightboxImage" src="" alt="">
             <div class="lightbox-info">
-                <div class="image-name" id="lightboxName"></div>
+                <div class="lightbox-name" id="lightboxName"></div>
                 <div class="lightbox-counter" id="lightboxCounter"></div>
                 <button class="download-btn" onclick="downloadImage()">⬇ Download</button>
             </div>
         </div>
+        
+        <!-- Keyboard Hint -->
+        <div class="keyboard-hint">
+            Use <kbd>←</kbd> <kbd>→</kbd> to navigate or <kbd>ESC</kbd> to close
+        </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="content-footer">
+        <div class="footer-container">
+            
+            <!-- Copyright & License -->
+            <div class="footer-block">
+                <p class="footer-copyright">© 2025 Namrata Mulwani. All rights reserved.</p>
+                <p class="footer-license">Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer">Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)</a></p>
+            </div>
+
+            <!-- Usage Terms -->
+            <div class="footer-block">
+                <h4 class="footer-heading">📜 Usage Terms</h4>
+                <ul class="footer-list">
+                    <li><strong>You are free to:</strong> Share and adapt this material for educational purposes.</li>
+                    <li><strong>You must:</strong> Give appropriate credit and link to the license.</li>
+                    <li><strong>You cannot:</strong> Use this material for commercial purposes without permission.</li>
+                </ul>
+                <p class="footer-contact">For commercial licensing: <a href="mailto:awslecturenotes@gmail.com">awslecturenotes@gmail.com</a></p>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="footer-disclaimer">
+                <p><strong>⚠️ Disclaimer:</strong> This content is for educational purposes only. AWS, Amazon Web Services, and all AWS service names are trademarks of Amazon.com, Inc. or its affiliates. This training material is not officially affiliated with, authorized, or endorsed by Amazon Web Services.</p>
+            </div>
+
+        </div>
+    </footer>
 
     <!-- External JS -->
     <script src="../../js/theme.js"></script>
     <script src="../../js/gallery.js"></script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4JFX5WTGFN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-4JFX5WTGFN');
+    </script>
+    
+    <!-- Loading State Handler -->
+    <script>
+        window.addEventListener('load', function() {
+            document.getElementById('pageLoader').classList.add('hidden');
+        });
+    </script>
 </body>
 </html>

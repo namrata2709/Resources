@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Complete beginner-friendly guide to AWS VPC Peering Connections - learn how to connect two isolated VPCs privately without using the internet, configure route tables, and troubleshoot common issues.">
+    <meta name="keywords" content="AWS, VPC, VPC Peering, networking, cloud, certification">
+    <meta property="og:title" content="VPC Peering Connections - AWS Training">
+    <meta property="og:description"
+        content="Complete beginner-friendly guide to AWS VPC Peering Connections - learn how to connect two isolated VPCs privately without using the internet.">
+    <meta property="og:type" content="article">
+    <meta property="og:url"
+        content="https://namrata2709.github.io/Resources/data/notes/vpc-peering/vpc-peering-complete.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/vpc-peering/images/vpc-peering-architecture.png">
+    <link rel="canonical"
+        href="https://namrata2709.github.io/Resources/data/notes/vpc-peering/vpc-peering-complete.html">
+    <title>VPC Peering Connections - Complete Notes - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+    <script src="../../../js/theme.js"></script>
+</head>
+
+<body class="complete-notes">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"VPC Peering Connections","description":"Complete beginner-friendly guide to AWS VPC Peering Connections - learn how to connect two isolated VPCs privately without using the internet, configure route tables, and troubleshoot common issues.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2026-02-26","dateModified":"2026-02-26","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/vpc-peering/vpc-peering-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/vpc-peering/images/vpc-peering-architecture.png","articleSection":"AWS Training","keywords":["AWS","VPC","VPC Peering","Networking","Cloud"],"educationalLevel":"Beginner to Intermediate"}</script>
+    <div class="note-container">
+        <div class="note-header">
+            <h1>🔗 VPC Peering Connections</h1>
+            <p class="note-date">📅 February 26, 2026</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> February 26, 2026</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="note-content">
+            <h2>📋 Table of Contents</h2>
+            <ol>
+                <li><a href="#intro">What is VPC Peering?</a></li>
+                <li><a href="#why">Why Do We Need VPC Peering?</a></li>
+                <li><a href="#how-it-works">How VPC Peering Works</a></li>
+                <li><a href="#task1">Task 1 – Creating a Peering Connection</a></li>
+                <li><a href="#task2">Task 2 – Configuring Route Tables</a></li>
+                <li><a href="#task3">Task 3 – Testing the Connection</a></li>
+                <li><a href="#icmp">ICMP & the Ping Test</a></li>
+                <li><a href="#troubleshooting">Troubleshooting: When the Lab Breaks</a></li>
+                <li><a href="#version-mismatch">Database Version Mismatch Deep Dive</a></li>
+                <li><a href="#best-practices">Security & Best Practices</a></li>
+                <li><a href="#other-options">Other Network Connection Options</a></li>
+            </ol>
+            <section id="intro">
+                <h2>🌐 What is VPC Peering?</h2>
+                <p>Imagine you have two completely separate houses (VPCs) in the same neighbourhood (AWS). Each house
+                    has its own walls, its own locks, and its own private world inside. Normally, to send something from
+                    one house to the other, you'd have to go out onto the public street (the internet) — which is risky
+                    and slow.</p>
+                <p><span class="exam-highlight-sentence">A VPC Peering Connection is a private, direct network link
+                        between two VPCs that lets instances communicate as if they were in the same network, without
+                        ever touching the public internet.</span></p>
+                <div class="diagram-container"><img src="images/vpc-peering-architecture.png" decoding="async"
+                        alt="Diagram showing Lab VPC on the left with a public subnet and internet gateway, connected via a VPC peering link to Shared VPC on the right which contains only private subnets with a MySQL database and no internet gateway">
+                    <p class="diagram-caption"><em>Figure 1: Before peering (left) and after peering (right) – two
+                            isolated VPCs connected privately</em></p>
+                </div>
+                <div class="info-box">💡 <strong>Key Insight:</strong> VPC Peering works completely <em>within</em> the
+                    AWS backbone network. The traffic never leaves AWS infrastructure, which means lower latency, no
+                    data transfer costs to the internet, and far better security.</div>
+            </section>
+            <section id="why">
+                <h2>🤔 Why Do We Need VPC Peering?</h2>
+                <p>By default, every VPC is its own island. Traffic cannot flow between VPCs unless you explicitly
+                    connect them. This is actually a great security feature — you don't want random VPCs talking to your
+                    production database. But sometimes you <em>do</em> want controlled communication between VPCs.
+                    Common real-world reasons include:</p>
+                <ul>
+                    <li><strong>Centralized database:</strong> One VPC holds a shared MySQL/PostgreSQL database;
+                        multiple application VPCs need access.</li>
+                    <li><strong>Cross-account sharing:</strong> Partner companies or internal teams in different AWS
+                        accounts need to exchange data securely.</li>
+                    <li><strong>Cross-region architectures:</strong> Services in different AWS regions need a private
+                        link.</li>
+                    <li><strong>Microservices isolation:</strong> Each service lives in its own VPC for blast-radius
+                        control, but they still need to communicate.</li>
+                </ul>
+                <p>In the lab, we have exactly this scenario: a <strong>Lab VPC</strong> (containing a web application /
+                    inventory app in a public subnet) and a <strong>Shared VPC</strong> (containing a MySQL database in
+                    a completely private subnet with no internet gateway). The app needs to talk to the database — and
+                    peering is how we make that happen safely.</p>
+                <div class="highlight-box">⚡ <strong>The Golden Rule:</strong> <span class="exam-highlight-sentence">The
+                        Shared VPC has NO internet gateway — the only way to reach its database is through the VPC
+                        peering connection.</span> This is intentional, and it's exactly the kind of secure architecture
+                    you'd build for a production database tier.</div>
+            </section>
+            <section id="how-it-works">
+                <h2>⚙️ How VPC Peering Works</h2>
+                <p>Think of a VPC peering connection like a two-key safe. Both people need to turn their keys before the
+                    safe opens. Neither side can force a connection — both must agree.</p>
+                <p>There are three phases to getting a peering connection working:</p>
+                <ol>
+                    <li><strong>Request:</strong> One VPC (the <em>requester</em>) sends a peering request to another
+                        VPC (the <em>accepter</em>).</li>
+                    <li><strong>Accept:</strong> The target VPC owner must explicitly accept the request. This is a
+                        critical security step — you can't just start sending traffic to someone else's VPC.</li>
+                    <li><strong>Route:</strong> Both VPCs must update their route tables to know how to forward traffic
+                        over the peering link. Without this step, even an accepted peering connection won't carry
+                        traffic.</li>
+                </ol>
+                <div class="diagram-container"><img src="images/vpc-peering-route-tables.png" decoding="async"
+                        alt="Diagram showing two VPC route tables side by side - Lab VPC public route table has entries for 10.0.0.0/16 local, 10.5.0.0/16 via pcx-id, and 0.0.0.0/0 via igw-id. Shared VPC route table has 10.5.0.0/16 local and 10.0.0.0/16 via pcx-id">
+                    <p class="diagram-caption"><em>Figure 2: Route tables after peering – each VPC learns the other's
+                            CIDR via the peering connection (pcx-id)</em></p>
+                </div>
+                <div class="success-box">✅ <strong>Important:</strong> <span class="exam-highlight-sentence">VPC peering
+                        is non-transitive — if VPC A peers with VPC B, and VPC B peers with VPC C, VPC A cannot reach
+                        VPC C through VPC B.</span> Each pairing needs its own direct peering connection.</div>
+            </section>
+            <section id="task1">
+                <h2>🔧 Task 1 – Creating a VPC Peering Connection</h2>
+                <p>Before starting, let's confirm what we're working with in the lab environment:</p>
+                <ul>
+                    <li><strong>Lab VPC:</strong> CIDR <code>10.0.0.0/16</code> — has a public subnet and an internet
+                        gateway. The Inventory web app runs here on an EC2 instance.</li>
+                    <li><strong>Shared VPC:</strong> CIDR <code>10.5.0.0/16</code> — has only private subnets and NO
+                        internet gateway. The MySQL RDS database lives here, completely isolated.</li>
+                </ul>
+                <h3>Step-by-Step: Creating the Peering Connection</h3>
+                <ol>
+                    <li>In the AWS Console, navigate to <strong>VPC → Peering Connections</strong>.</li>
+                    <li>Click <strong>Create Peering Connection</strong>.</li>
+                    <li>Fill in:<ul>
+                            <li><strong>Name tag:</strong> <code>Lab-Peer</code></li>
+                            <li><strong>VPC (Requester):</strong> Lab VPC</li>
+                            <li><strong>VPC (Accepter):</strong> Shared VPC</li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>Create Peering Connection</strong>, then <strong>OK</strong>.</li>
+                </ol>
+                <div class="info-box">💡 <strong>Why do we need to "Accept"?</strong> Even when both VPCs are in the
+                    same account, the acceptance step exists for safety. In real life, the accepter VPC may belong to a
+                    different team, department, or even company. Acceptance means that owner consciously approves the
+                    connection.</div>
+                <ol start="5">
+                    <li>Select the newly created <strong>Lab-Peer</strong> peering connection.</li>
+                    <li>Choose <strong>Actions → Accept Request → Yes, Accept</strong>.</li>
+                    <li>Close the pop-up.</li>
+                </ol>
+                <div class="success-box">✅ <strong>Status Check:</strong> After acceptance, the peering connection
+                    status should change from <em>Pending Acceptance</em> to <em>Active</em>. If you misclick and the
+                    pop-up disappears, go to Peering Connections and look for pending approvals.</div>
+                <div class="highlight-box">⚡ <span class="exam-highlight-term">Requester</span> and <span
+                        class="exam-highlight-term">Accepter</span> — both sides must agree. The connection will show as
+                    <span class="exam-highlight-term">Pending Acceptance</span> until the accepter approves.</div>
+            </section>
+            <section id="task2">
+                <h2>🗺️ Task 2 – Configuring Route Tables</h2>
+                <p>Accepting the peering connection only tells AWS the two VPCs <em>want</em> to talk. The route tables
+                    tell the network <em>how</em> to actually send packets there. Without updated routes, traffic will
+                    never find its way across.</p>
+                <p>Think of it like this: the peering connection builds the bridge, but the route table is the road sign
+                    that says "To Shared VPC → take the bridge."</p>
+                <h3>Updating the Lab VPC Route Table</h3>
+                <ol>
+                    <li>Go to <strong>VPC → Route Tables</strong>.</li>
+                    <li>Select <strong>Lab Public Route Table</strong> (the one associated with Lab VPC).</li>
+                    <li>Click the <strong>Routes</strong> tab → <strong>Edit routes → Add route</strong>.</li>
+                    <li>Set:<ul>
+                            <li><strong>Destination:</strong> <code>10.5.0.0/16</code> (Shared VPC's CIDR range)</li>
+                            <li><strong>Target:</strong> Peering Connection → <code>Lab-Peer</code></li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>Save routes → Close</strong>.</li>
+                </ol>
+                <div class="info-box">💡 <strong>What does this route say?</strong> "Any packet destined for an IP in
+                    the <code>10.5.x.x</code> range — send it through the Lab-Peer peering connection." Without this,
+                    the Lab VPC would drop or misroute packets headed to the Shared VPC.</div>
+                <h3>Updating the Shared VPC Route Table</h3>
+                <ol>
+                    <li>Now select <strong>Shared-VPC Route Table</strong>.</li>
+                    <li>Click <strong>Edit routes → Add route</strong>.</li>
+                    <li>Set:<ul>
+                            <li><strong>Destination:</strong> <code>10.0.0.0/16</code> (Lab VPC's CIDR range)</li>
+                            <li><strong>Target:</strong> Peering Connection → <code>Lab-Peer</code></li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>Save routes → Close</strong>.</li>
+                </ol>
+                <div class="success-box">✅ <strong>Why both directions?</strong> <span
+                        class="exam-highlight-sentence">Route tables must be updated on BOTH sides of a VPC peering
+                        connection — traffic needs a path to go AND a path to return.</span> Forgetting one side is the
+                    #1 mistake in this lab.</div>
+                <div class="diagram-container"><img src="images/vpc-peering-route-tables.png" loading="lazy"
+                        decoding="async"
+                        alt="Side-by-side comparison of Lab VPC public route table and Shared VPC route table both showing their respective peering routes added">
+                    <p class="diagram-caption"><em>Figure 3: Both route tables must have entries pointing to the peering
+                            connection for two-way communication</em></p>
+                </div>
+                <div class="error-box">❌ <strong>Common Mistake:</strong> Selecting the <em>private</em> route table
+                    instead of the correct one. Always double-check the route table name before editing. The Lab VPC has
+                    both a public and private route table — only the <strong>Lab Public Route Table</strong> needs the
+                    peering route for this lab.</div>
+            </section>
+            <section id="task3">
+                <h2>🧪 Task 3 – Testing the VPC Peering Connection</h2>
+                <p>With the peering connection active and routes configured, it's time to verify everything works. The
+                    test involves configuring the Inventory web application to connect to the database across the
+                    peering link.</p>
+                <ol>
+                    <li>Go to <strong>EC2 → Instances</strong>.</li>
+                    <li>Copy the <strong>IPv4 Public IP address</strong> of the App Server instance.</li>
+                    <li>Open that IP in a new browser tab — you should see the Inventory application with a "Please
+                        configure settings to connect to database" message.</li>
+                    <li>Click the <strong>Settings</strong> icon and fill in:<ul>
+                            <li><strong>Endpoint:</strong> The RDS database endpoint (find it under Details → AWS → Show
+                                → Endpoint)</li>
+                            <li><strong>Database:</strong> <code>inventory</code></li>
+                            <li><strong>Username:</strong> <code>admin</code></li>
+                            <li><strong>Password:</strong> <code>lab-password</code></li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>Save</strong>.</li>
+                </ol>
+                <div class="success-box">✅ If the Inventory application loads data from the database, your VPC peering
+                    connection is working perfectly! The fact that the app can reach the database proves the peering is
+                    active — because the Shared VPC has no internet gateway, there's literally no other way that
+                    connection could succeed.</div>
+            </section>
+            <section id="icmp">
+                <h2>📡 ICMP & the Ping Test (Bonus Lab Demonstration)</h2>
+                <p>The professor added a clever bonus demonstration to prove the peering works even before the database
+                    step. This used <strong>ICMP (Internet Control Message Protocol)</strong> — the protocol behind the
+                    <code>ping</code> command.</p>
+                <h3>What is ICMP / Ping?</h3>
+                <p><span class="exam-highlight-sentence">ICMP is a network diagnostic protocol used for error reporting
+                        and reachability testing. The ping command sends ICMP echo requests to check if a host is alive
+                        and reachable.</span></p>
+                <p>The name "ping" actually comes from sonar — like a submarine sending out a sound pulse and listening
+                    for an echo back. You send a packet, and if the device is there and reachable, it pings back. It's
+                    also sometimes said to stand for "Packet Internet Groper" — you're groping in the dark looking for
+                    another device.</p>
+                <p>ICMP is also the foundation of <strong>traceroute</strong>, which lets you see every "hop" a packet
+                    takes through the network on its way to a destination — incredibly useful for diagnosing where
+                    traffic is getting stuck.</p>
+                <h3>The Bonus Test Setup</h3>
+                <p>Before creating the peering connection, the professor launched a second EC2 instance ("target") in
+                    the <strong>Shared VPC</strong> (the isolated one). This instance:</p>
+                <ul>
+                    <li>Was placed in the Shared VPC's private subnet</li>
+                    <li>Had a security group rule allowing <strong>ICMP (IPv4) from any source</strong></li>
+                    <li>Had only a private IP address — no public IP</li>
+                </ul>
+                <p>Then, from the App Server (in Lab VPC), they tried to <code>ping</code> the target instance's private
+                    IP. Before peering — silence. No response. After peering and adding routes — pings succeed, proving
+                    the private connection works at the network level.</p>
+                <div class="info-box">💡 <strong>Why allow ICMP from "any"?</strong> In a lab context, this is fine. In
+                    production, you'd restrict ICMP to known IP ranges. But since we don't know exactly which IP might
+                    be pinging (could come from various places within the VPC), setting the source to
+                    <code>0.0.0.0/0</code> makes the demo straightforward.</div>
+            </section>
+            <section id="troubleshooting">
+                <h2>🔍 Troubleshooting: When the Lab Breaks</h2>
+                <p>This particular lab encountered a real-world failure between November 2025 and February 2026 — not
+                    because the lab instructions were wrong, but because <strong>AWS upgraded its default database
+                        engine version</strong>, breaking compatibility with the client software on the EC2 instance.
+                    This is an amazing real-world lesson in version management.</p>
+                <div class="error-box">❌ <strong>The Symptom:</strong> The Inventory application shows a database
+                    connection error even after the peering connection is correctly set up. The peering works — but the
+                    application layer can't communicate with the database.</div>
+                <h3>What Actually Went Wrong</h3>
+                <p>The CloudFormation template that built the lab specified a MySQL database engine but did not pin the
+                    version. When AWS updated its default MySQL version from 8.0.x to <span
+                        class="exam-highlight-term">8.4.7</span>, the lab broke because:</p>
+                <ol>
+                    <li><strong>Authentication method changed:</strong> MySQL 8.4.x defaults to
+                        <code>caching_sha2_password</code> — a more secure but newer auth method. The EC2 client
+                        software is old and doesn't support it.</li>
+                    <li><strong>DNS reverse lookup requirement:</strong> MySQL 8.4.x by default requires a reverse DNS
+                        lookup on connecting clients. The EC2 app server's IP couldn't be resolved, so MySQL refused the
+                        connection entirely.</li>
+                </ol>
+                <div class="highlight-box">⚡ <span class="exam-highlight-sentence">Pinning database engine versions in
+                        CloudFormation templates is critical — failing to do so means AWS may automatically provision a
+                        newer, incompatible version when the template runs.</span></div>
+                <h3>How to Check What's Wrong</h3>
+                <p>You can inspect the RDS logs in the AWS Console (RDS → Databases → your DB → Logs &amp; Events). Look
+                    for messages about:</p>
+                <ul>
+                    <li>"Could not be resolved" — this is the DNS reverse lookup failure</li>
+                    <li>Authentication-related errors about <code>caching_sha2_password</code></li>
+                </ul>
+                <h3>The Fix (If You Had Permissions)</h3>
+                <p>The simplest fix would be adding two lines to the CloudFormation template under the database resource
+                    to specify an older, compatible engine version:</p>
+                <pre><code>EngineVersion: "8.0"
+AutoMinorVersionUpgrade: true</code></pre>
+                <p>This tells AWS to use MySQL 8.0.x (which is backward-compatible with the old EC2 client) and to
+                    auto-apply minor version upgrades within that family. This would give the lab compatibility for
+                    several more years.</p>
+            </section>
+            <section id="version-mismatch">
+                <h2>🗄️ Database Version Mismatch – A Real-World Lesson</h2>
+                <p>The lab failure illustrates something every cloud engineer encounters in the real world:
+                    <strong>version drift</strong>. Systems that worked perfectly for years suddenly break when one
+                    component gets upgraded.</p>
+                <div class="info-box">📚 <strong>According to AWS documentation,</strong> MySQL 8.4 introduced
+                    significant changes to default authentication and parameter groups compared to MySQL 8.0. Existing
+                    applications relying on <code>mysql_native_password</code> or older client libraries may need
+                    updates before migrating to 8.4. <strong>📚 Source:</strong> <a
+                        href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html"
+                        target="_blank" rel="noopener noreferrer">AWS RDS MySQL Version Management</a></div>
+                <h3>What Is a Parameter Group?</h3>
+                <p>MySQL (and other RDS engines) use parameter groups to control hundreds of configuration settings —
+                    think of it as a settings file for the database. The default parameter group for MySQL 8.4 includes
+                    settings like <code>authentication_policy</code> set to require the new SHA2 method.</p>
+                <p>Changing the parameter group could allow old clients to connect again, but it requires database-level
+                    permissions in the lab environment.</p>
+                <h3>Lessons for Production Environments</h3>
+                <ul>
+                    <li><strong>Always pin versions:</strong> Specify the exact engine version in
+                        CloudFormation/Terraform so upgrades happen on your schedule, not AWS's.</li>
+                    <li><strong>Test upgrades in staging first:</strong> Never upgrade production databases without
+                        testing compatibility in a staging environment.</li>
+                    <li><strong>Upgrade client software together:</strong> When you upgrade a database engine, also
+                        update the client libraries on applications that connect to it.</li>
+                    <li><strong>Plan maintenance windows:</strong> Database upgrades require downtime. Communicate to
+                        users in advance and choose low-traffic windows.</li>
+                    <li><strong>Stay current (but not bleeding edge):</strong> Being 18 months behind on patches leaves
+                        you vulnerable. But jumping to the absolute latest immediately carries its own risks — let
+                        others discover the bugs first, then upgrade.</li>
+                </ul>
+                <div class="success-box">✅ <strong>The Balance:</strong> A practical approach is to stay 1-2 minor
+                    versions behind the latest, apply security patches promptly, and do major version upgrades quarterly
+                    with proper testing.</div>
+            </section>
+            <section id="best-practices">
+                <h2>🛡️ Security &amp; Best Practices for VPC Peering</h2>
+                <h3>CIDR Overlap Prevention</h3>
+                <p><span class="exam-highlight-sentence">VPC peering requires non-overlapping CIDR blocks — two VPCs
+                        cannot peer if their IP ranges conflict.</span> In the lab, this is deliberately set up: Lab VPC
+                    uses <code>10.0.0.0/16</code> and Shared VPC uses <code>10.5.0.0/16</code>. Plan your IP addressing
+                    carefully from the start.</p>
+                <h3>Least-Privilege Security Groups</h3>
+                <p>Even with a peering connection, Security Groups act as the final gatekeeper. Just because two VPCs
+                    can route to each other doesn't mean all instances can talk to all other instances. You still need
+                    to explicitly allow traffic in Security Groups:</p>
+                <ul>
+                    <li>Allow only the specific port needed (e.g., port 3306 for MySQL)</li>
+                    <li>Set the source to the CIDR of the other VPC, not <code>0.0.0.0/0</code></li>
+                    <li>Use separate Security Groups for different tiers (web, app, database)</li>
+                </ul>
+                <h3>ACLs vs Security Groups</h3>
+                <p>Network ACLs (NACLs) are stateless and operate at the subnet level. Security Groups are stateful and
+                    operate at the instance level. <span class="exam-highlight-sentence">Security Groups are stateful —
+                        return traffic is automatically allowed without needing a separate outbound rule.</span> NACLs
+                    require explicit rules for both directions.</p>
+                <p>For most peering setups, Security Group changes are sufficient. NACLs usually don't need changes
+                    unless they've been hardened with specific deny rules.</p>
+                <h3>Monitoring Peering Traffic</h3>
+                <p>Enable <strong>VPC Flow Logs</strong> to capture information about IP traffic going to/from network
+                    interfaces. This helps with troubleshooting and security auditing across peered VPCs.</p>
+            </section>
+            <section id="other-options">
+                <h2>🌐 Other AWS Network Connection Options</h2>
+                <p>VPC Peering is one tool in the networking toolbox. Here's when to use what:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Connection Type</th>
+                            <th>Use Case</th>
+                            <th>Internet Involved?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>VPC Peering</strong></td>
+                            <td>Two VPCs that need private communication</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AWS Transit Gateway</strong></td>
+                            <td>Hub-and-spoke for many VPCs (avoids peering mesh complexity)</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AWS Direct Connect</strong></td>
+                            <td>On-premises data center to AWS (dedicated private line)</td>
+                            <td>No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Site-to-Site VPN</strong></td>
+                            <td>On-premises to AWS over encrypted internet tunnel</td>
+                            <td>Yes (encrypted)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Internet Gateway</strong></td>
+                            <td>VPC resources to/from the public internet</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NAT Gateway</strong></td>
+                            <td>Private subnet resources initiating outbound internet connections</td>
+                            <td>Yes (outbound only)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="info-box">💡 <strong>When to use Transit Gateway instead of Peering:</strong> If you have
+                    more than 3-4 VPCs that need to communicate with each other, VPC peering creates a complex mesh
+                    (N*(N-1)/2 connections). Transit Gateway acts as a central router — all VPCs connect to it and can
+                    reach each other without individual peering connections.</div>
+            </section>
+            <details class="collapsible-section">
+                <summary>
+                    <h2>📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <ul>
+                        <li><strong>VPC Peering:</strong> A private, direct network connection between two VPCs that
+                            keeps traffic within the AWS backbone — no internet required.</li>
+                        <li><strong>Two-key acceptance model:</strong> The requester VPC sends a peering request; the
+                            accepter VPC must explicitly approve it before the connection becomes active.</li>
+                        <li><strong>Route tables are mandatory:</strong> After accepting the peering, BOTH VPCs must
+                            update their route tables to direct traffic for the other VPC's CIDR range to the peering
+                            connection ID.</li>
+                        <li><strong>Non-transitive:</strong> Peering is point-to-point. VPC A → VPC B → VPC C does NOT
+                            give A access to C. Direct peering is required for each pair.</li>
+                        <li><strong>No overlapping CIDRs:</strong> Peered VPCs must have non-conflicting IP address
+                            ranges.</li>
+                        <li><strong>ICMP / ping:</strong> A powerful network diagnostic tool based on echo
+                            request/reply; used to verify reachability between instances across a peering connection.
+                        </li>
+                        <li><strong>Lab troubleshooting:</strong> The lab's database connectivity broke due to a MySQL
+                            version upgrade (8.0 → 8.4) that changed the default authentication method — a real-world
+                            example of version drift.</li>
+                        <li><strong>Fix strategy:</strong> Pin the database engine version in CloudFormation templates;
+                            keep client and server software versions aligned.</li>
+                        <li><strong>Security groups still apply:</strong> Peering enables routing — security groups
+                            control which specific traffic is actually allowed between instances.</li>
+                        <li><strong>Transit Gateway for scale:</strong> When many VPCs need connectivity, Transit
+                            Gateway replaces the complex mesh of individual peering connections.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2>📖 Glossary</h2>
+                </summary>
+                <div class="section-content">
+                    <div id="glossaryContainer" data-glossary-source="json/glossary.json"></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2>🎤 Interview Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <p class="interview-intro">📚 Test your understanding with these questions.</p>
+                    <div class="interview-progress">
+                        <p id="interviewProgress">Progress: 0/25 (0%)</p>
+                    </div>
+                    <div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn"
+                            id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1
+                            / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn"
+                            id="nextInterviewBtn">Next →</button></div>
+                    <div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json">
+                    </div>
+                    <div style="margin-top: 2rem; text-align: center;"><button onclick="resetInterviewProgress()"
+                            class="quiz-reset-btn">🔄 Reset Progress</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2>📝 Multiple Choice Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="quiz-header-info">
+                        <p>📝 Test your knowledge with immediate feedback.</p>
+                    </div>
+                    <div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn"
+                            id="prevBtn">← Previous</button>
+                        <div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span
+                                class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button
+                            onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button>
+                    </div>
+                    <div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div>
+                    <div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊
+                            View Summary</button><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄 Reset
+                            All</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2>💼 Hands-On Projects</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites</h4>
+                        <ul>
+                            <li>✅ AWS account (Free Tier)</li>
+                            <li>✅ Knowledge: VPC basics, subnets, route tables, security groups, EC2 fundamentals</li>
+                        </ul>
+                    </div>
+                    <h3>Project 1: Connect Two VPCs with Peering</h3>
+                    <div class="info-box">
+                        <p><strong>🎯 Objective:</strong> Create two VPCs, launch EC2 instances in each, establish a
+                            peering connection, and verify cross-VPC communication with ping.</p>
+                        <p><strong>⏱️ Time:</strong> 30-45 minutes</p>
+                        <p><strong>💰 Cost:</strong> Free Tier (use t2.micro or t3.micro instances; terminate after)</p>
+                    </div>
+                    <h4>Steps:</h4>
+                    <ol>
+                        <li>Create <strong>VPC-A</strong> with CIDR <code>10.10.0.0/16</code> and a public subnet
+                            <code>10.10.0.0/24</code>.</li>
+                        <li>Create <strong>VPC-B</strong> with CIDR <code>10.20.0.0/16</code> and a private subnet
+                            <code>10.20.0.0/24</code>.</li>
+                        <li>Launch an EC2 instance in VPC-A's subnet (enable public IP; allow SSH and ICMP in security
+                            group).</li>
+                        <li>Launch an EC2 instance in VPC-B's subnet (no public IP; allow ICMP from
+                            <code>10.10.0.0/16</code> in security group).</li>
+                        <li>Create a VPC Peering Connection: Requester = VPC-A, Accepter = VPC-B. Accept the request.
+                        </li>
+                        <li>Update VPC-A's route table: add route <code>10.20.0.0/16 → pcx-id</code>.</li>
+                        <li>Update VPC-B's route table: add route <code>10.10.0.0/16 → pcx-id</code>.</li>
+                        <li>SSH into the VPC-A instance. Ping the private IP of the VPC-B instance:
+                            <code>ping 10.20.x.x</code>.</li>
+                        <li>Verify you get responses — peering confirmed! ✅</li>
+                    </ol>
+                    <h4>Cleanup:</h4>
+                    <ul>
+                        <li>Terminate both EC2 instances</li>
+                        <li>Delete the VPC peering connection</li>
+                        <li>Delete both VPCs (this also removes subnets, route tables)</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2>☑️ Learning Checklist</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="checklist-progress">
+                        <p>Progress: <span id="checklistProgress">0/15</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                    <div id="checklistContainer" data-checklist-source="json/checklist.json"></div>
+                    <div style="margin-top: 2rem; text-align: center;"><button onclick="resetChecklist()"
+                            class="quiz-reset-btn">🔄 Reset Checklist</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2>🤔 Reflection Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="question-block">
+                        <h4>1. Why does VPC peering require the accepter to explicitly approve the connection, even when
+                            both VPCs are in the same AWS account?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Think about the real-world scenarios where VPCs belong to different teams, accounts,
+                                    or organizations. The acceptance step ensures no one can unilaterally connect to
+                                    your VPC.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>2. What would happen if you updated only one side's route table — say, only Lab VPC's —
+                            after establishing a peering connection?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Think about the return journey. Can a packet reach its destination if only the
+                                    outbound route exists?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>3. You have 5 VPCs that all need to communicate with each other. How many VPC peering
+                            connections would you need? Is there a better solution?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Calculate: N*(N-1)/2 for full mesh peering. Then think about what AWS service acts as
+                                    a central hub for multiple VPCs.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>4. The lab's database stopped working because of a version mismatch. What steps would you
+                            follow in a production environment to safely upgrade a database engine?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Think: staging environments, maintenance windows, client library updates, rollback
+                                    plans, and how to communicate downtime to users.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>5. Why doesn't the Shared VPC in this lab have an internet gateway? What security benefit
+                            does this provide?</h4>
+                        <details style="margin-left: 2rem; margin-top: 0.5rem;">
+                            <summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary>
+                            <div
+                                style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;">
+                                <p>Think about database exposure. What would happen if someone on the internet could
+                                    reach your MySQL database directly?</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2>🔗 Links &amp; References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html"
+                                        target="_blank" rel="noopener noreferrer">VPC Peering Documentation</a></td>
+                                <td>Official AWS VPC Peering guide</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/peering/vpc-peering-basics.html"
+                                        target="_blank" rel="noopener noreferrer">VPC Peering Basics</a></td>
+                                <td>Concepts, limitations, and routing</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html"
+                                        target="_blank" rel="noopener noreferrer">RDS MySQL Version Management</a></td>
+                                <td>MySQL version compatibility and upgrades</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html"
+                                        target="_blank" rel="noopener noreferrer">Network ACLs</a></td>
+                                <td>Stateless subnet-level access control</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🎓 Recommended Reading</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/transit-gateway/" target="_blank"
+                                        rel="noopener noreferrer">AWS Transit Gateway</a></td>
+                                <td>Hub-and-spoke alternative to complex peering meshes</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html"
+                                        target="_blank" rel="noopener noreferrer">VPC Flow Logs</a></td>
+                                <td>Monitor and troubleshoot network traffic</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🔧 Additional Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/vpc/pricing/" target="_blank"
+                                        rel="noopener noreferrer">VPC Pricing</a></td>
+                                <td>VPC peering data transfer costs</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/peering/peering-configurations-full-access.html"
+                                        target="_blank" rel="noopener noreferrer">Peering Configurations</a></td>
+                                <td>Examples of valid peering setups</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">VPC</span><span
+                class="tag">Networking</span><span class="tag">Peering</span><span class="tag">RDS</span><span
+                class="tag">Route Tables</span></div>
+    </div>
+    <script defer src="../../../js/notes-template.js"></script>
+</body>
+
+</html>

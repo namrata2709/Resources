@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Technical overview of cloud scalability, elasticity, and AWS global infrastructure including regions, availability zones, and edge locations for IT professionals.">
+    <meta name="keywords"
+        content="AWS, scalability, elasticity, global infrastructure, regions, availability zones, cloud computing, certification">
+    
+    
+    <meta property="og:title" content="Scalability & AWS Global Infrastructure - Overview">
+    <meta property="og:description"
+        content="Technical overview of cloud scalability, elasticity, and AWS global infrastructure including regions, availability zones, and edge locations for IT professionals.">
+    <meta property="og:type" content="article">
+    <meta property="og:url"
+        content="https://namrata2709.github.io/Resources/data/notes/scalability-infrastructure/scalability-infrastructure-overview.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/scalability-infrastructure/images/scalability-elasticity-comparison.png">
+    
+    
+    <meta name="twitter:title" content="Scalability & AWS Global Infrastructure - Overview">
+    <meta name="twitter:description"
+        content="Technical overview of cloud scalability, elasticity, and AWS global infrastructure including regions, availability zones, and edge locations for IT professionals.">
+    <meta name="twitter:image"
+        content="https://namrata2709.github.io/Resources/data/notes/scalability-infrastructure/images/scalability-elasticity-comparison.png">
+    <link rel="canonical"
+        href="https://namrata2709.github.io/Resources/data/notes/scalability-infrastructure/scalability-infrastructure-overview.html">
+    
+    
+    <title>Scalability & AWS Global Infrastructure - Overview - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/notes-template.css?v=1.0">
+    <script src="../../../js/theme.js?v=1.0"></script>
+</head>
+
+<body class="overview-notes">
+    
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://namrata2709.github.io/Resources/"},{"@type":"ListItem","position":2,"name":"Notes","item":"https://namrata2709.github.io/Resources/notes.html"},{"@type":"ListItem","position":3,"name":"Scalability & AWS Infrastructure"}]}</script>
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Scalability & AWS Global Infrastructure","description":"Technical overview of cloud scalability, elasticity, and AWS global infrastructure including regions, availability zones, and edge locations for IT professionals.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-10-01","dateModified":"2025-10-01","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/scalability-infrastructure/scalability-infrastructure-overview.html"},"image":"https://namrata2709.github.io/Resources/data/notes/scalability-infrastructure/images/scalability-elasticity-comparison.png","articleSection":"AWS Training","keywords":["AWS","scalability","elasticity","global infrastructure","regions","cloud computing","certification"],"educationalLevel":"Beginner to Intermediate","educationalUse":"Professional Development"}</script>
+    
+    <div class="note-container">
+        <div class="note-header">
+            <h1>Scalability & AWS Global Infrastructure</h1>
+            <p class="note-date">📅 October 01, 2025</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> October 01, 2025</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="note-content">
+            <h2 id="introduction">📋 Introduction</h2>
+            <p>This technical overview covers two critical cloud computing concepts: scalability/elasticity and AWS's
+                global infrastructure design. Understanding these fundamentals is essential for architecting resilient,
+                performant applications in the cloud.</p>
+            <p>Scalability and elasticity represent distinct approaches to handling workload changes, while AWS's global
+                infrastructure provides the physical foundation enabling these capabilities across geographic regions.
+            </p>
+            <h2 id="toc">📑 Table of Contents</h2>
+            <ul>
+                <li><a href="#scalability-elasticity">Scalability vs Elasticity</a></li>
+                <li><a href="#scaling-types">Vertical and Horizontal Scaling</a></li>
+                <li><a href="#aws-infrastructure">AWS Global Infrastructure</a></li>
+                <li><a href="#regions-azs">Regions and Availability Zones</a></li>
+                <li><a href="#edge-services">Edge Locations and CDN Services</a></li>
+                <li><a href="#connectivity">Infrastructure Connectivity</a></li>
+                <li><a href="#summary">Overall Summary</a></li>
+                <li><a href="#references">Links & References</a></li>
+            </ul>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="scalability-elasticity">⚖️ Scalability vs Elasticity</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Scalability Defined</h3>
+                    <p>Scalability represents a system's capacity to accommodate increased workload through resource
+                        addition. This is typically a planned, deliberate process involving capacity planning and
+                        forecasting.</p>
+                    <p>Key characteristics include manual intervention, long-term planning horizons, and focus on
+                        supporting sustained growth rather than temporary fluctuations.</p>
+                    <div class="diagram-container"><img decoding="async" src="images/scalability-elasticity-comparison.png"
+                            alt="Side-by-side comparison diagram showing scalability as planned growth with manual resource additions versus elasticity as automatic real-time adjustments based on current demand">
+                        <p class="diagram-caption"><em>Figure 1: Scalability (planned capacity growth) vs Elasticity
+                                (automatic resource adjustment)</em></p>
+                    </div>
+                    <h3>Elasticity Defined</h3>
+                    <p>Elasticity enables dynamic resource provisioning and deprovisioning in response to real-time
+                        demand fluctuations. This automated process optimizes both performance and cost efficiency.</p>
+                    <p>Implementation relies on monitoring metrics, predefined thresholds, and automation policies that
+                        trigger scaling actions without human intervention.</p>
+                    <h3>Technical Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dimension</th>
+                                <th>Scalability</th>
+                                <th>Elasticity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Trigger Mechanism</td>
+                                <td>Manual planning and approval</td>
+                                <td>Automated metric-based triggers</td>
+                            </tr>
+                            <tr>
+                                <td>Time Horizon</td>
+                                <td>Long-term capacity planning</td>
+                                <td>Real-time demand response</td>
+                            </tr>
+                            <tr>
+                                <td>Resource Adjustment</td>
+                                <td>Scheduled additions/upgrades</td>
+                                <td>Dynamic add/remove operations</td>
+                            </tr>
+                            <tr>
+                                <td>Primary Objective</td>
+                                <td>Accommodate growth trajectory</td>
+                                <td>Optimize cost and performance</td>
+                            </tr>
+                            <tr>
+                                <td>Implementation Complexity</td>
+                                <td>Requires capacity forecasting</td>
+                                <td>Requires automation configuration</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>AWS Implementation</h3>
+                    <p>AWS provides distinct services for each approach. Scalability typically involves manual
+                        operations like upgrading EC2 instance types or adding instances to load balancer target groups
+                        based on projected needs.</p>
+                    <p>Elasticity leverages AWS Auto Scaling, which automatically adjusts EC2 fleet size based on
+                        CloudWatch metrics such as CPU utilization, network throughput, or custom application metrics.
+                    </p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="scaling-types">📐 Vertical and Horizontal Scaling</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Vertical Scaling Architecture</h3>
+                    <p>Vertical scaling (scale-up/scale-down) involves modifying individual resource specifications. For
+                        EC2 instances, this means changing instance types to adjust CPU cores, memory allocation, or
+                        network bandwidth.</p>
+                    <div class="info-box">
+                        <p><strong>Technical Constraint:</strong> Vertical scaling encounters hard limits defined by
+                            maximum available instance sizes. For example, the largest EC2 instances provide specific
+                            CPU and memory ceilings that cannot be exceeded through vertical scaling alone.</p>
+                    </div>
+                    <p>Implementation typically requires instance stop-modify-start cycles, introducing temporary
+                        downtime unless using specialized features like hot instance type changes (limited
+                        availability).</p>
+                    <h3>Horizontal Scaling Architecture</h3>
+                    <p>Horizontal scaling (scale-out/scale-in) distributes workload across multiple identical resource
+                        instances. This approach provides theoretically unlimited capacity through instance addition.
+                    </p>
+                    <div class="diagram-container"><img decoding="async" src="images/vertical-horizontal-scaling.png"
+                            alt="Architecture diagram showing vertical scaling as upgrading single server resources versus horizontal scaling as adding multiple servers behind load balancer">
+                        <p class="diagram-caption"><em>Figure 2: Vertical scaling (resource upgrade) vs Horizontal
+                                scaling (instance multiplication)</em></p>
+                    </div>
+                    <p>Critical architectural requirement: applications must support distributed operation. This
+                        necessitates stateless design patterns, external session management, and distributed data
+                        consistency mechanisms.</p>
+                    <h3>Load Balancer Integration</h3>
+                    <p>Horizontal scaling effectiveness depends on proper load distribution. AWS Elastic Load Balancing
+                        distributes incoming traffic across healthy instances while performing continuous health
+                        monitoring.</p>
+                    <p>Health check failures trigger automatic traffic rerouting, providing fault tolerance inherent to
+                        horizontally scaled architectures that vertical scaling cannot match.</p>
+                    <h3>Scaling Strategy Selection</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Factor</th>
+                                <th>Vertical Scaling</th>
+                                <th>Horizontal Scaling</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Maximum Capacity</td>
+                                <td>Limited by instance size</td>
+                                <td>Virtually unlimited</td>
+                            </tr>
+                            <tr>
+                                <td>Fault Tolerance</td>
+                                <td>Single point of failure</td>
+                                <td>Distributed redundancy</td>
+                            </tr>
+                            <tr>
+                                <td>Downtime</td>
+                                <td>Required for changes</td>
+                                <td>Zero-downtime scaling</td>
+                            </tr>
+                            <tr>
+                                <td>Application Requirements</td>
+                                <td>Monolithic compatible</td>
+                                <td>Requires distributed design</td>
+                            </tr>
+                            <tr>
+                                <td>Cost Model</td>
+                                <td>Pay for peak capacity</td>
+                                <td>Pay for actual utilization</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Practical Implementation</h3>
+                    <p>Database servers commonly use vertical scaling due to transaction consistency requirements and
+                        connection pool limitations. Web application tiers typically employ horizontal scaling behind
+                        load balancers for linear scalability.</p>
+                    <p>Modern architectures often combine both approaches: vertical scaling for stateful components like
+                        databases, horizontal scaling for stateless components like API servers and web frontends.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="aws-infrastructure">🌍 AWS Global Infrastructure</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Infrastructure Overview</h3>
+                    <p>AWS operates a globally distributed infrastructure designed for high availability, low latency,
+                        and regulatory compliance. The architecture consists of hierarchical components serving
+                        different purposes in the service delivery chain.</p>
+                    <div class="diagram-container"><img decoding="async" src="images/aws-infrastructure-hierarchy.png"
+                            alt="Hierarchical diagram showing AWS infrastructure layers from global level down through regions, availability zones, to edge locations">
+                        <p class="diagram-caption"><em>Figure 3: AWS Global Infrastructure hierarchy and component
+                                relationships</em></p>
+                    </div>
+                    <h3>Design Principles</h3>
+                    <p>The infrastructure architecture follows several key principles: geographic isolation for fault
+                        tolerance, redundancy at every layer, high-bandwidth private connectivity between components,
+                        and compliance with data sovereignty requirements through regional data residency.</p>
+                    <p>Each infrastructure tier serves specific technical and regulatory purposes, from global content
+                        delivery to localized compute resources meeting jurisdiction-specific compliance mandates.</p>
+                    <h3>Amazon Web Services Context</h3>
+                    <p>AWS evolved from Amazon's internal infrastructure built to handle massive e-commerce scale.
+                        Launched publicly in 2006 with S3 and EC2, it has expanded to over 200 services across
+                        computing, storage, databases, analytics, machine learning, and more.</p>
+                    <p>The pay-as-you-go pricing model eliminates capital expenditure for hardware, converting IT
+                        infrastructure to operational expense with granular per-hour or per-second billing.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="regions-azs">🗺️ Regions and Availability Zones</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>AWS Regions</h3>
+                    <p>A Region represents an independent geographic area containing multiple physically separated data
+                        center clusters. Each Region operates autonomously with dedicated power, cooling, and network
+                        infrastructure.</p>
+                    <p>Regional isolation provides fault containment - failures in one Region do not cascade to others.
+                        This also enables data residency compliance where regulations mandate data remain within
+                        specific geographic boundaries.</p>
+                    <div class="info-box">
+                        <p><strong>Regional Independence:</strong> Regions do not automatically replicate data or
+                            services. Cross-region connectivity and replication must be explicitly configured using
+                            services like S3 Cross-Region Replication or database read replicas.</p>
+                    </div>
+                    <h3>Availability Zones (AZs)</h3>
+                    <p>Availability Zones are distinct data center facilities within a Region. Each AZ maintains
+                        independent power sources (utility feeds and backup generators), cooling systems, and network
+                        connectivity to prevent common failure modes.</p>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/region-az-architecture.png"
+                            alt="Detailed architecture showing AWS Region containing multiple Availability Zones with independent power and networking, connected via low-latency links">
+                        <p class="diagram-caption"><em>Figure 4: AWS Region architecture with multiple isolated
+                                Availability Zones</em></p>
+                    </div>
+                    <p>AZs within a Region connect via redundant, high-bandwidth, low-latency private network links.
+                        This enables synchronous replication for databases and coordinated operations across AZs while
+                        maintaining isolation from failures.</p>
+                    <h3>High Availability Architecture</h3>
+                    <p>Production architectures deploy resources across multiple AZs within a Region. Load balancers
+                        distribute traffic, Auto Scaling groups span AZs, and databases replicate synchronously between
+                        AZs.</p>
+                    <p>This multi-AZ deployment protects against single data center failures while maintaining low
+                        latency between components through intra-region networking (typical single-digit millisecond
+                        latency).</p>
+                    <h3>AZ Naming and Selection</h3>
+                    <p>AZ identifiers like us-east-1a are account-specific mappings to physical zones. This prevents all
+                        customers from concentrating resources in the same physical facilities, balancing load across
+                        available zones.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="edge-services">📡 Edge Locations and CDN Services</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Edge Location Purpose</h3>
+                    <p>Edge locations are globally distributed points of presence optimized for content caching and
+                        delivery. Unlike Regions which host full service portfolios, edge locations serve specific
+                        latency-sensitive use cases.</p>
+                    <p>AWS operates hundreds of edge locations worldwide, positioned in major metropolitan areas to
+                        minimize distance between users and content. This reduces latency and improves throughput for
+                        content delivery.</p>
+                    <h3>CloudFront CDN</h3>
+                    <p>Amazon CloudFront leverages edge locations to cache and serve static content (images, videos,
+                        CSS, JavaScript) and dynamic API responses. Content originates from S3 buckets or custom origin
+                        servers, then caches at edges near users.</p>
+                    <div class="diagram-container"><img loading="lazy" decoding="async" src="images/cloudfront-edge-delivery.png"
+                            alt="Network diagram showing CloudFront edge locations caching content from origin servers and serving users with reduced latency">
+                        <p class="diagram-caption"><em>Figure 5: CloudFront edge location content delivery reducing
+                                origin load and user latency</em></p>
+                    </div>
+                    <p>Cache behavior configuration controls what content caches, for how long, and invalidation
+                        policies. Edge locations automatically route requests to the nearest available location based on
+                        network topology.</p>
+                    <h3>Additional Edge Services</h3>
+                    <p>AWS Global Accelerator uses edge locations as entry points for TCP/UDP traffic, routing
+                        connections over AWS's private network backbone to application endpoints. This improves
+                        performance and availability for non-HTTP workloads.</p>
+                    <p>Lambda@Edge executes serverless functions at edge locations, enabling request/response
+                        manipulation, A/B testing, and personalization without origin server interaction.</p>
+                    <h3>Local and Wavelength Zones</h3>
+                    <p>Local Zones extend AWS infrastructure into specific metropolitan areas, providing single-digit
+                        millisecond latency for users in those cities. They offer subset of services like EC2, EBS, and
+                        VPC for latency-critical applications.</p>
+                    <p>Wavelength Zones deploy AWS compute and storage at telecommunications provider 5G network edges,
+                        enabling ultra-low-latency applications for mobile devices (sub-10ms latency).</p>
+                    <h3>AWS Outposts</h3>
+                    <p>Outposts delivers AWS infrastructure to customer on-premises data centers. Fully managed racks
+                        running native AWS services enable hybrid architectures where some workloads must remain
+                        on-premises for latency, data residency, or legacy integration reasons.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="connectivity">🔗 Infrastructure Connectivity</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>Intra-Region Connectivity</h3>
+                    <p>Availability Zones within a Region interconnect via redundant, dedicated fiber optic links
+                        providing high bandwidth (100+ Gbps) and low latency (typically sub-millisecond). This private
+                        network enables synchronous database replication and coordinated service operations.</p>
+                    <p>Traffic between AZs remains on AWS's private network, isolated from the public internet. This
+                        provides security, predictable performance, and free data transfer (no charges for AZ-to-AZ
+                        traffic within same Region).</p>
+                    <h3>Inter-Region Connectivity</h3>
+                    <p>Regions operate independently without default connectivity. Cross-region communication requires
+                        explicit configuration through services like VPC peering, Transit Gateway, or service-specific
+                        replication features.</p>
+                    <div class="info-box">
+                        <p><strong>Latency Considerations:</strong> Inter-region latency depends on geographic distance.
+                            US East to US West typically shows 60-80ms latency, while US to Asia-Pacific can exceed
+                            150-200ms. This impacts synchronous replication feasibility.</p>
+                    </div>
+                    <p>Data transfer between Regions incurs charges and crosses public internet or AWS backbone based on
+                        service. S3 Cross-Region Replication uses AWS's private network for improved security and
+                        performance.</p>
+                    <h3>Global Service Architecture</h3>
+                    <p>Certain AWS services operate globally rather than regionally. Route 53 (DNS) provides global
+                        endpoint resolution, IAM operates across all Regions with eventual consistency, and CloudFront
+                        edge locations form a global network.</p>
+                    <p>These services enable multi-region architectures where applications span multiple Regions for
+                        disaster recovery or geographic distribution while maintaining unified management.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="summary">📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Key concepts covered in this overview:</p>
+                    <ul>
+                        <li><strong>Scalability vs Elasticity:</strong> Scalability handles planned growth through
+                            manual resource additions, while elasticity automatically adjusts resources in real-time
+                            based on current demand metrics.</li>
+                        <li><strong>Vertical Scaling:</strong> Upgrading individual instance resources (CPU, RAM) has
+                            physical limits and may require downtime but works with monolithic applications.</li>
+                        <li><strong>Horizontal Scaling:</strong> Adding more instances provides unlimited capacity and
+                            fault tolerance but requires distributed application architecture and load balancing.</li>
+                        <li><strong>AWS Regions:</strong> Geographically isolated areas containing multiple Availability
+                            Zones, enabling data residency compliance and fault containment.</li>
+                        <li><strong>Availability Zones:</strong> Physically separated data centers within Regions,
+                            connected by low-latency links, enabling high availability through multi-AZ deployments.
+                        </li>
+                        <li><strong>Edge Locations:</strong> Global points of presence for content caching and delivery,
+                            reducing latency for users through services like CloudFront CDN.</li>
+                        <li><strong>Infrastructure Connectivity:</strong> High-bandwidth private links within Regions,
+                            isolated Regions requiring explicit cross-region connectivity, and global services operating
+                            across all Regions.</li>
+                        <li><strong>Specialized Infrastructure:</strong> Local Zones for metro-area latency, Wavelength
+                            Zones for 5G edge computing, and Outposts for on-premises AWS infrastructure.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="references">🔗 Links & References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3>📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/autoscaling/" target="_blank"
+                                        rel="noopener noreferrer">AWS Auto Scaling Documentation</a></td>
+                                <td>Comprehensive guide to implementing elasticity</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"
+                                        rel="noopener noreferrer">AWS Global Infrastructure</a></td>
+                                <td>Current Region and AZ availability</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html"
+                                        target="_blank" rel="noopener noreferrer">Regions and Availability Zones</a>
+                                </td>
+                                <td>Technical details on Region/AZ architecture</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/"
+                                        target="_blank" rel="noopener noreferrer">CloudFront Developer Guide</a></td>
+                                <td>CDN and edge location services</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🎓 Learning Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/architecture/well-architected/" target="_blank"
+                                        rel="noopener noreferrer">AWS Well-Architected Framework</a></td>
+                                <td>Best practices for scalable architectures</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/training/" target="_blank"
+                                        rel="noopener noreferrer">AWS Training and Certification</a></td>
+                                <td>Official courses on infrastructure design</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/blogs/architecture/" target="_blank"
+                                        rel="noopener noreferrer">AWS Architecture Blog</a></td>
+                                <td>Real-world architecture patterns</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>🔧 Additional Tools</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://calculator.aws/" target="_blank" rel="noopener noreferrer">AWS
+                                        Pricing Calculator</a></td>
+                                <td>Estimate costs for scaled architectures</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/premiumsupport/technology/trusted-advisor/"
+                                        target="_blank" rel="noopener noreferrer">AWS Trusted Advisor</a></td>
+                                <td>Recommendations for optimization</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://status.aws.amazon.com/" target="_blank"
+                                        rel="noopener noreferrer">AWS Service Health Dashboard</a></td>
+                                <td>Real-time infrastructure status</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">Scalability</span><span
+                class="tag">Infrastructure</span><span class="tag">Architecture</span></div>
+    </div>
+    
+    
+    <script defer src="../../../js/notes-template.js?v=1.0"></script>
+    
+    
+</body>
+
+</html>
