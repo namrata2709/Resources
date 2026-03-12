@@ -1,0 +1,256 @@
+{
+  "questions": [
+    {
+      "id": 0,
+      "question": "📊 Knowledge Reference — EFS vs EBS vs S3: How do you decide which AWS storage service to use?",
+      "answer": "The one-sentence rule: Multiple EC2 instances sharing the same files simultaneously → EFS. One instance needing fast local block storage → EBS. Global object storage or backups → S3.\n\nEFS: File system (NFSv4.1 / TCP 2049) | Concurrent access by thousands of EC2s | Low latency 1–10ms | Auto-elastic capacity | Regional multi-AZ | Best for: shared app files, web content, home directories.\n\nEBS: Block storage | One EC2 at a time | Sub-millisecond latency | Manual resize | Single AZ | Best for: boot volumes, databases, low-latency I/O.\n\nS3: Object storage (HTTPS REST API) | Any service globally | Variable latency | Unlimited auto-scale | Regional multi-AZ | Best for: backups, static assets, data lakes.\n\nCommon interview trap: 'Can I use EFS for my database?' — Technically yes, never should. Databases need sub-ms block I/O. EFS network latency compounds with thousands of random reads per second. Always use EBS (io2/gp3) for databases.\n\nWhen asked 'which storage?' ask: (1) How many resources need access? (2) File system semantics or API access? (3) Low latency or high concurrency?",
+      "difficulty": "fundamental",
+      "category": "knowledge-reference"
+    },
+    {
+      "id": 1,
+      "question": "What is Amazon EFS and what problem does it solve?",
+      "answer": "Amazon EFS (Elastic File System) is a fully managed, serverless, elastic NFS file system. It solves the shared storage problem — when multiple EC2 instances all need to read and write the same files simultaneously, EBS can't do this (one instance at a time), but EFS allows thousands of instances to mount and access the same file system concurrently using the NFSv4.1 protocol on TCP port 2049.",
+      "difficulty": "fundamental",
+      "category": "concepts"
+    },
+    {
+      "id": 2,
+      "question": "What protocol does EFS use and what port must be open?",
+      "answer": "EFS uses NFSv4.1 — Network File System version 4.1. This protocol operates over TCP port 2049. The security group attached to EFS mount targets must have an inbound rule allowing TCP 2049 from the EC2 instances that need access.",
+      "difficulty": "fundamental",
+      "category": "concepts"
+    },
+    {
+      "id": 3,
+      "question": "What is an EFS mount target and why does each AZ have one?",
+      "answer": "A mount target is an Elastic Network Interface (ENI) in a specific subnet/AZ that provides the network connection point for EC2 instances to access EFS. Each AZ gets its own mount target so instances connect locally within their AZ — minimizing cross-AZ network latency. If one AZ goes down, instances in other AZs continue operating through their own mount targets. It also provides high availability since EFS Standard replicates data across all AZs.",
+      "difficulty": "fundamental",
+      "category": "concepts"
+    },
+    {
+      "id": 4,
+      "question": "Why does EFS show 8 exabytes in df -hT? Is that the actual size?",
+      "answer": "No — 8 exabytes is not the actual provisioned size. EFS is elastic with no fixed size limit. Linux requires a number to display, so EFS reports its theoretical maximum (8E). In reality, the file system grows as you add files and shrinks as you delete them. You're billed only for what you actually store — not for the 8E shown in df.",
+      "difficulty": "fundamental",
+      "category": "concepts"
+    },
+    {
+      "id": 5,
+      "question": "Explain the security group chaining pattern used for EFS.",
+      "answer": "EFS uses two linked security groups. The EFSClient SG is attached to EC2 instances. The EFS Mount Target SG is attached to the mount targets, with one inbound rule: NFS (TCP 2049) from the EFSClient SG ID (not an IP range). This means any EC2 instance belonging to EFSClient is automatically authorized to connect to EFS, regardless of its IP address. This is essential for auto-scaling environments where instance IPs change constantly.",
+      "difficulty": "fundamental",
+      "category": "concepts"
+    },
+    {
+      "id": 6,
+      "question": "What is the difference between mounting EFS with the NFS client vs the EFS helper?",
+      "answer": "Both use NFSv4.1 underneath, but the experience differs. The NFS client requires a long command with many options (rsize, wsize, timeo, retrans, noresvport, etc.). The EFS helper (amazon-efs-utils) abstracts all of this into 'sudo mount -t efs fs-XXXX:/ /efs'. The key addition is TLS encryption — the helper runs a local stunnel proxy, which is why df shows 127.0.0.1 as the source instead of the EFS DNS name.",
+      "difficulty": "fundamental",
+      "category": "concepts"
+    },
+    {
+      "id": 7,
+      "question": "What are burst credits in EFS and why do they matter?",
+      "answer": "Burst credits allow EFS file systems to temporarily exceed their baseline throughput. Credits accumulate when I/O is below baseline (50 MiB/s per TiB stored) and deplete when bursting. New file systems start with a bank of credits. When credits run out, throughput drops to baseline until they replenish (overnight typically). This is why running the same fio benchmark twice gives dramatically different results — the first run depletes credits, throttling the second.",
+      "difficulty": "fundamental",
+      "category": "concepts"
+    },
+    {
+      "id": 8,
+      "question": "Why must you wait 3–5 minutes after installing amazon-efs-utils before mounting EFS?",
+      "answer": "The package installs quickly, but 'installed' doesn't mean 'running.' The NFS protocol daemons (background services) need additional time to fully initialize and start accepting connections. If you try to mount before they're ready, you get NFS initialization errors that can be difficult to recover from without a reboot. The safest practice: install the packages, go do the console tasks (creating SG and EFS file system — which takes ~3 minutes anyway), then mount.",
+      "difficulty": "fundamental",
+      "category": "concepts"
+    },
+    {
+      "id": 9,
+      "question": "How does EFS compare to EBS for database workloads?",
+      "answer": "EBS is almost always better for databases. Databases need sub-millisecond latency and consistent, low-latency block I/O — EBS provides this with direct block-level access. EFS is a network file system with higher latency (single-digit ms) and is designed for file sharing, not database I/O patterns. Use EBS (io2 or gp3) for databases; use EFS when multiple instances need to share the same files simultaneously.",
+      "difficulty": "fundamental",
+      "category": "concepts"
+    },
+    {
+      "id": 10,
+      "question": "What is the noisy neighbor problem and how does it affect EFS performance?",
+      "answer": "EFS runs on shared physical infrastructure in a multi-tenant data center. AWS implements fairness controls to prevent any one customer from consuming disproportionate resources. When other tenants are doing heavy I/O on the same physical hardware as your workload, your performance may be throttled — even if you haven't hit your EFS burst credit limit. This is more noticeable on small instances (t2/t3.micro) which share hardware more densely. The fix is to wait between I/O tests or use larger instances.",
+      "difficulty": "fundamental",
+      "category": "concepts"
+    },
+    {
+      "id": 11,
+      "question": "Tell me about a situation where EFS performance was inconsistent and how you diagnosed it. (Use the lab scenario)",
+      "answer": "(Situation) During a lab session, a fio benchmark writing a 10GB file to EFS completed in 85 seconds on the first run but took much longer on the second identical run. (Task) Needed to diagnose why identical operations produced wildly different results. (Action) Investigated EFS burst credit behavior — first run consumed accumulated burst credits, enabling 100+ MiB/s throughput. Second run hit depleted credits plus multi-tenant fairness throttling, limiting throughput to baseline. Confirmed this by checking BurstCreditBalance in CloudWatch, which showed near-zero after the first test. Also noted time-of-day effects — more concurrent users means more noisy neighbor throttling. (Result) Recommendation: wait 5–10 minutes between performance tests, use Elastic or Provisioned throughput mode for consistent benchmark results, and schedule intensive I/O operations during off-peak hours.",
+      "difficulty": "application",
+      "category": "scenarios"
+    },
+    {
+      "id": 12,
+      "question": "A developer reports that every time an EC2 instance reboots, the EFS mount is gone and they have to manually remount. How do you fix this permanently?",
+      "answer": "(Situation) EFS mount is temporary — survives until reboot only. (Task) Make the mount persistent across reboots. (Action) Edit /etc/fstab: 'sudo nano /etc/fstab' and add: 'fs-XXXXXXXX:/ /efs nfs4 defaults,_netdev 0 0'. The _netdev option is critical — it tells the Linux boot process to wait for network initialization before mounting EFS (without it, the system tries to mount before DNS is available, causing boot failures). Test with 'sudo mount -a' to verify the fstab entry works without rebooting. (Result) EFS automatically mounts on every reboot, and _netdev prevents boot hangs if EFS is temporarily unreachable.",
+      "difficulty": "application",
+      "category": "scenarios"
+    },
+    {
+      "id": 13,
+      "question": "You get a call that an auto-scaling web application lost access to user-uploaded files after scaling out. Instances existed, EFS existed, but new instances couldn't read the files. What went wrong?",
+      "answer": "(Situation) New instances from auto-scaling can't access EFS files. (Task) Restore shared file access across all instances. (Action) Investigated the launch template/user data for new instances — found that the EFS mount command was not included in the instance startup script. New instances launch 'clean' and need to mount EFS as part of their initialization. Also verified the new instances had the EFSClient security group attached (required for SG chaining to work). (Result) Fixed by adding the EFS mount command to the Auto Scaling launch template user data script, ensuring every new instance automatically mounts EFS on startup. Also added /etc/fstab entry for persistence after instance restarts.",
+      "difficulty": "application",
+      "category": "scenarios"
+    },
+    {
+      "id": 14,
+      "question": "Walk me through exactly how you would set up EFS for a new application from scratch.",
+      "answer": "(Situation) New shared storage needed for multi-instance application. (Task) Provision EFS end-to-end. (Action) Step 1 — Create security group 'EFS-Mount-Target' in the application VPC with inbound NFS (TCP 2049) from the EC2 application SG. Step 2 — Create EFS file system: name it, select the VPC, disable automatic backups (for this use case), set lifecycle policy, remove default SG from mount targets and replace with EFS-Mount-Target SG. Wait for mount targets to show Available (~3 min). Step 3 — On EC2 instances: install amazon-efs-utils, wait 3–5 minutes, create mount directory, mount using command from EFS Attach panel. Step 4 — Fix permissions if needed: sudo chown ec2-user:ec2-user /efs. Step 5 — Add /etc/fstab entry for persistence. Step 6 — Verify with df -hT. Step 7 — Test writes from multiple instances to confirm sharing works. (Result) Fully operational shared EFS accessible by all application instances.",
+      "difficulty": "application",
+      "category": "scenarios"
+    },
+    {
+      "id": 15,
+      "question": "Explain how you would calculate actual EFS write throughput from CloudWatch metrics.",
+      "answer": "(Situation) Need to verify EFS throughput after a performance test. (Task) Calculate MB/s from raw CloudWatch data. (Action) In CloudWatch: navigate to Metrics → EFS → File System Metrics → select DataWriteIOBytes. In Graphed metrics tab, set Statistic = Sum, Period = 1 Minute. Hover over the peak data point (e.g., 5.99G). Calculation: 5.99 GB ÷ 60 seconds = 99.8 MB/s effective write throughput. Compare this to PermittedThroughput to see how close to the limit the workload ran. (Result) 5.99GB/min ÷ 60 ≈ 100 MB/s — consistent with expected burst throughput of ~105 MiB/s (the 2017 cap). Modern EFS may show much higher values.",
+      "difficulty": "application",
+      "category": "scenarios"
+    },
+    {
+      "id": 16,
+      "question": "A security team requires all EFS data to be encrypted both at rest and in transit. How do you implement this?",
+      "answer": "(Situation) Compliance requirement for dual encryption. (Task) Enable both at-rest and in-transit encryption. (Action) At-rest encryption: Enable KMS encryption when creating the EFS file system (check 'Enable encryption of data at rest' and select a KMS key). This cannot be enabled after creation. In-transit encryption: Use the EFS helper to mount with TLS: 'sudo mount -t efs -o tls fs-XXXX:/ /efs'. The -o tls flag tells the EFS helper to use stunnel for TLS wrapping. Alternatively, enforce TLS at the EFS resource policy level. (Result) Both encryption requirements met: KMS handles at-rest, stunnel/TLS handles in-transit. The combination satisfies most compliance frameworks (PCI-DSS, HIPAA, SOC2).",
+      "difficulty": "application",
+      "category": "scenarios"
+    },
+    {
+      "id": 17,
+      "question": "Your EFS file system's throughput keeps dropping to very low levels during business hours. How do you diagnose and fix this?",
+      "answer": "(Situation) Throughput degradation during business hours — a burst credit issue. (Task) Identify cause and implement a durable fix. (Action) Check BurstCreditBalance in CloudWatch — if it drops to near zero by midday, burst credits are depleted by business-hours I/O and don't fully replenish overnight. Check DataWriteIOBytes to understand baseline vs burst usage patterns. Options: (1) Add more data to EFS — larger file system = higher baseline and faster credit accumulation. (2) Switch to Provisioned throughput mode — set a fixed throughput level. (3) Switch to Elastic throughput mode — auto-scales, no credit system. (4) Use EFS-IA lifecycle management to reduce the effective storage cost while maintaining access. (Result) For consistent daytime throughput, Elastic throughput mode is the most operationally simple fix.",
+      "difficulty": "application",
+      "category": "scenarios"
+    },
+    {
+      "id": 18,
+      "question": "You try to mount EFS and the command hangs with no output. What steps do you take?",
+      "answer": "(Situation) Mount command hangs indefinitely. (Task) Diagnose and resolve without losing work. (Action) Press Ctrl+C to cancel. Check: (1) Was the mount command obtained from EFS → Attach (not copied from lab instructions which have placeholder IDs)? (2) Does the mount target SG have inbound NFS (TCP 2049) from the EC2 SG? This is the #1 cause. (3) Was there enough wait time after package installation (3–5 min)? (4) Is the EC2 instance in the same VPC as EFS? (5) Are mount targets showing 'Available' status (not still creating)? Fix whichever is wrong. If SG was the issue: fix it, wait a moment, retry mount. If package timing issue: sudo reboot, reconnect, retry. (Result) Usually resolved by fixing the mount target security group — this is the most common cause of hanging mount commands.",
+      "difficulty": "application",
+      "category": "scenarios"
+    },
+    {
+      "id": 19,
+      "question": "How would you share a single dataset among 200 concurrent EC2 instances processing it in parallel?",
+      "answer": "(Situation) 200 instances need shared read access to the same large dataset. (Task) Design the storage architecture. (Action) Use EFS with Max I/O performance mode — designed for high-concurrency, high-aggregate-throughput workloads. Mount EFS on all 200 instances to the same mount point. For the data processing job, have instances read their portions in parallel. Use Elastic or Provisioned throughput mode to ensure consistent throughput isn't limited by burst credits. Enable CloudWatch monitoring on DataReadIOBytes and ClientConnections to observe behavior. If the dataset is static (read-only), consider whether S3 with AWS SDK might be more cost-effective for pure reads. (Result) EFS Max I/O handles thousands of concurrent connections — 200 instances is well within its design parameters.",
+      "difficulty": "application",
+      "category": "scenarios"
+    },
+    {
+      "id": 20,
+      "question": "An EC2 instance writes a file to EFS. A second EC2 instance immediately tries to read it but gets a 'file not found' error. What could cause this?",
+      "answer": "(Situation) Inconsistent file visibility between instances on shared EFS. (Task) Diagnose the consistency model issue. (Action) Check: (1) Are both instances mounting the same EFS file system (same fs-XXXXX ID)? (2) Are both instances connected to mount targets in the same region/VPC? (3) EFS uses a 'close-to-open' consistency model — data written by one client may not be immediately visible to another until the writing client closes the file. If the writer still has the file open with a buffer not yet flushed, the second instance sees an older version or nothing. Fix: ensure the writer fully closes/flushes the file before the reader attempts access. Use fsync() to force flush in application code. (Result) EFS is not designed for sub-second cross-client consistency. For applications requiring strict consistency, architect around EFS's close-to-open model.",
+      "difficulty": "application",
+      "category": "scenarios"
+    },
+    {
+      "id": 21,
+      "question": "Compare EFS vs S3 for storing large media files that are uploaded once and served many times. Which is better and why?",
+      "answer": "Architecture analysis: S3 is typically better for this specific use case. Reasons: (1) S3 cost per GB is ~80-90% lower than EFS Standard. For large media files stored long-term, this difference is significant. (2) S3 has a global CDN (CloudFront) integration for edge delivery. (3) S3 pre-signed URLs allow secure direct client downloads without EC2 involvement. (4) EFS is better if: files must be accessed via POSIX file system semantics (open/read/write syscalls), existing application code expects file system paths, or files need frequent random-access reads from EC2. (Result) For media delivery: S3 + CloudFront. For app-tier file access where instances need to process files as local files: EFS.",
+      "difficulty": "advanced",
+      "category": "architecture"
+    },
+    {
+      "id": 22,
+      "question": "Design a highly available WordPress deployment on AWS using EFS for the shared web content.",
+      "answer": "Architecture: (1) VPC with public and private subnets across 2+ AZs. (2) Application Load Balancer (ALB) in public subnets routing to EC2 instances. (3) Auto Scaling Group of EC2 instances (WordPress) in private subnets across multiple AZs. (4) EFS with mount targets in each AZ, using EFSClient SG chaining. WordPress wp-content/ directory mounted on EFS so all instances share plugins, themes, and uploads. (5) RDS MySQL (Multi-AZ) for the database. (6) ElastiCache for session management. Implementation: Launch template includes user data to install amazon-efs-utils and mount EFS to /var/www/html/wp-content on startup. Result: Any instance can serve any request with the same content. Adding/removing instances via ASG works seamlessly — new instances automatically mount the shared content.",
+      "difficulty": "advanced",
+      "category": "architecture"
+    },
+    {
+      "id": 23,
+      "question": "You need to migrate 50TB of NFS data from an on-premises NAS to Amazon EFS with minimal downtime. What AWS service and approach would you use?",
+      "answer": "Migration approach: (1) Use AWS DataSync — a managed data transfer service designed exactly for NFS-to-EFS migrations. (2) Install a DataSync agent on-premises (as an EC2-like agent or hardware appliance). (3) Create a DataSync task: Source = on-premises NFS share, Destination = Amazon EFS. DataSync handles data transfer over Direct Connect or VPN for secure, accelerated transfer. (4) For minimal downtime: initial full sync (may take days for 50TB), then schedule incremental syncs to keep EFS in sync while on-premises NAS stays active. (5) On cutover day: final DataSync sync, update application config to point to EFS, stop on-premises NAS writes. (6) Verify data integrity using DataSync's built-in verification. Result: DataSync can transfer 10+ Gbps using parallel transfers and automatically handles retries, encryption, and integrity verification.",
+      "difficulty": "advanced",
+      "category": "architecture"
+    },
+    {
+      "id": 24,
+      "question": "Your company's finance team says EFS costs are unexpectedly high despite a small file system (10GB). What would you investigate and how would you optimize?",
+      "answer": "Investigation: (1) Check EFS storage class breakdown — is all data in Standard vs Infrequent Access? (2) Check throughput mode — if using Provisioned Throughput, that's billed per MB/s regardless of usage. (3) Check DataSync or cross-AZ data transfer costs — inter-AZ traffic costs extra. (4) Check if lifecycle management is enabled — it's not default. Optimization steps: (1) Enable lifecycle management to move files not accessed in 30 days to EFS-IA (~85% cheaper per GB). (2) Switch from Provisioned to Elastic throughput if the workload is spiky. (3) Ensure instances are in the same AZ as their mount target to avoid cross-AZ data transfer charges. (4) Review if EFS is the right service — for 10GB of rarely-changed static files, S3 might be more cost-effective. Result: Lifecycle management to EFS-IA alone can cut storage costs by 80%+ for files with irregular access patterns.",
+      "difficulty": "advanced",
+      "category": "architecture"
+    },
+    {
+      "id": 25,
+      "question": "Describe the EFS close-to-open consistency model and how it differs from strong consistency. Give a scenario where this matters.",
+      "answer": "Explanation: EFS uses close-to-open consistency — writes from one client are visible to other clients after the writing client closes the file (or fsync/flush). There is no guarantee of immediate sub-second visibility like a local disk would provide. This differs from strong consistency (where every read immediately sees the most recent write). Scenario where it matters: Two EC2 instances (A and B) process a job queue. Instance A writes a 'job completed' status file to EFS. Instance B polls EFS for that file to start the next job. If B checks while A still has the file open (write buffer unflushed), B may see an empty or old version — leading to a race condition. Fix: (1) Application-level coordination: use SQS or DynamoDB for job status signaling instead of EFS polling. (2) If EFS must be used: call fsync() after writing to force immediate flush, and have readers use atomic file operations. (3) Use EFS Access Points with appropriate locking for concurrent write scenarios.",
+      "difficulty": "advanced",
+      "category": "architecture"
+    },
+    {
+      "id": 26,
+      "question": "You run tcpdump on port 2049 and see dozens of GETATTR operations firing for a single 'ls -la' command. Why does one directory listing generate so many NFS operations?",
+      "answer": "ls -la requires two phases: READDIR to get the list of filenames, then a separate GETATTR call per file to retrieve size, permissions, and timestamps for the long listing format. A directory with 100 files generates 1 READDIR + 100 GETATTR = 101+ NFS operations. This is why EFS latency matters at scale — a slow GETATTR response multiplied by 10,000 files creates significant application latency.",
+      "difficulty": "intermediate",
+      "category": "networking"
+    },
+    {
+      "id": 27,
+      "question": "You use strace to compare writing a file to local /tmp vs EFS. The write() syscall on /tmp completes in 20 microseconds, but the same write() to EFS takes 4 milliseconds. Does this mean your application needs to be rewritten to work with EFS?",
+      "answer": "No. The application uses identical write() syscalls for both — the kernel NFS client intercepts EFS writes and translates them to NFS protocol operations over the network, completely transparently. The latency difference (µs vs ms) is the network round-trip cost. For most web and application workloads this is acceptable. Applications that require microsecond I/O latency (e.g., high-frequency trading, OLTP databases) should use EBS gp3/io2 instead. For shared storage across multiple instances, EFS latency is the expected tradeoff.",
+      "difficulty": "intermediate",
+      "category": "performance"
+    },
+    {
+      "id": 28,
+      "question": "How do you prove that EFS supports POSIX file locking across separate EC2 instances? What command would you use and what behaviour would you expect?",
+      "answer": "Use flock -x /efs/lockfile on Instance 1 with a sleep inside. Simultaneously run flock -x /efs/lockfile on Instance 2. Instance 2 will block silently until Instance 1 releases the lock — then immediately acquire it. This proves advisory locking works cross-instance via NFSv4.1. For non-blocking test, use flock -n: it returns immediately with exit code 1 if locked. This matters for production: databases and CMS platforms relying on flock can run on EFS without modification.",
+      "difficulty": "intermediate",
+      "category": "posix"
+    },
+    {
+      "id": 29,
+      "question": "Explain what an EFS Access Point is and give a concrete example of when you would use one in a containerised application.",
+      "answer": "An Access Point is a named entry into EFS that enforces: (1) a root directory — the app sees / but is physically at /app1 on the real EFS; (2) a POSIX UID/GID — all writes are attributed to that identity regardless of the container's user; (3) automatic directory creation. Use case: an ECS cluster running three microservices (upload service, processing service, archive service) all sharing one EFS. Create one Access Point per service at /uploads, /processing, /archive. Each service mounts only its Access Point and cannot traverse to other services' directories — isolation at the storage layer without OS-level configuration on each container.",
+      "difficulty": "advanced",
+      "category": "security"
+    },
+    {
+      "id": 30,
+      "question": "Your EFS file system is 10GB but you're being charged for much more than you expect. After enabling Lifecycle Management, what would you check to understand the cost breakdown?",
+      "answer": "Run: aws efs describe-file-systems --file-system-id fs-XXXX --query 'FileSystems[0].SizeInBytes'. This returns ValueInIA (bytes in Infrequent Access storage), ValueInStandard (bytes in Standard), and Value (total). Also check: (1) Are there large benchmark or test files left on EFS — fio creates multi-GB files that persist until deleted. (2) Is throughput mode set to Provisioned? That bills for provisioned throughput above what Bursting would provide. (3) Are there DataRead retrieval charges from IA access? Check the AWS Cost Explorer for EFS line items broken down by storage class.",
+      "difficulty": "advanced",
+      "category": "cost"
+    },
+    {
+      "id": 31,
+      "question": "You are migrating a 200GB application data directory from a single EC2 instance to EFS so all instances in an Auto Scaling group can access it. What is your migration strategy and how do you do it with zero downtime?",
+      "answer": "1. Create EFS and mount it on the original instance at /efs-new. 2. rsync -avh --progress /var/app/data/ /efs-new/ — initial full sync (may take 10–30 min for 200GB). 3. Schedule a cron job: rsync -avh /var/app/data/ /efs-new/ every 5 minutes — keeps EFS in sync with changes. 4. Update the launch template to mount EFS at /var/app/data on new instances. 5. During a low-traffic window: run one final rsync, update the original instance's fstab/mount to use EFS, restart the application. 6. Scale the ASG — new instances automatically mount EFS and serve the same data. 7. Stop the cron sync. For 50TB+, use AWS DataSync instead of rsync — it parallelises transfers and has native EFS integration.",
+      "difficulty": "advanced",
+      "category": "migration"
+    },
+    {
+      "id": 32,
+      "question": "Why should you use 'mv' (rename) rather than writing directly to a config file on EFS when pushing updates to a fleet of servers?",
+      "answer": "Writing directly to a live file is not atomic: there is a window where the file contains partial data between the first byte being written and the write completing. Any server that opens the file during this window reads corrupt config. mv (rename) is a single atomic POSIX syscall — it switches the directory entry from old file to new file instantaneously. Readers either get the complete old version or the complete new version, never a partial write. Correct pattern: write new config to /efs/config/app.conf.new, then mv /efs/config/app.conf.new /efs/config/app.conf. The rename is propagated immediately to all instances mounting that EFS path.",
+      "difficulty": "intermediate",
+      "category": "reliability"
+    },
+    {
+      "id": 33,
+      "question": "You inject a failure by running 'sudo iptables -A OUTPUT -p tcp --dport 2049 -j DROP' on an EC2 instance. How does this failure look to an application writing to EFS, and how is it different from a security group block at the VPC layer?",
+      "answer": "Both produce identical symptoms: the write() call hangs indefinitely with no error. The application cannot distinguish between iptables (OS kernel dropping outbound packets), security group (VPC dropping packets at the hypervisor), or a real network failure — all three silently drop the TCP SYN with no RST returned. To distinguish them: use tcpdump. If packets appear in tcpdump but get no reply, the SG or network is blocking (packets left the OS). If no packets appear in tcpdump at all, iptables is blocking before the packet reaches the NIC. Fix iptables: sudo iptables -D OUTPUT -p tcp --dport 2049 -j DROP. Fix SG: EFS console → Network tab → edit mount target SG.",
+      "difficulty": "advanced",
+      "category": "debugging"
+    },
+    {
+      "id": 34,
+      "question": "A colleague says 'inotify is the right tool to trigger a job on Instance B whenever Instance A writes a file to EFS'. Do you agree? What would you recommend instead and why?",
+      "answer": "Partially — inotify works reliably when the watching process and writing process are on the same EC2 instance. For cross-instance notification on NFS, inotify may not fire because the Linux kernel only generates inotify events for local VFS operations — it does not receive kernel events triggered by remote NFS writes. The behaviour depends on kernel version and NFS mount options. The reliable pattern for cross-instance file arrival notification is: Instance A writes file to EFS, then publishes a message to SQS containing the filename. Instance B (or a fleet of workers) polls SQS, receives the message, and processes the file from EFS. This decouples the write event from the processing and scales to any number of consumers.",
+      "difficulty": "advanced",
+      "category": "architecture"
+    },
+    {
+      "id": 35,
+      "question": "Your lab project uses two EC2 instances both serving Apache from EFS. What change in fstab is essential before this pattern can be used in an Auto Scaling Group, and what happens if you omit it?",
+      "answer": "The _netdev option in fstab is essential. Without it: when Auto Scaling launches a new instance, the OS starts up and attempts to mount EFS before the network stack (and therefore the VPC routing to the EFS mount target) is ready. The mount hangs, the instance's init process waits indefinitely, the instance never reaches the 'running' state, and the ALB health check fails. The ASG marks it unhealthy, terminates it, and launches a replacement — which also hangs. This causes a continuous replacement loop with 100% of capacity unavailable. With _netdev: the OS defers the EFS mount until after network interfaces are configured, the mount succeeds, Apache starts, and the instance passes health checks and receives traffic.",
+      "difficulty": "intermediate",
+      "category": "reliability"
+    }
+  ]
+}

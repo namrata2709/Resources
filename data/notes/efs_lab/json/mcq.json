@@ -1,0 +1,964 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "What does EFS stand for and what type of storage does it provide?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "Elastic File System — block storage for a single EC2 instance"
+        },
+        {
+          "letter": "B",
+          "text": "Elastic File System — shared network file storage for multiple EC2 instances simultaneously"
+        },
+        {
+          "letter": "C",
+          "text": "Elastic File Storage — object storage like S3"
+        },
+        {
+          "letter": "D",
+          "text": "Encrypted File System — encrypted block storage"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "basic",
+      "explanation": {
+        "correct": "EFS is Amazon Elastic File System — a fully managed, shared network file system that multiple EC2 instances can mount and access simultaneously using the NFSv4.1 protocol.",
+        "why": "A describes EBS (block, single instance). C is S3 (object storage). D is not an AWS service."
+      }
+    },
+    {
+      "id": 2,
+      "question": "Which protocol does Amazon EFS use, and on which TCP port does it operate?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "iSCSI on port 3260"
+        },
+        {
+          "letter": "B",
+          "text": "SMB on port 445"
+        },
+        {
+          "letter": "C",
+          "text": "NFSv4.1 on port 2049"
+        },
+        {
+          "letter": "D",
+          "text": "FTP on port 21"
+        }
+      ],
+      "correctAnswer": "C",
+      "difficulty": "basic",
+      "explanation": {
+        "correct": "EFS uses the Network File System protocol version 4.1 (NFSv4.1) over TCP port 2049. This is the standard NFS port, and the security group inbound rule must allow TCP 2049.",
+        "why": "iSCSI is used by some SAN storage (not EFS). SMB is Windows file sharing. FTP is an older file transfer protocol."
+      }
+    },
+    {
+      "id": 3,
+      "question": "What is an EFS 'mount target'?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "A directory on the EC2 instance where EFS is mounted"
+        },
+        {
+          "letter": "B",
+          "text": "A network interface in each Availability Zone that provides local access to the EFS file system"
+        },
+        {
+          "letter": "C",
+          "text": "A snapshot of the EFS file system"
+        },
+        {
+          "letter": "D",
+          "text": "A security group rule that allows NFS traffic"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "basic",
+      "explanation": {
+        "correct": "A mount target is an Elastic Network Interface (ENI) created in a subnet of each Availability Zone. EC2 instances connect to the mount target in their AZ, which provides low-latency local access to the shared EFS file system.",
+        "why": "A describes the mount point (directory), not the mount target. C is a backup concept. D describes a security group rule."
+      }
+    },
+    {
+      "id": 4,
+      "question": "When you run 'df -hT' after mounting EFS, you see a size of 8.0E. What does this mean?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "Your EFS file system has 8 exabytes provisioned and you will be billed for all of it"
+        },
+        {
+          "letter": "B",
+          "text": "There is an error — EFS file systems cannot be that large"
+        },
+        {
+          "letter": "C",
+          "text": "EFS is elastic with no fixed size; 8 exabytes is displayed as Linux needs a number, and you pay only for what you store"
+        },
+        {
+          "letter": "D",
+          "text": "Your EC2 instance has 8 exabytes of local storage"
+        }
+      ],
+      "correctAnswer": "C",
+      "difficulty": "basic",
+      "explanation": {
+        "correct": "EFS is elastic — it has no fixed provisioned size. Linux requires a size value to display, so EFS reports 8 exabytes (the theoretical maximum). You are billed only for the data you actually store, not for the 8E displayed.",
+        "why": "A is wrong — you don't pay for 8E. B is wrong — this is expected behavior. D is wrong — EC2 local storage is shown separately."
+      }
+    },
+    {
+      "id": 5,
+      "question": "Which security group inbound rule must the EFS Mount Target security group have?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "HTTP (TCP 80) from 0.0.0.0/0"
+        },
+        {
+          "letter": "B",
+          "text": "SSH (TCP 22) from the EC2 security group"
+        },
+        {
+          "letter": "C",
+          "text": "NFS (TCP 2049) from the EFSClient security group ID"
+        },
+        {
+          "letter": "D",
+          "text": "All traffic from 0.0.0.0/0"
+        }
+      ],
+      "correctAnswer": "C",
+      "difficulty": "basic",
+      "explanation": {
+        "correct": "The EFS Mount Target security group must allow inbound NFS (TCP port 2049) from the security group attached to the EC2 instances (EFSClient). This chaining approach ensures only authorized EC2 instances can connect.",
+        "why": "HTTP is for web traffic. SSH is for management. Allowing all traffic from 0.0.0.0/0 is a major security risk and not required."
+      }
+    },
+    {
+      "id": 6,
+      "question": "What is the key advantage of using the amazon-efs-utils helper over the plain NFS client mount command?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "The EFS helper uses a different protocol that is faster than NFS"
+        },
+        {
+          "letter": "B",
+          "text": "The EFS helper automatically adds TLS encryption and simplifies the mount command, abstracting NFS options"
+        },
+        {
+          "letter": "C",
+          "text": "The EFS helper allows mounting EFS from on-premises servers"
+        },
+        {
+          "letter": "D",
+          "text": "The EFS helper avoids the need for security groups"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "basic",
+      "explanation": {
+        "correct": "The EFS helper (amazon-efs-utils) wraps the NFS client, automatically selects optimal NFS mount options, and adds TLS encryption via a local stunnel proxy. The mount command is simpler: 'sudo mount -t efs fs-XXXX:/ /efs'.",
+        "why": "Both methods use NFSv4.1 underneath (same protocol, same speed). C and D are incorrect."
+      }
+    },
+    {
+      "id": 7,
+      "question": "How many EC2 instances can simultaneously mount and access the same EFS file system?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "Only 1"
+        },
+        {
+          "letter": "B",
+          "text": "Up to 10"
+        },
+        {
+          "letter": "C",
+          "text": "Up to 100"
+        },
+        {
+          "letter": "D",
+          "text": "Thousands — EFS supports massive concurrent access"
+        }
+      ],
+      "correctAnswer": "D",
+      "difficulty": "basic",
+      "explanation": {
+        "correct": "EFS is designed for massive concurrent access — thousands of EC2 instances across multiple Availability Zones can mount and access the same EFS file system simultaneously. This is its defining advantage over EBS.",
+        "why": "EBS allows only one EC2 instance at a time (with limited exceptions for Multi-Attach). EFS has no such restriction."
+      }
+    },
+    {
+      "id": 8,
+      "question": "Why should you wait 3–5 minutes after installing amazon-efs-utils before attempting to mount EFS?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "EFS file systems take 3–5 minutes to create"
+        },
+        {
+          "letter": "B",
+          "text": "The NFS daemons (background services) need time to fully initialize after the package installation"
+        },
+        {
+          "letter": "C",
+          "text": "AWS needs time to authorize your account to use EFS"
+        },
+        {
+          "letter": "D",
+          "text": "The EC2 instance reboots automatically after installation"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "basic",
+      "explanation": {
+        "correct": "Package installation completes quickly, but the underlying NFS protocol daemons and services need additional time to start and initialize. Attempting to mount before they're ready causes NFS errors that require a reboot to fix.",
+        "why": "EFS file system creation is separate (done in the console). Authorization is handled by security groups. EC2 doesn't auto-reboot after yum installs."
+      }
+    },
+    {
+      "id": 9,
+      "question": "What is the 'noisy neighbor problem' in the context of EFS performance?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "EFS doesn't work in urban areas due to network interference"
+        },
+        {
+          "letter": "B",
+          "text": "Multi-tenant fairness controls throttle your EFS throughput when other customers on the same infrastructure are doing heavy I/O"
+        },
+        {
+          "letter": "C",
+          "text": "EC2 instances in the same subnet interfere with each other's NFS connections"
+        },
+        {
+          "letter": "D",
+          "text": "Large EFS file systems slow down smaller ones in the same Region"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "basic",
+      "explanation": {
+        "correct": "EFS is a multi-tenant service running on shared infrastructure. AWS implements fairness controls to prevent any single customer from dominating shared resources. This means your throughput may be throttled — especially on small instances — when other tenants are doing heavy I/O on the same hardware.",
+        "why": "The others are not real phenomena."
+      }
+    },
+    {
+      "id": 10,
+      "question": "Which command verifies that EFS is correctly mounted on your EC2 instance?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "ls -la /efs"
+        },
+        {
+          "letter": "B",
+          "text": "sudo df -hT"
+        },
+        {
+          "letter": "C",
+          "text": "ping efs.amazonaws.com"
+        },
+        {
+          "letter": "D",
+          "text": "aws efs describe-file-systems"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "basic",
+      "explanation": {
+        "correct": "'sudo df -hT' shows all mounted file systems with their types and sizes. After mounting EFS, you should see the EFS DNS name (or 127.0.0.1 with EFS helper) as a mounted filesystem of type nfs4 with 8.0E size.",
+        "why": "ls -la /efs shows directory contents but doesn't confirm it's mounted. ping doesn't test NFS. The AWS CLI command queries the EFS API, not the instance mount state."
+      }
+    },
+    {
+      "id": 11,
+      "question": "You create an EFS file system but leave the default security group on the mount targets instead of attaching your custom EFS Mount Target SG. What happens when you try to mount?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "The mount works normally — security groups don't affect EFS"
+        },
+        {
+          "letter": "B",
+          "text": "The mount command hangs indefinitely with no error message"
+        },
+        {
+          "letter": "C",
+          "text": "You get an immediate 'Access Denied' error"
+        },
+        {
+          "letter": "D",
+          "text": "EFS automatically fixes the security group after a few minutes"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "intermediate",
+      "explanation": {
+        "correct": "The default security group has no NFS (TCP 2049) inbound rule. When EC2 tries to connect to the mount target, the request is silently dropped by the SG. The mount command waits and waits, appearing to hang, until it eventually times out. There's no immediate error.",
+        "why": "Security groups absolutely affect EFS mount targets. C would happen for IAM/permission issues, not SG issues. D never happens."
+      }
+    },
+    {
+      "id": 12,
+      "question": "What is the purpose of the '_netdev' option in the /etc/fstab entry for EFS?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "It enables network encryption for the mount"
+        },
+        {
+          "letter": "B",
+          "text": "It tells Linux to mount EFS using the network device driver instead of NFS"
+        },
+        {
+          "letter": "C",
+          "text": "It instructs Linux to wait for network connectivity before attempting to mount, preventing boot failures"
+        },
+        {
+          "letter": "D",
+          "text": "It limits EFS to one network connection at a time"
+        }
+      ],
+      "correctAnswer": "C",
+      "difficulty": "intermediate",
+      "explanation": {
+        "correct": "Without _netdev, Linux attempts to mount all /etc/fstab entries early in the boot process before the network is ready. Since EFS requires DNS resolution and network access, the mount fails and the boot can hang or fail. _netdev delays EFS mounting until after the network is initialized.",
+        "why": "A is wrong — encryption is handled by the EFS helper. B and D are not real behaviors."
+      }
+    },
+    {
+      "id": 13,
+      "question": "When using the EFS helper, 'df -hT' shows '127.0.0.1' as the filesystem source instead of the EFS DNS name. Why?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "This indicates an error — EFS should always show its DNS name"
+        },
+        {
+          "letter": "B",
+          "text": "The EFS helper runs a local stunnel proxy that intercepts and encrypts NFS traffic before sending it to EFS; the mount shows the proxy's loopback address"
+        },
+        {
+          "letter": "C",
+          "text": "EFS is mounted in a different network namespace"
+        },
+        {
+          "letter": "D",
+          "text": "127.0.0.1 means the EFS data is being cached locally on the EC2 instance"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "intermediate",
+      "explanation": {
+        "correct": "The amazon-efs-utils helper starts a local stunnel proxy process. NFS traffic from the EC2 instance goes to this local proxy (127.0.0.1), which wraps it in TLS encryption before forwarding to the actual EFS mount target. This is why df shows the loopback address.",
+        "why": "A is wrong — this is expected behavior. C and D are incorrect."
+      }
+    },
+    {
+      "id": 14,
+      "question": "EFS burst throughput was capped at 105 MiB/s in 2017 but is now in the gigabytes per second range. What happened?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "EFS was rebuilt on completely different hardware"
+        },
+        {
+          "letter": "B",
+          "text": "AWS increased EFS throughput limits significantly over the years, and the lab's CloudWatch graph now shows different numbers than the instructions"
+        },
+        {
+          "letter": "C",
+          "text": "The increase is only available if you pay for provisioned throughput"
+        },
+        {
+          "letter": "D",
+          "text": "The change only applies to file systems larger than 1 PB"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "intermediate",
+      "explanation": {
+        "correct": "AWS continuously improves service limits. EFS permitted throughput has increased dramatically since 2017 — from 105 MiB/s to potentially 5+ GiB/s for Elastic throughput mode. This is why lab instructions from 2020 show different numbers than what students see today.",
+        "why": "The improvement applies to all EFS file systems with appropriate throughput mode settings, not just large ones or paid tiers."
+      }
+    },
+    {
+      "id": 15,
+      "question": "What CloudWatch metric and statistic combination lets you calculate actual EFS write throughput during a test?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "PermittedThroughput with Average statistic"
+        },
+        {
+          "letter": "B",
+          "text": "DataWriteIOBytes with Sum statistic over 1-minute period, then divide by 60"
+        },
+        {
+          "letter": "C",
+          "text": "BurstCreditBalance with Maximum statistic"
+        },
+        {
+          "letter": "D",
+          "text": "ClientConnections with Sum statistic"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "intermediate",
+      "explanation": {
+        "correct": "DataWriteIOBytes with Sum gives total bytes written in a period. With 1-minute periods, Sum ÷ 60 seconds = bytes per second (actual throughput). For example, if the 1-minute sum is 5.99G bytes, effective throughput ≈ 100 MB/s.",
+        "why": "PermittedThroughput shows maximum allowed throughput, not actual throughput. BurstCreditBalance shows remaining burst capacity. ClientConnections shows connections, not throughput."
+      }
+    },
+    {
+      "id": 16,
+      "question": "You run the fio benchmark twice in a row. First run takes 85 seconds, second run takes 18 minutes with the same 10GB file. What is the most likely cause?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "The EFS file system is full"
+        },
+        {
+          "letter": "B",
+          "text": "The EC2 instance ran out of memory"
+        },
+        {
+          "letter": "C",
+          "text": "Burst credits were consumed by the first run, and multi-tenant fairness controls are throttling the second run"
+        },
+        {
+          "letter": "D",
+          "text": "The second run uses a different EFS file system"
+        }
+      ],
+      "correctAnswer": "C",
+      "difficulty": "intermediate",
+      "explanation": {
+        "correct": "The first run consumed burst credits and also triggered AWS fairness throttling. With credits exhausted, the second run is limited to baseline throughput. Additionally, back-to-back high-I/O operations trigger noisy neighbor throttling. The solution is to wait several minutes between tests.",
+        "why": "EFS doesn't fill up easily (elastic). Memory issues would cause different errors. Same command uses same file system."
+      }
+    },
+    {
+      "id": 17,
+      "question": "Which EFS throughput mode automatically adjusts throughput based on actual workload and is recommended for unpredictable workloads?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "Bursting"
+        },
+        {
+          "letter": "B",
+          "text": "Provisioned"
+        },
+        {
+          "letter": "C",
+          "text": "Elastic"
+        },
+        {
+          "letter": "D",
+          "text": "On-Demand"
+        }
+      ],
+      "correctAnswer": "C",
+      "difficulty": "intermediate",
+      "explanation": {
+        "correct": "Elastic throughput mode automatically scales throughput up and down based on actual I/O activity — up to 3 GiB/s for reads and 1 GiB/s for writes. It's recommended for workloads with unpredictable or spiky traffic patterns. You pay only for what you use.",
+        "why": "Bursting uses credits and has lower limits. Provisioned sets a fixed throughput (billed separately). On-Demand is not an EFS throughput mode."
+      }
+    },
+    {
+      "id": 18,
+      "question": "What happens to your EFS data if the Availability Zone containing your mount target goes down?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "All EFS data is permanently lost"
+        },
+        {
+          "letter": "B",
+          "text": "Data is safe — EFS Standard stores data across all AZs in the Region. Instances in other AZs continue accessing via their mount targets."
+        },
+        {
+          "letter": "C",
+          "text": "EFS automatically switches to a backup region"
+        },
+        {
+          "letter": "D",
+          "text": "The file system is locked until the AZ recovers"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "intermediate",
+      "explanation": {
+        "correct": "EFS Standard storage class replicates data across all AZs in the Region. If one AZ's mount target fails, instances in other AZs continue operating normally through their own mount targets. The failed AZ's instances temporarily lose access, but no data is lost.",
+        "why": "EFS has regional durability built in. There's no cross-region failover (that's EFS Replication). Data is never locked."
+      }
+    },
+    {
+      "id": 19,
+      "question": "Why is security group chaining (referencing an SG ID as the source) preferred over using a CIDR range for EFS access control?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "Security group references are faster to process than CIDR rules"
+        },
+        {
+          "letter": "B",
+          "text": "It automatically includes all instances in the referenced SG regardless of their IP, making it compatible with auto-scaling and dynamic environments"
+        },
+        {
+          "letter": "C",
+          "text": "CIDR ranges cannot be used with NFS rules"
+        },
+        {
+          "letter": "D",
+          "text": "Security group references are required by AWS for EFS"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "intermediate",
+      "explanation": {
+        "correct": "In auto-scaling groups, EC2 instances launch and terminate with changing private IP addresses. A CIDR-based rule would require constant updates. By referencing the EFSClient security group ID, any instance that belongs to that group automatically has NFS access — even brand-new instances that just launched.",
+        "why": "A is false — processing speed is the same. C is false — CIDRs work fine with NFS rules. D is false — CIDRs are technically valid."
+      }
+    },
+    {
+      "id": 20,
+      "question": "An EC2 instance mounts EFS, writes files, then reboots. After rebooting, the files in /efs are gone. What is the most likely cause?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "EFS automatically deletes files after reboot"
+        },
+        {
+          "letter": "B",
+          "text": "The EFS mount was not added to /etc/fstab — it was a temporary mount that doesn't survive reboots"
+        },
+        {
+          "letter": "C",
+          "text": "The EFS file system was deleted during reboot"
+        },
+        {
+          "letter": "D",
+          "text": "EFS uses a volatile storage tier that doesn't persist"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "intermediate",
+      "explanation": {
+        "correct": "A mount command issued in the terminal is temporary. After reboot, Linux only mounts file systems listed in /etc/fstab. Without an fstab entry, the EC2 instance boots without mounting EFS, so /efs appears as an empty local directory. The data is still safely on EFS.",
+        "why": "EFS files persist independently of instance state. The file system isn't deleted. EFS is durable persistent storage."
+      }
+    },
+    {
+      "id": 21,
+      "question": "A company has a web application deployed on an Auto Scaling group of 20 EC2 instances. Users upload profile pictures that must be accessible from all instances. Which storage solution is most appropriate?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "EBS — attach one EBS volume to all 20 instances"
+        },
+        {
+          "letter": "B",
+          "text": "EFS — mount a shared EFS file system on all 20 instances"
+        },
+        {
+          "letter": "C",
+          "text": "Instance store — use local SSD on each instance"
+        },
+        {
+          "letter": "D",
+          "text": "EBS Multi-Attach — attach one io2 volume to all 20 instances"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "advanced",
+      "explanation": {
+        "correct": "EFS is designed exactly for this scenario — shared file access across many EC2 instances simultaneously. All 20 instances mount the same EFS, and any uploaded file is immediately visible to all instances. As the ASG scales, new instances simply mount the existing EFS.",
+        "why": "EBS can only attach to one instance at a time (Multi-Attach has severe limitations — only io2, same AZ, only raw block, not practical for file sharing). Instance store is ephemeral and not shared."
+      }
+    },
+    {
+      "id": 22,
+      "question": "You need to run a big data analytics job that parallelizes across 500 EC2 instances all reading from the same dataset. They need maximum aggregate throughput, and can tolerate slightly higher latency per operation. Which EFS performance mode should you use?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "General Purpose — lowest latency for all workloads"
+        },
+        {
+          "letter": "B",
+          "text": "Max I/O — designed for highly parallel workloads with high aggregate throughput requirements"
+        },
+        {
+          "letter": "C",
+          "text": "Provisioned Throughput — fixed throughput guarantees"
+        },
+        {
+          "letter": "D",
+          "text": "Bursting — all file systems start in bursting mode"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "advanced",
+      "explanation": {
+        "correct": "Max I/O performance mode is specifically designed for highly parallel workloads that need maximum aggregate throughput, like big data analytics, media processing, or genomics. It accepts slightly higher per-operation latency in exchange for enabling much higher total IOPS and throughput across many concurrent clients.",
+        "why": "General Purpose has lower latency but limits on IOPS that Max I/O overcomes. Provisioned Throughput is about throughput mode, not performance mode. Bursting is a throughput mode."
+      }
+    },
+    {
+      "id": 23,
+      "question": "A startup is trying to minimize AWS costs. They have an EFS file system that stores 100GB of data used heavily during business hours but rarely overnight. What configuration helps manage throughput costs?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "Delete and recreate the file system each morning"
+        },
+        {
+          "letter": "B",
+          "text": "Move to Bursting throughput mode and use lifecycle management to move infrequently accessed files to EFS Infrequent Access storage class"
+        },
+        {
+          "letter": "C",
+          "text": "Switch from NFS to SMB protocol"
+        },
+        {
+          "letter": "D",
+          "text": "Use Provisioned throughput with maximum setting"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "advanced",
+      "explanation": {
+        "correct": "Bursting mode incurs no extra throughput charges (included in storage price). EFS lifecycle management automatically moves files that haven't been accessed in a defined period to EFS Infrequent Access (IA) storage class, which costs ~85% less than Standard. This is ideal for spiky, cost-sensitive workloads.",
+        "why": "Deleting/recreating is operationally impractical. SMB is not supported. Provisioned throughput adds cost."
+      }
+    },
+    {
+      "id": 24,
+      "question": "Your team uses EFS for shared application logs across 50 EC2 instances. A security audit requires that all data stored in EFS be encrypted at rest AND in transit. How do you achieve both?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "Enable KMS encryption when creating the EFS file system (at-rest), and use the EFS helper (amazon-efs-utils) with TLS for mounting (in-transit)"
+        },
+        {
+          "letter": "B",
+          "text": "Use HTTPS instead of NFS for file transfers"
+        },
+        {
+          "letter": "C",
+          "text": "Store files as encrypted ZIP archives manually"
+        },
+        {
+          "letter": "D",
+          "text": "Enable encryption by running 'sudo encrypt /efs' on each instance"
+        }
+      ],
+      "correctAnswer": "A",
+      "difficulty": "advanced",
+      "explanation": {
+        "correct": "EFS supports encryption at rest using AWS KMS — enabled during file system creation. For encryption in transit, the amazon-efs-utils helper uses stunnel to wrap NFS traffic in TLS. Both can be combined: create EFS with KMS encryption, and mount using 'sudo mount -t efs -o tls fs-XXXX:/ /efs'.",
+        "why": "HTTPS is not how NFS works. Manual ZIP encryption is impractical. There is no sudo encrypt command in Linux."
+      }
+    },
+    {
+      "id": 25,
+      "question": "An EC2 instance successfully mounted EFS, but when ec2-user tries to create a file in /efs, they get 'Permission denied'. Root can write files successfully. What is the issue?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "EFS does not support non-root users"
+        },
+        {
+          "letter": "B",
+          "text": "The EFS file system is in read-only mode"
+        },
+        {
+          "letter": "C",
+          "text": "The /efs directory (EFS root) is owned by root with restrictive permissions; ec2-user needs ownership changed"
+        },
+        {
+          "letter": "D",
+          "text": "EC2 Instance Connect users cannot write to network file systems"
+        }
+      ],
+      "correctAnswer": "C",
+      "difficulty": "advanced",
+      "explanation": {
+        "correct": "When EFS is first mounted, the root of the EFS file system is owned by root with 755 permissions. Only root can write to it. The fix is: 'sudo chown ec2-user:ec2-user /efs'. Alternatively, create subdirectories with appropriate ownership. EFS supports all standard Linux user/permission models.",
+        "why": "EFS supports all POSIX users. EFS is not read-only by default. EC2 Instance Connect doesn't restrict NFS writes."
+      }
+    },
+    {
+      "id": 26,
+      "question": "What is the BurstCreditBalance CloudWatch metric used for?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "Tracking the number of EC2 instances connected to EFS"
+        },
+        {
+          "letter": "B",
+          "text": "Monitoring remaining burst throughput capacity — when it reaches zero, throughput drops to baseline until credits replenish"
+        },
+        {
+          "letter": "C",
+          "text": "Counting the total bytes stored in EFS"
+        },
+        {
+          "letter": "D",
+          "text": "Measuring network latency between EC2 and EFS"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "advanced",
+      "explanation": {
+        "correct": "BurstCreditBalance represents the remaining burst credits in bytes. File systems accumulate credits when below baseline throughput and use them to burst above baseline. When BurstCreditBalance reaches 0, throughput is capped at baseline (50 MiB/s per TiB). This metric is critical for capacity planning and predicting when a system will be throttled.",
+        "why": "ClientConnections tracks connected instances. Storage is tracked by StorageBytes. Latency has its own separate metrics."
+      }
+    },
+    {
+      "id": 27,
+      "question": "A developer wants to run the same fio test multiple times to get consistent performance data. After the first test, results drop drastically. What is the best practice for reliable benchmarking?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "Use a larger EC2 instance for testing"
+        },
+        {
+          "letter": "B",
+          "text": "Wait 5–10 minutes between tests to allow burst credits to partially replenish and fairness throttling to reset"
+        },
+        {
+          "letter": "C",
+          "text": "Delete and recreate the EFS file system between each test"
+        },
+        {
+          "letter": "D",
+          "text": "Use a different AWS Region for each test"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "advanced",
+      "explanation": {
+        "correct": "Multi-tenant fairness controls and burst credit depletion cause performance to drop after heavy I/O. Waiting allows credits to partially replenish and throttling to reset. For truly consistent benchmarking, use Provisioned or Elastic throughput mode which doesn't depend on credits, and run tests with adequate wait times between them.",
+        "why": "Larger instances help with noisy neighbor effects but don't reset credits. Deleting EFS between tests is destructive and impractical. Different regions have the same throttling mechanisms."
+      }
+    },
+    {
+      "id": 28,
+      "question": "Which storage class should files be moved to if they're not accessed for 30 days, to reduce EFS storage costs?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "EFS Standard — no change needed"
+        },
+        {
+          "letter": "B",
+          "text": "EFS Infrequent Access (EFS-IA) — significantly lower per-GB cost for rarely accessed files"
+        },
+        {
+          "letter": "C",
+          "text": "S3 Standard-IA — move files out of EFS entirely"
+        },
+        {
+          "letter": "D",
+          "text": "EBS Cold HDD (sc1) — for lowest-cost block storage"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "advanced",
+      "explanation": {
+        "correct": "EFS lifecycle management can automatically transition files to EFS Infrequent Access (EFS-IA) storage class after a configured period (7, 14, 30, 60, or 90 days of non-access). EFS-IA costs approximately 85% less than EFS Standard per GB, while still being accessible as part of the same EFS file system namespace.",
+        "why": "Standard doesn't reduce cost. S3 requires application changes to access files differently. EBS sc1 is block storage for a single instance."
+      }
+    },
+    {
+      "id": 29,
+      "question": "Your EFS file system has a mount target in us-east-1a and us-east-1b. An EC2 instance in us-east-1a experiences significantly lower latency to EFS than an instance in us-east-1c (which has no mount target). Why?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "EFS latency is random and not related to AZ placement"
+        },
+        {
+          "letter": "B",
+          "text": "The us-east-1a instance connects to its local mount target in the same AZ, minimizing network hops. The us-east-1c instance must cross AZ boundaries."
+        },
+        {
+          "letter": "C",
+          "text": "us-east-1c instances always have higher latency due to hardware differences"
+        },
+        {
+          "letter": "D",
+          "text": "The us-east-1a instance has a dedicated EFS connection"
+        }
+      ],
+      "correctAnswer": "B",
+      "difficulty": "advanced",
+      "explanation": {
+        "correct": "Mount targets exist in specific AZs' subnets. An EC2 instance in the same AZ as a mount target connects locally with minimal network hops and low latency. An instance in us-east-1c with no mount target in that AZ must route traffic across AZ boundaries to reach the nearest mount target, adding inter-AZ network latency. This is why it's best practice to create mount targets in all AZs.",
+        "why": "EFS latency is very much related to AZ placement. Hardware differences between AZs don't cause consistent latency differences."
+      }
+    },
+    {
+      "id": 30,
+      "question": "A CTO asks: 'Should we use EFS or EBS for our database tier and our shared content repository?' What is the correct recommendation?",
+      "options": [
+        {
+          "letter": "A",
+          "text": "EFS for both — it's newer and more flexible"
+        },
+        {
+          "letter": "B",
+          "text": "EBS for both — it's faster and more reliable"
+        },
+        {
+          "letter": "C",
+          "text": "EBS for the database (low-latency block I/O, single instance) and EFS for the content repository (shared, multi-instance file access)"
+        },
+        {
+          "letter": "D",
+          "text": "S3 for both — it's cheaper"
+        }
+      ],
+      "correctAnswer": "C",
+      "difficulty": "advanced",
+      "explanation": {
+        "correct": "EBS and EFS serve different use cases. Databases need low-latency, consistent block I/O — EBS (especially io2 or gp3) provides sub-millisecond latency attached directly to one EC2 instance. Content repositories need shared access by multiple instances simultaneously — EFS enables this via NFS. Using the right tool for each job optimizes both performance and cost.",
+        "why": "EFS latency is too high for most database workloads. EBS can't be shared across multiple instances for general file sharing. S3 requires API calls and doesn't act as a POSIX file system."
+      }
+    },
+    {
+      "id": 31,
+      "question": "You run 'sudo tcpdump -i any -n port 2049' and see no output even while writing files to EFS. What does this most likely indicate?",
+      "options": [
+        "A) EFS is not mounted",
+        "B) The EFS helper is encrypting traffic — tcpdump cannot read TLS packets on port 2049",
+        "C) tcpdump requires root privileges to capture NFS traffic",
+        "D) The mount is using UDP instead of TCP"
+      ],
+      "correct": "B",
+      "explanation": "When using the EFS helper (mount -t efs), stunnel wraps NFS traffic in TLS. The actual NFS goes to 127.0.0.1 (local stunnel proxy) not to port 2049 externally. tcpdump on port 2049 sees the outbound TLS stream, not readable NFS protocol text. With the plain NFS client mount, tcpdump shows human-readable NFS operations."
+    },
+    {
+      "id": 32,
+      "question": "You run 'flock -x /efs/lockfile -c \"sleep 30\"' on Instance 1. On Instance 2 you immediately run 'flock -x /efs/lockfile -c \"echo got it\"'. What happens on Instance 2?",
+      "options": [
+        "A) Instance 2 immediately prints 'got it' — EFS does not support cross-instance locking",
+        "B) Instance 2 gets an error: 'device or resource busy'",
+        "C) Instance 2 blocks silently and prints 'got it' only after Instance 1's sleep ends",
+        "D) Instance 2 creates a separate lock file and prints 'got it' immediately"
+      ],
+      "correct": "C",
+      "explanation": "EFS is POSIX-compliant and supports NFSv4.1 advisory locking across instances. flock -x requests an exclusive lock — it blocks until the lock is available. Instance 2 waits silently until Instance 1 releases (after 30 seconds), then immediately acquires the lock. This is the correct expected behaviour for cross-instance file locking on EFS."
+    },
+    {
+      "id": 33,
+      "question": "You use strace to trace a file write to EFS. You see 'write(3, \"hello\", 5) = 5 <0.004211>'. The '0.004211' represents what?",
+      "options": [
+        "A) The number of bytes written per second",
+        "B) The time in seconds spent in the write() syscall — which includes the NFS network round-trip",
+        "C) The file descriptor number",
+        "D) The number of NFS retransmissions"
+      ],
+      "correct": "B",
+      "explanation": "With strace -T, the value in angle brackets at the end of each line is the wall-clock time spent inside that syscall, in seconds. For a write() to EFS, this includes the full NFS round-trip: kernel packages the data, sends it over the network to the mount target, waits for acknowledgement, and returns to the application. Local disk write() typically completes in 10–50 microseconds; EFS is 1–10 milliseconds due to network latency."
+    },
+    {
+      "id": 34,
+      "question": "What is the correct pattern for safely updating a configuration file on EFS that is being read by multiple EC2 instances?",
+      "options": [
+        "A) Write the new content directly: echo 'new config' > /efs/config/app.conf",
+        "B) Delete the old file first, then create the new one",
+        "C) Write to a temp file then atomically rename it: write to app.conf.new, then mv app.conf.new app.conf",
+        "D) Use flock to lock the file before writing directly to it"
+      ],
+      "correct": "C",
+      "explanation": "mv (rename) is atomic on POSIX file systems including EFS — it switches the directory entry in a single operation. Readers see either the complete old file or the complete new file, never partial data. Direct writes to a live file create a window where servers could read half-written config. flock would prevent concurrent writers but doesn't help with the partial-write read problem."
+    },
+    {
+      "id": 35,
+      "question": "An EFS Access Point is configured with root directory '/app1' and POSIX user UID=1000, GID=1000. An EC2 instance running as root mounts this access point and writes a file. What UID/GID does the file have?",
+      "options": [
+        "A) UID=0, GID=0 (root, since the instance is running as root)",
+        "B) UID=1000, GID=1000 (enforced by the Access Point regardless of caller identity)",
+        "C) UID=1000, GID=0 (UID from Access Point, GID from caller)",
+        "D) The file inherits the UID/GID of the parent directory"
+      ],
+      "correct": "B",
+      "explanation": "The POSIX user configuration on an EFS Access Point overrides the caller's identity for all writes through that access point. Even a root process sees its writes attributed to UID=1000, GID=1000. This is a core security feature — it prevents privilege escalation and ensures ownership is consistent regardless of what containers or instances are writing to the shared file system."
+    },
+    {
+      "id": 36,
+      "question": "Which of the following is TRUE about inotify on EFS?",
+      "options": [
+        "A) inotify reliably fires on Instance B when Instance A writes a file to EFS",
+        "B) inotify works reliably when watcher and writer are on the same instance, but cross-instance NFS notifications are unreliable",
+        "C) EFS does not support inotify at all — you must use polling",
+        "D) inotify works cross-instance only when using the EFS helper mount method"
+      ],
+      "correct": "B",
+      "explanation": "The Linux inotify subsystem generates events based on local VFS operations. When Instance A writes to EFS, the kernel on Instance A generates inotify events — but the kernel on Instance B does not receive those events, because the write did not occur through Instance B's VFS layer. For reliable cross-instance event delivery, use SQS: Instance A writes file + sends SQS message; Instance B processes SQS message and reads file from EFS."
+    },
+    {
+      "id": 37,
+      "question": "You run rsync twice on the same source directory to EFS. The first run transfers 500 files. What does the second run transfer, assuming no files changed?",
+      "options": [
+        "A) All 500 files again — rsync always does a full copy",
+        "B) Zero files — rsync detects no changes and transfers nothing",
+        "C) Only the metadata for 500 files",
+        "D) A compressed archive of all 500 files"
+      ],
+      "correct": "B",
+      "explanation": "rsync compares source and destination using file size and modification timestamp (by default). If both match, the file is skipped. The second run on an unchanged directory transfers 0 bytes and 0 files, only printing each filename with a skip indicator. This delta sync capability makes rsync suitable for live migrations: initial full sync, then scheduled incremental syncs to catch changes, then final cutover."
+    },
+    {
+      "id": 38,
+      "question": "You block port 2049 with iptables and a running EFS write hangs. After removing the iptables rule, what happens to the hung process?",
+      "options": [
+        "A) It immediately receives an error and exits",
+        "B) It continues hanging until you manually kill it and restart",
+        "C) The NFS client retries automatically — the write recovers and completes within ~60 seconds",
+        "D) The mount is unmounted automatically and must be remounted"
+      ],
+      "correct": "C",
+      "explanation": "EFS mounts use the 'hard' mount option by default. Hard mounts retry indefinitely — the NFS client keeps trying to re-establish the TCP connection to the mount target. Once iptables is removed and the TCP connection can be established again, the NFS client reconnects and the pending write resumes and completes. This is why 'hard' is the correct option for production: it prevents data loss at the cost of hanging (rather than returning an error) when connectivity is lost."
+    },
+    {
+      "id": 39,
+      "question": "Which AWS CLI command shows how much of your EFS data is currently in Standard storage vs Infrequent Access storage?",
+      "options": [
+        "A) aws efs describe-lifecycle-configuration --file-system-id fs-XXXX",
+        "B) aws efs describe-file-systems --file-system-id fs-XXXX --query 'FileSystems[0].SizeInBytes'",
+        "C) aws cloudwatch get-metric-statistics --metric-name StorageBytes",
+        "D) aws efs list-tags-for-resource --resource-id fs-XXXX"
+      ],
+      "correct": "B",
+      "explanation": "The SizeInBytes field in describe-file-systems contains three values: Value (total bytes), ValueInIA (bytes in Infrequent Access storage), and ValueInStandard (bytes in Standard storage). This is the direct way to see your storage class breakdown and calculate your current monthly cost. The lifecycle-configuration command only shows the policy settings, not the actual data distribution."
+    },
+    {
+      "id": 40,
+      "question": "In the Lab Project, Server 1 creates /efs/index.html. Server 2 then runs 'cat /efs/index.html'. Why does Server 2 see the file immediately without any sync or copy operation?",
+      "options": [
+        "A) AWS automatically replicates files between EC2 instances in the same VPC",
+        "B) Both servers mount the same EFS file system — all writes are immediately visible to all mounters",
+        "C) Apache has a built-in file sync mechanism between instances",
+        "D) EFS buffers the write on Server 1 and pushes it to Server 2 in the background"
+      ],
+      "correct": "B",
+      "explanation": "EFS is a shared file system. Both servers connect to the same mount target(s) and access the same underlying storage. When Server 1 writes /efs/index.html, it is written to EFS storage — not to Server 1's local disk. When Server 2 reads /efs/index.html, it reads from the same EFS storage. There is no sync, replication, or copy — it is the same file in the same storage, just accessed from two different network connections."
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "terms": [
+    {
+      "term": "Amazon EFS",
+      "definition": "Amazon Elastic File System — a fully managed, serverless, elastic network file storage service for use with AWS cloud services and on-premises resources. Multiple EC2 instances can mount and access the same EFS file system simultaneously, unlike EBS which is exclusive to one instance."
+    },
+    {
+      "term": "NFS (Network File System)",
+      "definition": "An industry-standard protocol for sharing files across a network. EFS uses NFSv4.1. The client (EC2 instance) mounts a remote file system as if it were local disk — no application changes required."
+    },
+    {
+      "term": "NFSv4.1",
+      "definition": "The specific version of NFS used by Amazon EFS. Supports parallel access, strong consistency within a session, and file locking (flock/fcntl). Operates over TCP port 2049. Required mount option: nfsvers=4.1."
+    },
+    {
+      "term": "Mount Target",
+      "definition": "An Elastic Network Interface (ENI) created by EFS in a subnet of each Availability Zone. Acts as the network entry point into EFS — EC2 instances connect to the mount target's private IP on port 2049. One mount target per AZ is required for HA."
+    },
+    {
+      "term": "Mount Point",
+      "definition": "A local directory on the EC2 instance (e.g., /efs or /home/ec2-user/efs) where the EFS file system is attached. Created with mkdir before mounting."
+    },
+    {
+      "term": "amazon-efs-utils",
+      "definition": "AWS-provided package that simplifies EFS mounting. Adds TLS encryption via stunnel, supports Access Point mounting with the -o accesspoint= option, and enables the shorter 'mount -t efs' syntax. Install with: sudo yum install -y amazon-efs-utils."
+    },
+    {
+      "term": "stunnel",
+      "definition": "An open-source TLS proxy used by the EFS helper. Runs locally on the EC2 instance and wraps NFS traffic in TLS before forwarding to EFS. This causes 'df -hT' to show 127.0.0.1 as the filesystem source instead of the EFS DNS name."
+    },
+    {
+      "term": "EFSClient Security Group",
+      "definition": "The security group attached to EC2 instances that will access EFS. Its ID is referenced as the source in the EFS Mount Target security group inbound rule, enabling the security group chaining pattern."
+    },
+    {
+      "term": "EFS Mount Target Security Group",
+      "definition": "A security group attached to EFS mount targets. Must have an inbound rule allowing TCP port 2049 (NFS) from the EFSClient security group ID — not from an IP address or CIDR range."
+    },
+    {
+      "term": "Security Group Chaining",
+      "definition": "The technique of referencing one security group as the source in another security group's inbound rule, instead of using IP addresses. Used for EFS: mount target SG allows NFS from EFSClient SG. New Auto Scaling instances automatically inherit access when they are assigned the EFSClient SG."
+    },
+    {
+      "term": "fio (Flexible IO)",
+      "definition": "A Linux I/O benchmarking tool used to test storage performance. It simulates real workloads by specifying block size, read/write ratio, queue depth, and file size. Used in Task 5 and Ext. Task 15. Key output fields: bw (bandwidth in KB/s), iops, clat (completion latency), runt (total runtime)."
+    },
+    {
+      "term": "Burst Credits",
+      "definition": "Tokens accumulated by EFS file systems when I/O is below baseline throughput. Used automatically when I/O exceeds baseline. Replenish at 1 MiB/s per TiB of stored data per second. When depleted, throughput drops to baseline. Monitor with BurstCreditBalance in CloudWatch."
+    },
+    {
+      "term": "PermittedThroughput",
+      "definition": "A CloudWatch metric showing the maximum throughput the EFS file system is allowed to deliver at that moment, in bytes/second. Determined by file system size, burst credits remaining, and throughput mode. The ceiling — compare with DataWriteIOBytes to see actual usage vs maximum."
+    },
+    {
+      "term": "DataWriteIOBytes",
+      "definition": "A CloudWatch metric tracking bytes written to EFS per period. Use the Sum statistic with 1-minute period. Divide by 60 to get actual write throughput in bytes/second. A spike here during fio corresponds directly to the test run."
+    },
+    {
+      "term": "BurstCreditBalance",
+      "definition": "A CloudWatch metric showing remaining burst credits in bytes. When this reaches zero, throughput drops to the baseline rate (50 MiB/s per TiB). A falling BurstCreditBalance during heavy I/O is normal — the concern is if it never recovers overnight."
+    },
+    {
+      "term": "Elastic Throughput Mode",
+      "definition": "An EFS throughput mode that automatically scales throughput based on actual workload demands, up to multiple GB/s. No burst credits to manage. Recommended for unpredictable or variable workloads. Replaces the old Bursting mode as the recommended default."
+    },
+    {
+      "term": "Provisioned Throughput Mode",
+      "definition": "An EFS throughput mode where you specify a fixed throughput level regardless of file system size. You pay for provisioned throughput above what Bursting mode would provide. Use when workload demands are predictable and consistently high."
+    },
+    {
+      "term": "General Purpose Performance Mode",
+      "definition": "The default EFS performance mode, optimized for low single-digit millisecond latency. Suitable for web serving, CMS, development environments, and most workloads. Supports up to 35,000 IOPS."
+    },
+    {
+      "term": "Max I/O Performance Mode",
+      "definition": "An EFS performance mode for highly parallelized workloads requiring maximum aggregate throughput — for example, big data processing with hundreds of EC2 instances. Trades slightly higher latency (low double-digit ms) for greater aggregate IOPS."
+    },
+    {
+      "term": "EFS Infrequent Access (EFS-IA)",
+      "definition": "An EFS storage class for files not accessed regularly. Costs approximately 92% less than EFS Standard (~$0.025/GB vs ~$0.30/GB). Lifecycle Management moves files to IA after a configurable number of days without access (e.g., 30 days). Files can automatically return to Standard when accessed."
+    },
+    {
+      "term": "EFS Lifecycle Management",
+      "definition": "An EFS feature that automatically moves files between Standard and IA storage classes based on last-access time. Configured via lifecycle policy (e.g., TransitionToIA=AFTER_30_DAYS). Cannot be triggered manually per file — the policy applies automatically. Also configurable to move files back: TransitionToPrimaryStorageClass=AFTER_1_ACCESS."
+    },
+    {
+      "term": "EFS Access Point",
+      "definition": "A named application-specific entry point into EFS that enforces a root directory (the app sees / but is actually inside /app1 on the real EFS), a POSIX user identity (all writes appear from a specified UID/GID), and auto-creates the directory if it doesn't exist. Used in ECS, EKS, and Lambda for multi-tenant EFS isolation."
+    },
+    {
+      "term": "POSIX",
+      "definition": "Portable Operating System Interface — a family of standards defining Unix-like OS behavior. EFS is POSIX-compliant: it supports standard file permissions (rwx), ownership (UID/GID), file locking (flock/fcntl), symlinks, hard links, and special files. This allows applications running on local disk to use EFS with zero code changes. S3 is not POSIX-compliant."
+    },
+    {
+      "term": "flock",
+      "definition": "A Linux command and syscall for advisory file locking. flock -x acquires an exclusive lock; flock -n is non-blocking (fails immediately if locked). EFS supports flock across separate EC2 instances — proven in Ext. Task 13. Used by databases and CMS platforms to prevent concurrent writes to the same file."
+    },
+    {
+      "term": "tcpdump",
+      "definition": "A Linux network packet capture tool. Used in Ext. Task 12 to capture NFS traffic on port 2049. Syntax: sudo tcpdump -i any -n -v port 2049. Shows every NFS protocol operation (LOOKUP, GETATTR, WRITE, SETATTR) generated by file operations. -w saves to .pcap file, -r reads from file."
+    },
+    {
+      "term": "strace",
+      "definition": "A Linux diagnostic tool that traces system calls made by a process. Used in Ext. Task 14 to show that file writes on EFS use the same syscalls (open, write, close) as local disk — the kernel NFS client translates them invisibly. -T flag shows time spent in each syscall, revealing EFS network latency vs local disk microsecond latency."
+    },
+    {
+      "term": "rsync",
+      "definition": "A Linux file synchronisation tool that copies files efficiently. On re-runs, only transfers changed files (delta sync). Used in Ext. Task 17 for data migration to EFS. Key flags: -a (archive: preserve permissions/timestamps), -v (verbose), --dry-run (preview without transferring), --progress (show per-file progress). For TB-scale migrations, use AWS DataSync instead."
+    },
+    {
+      "term": "inotify",
+      "definition": "A Linux kernel subsystem that monitors file system events and notifies applications instantly when files change — without polling. Used via inotifywait in Ext. Task 21. Events include: modify, create, delete, close_write. Works reliably on EFS when watcher and writer are on the same EC2 instance. Cross-instance inotify on NFS is unreliable — use SQS for cross-instance event delivery."
+    },
+    {
+      "term": "iptables",
+      "definition": "Linux firewall framework operating at the kernel level. Used in Ext. Task 16 to inject a simulated NFS failure: sudo iptables -A OUTPUT -p tcp --dport 2049 -j DROP blocks all outbound NFS traffic, causing mounts to hang identically to a security group block. Remove with -D flag. When debugging a hanging mount, check iptables -L OUTPUT -n alongside SG rules."
+    },
+    {
+      "term": "Noisy Neighbor Problem",
+      "definition": "Performance degradation caused by other tenants on the same physical infrastructure consuming disproportionate resources. On EFS, a noisy neighbor can temporarily reduce throughput available to your file system. Mitigated by EFS's per-client I/O limiting and by choosing Provisioned Throughput mode for predictable performance."
+    },
+    {
+      "term": "NFS Mount Options (hard/timeo/retrans)",
+      "definition": "Critical options in the NFS mount command. 'hard' means the client retries indefinitely on failure (never returns an error to the app — causes hangs but prevents data loss). 'timeo=600' sets the timeout in tenths of a second before retrying. 'retrans=2' sets the number of retries before reporting an error. EFS-recommended defaults: hard,timeo=600,retrans=2,noresvport."
+    },
+    {
+      "term": "df -hT",
+      "definition": "Linux command to display disk space usage for all mounted file systems in human-readable format with file system type. On EFS: shows 8.0E (8 exabytes) as the size — this is the elastic maximum, not actual storage used. Type shows 'nfs4' for NFS client mounts, '127.0.0.1:/' for EFS helper mounts (stunnel proxy)."
+    },
+    {
+      "term": "Elastic Network Interface (ENI)",
+      "definition": "A virtual network card in AWS that can be attached to EC2 instances or services. EFS mount targets are ENIs — they have a private IP address in your subnet and accept TCP connections on port 2049. You can see mount target IPs in the EFS console → Network tab."
+    },
+    {
+      "term": "/etc/fstab",
+      "definition": "A Linux configuration file that lists file systems to mount automatically at boot. EFS entry format: fs-XXXXXXXX:/ /efs nfs4 defaults,_netdev 0 0. The _netdev option is mandatory — it tells the boot process to wait for network availability before mounting, preventing boot failures on Auto Scaling instances."
+    },
+    {
+      "term": "_netdev (fstab option)",
+      "definition": "A critical fstab mount option for network file systems. Tells the Linux boot process to defer this mount until the network stack is ready. Without it, the OS attempts to mount EFS before network interfaces are configured, causing a boot hang. In Auto Scaling Groups, this causes every instance to fail health checks, potentially causing a full-fleet outage."
+    },
+    {
+      "term": "Throughput (in storage context)",
+      "definition": "The rate of data transfer, measured in MB/s or GB/s. For EFS, throughput determines how fast your application can read or write data. Affected by: file system size (determines burst baseline), burst credit balance, throughput mode, and performance mode. Measure actual throughput from CloudWatch: DataWriteIOBytes Sum ÷ 60 seconds."
+    },
+    {
+      "term": "Atomic File Operation",
+      "definition": "A file system operation that is guaranteed to complete fully or not at all — never leaving a partial result visible to other processes. On POSIX file systems including EFS, rename (mv) is atomic: a reader either sees the old file or the new file, never a half-written version. The correct pattern for updating live config files: write to temp file → mv temp to final name."
+    },
+    {
+      "term": "nfsstat",
+      "definition": "A Linux command that displays NFS client and server statistics. Used in Ext. Task 9 and Ext. Task 16. Key field: retrans (retransmissions) — zero means healthy network; high retrans means network instability between EC2 and the mount target. Run 'nfsstat -c' for client-side stats."
+    }
+  ]
+}
