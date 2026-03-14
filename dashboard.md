@@ -5,13 +5,13 @@ I've analyzed your AWS Learning Dashboard project. This is a **well-structured, 
 ### Architecture
 - **Clean separation of concerns**: Data (JSON) separate from presentation (HTML/CSS/JS)
 - **Reusable templates**: Single CSS files shared across multiple pages
-- **Smart URL parameters**: `?kc=filename` and `?folder=24-12-2025` pattern
+- **Smart URL parameters**: `?quiz=filename` and `?folder=24-12-2025` pattern
 - **Universal image gallery**: Single `images.html` serving all folders
 - **No framework dependency**: Pure vanilla JS - fast, lightweight, maintainable
 
 ### Features
 - **Theme system**: Persistent dark/light mode across all pages
-- **KC System**: Sophisticated question randomization with immediate feedback
+- **Quiz System**: Sophisticated question randomization with immediate feedback
 - **Notes Organization**: Dual structure (daily/topic-based) is intuitive
 - **Image Gallery**: Universal gallery with lightbox, search, grid/list views
 
@@ -107,7 +107,7 @@ async function loadFromJSON(filename) {
     return jsonCache.get(filename);
   }
   
-  const response = await fetch(`data/kc/${filename}.json`);
+  const response = await fetch(`data/quiz/${filename}.json`);
   const data = await response.json();
   jsonCache.set(filename, data);
   return data;
@@ -122,7 +122,7 @@ async function loadFromJSON(filename) {
 <!-- Add skip links to all pages -->
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
-<!-- Improve KC option semantics -->
+<!-- Improve Quiz option semantics -->
 <fieldset class="question-options" role="radiogroup" aria-labelledby="q1-text">
   <legend id="q1-text">{question text}</legend>
   <label class="option">
@@ -131,7 +131,7 @@ async function loadFromJSON(filename) {
   </label>
 </fieldset>
 
-<!-- Add ARIA live regions for KC feedback -->
+<!-- Add ARIA live regions for Quiz feedback -->
 <div aria-live="polite" aria-atomic="true" class="sr-only" id="feedback-announce"></div>
 ```
 
@@ -170,7 +170,7 @@ async function loadFromJSON(filename) {
 ### 4. **Enhanced Search with Fuzzy Matching**
 
 ```javascript
-// Add to notes.html and kc-list.html
+// Add to notes.html and quiz-list.html
 function fuzzySearch(searchTerm, targetText) {
   searchTerm = searchTerm.toLowerCase();
   targetText = targetText.toLowerCase();
@@ -205,14 +205,14 @@ searchInput.addEventListener('input', (e) => {
 class ProgressTracker {
   constructor() {
     this.data = JSON.parse(localStorage.getItem('awsProgress')) || {
-      kc: {},      // { 'filename': { completed: true, score: 0.8, date: '...' }}
+      quiz: {},      // { 'filename': { completed: true, score: 0.8, date: '...' }}
       notes: {},   // { 'folder': { viewed: true, date: '...' }}
       labs: {}
     };
   }
   
-  markKCComplete(filename, score) {
-    this.data.kc[filename] = {
+  markQuizComplete(filename, score) {
+    this.data.quiz[filename] = {
       completed: true,
       score: score,
       date: new Date().toISOString()
@@ -220,8 +220,8 @@ class ProgressTracker {
     this.save();
   }
   
-  getKCProgress(filename) {
-    return this.data.kc[filename] || null;
+  getQuizProgress(filename) {
+    return this.data.quiz[filename] || null;
   }
   
   save() {
@@ -229,22 +229,22 @@ class ProgressTracker {
   }
   
   getStats() {
-    const kcCompleted = Object.keys(this.data.kc).length;
-    const avgScore = Object.values(this.data.kc)
-      .reduce((sum, kc) => sum + kc.score, 0) / kcCompleted || 0;
-    return { kcCompleted, avgScore };
+    const quizCompleted = Object.keys(this.data.quiz).length;
+    const avgScore = Object.values(this.data.quiz)
+      .reduce((sum, quiz) => sum + quiz.score, 0) / quizCompleted || 0;
+    return { quizCompleted, avgScore };
   }
 }
 
 const progress = new ProgressTracker();
 ```
 
-**Update KC cards to show progress:**
+**Update Quiz cards to show progress:**
 
 ```html
-<div class="kc-card" data-progress="${progress.getKCProgress(kc.file) ? 'completed' : 'pending'}">
+<div class="quiz-card" data-progress="${progress.getQuizProgress(quiz.file) ? 'completed' : 'pending'}">
   <div class="progress-badge">
-    ${progress.getKCProgress(kc.file) ? '✅ Completed' : '⏳ Pending'}
+    ${progress.getQuizProgress(quiz.file) ? '✅ Completed' : '⏳ Pending'}
   </div>
   <!-- rest of card -->
 </div>
@@ -374,7 +374,7 @@ const urlsToCache = [
   '/index.html',
   '/styles.css',
   '/knowledgeCheck.js',
-  '/kc-list.html',
+  '/quiz-list.html',
   '/notes.html'
 ];
 
@@ -498,7 +498,7 @@ ADDITIONAL REQUIREMENTS FOR COMPLETED.HTML:
    - Add "Key takeaways" summary box
 
 4. **Next Steps**:
-   - Link to related KCs
+   - Link to related Quizs
    - Suggest related labs
    - Recommend next topics to study
 ```
