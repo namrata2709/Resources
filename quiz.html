@@ -3,50 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Interactive AWS knowledge check with detailed answer explanations. Learn AWS concepts through guided quiz questions with comprehensive explanations and resources.">
-    <meta name="keywords" content="AWS knowledge check, AWS quiz, AWS practice questions, AWS certification prep, interactive AWS learning">
+    <meta name="description" content="Interactive AWS quiz with detailed answer explanations. Learn AWS concepts through guided quiz questions with comprehensive explanations and resources.">
+    <meta name="keywords" content="AWS quiz, AWS practice questions, AWS certification prep, interactive AWS learning">
     <meta name="author" content="Namrata Mulwani">
     <meta name="robots" content="index, follow">
-    
+
     <!-- Open Graph -->
-    <meta property="og:title" content="Knowledge Check - AWS Learning Dashboard">
-    <meta property="og:description" content="Interactive AWS knowledge check with detailed answer explanations and learning resources.">
+    <meta property="og:title" content="Quiz - AWS Learning Dashboard">
+    <meta property="og:description" content="Interactive AWS quiz with detailed answer explanations and learning resources.">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://namrata2709.github.io/Resources/kc-answer.html">
-    <meta property="og:image" content="https://namrata2709.github.io/Resources/images/kc-preview.png">
+    <meta property="og:url" content="https://namrata2709.github.io/Resources/quiz.html">
+    <meta property="og:image" content="https://namrata2709.github.io/Resources/images/quiz-preview.png">
     <meta property="og:site_name" content="AWS Learning Dashboard">
-    
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Knowledge Check - AWS Learning Dashboard">
-    <meta name="twitter:description" content="Interactive AWS knowledge check with detailed explanations.">
-    <meta name="twitter:image" content="https://namrata2709.github.io/Resources/images/kc-preview.png">
-    
+    <meta name="twitter:title" content="Quiz - AWS Learning Dashboard">
+    <meta name="twitter:description" content="Interactive AWS quiz with detailed explanations.">
+    <meta name="twitter:image" content="https://namrata2709.github.io/Resources/images/quiz-preview.png">
+
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://namrata2709.github.io/Resources/kc-answer.html">
-    
+    <link rel="canonical" href="https://namrata2709.github.io/Resources/quiz.html">
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-    
+
     <!-- Theme -->
     <meta name="theme-color" content="#1a1a2e">
     <meta name="color-scheme" content="light dark">
-    
-    <title>Knowledge Check - AWS Learning Dashboard</title>
+
+    <title>Quiz - AWS Learning Dashboard</title>
+
+    <!-- Stylesheets: shared base first, then quiz-specific -->
     <link rel="stylesheet" href="css/styles.css">
-    
+    <link rel="stylesheet" href="css/quiz.css">
+
     <!-- Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Quiz",
-      "name": "AWS Knowledge Check",
-      "description": "Interactive knowledge check with detailed answer explanations for AWS concepts",
-      "url": "https://namrata2709.github.io/Resources/kc-answer.html",
+      "name": "AWS Quiz",
+      "description": "Interactive quiz with detailed answer explanations for AWS concepts",
+      "url": "https://namrata2709.github.io/Resources/quiz.html",
       "author": {
         "@type": "Person",
         "name": "Namrata Mulwani",
@@ -68,15 +71,10 @@
     </script>
 </head>
 <body>
-    <!-- Loading State -->
+
+    <!-- Page Loader -->
     <div id="pageLoader" class="page-loader">
         <div class="loader-spinner"></div>
-        <!--
-            FIX #12: Loader text updated to reflect that we're loading content,
-            not just the page. The loader is now hidden by knowledgeCheck.js
-            AFTER renderQuestions() completes, not on window.load (which fires
-            before the async JSON fetch finishes).
-        -->
         <p class="loader-text">Loading questions...</p>
     </div>
 
@@ -89,24 +87,29 @@
     <nav class="breadcrumb" aria-label="Breadcrumb">
         <ol>
             <li><a href="index.html">🏠 Home</a></li>
-            <li><a href="kc-list.html">📝 KC Answer Keys</a></li>
-            <li aria-current="page" id="breadcrumbTitle">Knowledge Check</li>
+            <li><a href="quiz-list.html">📝 Quizzes</a></li>
+            <li aria-current="page" id="breadcrumbTitle">Quiz</li>
         </ol>
     </nav>
 
     <div class="page-container">
         <header class="page-header">
-            <a href="kc-list.html" class="back-btn">← Back to KC List</a>
-            <h1 id="pageTitle">📝 Knowledge Check</h1>
+            <a href="quiz-list.html" class="back-btn">← Back to Quiz List</a>
+            <h1 id="pageTitle">📝 Quiz</h1>
         </header>
 
+        <!--
+            Phase 2: QuizEngine.loadFromJSON() inserts the progress bar (#18)
+            and question navigator (#22) immediately before this container,
+            then populates it with question cards.
+        -->
         <div id="questionsContainer">
             <div class="loading">Loading questions...</div>
         </div>
     </div>
 
-    <!-- FIX #19: Print button wired to window.print() via knowledgeCheck.js DOMContentLoaded listener -->
-    <button class="print-button" aria-label="Print this knowledge check">
+    <!-- Print Button -->
+    <button class="print-button" aria-label="Print this quiz">
         <span class="print-icon">🖨️</span>
         <span class="print-text">Print</span>
     </button>
@@ -114,7 +117,7 @@
     <!-- Footer -->
     <footer class="content-footer">
         <div class="footer-container">
-            
+
             <!-- Copyright & License -->
             <div class="footer-block">
                 <p class="footer-copyright">© 2025 Namrata Mulwani. All rights reserved.</p>
@@ -129,7 +132,7 @@
                     <li><strong>You must:</strong> Give appropriate credit and link to the license.</li>
                     <li><strong>You cannot:</strong> Use this material for commercial purposes without permission.</li>
                 </ul>
-                <p class="footer-contact">For commercial licensing: <a href="mailto:awslecturenotes@gmail.com">awslecturenotes@gmail.com</a></p>
+                <p class="footer-contact">For commercial licensing: <a href="/cdn-cgi/l/email-protection#177660647b727463626572797863726457707a767e7b3974787a"><span class="__cf_email__" data-cfemail="b2d3c5c1ded7d1c6c7c0d7dcddc6d7c1f2d5dfd3dbde9cd1dddf">[email&#160;protected]</span></a></p>
             </div>
 
             <!-- Disclaimer -->
@@ -141,47 +144,44 @@
     </footer>
 
     <!-- External JS -->
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script src="js/theme.js"></script>
-    <script src="js/knowledgeCheck.js"></script>
+    <script src="js/quiz.js"></script>
     <script>
-        // Get parameters from URL
         const urlParams = new URLSearchParams(window.location.search);
-        const kcFile  = urlParams.get('kc');
-        const kcTitle = urlParams.get('title');
+        const quizFile  = urlParams.get('quiz');
+        const quizTitle = urlParams.get('title');
 
         // Update page title and breadcrumb
-        // FIX #11 — Always prefer kcTitle param; fall back to filename formatting
-        if (kcTitle) {
-            document.getElementById('pageTitle').textContent       = `📝 ${kcTitle}`;
-            document.getElementById('breadcrumbTitle').textContent = kcTitle;
-            document.title = `${kcTitle} - AWS Learning Dashboard`;
-        } else if (kcFile) {
-            const title = kcFile.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        if (quizTitle) {
+            document.getElementById('pageTitle').textContent       = `📝 ${quizTitle}`;
+            document.getElementById('breadcrumbTitle').textContent = quizTitle;
+            document.title = `${quizTitle} - AWS Learning Dashboard`;
+        } else if (quizFile) {
+            const title = quizFile.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
             document.getElementById('pageTitle').textContent       = `📝 ${title}`;
             document.getElementById('breadcrumbTitle').textContent = title;
             document.title = `${title} - AWS Learning Dashboard`;
         }
 
-        // Initialize and load KC
-        if (kcFile) {
-            const kcEngine = new KnowledgeCheckEngine('questionsContainer');
-            kcEngine.loadFromJSON(`data/kc/${kcFile}.json`);
-            // NOTE: pageLoader is hidden inside loadFromJSON() after render completes (FIX #12)
+        // Initialize and load quiz
+        if (quizFile) {
+            const quizEngine = new QuizEngine('questionsContainer');
+            quizEngine.loadFromJSON(`data/quiz/${quizFile}.json`);
         } else {
             document.getElementById('questionsContainer').innerHTML = `
                 <div class="error">
                     <h2>Error</h2>
-                    <p>No knowledge check specified. Please select a KC from the list.</p>
-                    <a href="kc-list.html" class="back-btn" style="margin-top:1rem;display:inline-block;">
-                        ← Go to KC List
+                    <p>No quiz specified. Please select a quiz from the list.</p>
+                    <a href="quiz-list.html" class="back-btn" style="margin-top:1rem;display:inline-block;">
+                        ← Go to Quiz List
                     </a>
                 </div>
             `;
-            // Still hide loader in no-file case
             document.getElementById('pageLoader').classList.add('hidden');
         }
     </script>
-    
+
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4JFX5WTGFN"></script>
     <script>
@@ -191,15 +191,5 @@
       gtag('config', 'G-4JFX5WTGFN');
     </script>
 
-    <!--
-        FIX #12 REMOVED: The old window.load handler that prematurely hid the
-        loader has been deleted. The loader is now controlled exclusively by
-        knowledgeCheck.js after the async JSON fetch and render complete.
-
-        OLD CODE (removed):
-        window.addEventListener('load', function() {
-            document.getElementById('pageLoader').classList.add('hidden');
-        });
-    -->
 </body>
 </html>

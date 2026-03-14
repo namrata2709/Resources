@@ -99,7 +99,7 @@ lazyImages.forEach(img => imageObserver.observe(img));
 **Add JSON caching:**
 
 ```javascript
-// Update knowledgeCheck.js with cache
+// Update quiz.js with cache
 const jsonCache = new Map();
 
 async function loadFromJSON(filename) {
@@ -373,7 +373,7 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/styles.css',
-  '/knowledgeCheck.js',
+  '/quiz.js',
   '/quiz-list.html',
   '/notes.html'
 ];

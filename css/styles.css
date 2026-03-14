@@ -1,17 +1,15 @@
 /**
- * Global Stylesheet for AWS Learning Dashboard
- * File location: css/styles.css
- * Version: 2.1 - Phase 1 Bug Fixes
+ * Global Stylesheet — AWS Learning Dashboard
+ * File: css/styles.css
+ * Version: 2.2 — Quiz styles extracted to css/quiz.css
  *
- * PHASE 1 CHANGES:
- *  FIX #1  - Added --accent & --accent-hover to all 3 themes (print button was colorless)
- *  FIX #2  - Added --info-bg & --info-border to all 3 themes (print instructions was broken)
- *  FIX #3  - Removed leftover comment from print button block
- *  FIX #10 - Option icons show letter label (A/B/C/D) before selection, not empty circle
- *  FIX #12 - Page loader hides only after renderQuestions() via JS, not window.load
- *  FIX #4  - Multi-select max feedback: dim unavailable options + toast notification
- *  FIX #19 - Print button fully wired with correct --accent vars, pulse animation cleaned
- *  FIX #20 - @media print: shows correct answers, forces white bg, hides chrome
+ * CONTAINS: Themes, global base, layout, dashboard, modules,
+ *           search/filter, notes, modal, files list, utilities,
+ *           responsive, accessibility, version info, page loader,
+ *           footer, breadcrumb.
+ *
+ * DOES NOT CONTAIN: Anything used only by quiz.html / quiz-list.html
+ *                   → see css/quiz.css
  */
 
 /* ============================================
@@ -41,11 +39,9 @@
     --info: #3b82f6;
     --info-hover: #2563eb;
 
-    /* FIX #1 - was undefined, print button had no color */
     --accent: #3b82f6;
     --accent-hover: #2563eb;
 
-    /* FIX #2 - was undefined, print instructions box was broken */
     --info-bg: rgba(59, 130, 246, 0.06);
     --info-border: #3b82f6;
 
@@ -59,9 +55,6 @@
 
     --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     --card-shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.15);
-
-    /* FIX #10 - letter label color in option icon */
-    --option-label-color: #6b7280;
 }
 
 [data-theme="dark"] {
@@ -85,15 +78,11 @@
     --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     --card-shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.5);
 
-    /* FIX #1 */
     --accent: #60a5fa;
     --accent-hover: #93c5fd;
 
-    /* FIX #2 */
     --info-bg: rgba(96, 165, 250, 0.08);
     --info-border: #60a5fa;
-
-    --option-label-color: #94a3b8;
 }
 
 [data-theme="comfort"] {
@@ -130,15 +119,11 @@
     --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     --card-shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.12);
 
-    /* FIX #1 */
     --accent: #8b6f47;
     --accent-hover: #6d5737;
 
-    /* FIX #2 */
     --info-bg: rgba(139, 111, 71, 0.07);
     --info-border: #8b6f47;
-
-    --option-label-color: #8a7f6b;
 }
 
 /* ============================================
@@ -191,8 +176,8 @@ a:active { color: var(--link-active); }
 .theme-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 20px var(--shadow); }
 .theme-toggle:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
 
-.theme-icon::before                  { content: '☀️'; }
-[data-theme="dark"] .theme-icon::before    { content: '🌙'; }
+.theme-icon::before                        { content: '☀️'; }
+[data-theme="dark"]    .theme-icon::before { content: '🌙'; }
 [data-theme="comfort"] .theme-icon::before { content: '👁️'; }
 
 /* ============================================
@@ -247,7 +232,7 @@ a:active { color: var(--link-active); }
 .back-btn:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
 
 /* ============================================
-   MODULE GRID
+   MODULE GRID (Dashboard)
    ============================================ */
 
 .modules-grid {
@@ -273,7 +258,7 @@ a:active { color: var(--link-active); }
 .module-card:hover { transform: translateY(-8px); box-shadow: var(--card-shadow-hover); border-color: var(--primary); text-decoration: none; }
 .module-card:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
 
-.module-icon { font-size: 3rem; margin-bottom: 1rem; }
+.module-icon    { font-size: 3rem; margin-bottom: 1rem; }
 .module-card h2 { font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.5rem; font-weight: 700; }
 .module-card p  { color: var(--text-muted); margin-bottom: 1rem; line-height: 1.6; }
 
@@ -334,183 +319,15 @@ a:active { color: var(--link-active); }
     padding-right: 2.5rem;
 }
 
-[data-theme="dark"] .filter-group select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23e5e7eb' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-}
-
-[data-theme="comfort"] .filter-group select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a5340' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-}
+[data-theme="dark"]    .filter-group select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23e5e7eb' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); }
+[data-theme="comfort"] .filter-group select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a5340' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); }
 
 .filter-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 .filter-group select:hover { border-color: var(--primary); }
 
 /* ============================================
-   KC LIST PAGE
-   ============================================ */
-
-.kc-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-
-.kc-card {
-    background: var(--bg-card);
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: var(--card-shadow);
-}
-
-.kc-card:hover { transform: translateY(-4px); box-shadow: var(--card-shadow-hover); border-color: var(--primary); }
-.kc-card:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
-.kc-card h3    { font-size: 1.25rem; color: var(--text-primary); margin-bottom: 0.5rem; font-weight: 700; }
-.kc-card p     { color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
-
-.difficulty-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
-.difficulty-badge.beginner     { background: var(--success); color: white; }
-.difficulty-badge.intermediate { background: var(--warning); color: white; }
-.difficulty-badge.advanced     { background: var(--error);   color: white; }
-
-/* ============================================
-   KC ANSWER PAGE — QUESTION CARDS
-   ============================================ */
-
-.question-card {
-    background: var(--bg-card);
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--card-shadow);
-    position: relative;
-}
-
-.question-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
-
-.question-number {
-    flex-shrink: 0;
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: var(--primary-gradient);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-}
-
-.question-text { flex: 1; font-size: 1.25rem; color: var(--text-primary); font-weight: 600; line-height: 1.5; }
-
-.options-list { display: flex; flex-direction: column; gap: 1rem; }
-
-.option {
-    padding: 1rem 1.5rem;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background: var(--bg-card);
-}
-
-.option:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); transform: translateX(5px); }
-.option.selected  { background: rgba(59, 130, 246, 0.1); border-color: var(--primary); }
-.option.correct   { background: rgba(16, 185, 129, 0.1); border-color: var(--success); }
-.option.incorrect { background: rgba(239, 68, 68, 0.1);  border-color: var(--error); }
-
-/* ============================================
-   FIX #10 — Option icon: letter label (A/B/C/D)
-   shown before selection; check/cross after
-   ============================================ */
-
-.option-icon {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    border: 2px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 0.85rem;
-    font-weight: 700;
-    transition: all 0.3s ease;
-    color: var(--option-label-color);
-    background: var(--bg-secondary);
-    /* The letter (A, B, C…) is set via JS as text content */
-}
-
-.option.correct .option-icon   { background: var(--success); border-color: var(--success); color: white; font-size: 1rem; }
-.option.incorrect .option-icon { background: var(--error);   border-color: var(--error);   color: white; font-size: 1rem; }
-
-.option:not(.correct):not(.incorrect):hover .option-icon {
-    border-color: var(--primary);
-    background: rgba(59, 130, 246, 0.1);
-    color: var(--primary);
-}
-
-/* ============================================
-   FIX #4 — Multi-select max-reached feedback
-   ============================================ */
-
-.option.max-reached { opacity: 0.45; cursor: not-allowed; }
-.option.max-reached:hover { transform: none; border-color: var(--border-color); background: var(--bg-card); }
-
-/* Toast shown when user tries to select a 3rd option */
-.kc-toast {
-    position: fixed;
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--text-primary);
-    color: var(--bg-primary);
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    z-index: 1100;
-    opacity: 0;
-    transition: all 0.3s ease;
-    pointer-events: none;
-    white-space: nowrap;
-}
-
-.kc-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-.option-text { flex: 1; color: var(--text-primary); line-height: 1.5; }
-
-/* ============================================
-   EXPLANATION
-   ============================================ */
-
-.explanation {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: rgba(59, 130, 246, 0.05);
-    border-left: 4px solid var(--primary);
-    border-radius: 4px;
-}
-
-.explanation.correct   { background: rgba(16, 185, 129, 0.05); border-left-color: var(--success); }
-.explanation.incorrect { background: rgba(239, 68, 68, 0.05);  border-left-color: var(--error); }
-
-.explanation-text { color: var(--text-secondary); margin-bottom: 0.5rem; line-height: 1.6; }
-
-.learn-more {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--link-color);
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.learn-more:hover { gap: 0.75rem; color: var(--link-hover); }
-
-/* ============================================
    LOADING & ERROR STATES
+   (shared — used by quiz, notes, and other pages)
    ============================================ */
 
 .loading { text-align: center; padding: 3rem; font-size: 1.2rem; color: var(--text-muted); }
@@ -562,14 +379,14 @@ a:active { color: var(--link-active); }
 .note-folder:hover { transform: translateY(-4px); box-shadow: var(--card-shadow-hover); border-color: var(--primary); }
 .note-folder:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
 
-.folder-icon     { font-size: 2.5rem; flex-shrink: 0; }
-.folder-content  { flex: 1; }
+.folder-icon       { font-size: 2.5rem; flex-shrink: 0; }
+.folder-content    { flex: 1; }
 .folder-content h3 { font-size: 1.2rem; color: var(--text-primary); margin-bottom: 0.5rem; font-weight: 700; }
-.note-description { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.75rem; line-height: 1.4; }
-.note-meta { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+.note-description  { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.75rem; line-height: 1.4; }
+.note-meta         { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
 .note-date, .note-files { font-size: 0.85rem; color: var(--text-muted); }
 
-.note-type-badge { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+.note-type-badge            { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
 .note-type-badge.daily      { background: var(--primary); color: white; }
 .note-type-badge.additional { background: var(--success); color: white; }
 
@@ -611,7 +428,7 @@ a:active { color: var(--link-active); }
 
 .modal-body { padding: 1.5rem; max-height: calc(80vh - 100px); overflow-y: auto; }
 
-.modal-body::-webkit-scrollbar { width: 8px; }
+.modal-body::-webkit-scrollbar       { width: 8px; }
 .modal-body::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 4px; }
 .modal-body::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 .modal-body::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
@@ -643,7 +460,7 @@ a:active { color: var(--link-active); }
    ============================================ */
 
 .text-center { text-align: center; }
-.mt-1 { margin-top: 0.5rem; }  .mt-2 { margin-top: 1rem; }  .mt-3 { margin-top: 1.5rem; }  .mt-4 { margin-top: 2rem; }
+.mt-1 { margin-top: 0.5rem; }   .mt-2 { margin-top: 1rem; }   .mt-3 { margin-top: 1.5rem; }  .mt-4 { margin-top: 2rem; }
 .mb-1 { margin-bottom: 0.5rem; } .mb-2 { margin-bottom: 1rem; } .mb-3 { margin-bottom: 1.5rem; } .mb-4 { margin-bottom: 2rem; }
 .hidden  { display: none; }
 .visible { display: block; }
@@ -653,17 +470,23 @@ a:active { color: var(--link-active); }
    ============================================ */
 
 @media (max-width: 768px) {
-    .modules-grid, .kc-list, .notes-grid { grid-template-columns: 1fr; }
-    .dashboard-header h1 { font-size: 2rem; }
-    .page-header         { flex-direction: column; align-items: flex-start; }
+    .modules-grid, .notes-grid  { grid-template-columns: 1fr; }
+    .dashboard-header h1        { font-size: 2rem; }
+    .page-header                { flex-direction: column; align-items: flex-start; }
     .dashboard-container,
-    .page-container      { padding: 1rem; }
-    .question-header     { flex-direction: column; }
-    .filter-controls     { flex-direction: column; }
-    .filter-group        { min-width: 100%; }
-    .theme-toggle        { width: 45px; height: 45px; top: 15px; right: 15px; }
-    .modal-content       { width: 95%; max-height: 90vh; }
-    .kc-toast            { bottom: 75px; font-size: 0.9rem; }
+    .page-container             { padding: 1rem; }
+    .filter-controls            { flex-direction: column; }
+    .filter-group               { min-width: 100%; }
+    .theme-toggle               { width: 45px; height: 45px; top: 15px; right: 15px; }
+    .modal-content              { width: 95%; max-height: 90vh; }
+    .breadcrumb                 { padding: 0.75rem 1rem; }
+    .breadcrumb ol              { font-size: 0.85rem; }
+    .content-footer             { padding: 1.5rem 0; }
+    .footer-container           { padding: 0 1rem; }
+    .footer-block               { margin-bottom: 1.25rem; padding-bottom: 1.25rem; }
+    .footer-copyright,
+    .footer-license             { display: block; margin-left: 0; margin-bottom: 0.5rem; }
+    .version-info               { flex-direction: column; gap: 0.5rem; text-align: center; }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -673,48 +496,6 @@ a:active { color: var(--link-active); }
 
 @media (min-width: 1025px) {
     .modules-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-}
-
-/* ============================================
-   FIX #20 — PRINT STYLES
-   Correct answers visible, white bg forced,
-   all UI chrome hidden
-   ============================================ */
-
-@media print {
-    .theme-toggle, .back-btn, .modal, .search-bar,
-    .filter-controls, .print-button, .print-instructions,
-    .page-loader, .breadcrumb, .kc-toast { display: none !important; }
-
-    body, .question-card, .option, .explanation {
-        background: white !important;
-        color: #1f2937 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .module-card, .kc-card, .note-folder, .question-card {
-        page-break-inside: avoid;
-        box-shadow: none !important;
-        border: 1px solid #d1d5db !important;
-    }
-
-    /* Correct option always highlighted in print */
-    .option.correct {
-        background: #d1fae5 !important;
-        border-color: #10b981 !important;
-    }
-
-    /* Correct explanation always visible in print */
-    .explanation.correct {
-        display: block !important;
-        background: #f0fdf4 !important;
-        border-left: 3px solid #10b981 !important;
-    }
-
-    .page-header h1 { font-size: 1.5rem !important; }
-    .content-footer { page-break-before: always; }
-    .footer-disclaimer { background: white !important; border: 1px solid #ccc !important; }
 }
 
 /* ============================================
@@ -742,13 +523,11 @@ select:focus-visible, input:focus-visible { outline: 2px solid var(--primary); o
    ============================================ */
 
 .version-info { margin-top: 1rem; padding: 1rem; background: var(--bg-secondary); border-radius: 6px; display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
-.version-info p { margin: 0; font-size: 0.9rem; color: var(--text-secondary); }
+.version-info p      { margin: 0; font-size: 0.9rem; color: var(--text-secondary); }
 .version-info strong { color: var(--text-primary); }
 
 /* ============================================
    PAGE LOADER
-   FIX #12 — Hides via JS after renderQuestions()
-   not prematurely on window.load
    ============================================ */
 
 .page-loader {
@@ -791,16 +570,16 @@ select:focus-visible, input:focus-visible { outline: 2px solid var(--primary); o
 
 .footer-heading { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.75rem 0; }
 
-.footer-list { list-style: none; padding: 0; margin: 0 0 1rem 0; }
+.footer-list    { list-style: none; padding: 0; margin: 0 0 1rem 0; }
 .footer-list li { margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-primary); line-height: 1.6; }
 
 .footer-contact { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
 
 .footer-disclaimer { padding: 1.25rem; background: var(--highlight-bg); border-left: 3px solid var(--warning); border-radius: 6px; margin-top: 1.5rem; }
-.footer-disclaimer p { margin: 0; font-size: 0.9rem; color: var(--text-primary); line-height: 1.6; }
+.footer-disclaimer p      { margin: 0; font-size: 0.9rem; color: var(--text-primary); line-height: 1.6; }
 .footer-disclaimer strong { color: var(--warning); font-weight: 600; }
 
-.content-footer a { color: var(--link-color); text-decoration: none; font-weight: 500; transition: color 0.2s ease; }
+.content-footer a       { color: var(--link-color); text-decoration: none; font-weight: 500; transition: color 0.2s ease; }
 .content-footer a:hover { color: var(--link-hover); text-decoration: underline; }
 
 /* ============================================
@@ -816,109 +595,30 @@ select:focus-visible, input:focus-visible { outline: 2px solid var(--primary); o
 .breadcrumb a:hover { background: var(--bg-card); color: var(--link-hover); text-decoration: none; }
 .breadcrumb [aria-current="page"] { color: var(--text-primary); font-weight: 600; padding: 0.25rem 0.5rem; }
 
-/* ============================================
-   PRINT INSTRUCTIONS
-   FIX #2 - info-bg & info-border now defined
-   ============================================ */
+/* ============================================================
+   #6  THEME TOGGLE TOOLTIP
+   _initThemeTooltip() sets title + aria-label dynamically.
+   This adds a styled CSS tooltip on hover.
+   ============================================================ */
 
-.print-instructions {
-    max-width: 900px;
-    margin: 3rem auto 2rem;
-    padding: 1.5rem;
-    background: var(--info-bg);
-    border-left: 4px solid var(--info-border);
-    border-radius: 8px;
-    display: none;
+.theme-toggle::after {
+    content: attr(title);
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: var(--card-shadow);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 1001;
 }
 
-.print-instructions.visible { display: block; }
-
-.print-instructions h3 { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin: 0 0 1rem 0; }
-.print-instructions ol  { margin: 0 0 0 1.5rem; padding: 0; }
-.print-instructions li  { margin-bottom: 0.75rem; color: var(--text-primary); line-height: 1.6; font-size: 1rem; }
-
-.print-instructions kbd {
-    display: inline-block; padding: 0.2rem 0.5rem;
-    background: var(--bg-secondary); border: 1px solid var(--border-color);
-    border-radius: 4px; font-family: 'Courier New', monospace;
-    font-size: 0.9em; font-weight: 600; box-shadow: 0 2px 4px var(--shadow);
-}
-
-/* ============================================
-   FIX #19 — PRINT BUTTON
-   Fully wired: --accent vars, no leftover comment,
-   pulse cleaned up
-   ============================================ */
-
-.print-button {
-    position: fixed;
-    bottom: 30px; right: 30px;
-    padding: 14px 24px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 999;
-    box-shadow: 0 4px 16px var(--shadow);
-    font-family: inherit;
-    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-    animation: pulse-print 2s ease-in-out 3;
-    animation-delay: 1s;
-}
-
-.print-button:hover {
-    background: var(--accent-hover);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px var(--shadow);
-    animation: none;
-}
-
-.print-button:active { transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); }
-.print-button:focus        { outline: 3px solid var(--accent); outline-offset: 3px; }
-.print-button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-
-.print-icon { font-size: 1.2rem; line-height: 1; }
-.print-text { font-size: 1rem; font-weight: 600; }
-
-@keyframes pulse-print {
-    0%, 100% { box-shadow: 0 4px 16px var(--shadow); }
-    50%       { box-shadow: 0 4px 28px rgba(59, 130, 246, 0.45); }
-}
-
-@media (max-width: 768px) {
-    .breadcrumb { padding: 0.75rem 1rem; }
-    .breadcrumb ol { font-size: 0.85rem; }
-    .content-footer { padding: 1.5rem 0; }
-    .footer-container { padding: 0 1rem; }
-    .footer-block { margin-bottom: 1.25rem; padding-bottom: 1.25rem; }
-    .footer-copyright, .footer-license { display: block; margin-left: 0; margin-bottom: 0.5rem; }
-    .version-info { flex-direction: column; gap: 0.5rem; text-align: center; }
-    .print-button { bottom: 20px; right: 20px; padding: 12px 20px; }
-    .print-instructions { margin: 2rem 1rem 1.5rem; padding: 1.25rem; }
-    .print-instructions h3 { font-size: 1.2rem; }
-    .print-instructions li { font-size: 0.95rem; margin-bottom: 0.5rem; }
-}
-
-@media (max-width: 480px) {
-    .print-button { bottom: 15px; right: 15px; width: 56px; height: 56px; padding: 0; border-radius: 50%; justify-content: center; }
-    .print-text { display: none; }
-    .print-icon { font-size: 1.5rem; }
-}
-
-@media (max-width: 360px) {
-    .print-button { width: 50px; height: 50px; bottom: 12px; right: 12px; }
-    .print-icon { font-size: 1.3rem; }
-}
-
-@media (prefers-contrast: high) { .print-button { border: 2px solid white; } }
-
-@media (prefers-reduced-motion: reduce) {
-    .print-button { transition: none; animation: none; }
-    .print-button:hover { transform: none; }
-}
+.theme-toggle:hover::after { opacity: 1; }

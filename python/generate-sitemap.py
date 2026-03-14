@@ -26,7 +26,7 @@ def generate_sitemap():
     main_pages = [
         "",  # index.html
         "notes.html",
-        "kc-list.html",
+        "quiz-list.html",
         "labs.html",
         "presentations.html",
         "games.html"

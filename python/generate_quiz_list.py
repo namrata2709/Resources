@@ -1,8 +1,8 @@
 import os
 import json
 
-ROOT = "."
-OUTPUT = "../kc-list.json"
+ROOT = "../data/quiz"
+OUTPUT = "../data/quiz-list.json"
 
 def main():
     items = []
@@ -34,9 +34,9 @@ def main():
     items.sort(key=lambda x: (x["topic"], x["title"]))
 
     with open(OUTPUT, "w", encoding="utf-8") as f:
-        json.dump({ "knowledgeChecks": items }, f, indent=2)
+        json.dump({ "Quiz": items }, f, indent=2)
 
-    print(f"Wrote {len(items)} KC entries to {OUTPUT}")
+    print(f"Wrote {len(items)} Quiz entries to {OUTPUT}")
 
 if __name__ == "__main__":
     main()

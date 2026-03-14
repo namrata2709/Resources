@@ -362,7 +362,7 @@
 
         try {
             localStorage.removeItem(`${pageId}-quiz-state`);
-            localStorage.removeItem(`${pageId}-quiz-answers`);
+            localStorage.removeItem(`${pageId}-quizs`);
         } catch (e) {
             console.warn('Could not clear quiz state:', e);
         }
@@ -377,7 +377,7 @@
                 currentQuestion: currentQuizQuestion,
                 lastUpdated: new Date().toISOString()
             }));
-            localStorage.setItem(`${pageId}-quiz-answers`, JSON.stringify(quizAnswers));
+            localStorage.setItem(`${pageId}-quizs`, JSON.stringify(quizAnswers));
         } catch (e) {
             console.warn('Could not save quiz state:', e);
         }
@@ -386,7 +386,7 @@
     function loadQuizState() {
         try {
             const stateStr = localStorage.getItem(`${pageId}-quiz-state`);
-            const answersStr = localStorage.getItem(`${pageId}-quiz-answers`);
+            const answersStr = localStorage.getItem(`${pageId}-quizs`);
             
             if (stateStr) {
                 const state = JSON.parse(stateStr);
