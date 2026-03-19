@@ -1,0 +1,449 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Complete beginner-friendly notes on AWS Cost Optimization covering pricing principles, models, calculator, Trusted Advisor, Cost Explorer, and the Cost Optimization pillar of the Well-Architected Framework."><meta name="keywords" content="AWS, Cost Optimization, Pricing, EC2, S3, EBS, Well-Architected Framework, cloud certification"><meta property="og:title" content="AWS Cost Optimization - AWS Training"><meta property="og:description" content="Complete beginner-friendly notes on AWS Cost Optimization covering pricing principles, models, calculator, Trusted Advisor, Cost Explorer, and the Cost Optimization pillar of the Well-Architected Framework."><meta property="og:type" content="article"><meta property="og:url" content="https://namrata2709.github.io/Resources/data/notes/cost-optimization/cost-optimization-complete.html"><meta property="og:image" content="https://namrata2709.github.io/Resources/data/notes/cost-optimization/images/cost-optimization-overview.png"><link rel="canonical" href="https://namrata2709.github.io/Resources/data/notes/cost-optimization/cost-optimization-complete.html"><title>AWS Cost Optimization - Complete Notes - AWS Training</title><link rel="stylesheet" href="../../../css/styles.css"><link rel="stylesheet" href="../../../css/notes-template.css"><script src="../../../js/theme.js"></script></head><body class="complete-notes"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"AWS Cost Optimization","description":"Complete beginner-friendly notes on AWS Cost Optimization covering pricing principles, models, calculator, Trusted Advisor, Cost Explorer, and the Cost Optimization pillar of the Well-Architected Framework.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-03-19","dateModified":"2025-03-19","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/cost-optimization/cost-optimization-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/cost-optimization/images/cost-optimization-overview.png","articleSection":"AWS Training","keywords":["AWS","Cost Optimization","Pricing","Well-Architected Framework"],"educationalLevel":"Beginner to Intermediate"}</script><div class="note-container"><div class="note-header"><h1>☁️ AWS Cost Optimization</h1><p class="note-date">📅 March 19, 2025</p><div class="version-info"><p><strong>Version:</strong> 1.0</p><p><strong>Last Updated:</strong> March 19, 2025</p><p><strong>Status:</strong> ✅ Current</p></div></div><div class="note-content">
+
+<h2>📌 Introduction</h2>
+<p>When you're just learning AWS, pricing can feel like an afterthought. But the moment you build something real — a web app, an AI chatbot, a data pipeline — you quickly realize that cost is a first-class concern, not an afterthought. Think about it this way: a single API call to a language model might cost three cents. That sounds like nothing. But if a million customers use your app every day, that's $30,000 a day, just on tokens alone.</p>
+<p>This is why <span class="exam-highlight-sentence">Cost Optimization is one of the six pillars of the AWS Well-Architected Framework</span>, alongside Operational Excellence, Security, Reliability, Performance Efficiency, and Sustainability. It's not about being cheap — it's about being smart and intentional with your resources so you can do more with what you have.</p>
+<div class="info-box">💡 <strong>The Well-Architected Framework has six pillars:</strong> Operational Excellence, Security, Reliability, Performance Efficiency, Sustainability, and <strong>Cost Optimization</strong>. Cost Optimization is the focus of this session.</div>
+<div class="diagram-container"><img src="images/cost-optimization-overview.png" decoding="async" alt="Diagram showing the six pillars of the AWS Well-Architected Framework with Cost Optimization highlighted, including icons for each pillar"><p class="diagram-caption"><em>Figure 1: The Six Pillars of the AWS Well-Architected Framework</em></p></div>
+
+<h2>📋 Table of Contents</h2>
+<ul>
+  <li><a href="#pricing-principles">1. AWS Pricing Key Principles</a></li>
+  <li><a href="#pricing-models">2. AWS Pricing Models</a></li>
+  <li><a href="#pricing-by-service">3. Pricing by Service</a></li>
+  <li><a href="#regional-pricing">4. How AWS Calculates Prices by Region</a></li>
+  <li><a href="#storage-pricing">5. Storage Pricing Deep Dive (S3, EBS)</a></li>
+  <li><a href="#pricing-calculator">6. AWS Pricing Calculator</a></li>
+  <li><a href="#reduce-bill">7. Ways to Reduce Your AWS Bill</a></li>
+  <li><a href="#cost-optimization-pillar">8. The Cost Optimization Pillar</a></li>
+  <li><a href="#tools">9. Cost Management Tools</a></li>
+</ul>
+
+<details class="collapsible-section"><summary><h2 id="pricing-principles">💰 1. AWS Pricing Key Principles</h2></summary><div class="section-content">
+<p>AWS pricing is built on a few core ideas that are worth internalizing because they shape every decision you'll make about architecture and budget.</p>
+
+<h3>Three Fundamental Drivers of Cost</h3>
+<p>No matter which AWS service you use, your bill ultimately comes from three things:</p>
+<ul>
+  <li><strong>Compute</strong> — the processing power (CPU, memory) to run your workloads</li>
+  <li><strong>Storage</strong> — the space to hold your data, whether in S3, EBS, RDS, or other stores</li>
+  <li><strong>Outbound data transfer</strong> — sending data out from AWS to the internet or between regions</li>
+</ul>
+<div class="highlight-box">⚡ <strong>Notice the asymmetry:</strong> AWS typically doesn't charge you for ingesting data in, but does charge when you send it out. This makes sense — outbound means your customers are receiving value from your app, which is why you're running infrastructure in the first place.</div>
+
+<h3>Trade Fixed Costs for Variable Costs</h3>
+<p>Traditional IT meant buying servers upfront — a huge capital expense (CapEx) — whether you used them fully or not. AWS flips this to operational expense (OpEx): <span class="exam-highlight-sentence">You pay only for what you consume, with no upfront commitment required on the default On-Demand model.</span> This is one of the biggest financial arguments for moving to the cloud.</p>
+
+<h3>Transparent, Independent Pricing</h3>
+<p>Every AWS service is priced independently and that pricing is publicly visible at all times. There's no haggling, no salespeople, no hidden sticker shock. You can look up exactly what something costs before you build it. This transparency builds trust and lets you plan your architecture around cost from day one.</p>
+
+<h3>Use the Right Pricing Model for the Job</h3>
+<p><span class="exam-highlight-sentence">AWS offers four main pricing models: On-Demand, Savings Plans, Spot Instances, and Reserved Instances/Capacity.</span> Each is suited to a different usage pattern. Choosing the wrong model can mean overpaying significantly. We'll cover each in the next section.</p>
+
+<div class="success-box">✅ <strong>Key Takeaway:</strong> Cost optimization starts at the architecture design phase — not after your bill arrives. Think about compute, storage, and data transfer patterns before you deploy.</div>
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="pricing-models">🏷️ 2. AWS Pricing Models</h2></summary><div class="section-content">
+<p>AWS doesn't have one-size-fits-all pricing. Different workloads have different predictability and flexibility, so AWS offers multiple ways to pay. Understanding these models is essential for the AWS Certified Cloud Practitioner exam and for real-world cost management.</p>
+
+<div class="diagram-container"><img src="images/pricing-models-comparison.png" loading="lazy" decoding="async" alt="Comparison diagram showing On-Demand, Reserved, Spot, and Savings Plans pricing models with use cases and relative cost savings for each"><p class="diagram-caption"><em>Figure 2: AWS Pricing Models Compared</em></p></div>
+
+<h3>On-Demand Instances</h3>
+<p>This is the default — pay by the hour (or second, for some services) with no upfront commitment. It's like renting a car day-by-day: flexible, but not the cheapest option if you know you'll need the car all year.</p>
+<ul>
+  <li>Best for: unpredictable or short-term workloads, dev/test environments, or applications you're building for the first time</li>
+  <li>No upfront payment, no long-term commitment</li>
+  <li>Full flexibility to start and stop anytime</li>
+</ul>
+
+<h3>Reserved Instances / Savings Plans</h3>
+<p>If you know you'll need compute for a year or more, you can commit to that usage upfront and AWS rewards you with a significant discount. <span class="exam-highlight-sentence">Reserved Instances can save up to 72% compared to On-Demand pricing, with 1-year or 3-year commitment terms.</span></p>
+<ul>
+  <li>Best for: steady-state workloads with predictable usage (production databases, always-on web servers)</li>
+  <li>You're essentially telling AWS: "I'll definitely be using this — give me a deal"</li>
+  <li>Savings Plans are a more flexible version that apply across EC2, Fargate, and Lambda</li>
+</ul>
+<div class="info-box">💡 <strong>Analogy:</strong> Reserved Instances are like buying a yearly gym membership vs. paying for each individual class. If you know you'll go regularly, the annual deal saves you a lot of money.</div>
+
+<h3>Spot Instances</h3>
+<p>AWS has unused EC2 capacity sitting around at any given moment. Spot Instances let you bid on that spare capacity at dramatically reduced prices — sometimes up to 90% off On-Demand rates. The catch? AWS can reclaim Spot Instances with two minutes' notice when that capacity is needed elsewhere.</p>
+<ul>
+  <li>Best for: fault-tolerant, flexible workloads — batch processing, data analysis, rendering, ML training jobs</li>
+  <li>Not suitable for: anything that can't be interrupted (live databases, real-time user-facing apps)</li>
+</ul>
+<div class="highlight-box">⚡ Think of Spot Instances like borrowing a neighbor's cup of sugar — great when available, but you can't count on it always being there.</div>
+
+<h3>Dedicated Hosts vs. Dedicated Instances</h3>
+<p>Most of the time, AWS runs your workloads on shared physical hardware (multi-tenant). But sometimes — especially for compliance or software licensing reasons — you need dedicated hardware.</p>
+<ul>
+  <li><strong>Dedicated Instance:</strong> Your instance runs on hardware dedicated to your account, but AWS can move it between physical servers as needed</li>
+  <li><strong>Dedicated Host:</strong> You get an entire physical server reserved specifically for you, with visibility into the hardware. <span class="exam-highlight-sentence">Dedicated Hosts are the most expensive EC2 option</span>, but necessary when software licenses are tied to a specific hardware fingerprint (e.g., certain Oracle or Windows Server licenses)</li>
+</ul>
+
+<div class="diagram-container"><img src="images/ec2-pricing-options.png" loading="lazy" decoding="async" alt="Decision tree showing when to choose On-Demand, Reserved Instances, Spot Instances, or Dedicated Hosts based on workload characteristics like predictability, fault tolerance, and licensing needs"><p class="diagram-caption"><em>Figure 3: Choosing the Right EC2 Pricing Model</em></p></div>
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="pricing-by-service">⚙️ 3. Pricing by Service Type</h2></summary><div class="section-content">
+<p>Not all AWS services charge the same way. Each service is priced based on how it's typically consumed. Here's a quick map:</p>
+
+<table>
+  <thead><tr><th>Pricing Model</th><th>Services</th><th>What You're Paying For</th></tr></thead>
+  <tbody>
+    <tr><td>Per hour, based on size provisioned</td><td>EC2, RDS</td><td>Clock hours the resource is running, regardless of utilization</td></tr>
+    <tr><td>Per hour, based on size and quantity used</td><td>S3, EFS, Lambda</td><td>Actual storage consumed or functions executed</td></tr>
+    <tr><td>On-Demand (pay per use)</td><td>All services</td><td>Default model — no commitment</td></tr>
+    <tr><td>Reserved (commitment discount)</td><td>EC2, RDS, Redshift, ElastiCache, DynamoDB</td><td>Pre-committed capacity at discounted rates</td></tr>
+    <tr><td>Spot (spare capacity discount)</td><td>EC2 only</td><td>Unused capacity, interruptible</td></tr>
+  </tbody>
+</table>
+
+<div class="info-box">💡 <strong>Important:</strong> EC2 and RDS charge by the hour from the moment a resource is running — even if nobody is actively using it. This is why stopping or terminating unused instances is one of the fastest ways to cut costs. Lambda, by contrast, only charges when your code actually executes — so idle Lambda functions cost nothing.</div>
+
+<h3>Regional Pricing Differences</h3>
+<p>The same AWS service can have different pricing depending on which region you deploy in. Several factors drive these differences — covered in detail in the next section. As a general rule, US East (N. Virginia) tends to be among the cheaper regions, while regions in Asia-Pacific or the Middle East may cost more. Always compare region pricing when designing architecture — especially for large-scale deployments where even small per-unit differences add up significantly.</p>
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="regional-pricing">🌍 4. How AWS Calculates Prices by Region</h2></summary><div class="section-content">
+<p>A question that comes up constantly: <em>why does the same EC2 instance cost more in Mumbai than in US East?</em> It's not random. AWS pricing per region is the result of at least six compounding factors. Understanding them helps you make smarter architecture decisions — not just picking the cheapest region, but picking the <strong>right total-cost region</strong> for your users.</p>
+
+<div class="diagram-container"><img src="images/regional-pricing-factors.png" loading="lazy" decoding="async" alt="Infographic showing the six factors that determine AWS regional pricing: infrastructure costs, supply and demand, local taxes and regulations, network and data transfer costs, currency and purchasing power, and service availability maturity — all feeding into a final AWS price formula"><p class="diagram-caption"><em>Figure: How AWS Calculates Prices in Different Regions</em></p></div>
+
+<h3>1. Infrastructure Cost in That Region</h3>
+<p>AWS builds and operates data centers in each region. The cost of running those data centers varies dramatically by location — and those costs get passed into pricing.</p>
+<p>Factors that drive infrastructure cost:</p>
+<ul>
+  <li><strong>Electricity cost</strong> — power is much cheaper in some US states than in South Asia or Europe</li>
+  <li><strong>Land and construction</strong> — real estate near major cities (Mumbai, Frankfurt) costs more than rural Oregon or Virginia</li>
+  <li><strong>Cooling requirements</strong> — hot climates need more cooling infrastructure</li>
+  <li><strong>Local hardware logistics</strong> — importing and maintaining server hardware in some regions is more expensive</li>
+</ul>
+<div class="highlight-box">⚡ <strong>Example:</strong> US East (N. Virginia) has some of the cheapest infrastructure costs globally — older, fully amortized data centers, cheap electricity, and economies of scale from being AWS's largest region. Mumbai has higher real estate and energy costs, which is directly reflected in its pricing.</div>
+
+<h3>2. Supply and Demand</h3>
+<p>Pricing is also influenced by how heavily a region is used. Popular, mature regions with high utilization can sometimes have higher baseline pricing, while newer regions with lower demand may offer competitive introductory pricing to attract customers. This dynamic is especially visible with <span class="exam-highlight-term">Spot Instance</span> prices, which fluctuate in real time based on available spare capacity in each region and Availability Zone.</p>
+
+<h3>3. Local Taxes and Regulations</h3>
+<p>Every AWS region operates under the laws of its country. Compliance costs get baked into the pricing:</p>
+<ul>
+  <li><strong>India:</strong> GST (Goods and Services Tax) applies. Compliance with local data residency laws adds overhead.</li>
+  <li><strong>Europe:</strong> GDPR compliance requirements add engineering and operational cost to running EU regions</li>
+  <li><strong>Brazil:</strong> High import duties and tax complexity make São Paulo one of the most expensive AWS regions</li>
+</ul>
+<div class="info-box">💡 AWS doesn't absorb these costs — they're reflected in the regional price. This is why two technically identical regions in different countries will have different price tags.</div>
+
+<h3>4. Network and Data Transfer Cost</h3>
+<p>This is a big one that beginners often overlook. Data transfer pricing isn't flat — it depends on where data travels:</p>
+<ul>
+  <li><strong>Distance between regions:</strong> longer physical distance = more network infrastructure = higher cost</li>
+  <li><strong>Internet exchange costs:</strong> connecting to local internet exchanges varies significantly by country</li>
+  <li><strong>Bandwidth pricing locally:</strong> internet bandwidth costs differ by country</li>
+</ul>
+<div class="highlight-box">⚡ <strong>Practical example:</strong> Data transfer from Mumbai to US East is more expensive than data transfer within the US. Even if your EC2 instance in Mumbai is slightly cheaper, heavy cross-region data transfer can more than offset that savings.</div>
+<p>This is also why <span class="exam-highlight-sentence">data transfer OUT from AWS to the internet is always charged, while data transfer IN is generally free</span> — outbound means your app is serving customers, which is the value-generating event.</p>
+
+<h3>5. Currency and Purchasing Power</h3>
+<p>AWS doesn't simply convert USD prices to local currency at market rates. They actively adjust pricing based on:</p>
+<ul>
+  <li>Local market expectations and willingness to pay</li>
+  <li>Purchasing power parity in that country</li>
+  <li>Competitive landscape — what do local and regional cloud providers charge?</li>
+</ul>
+<p>The result: two regions with near-identical infrastructure costs can still have different prices because AWS has calibrated pricing to what the local market can support and what makes business sense competitively.</p>
+
+<h3>6. Service Availability Maturity</h3>
+<p>Not all AWS regions offer all services, and not all regions are equally optimized:</p>
+<ul>
+  <li><strong>Older regions (US East, EU West):</strong> fully optimized infrastructure, amortized setup costs, economies of scale from years of investment — generally cheaper per unit</li>
+  <li><strong>Newer regions (Middle East, Africa, newer Asia-Pacific):</strong> higher setup costs, fewer optimizations, smaller customer base — generally more expensive per unit until they mature</li>
+</ul>
+
+<h3>7. Hidden Cost Differences (The Trap Most Beginners Fall Into)</h3>
+<p>Even if compute prices look similar between two regions, the <em>total</em> cost of running the same architecture can differ significantly due to:</p>
+<ul>
+  <li><strong>NAT Gateway pricing</strong> — varies by region</li>
+  <li><strong>Data transfer rules</strong> — cross-AZ and cross-region transfer rates differ</li>
+  <li><strong>Load balancer costs</strong> — Application Load Balancer hourly rates vary</li>
+  <li><strong>Storage tier pricing</strong> — EBS and S3 prices are not identical across regions</li>
+</ul>
+<div class="error-box">❌ <strong>The Trap:</strong> Comparing only EC2 instance prices across regions and picking the cheapest. The same architecture can cost meaningfully more in one region vs. another once all the ancillary services are factored in.</div>
+
+<h3>The Mental Model: AWS Regional Pricing Formula</h3>
+<p>A simple way to think about it:</p>
+<pre><code>AWS Price (per region) =
+  Infrastructure cost
+  + Supply & demand premium
+  + Local taxes & compliance
+  + Network & data transfer costs
+  + Market strategy adjustment</code></pre>
+
+<h3>Real-World Intuition</h3>
+<table>
+  <thead><tr><th>Region</th><th>General Cost Level</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>US East (N. Virginia)</td><td>Cheapest baseline</td><td>Oldest, largest, most optimized region. Cheap electricity, amortized infra.</td></tr>
+    <tr><td>US West (Oregon)</td><td>Slightly higher</td><td>Renewable energy costs, slightly newer infra</td></tr>
+    <tr><td>Mumbai (ap-south-1)</td><td>Moderate to expensive</td><td>Higher real estate, energy, and compliance costs</td></tr>
+    <tr><td>Frankfurt / Ireland</td><td>Expensive</td><td>GDPR compliance overhead, higher European electricity costs</td></tr>
+    <tr><td>São Paulo</td><td>Most expensive</td><td>Brazil import duties, tax complexity, limited economies of scale</td></tr>
+  </tbody>
+</table>
+
+<h3>The Practical Takeaway: Never Pick Region by Instance Price Alone</h3>
+<div class="success-box">✅ <strong>Wrong approach:</strong> "Which region has the cheapest EC2 per hour?"<br><br><strong>Right approach:</strong> "Which region gives the lowest <em>total cost</em> for my users?" — factoring in latency, data transfer, architecture choices, and compliance requirements.<br><br><strong>Key insight:</strong> If your users are in India, Mumbai may actually be cheaper overall than US East — even with higher per-instance pricing — because lower latency means less re-request overhead and far less cross-ocean data transfer cost.</div>
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="storage-pricing">🗄️ 5. Storage Pricing Deep Dive (S3 &amp; EBS)</h2></summary><div class="section-content">
+<p>Storage pricing has a lot of nuance that beginners often miss. Understanding tiering and volume discounts can lead to dramatic cost savings.</p>
+
+<h3>Amazon S3 Pricing</h3>
+<p>S3 charges are based on the volume of data you store, and AWS uses tiered pricing — the more you store, the lower the per-GB rate. For example, the first 50 TB might cost slightly more per GB than the next 450 TB, which costs less than anything above 500 TB. For very large data users (think ML training datasets), these fractional-cent differences translate into real savings at scale.</p>
+
+<p>Beyond raw storage, S3 offers multiple <strong>storage classes</strong> that let you trade access speed for cost:</p>
+
+<div class="diagram-container"><img src="images/s3-storage-tiers.png" loading="lazy" decoding="async" alt="Visual diagram of Amazon S3 storage classes arranged from most expensive and fastest to cheapest and slowest: Standard, Intelligent-Tiering, Standard-IA, One Zone-IA, Glacier Instant Retrieval, Glacier Flexible Retrieval, and Glacier Deep Archive"><p class="diagram-caption"><em>Figure 4: Amazon S3 Storage Classes — Cost vs. Access Speed</em></p></div>
+
+<ul>
+  <li><strong>S3 Standard:</strong> Frequently accessed data — highest cost but instant retrieval</li>
+  <li><strong>S3 Intelligent-Tiering:</strong> Automatically moves data between tiers based on access patterns — great if you're unsure how often data will be accessed</li>
+  <li><strong>S3 Standard-IA (Infrequent Access):</strong> Data you need occasionally but must retrieve quickly — lower storage cost, small retrieval fee</li>
+  <li><strong>S3 One Zone-IA:</strong> Same as Standard-IA but stored in only one AZ — cheaper, but less resilient</li>
+  <li><strong>S3 Glacier Instant Retrieval:</strong> Archive data with millisecond retrieval</li>
+  <li><strong>S3 Glacier Flexible Retrieval:</strong> Archive data retrieved in minutes to hours — significantly cheaper</li>
+  <li><strong>S3 Glacier Deep Archive:</strong> Lowest cost storage on AWS — retrieval takes hours. Uses tape drives. Best for data you're legally required to keep but will almost never access (e.g., audit logs, archived healthcare records)</li>
+</ul>
+
+<div class="highlight-box">⚡ <strong>Real-World Use Case:</strong> In the US, HIPAA regulations require healthcare providers to retain patient records for 7+ years. Deep Archive lets organizations meet this requirement at fractions of a penny per GB — far cheaper than keeping cold data in Standard S3.</div>
+
+<div class="info-box">💡 You can use <strong>S3 Lifecycle Policies</strong> to automatically move objects between storage classes. For example: "If this object hasn't been accessed in 30 days, move it to Standard-IA. If not accessed in 90 days, move it to Glacier." This automation means you don't have to manually manage data tiering.</div>
+
+<h3>Amazon EBS Pricing</h3>
+<p>EBS (Elastic Block Store) is the persistent disk storage attached to EC2 instances. Pricing varies based on the volume type you choose:</p>
+<ul>
+  <li><strong>gp3 / gp2 (General Purpose SSD):</strong> Balanced price/performance for most workloads — databases, boot volumes, dev environments</li>
+  <li><strong>io1 / io2 (Provisioned IOPS SSD):</strong> High-performance, low-latency — critical databases that require consistent IOPS. Most expensive option.</li>
+  <li><strong>st1 (Throughput Optimized HDD):</strong> Large sequential workloads — log processing, data warehouses. Cheaper than SSD.</li>
+  <li><strong>sc1 (Cold HDD):</strong> Lowest cost EBS option — infrequently accessed data that needs a block storage interface</li>
+</ul>
+<p>Choosing the right EBS volume type for your actual workload — rather than defaulting to the most performant — is a straightforward way to save money without sacrificing what you actually need.</p>
+
+<h3>Free Tier Storage</h3>
+<p>AWS offers a free tier for storage services that's genuinely useful for learning and small projects. S3 offers 5 GB of Standard storage free for 12 months. EBS offers 30 GB of General Purpose SSD free for 12 months. Always check free tier limits before assuming you'll incur charges.</p>
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="pricing-calculator">🧮 6. AWS Pricing Calculator</h2></summary><div class="section-content">
+<p>Before you build anything significant on AWS, you should estimate what it will cost. The AWS Pricing Calculator is a free, publicly available web tool at <a href="https://calculator.aws/#/" target="_blank" rel="noopener noreferrer">calculator.aws</a> that lets you do exactly that — no AWS account required.</p>
+
+<h3>What Can It Do?</h3>
+<ul>
+  <li><strong>Transparent Pricing:</strong> See itemized cost breakdowns for any service configuration before you commit</li>
+  <li><strong>Compare regions:</strong> Estimate the same architecture in different AWS regions to find the most cost-effective option</li>
+  <li><strong>Compare pricing models:</strong> See On-Demand vs Reserved vs Spot costs side by side for the same instance</li>
+  <li><strong>Hierarchical estimates:</strong> Group services by project, team, or environment — useful for enterprise planning</li>
+  <li><strong>Export estimates:</strong> Share estimates as links or export them for budget presentations</li>
+</ul>
+
+<div class="diagram-container"><img src="images/pricing-calculator-workflow.png" loading="lazy" decoding="async" alt="Workflow diagram showing how to use the AWS Pricing Calculator: select region, add services, configure each service, view itemized monthly and annual cost estimates, then export or share the estimate"><p class="diagram-caption"><em>Figure 5: AWS Pricing Calculator Workflow</em></p></div>
+
+<h3>How to Use It (Practical Example)</h3>
+<p>Let's say you want to estimate the cost of running an EC2 instance. You'd select your region (e.g., US West Oregon), choose EC2 as your service, then configure the instance type, operating system, tenancy (shared vs. dedicated), and expected utilization. The calculator will immediately show you monthly and annual cost estimates for On-Demand, Reserved 1-year, and Reserved 3-year options.</p>
+
+<div class="highlight-box">⚡ <strong>From the demo:</strong> A dedicated host A1 instance (16 physical cores) priced On-Demand costs around $327/month. The same workload on a nano shared instance costs just a few dollars per month. The difference comes down entirely to instance sizing — which illustrates why right-sizing is so important.</div>
+
+<div class="success-box">✅ <strong>Best Practice:</strong> Use the Pricing Calculator when designing architecture. Ask yourself: "What would this cost if I added a Knowledge Base for my AI app? What if I use Aurora instead of RDS MySQL? What if I move from On-Demand to a 1-year Reserved plan once I'm confident in my usage patterns?"</div>
+
+<h3>Limitations to Know</h3>
+<p>The calculator gives you estimates, not guarantees. Actual costs depend on actual usage patterns, data transfer volumes, and API call frequency. Use it for planning and comparison, but monitor your real costs with Cost Explorer once deployed.</p>
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="reduce-bill">✂️ 7. Ways to Reduce Your AWS Bill</h2></summary><div class="section-content">
+<p>Here are the most impactful actions you can take to reduce AWS costs — organized by service category. Many of these directly correspond to findings that AWS Trusted Advisor will surface in your account.</p>
+
+<h3>Compute (EC2 &amp; Lambda)</h3>
+<ul>
+  <li><strong>Right-size your instances:</strong> Don't start with the largest instance available "just in case." Start small, monitor utilization in CloudWatch, and scale up if needed. A t3.micro or t3.small is often enough for learning and dev environments.</li>
+  <li><strong>Stop instances when not in use:</strong> Unlike terminating (which deletes the instance), stopping preserves the instance and its data but stops the compute clock. Great for dev instances you only use during business hours.</li>
+  <li><strong>Use Spot Instances for flexible workloads:</strong> Batch jobs, ML training runs, and non-time-sensitive processing can often run on Spot Instances at 60-90% savings.</li>
+  <li><strong>Use Compute Savings Plans:</strong> Once you have a stable baseline of Lambda and EC2 usage, committing to a Savings Plan locks in discounts of up to 66% versus On-Demand.</li>
+</ul>
+<div class="error-box">❌ <strong>Common Mistake:</strong> Spinning up large EC2 instances for a lab and forgetting to stop or terminate them. Even "stopped" instances still incur storage charges for attached EBS volumes. Terminate completely if you don't need the data.</div>
+
+<h3>Storage (EBS &amp; S3)</h3>
+<ul>
+  <li><strong>Snapshot and delete idle EBS volumes:</strong> If an EBS volume is attached to a stopped instance you no longer need, take a snapshot (cheap archive) then delete the volume (which is more expensive persistent storage).</li>
+  <li><strong>Use S3 storage tiers:</strong> Move infrequently accessed objects to Standard-IA, Glacier, or Deep Archive using Lifecycle Policies. Even a 30-day trigger can dramatically reduce costs for log files and audit data.</li>
+</ul>
+
+<h3>Databases (RDS, Redshift, DynamoDB)</h3>
+<ul>
+  <li><strong>Stop RDS instances when not needed:</strong> Like EC2, RDS instances can be stopped (for up to 7 days at a time per AWS policy) to avoid hourly charges during off-hours.</li>
+  <li><strong>Pause Redshift clusters:</strong> Redshift clusters can be paused when not actively querying, stopping compute charges while preserving data.</li>
+  <li><strong>Use DynamoDB Auto Scaling or On-Demand mode:</strong> Rather than over-provisioning read/write capacity units, let DynamoDB automatically scale to demand or use On-Demand mode which charges per request.</li>
+  <li><strong>Use Reserved Instances for steady-state databases:</strong> Production RDS, Redshift, and ElastiCache instances that run 24/7 are perfect candidates for Reserved Instances.</li>
+</ul>
+
+<h3>Networking</h3>
+<ul>
+  <li><strong>Delete idle load balancers:</strong> Load Balancers charge by the hour regardless of traffic. If a load balancer isn't receiving traffic, delete it.</li>
+  <li><strong>Review AutoScaling Group configurations:</strong> Misconfigured ASGs can hold more instances than necessary during low-traffic periods.</li>
+  <li><strong>Consider IPv6 migration:</strong> AWS now charges $0.005/hour (~$3.60/month) for each public IPv4 address to encourage migration to IPv6. If your architecture is IPv4-heavy, this adds up.</li>
+</ul>
+
+<div class="diagram-container"><img src="images/cost-reduction-strategies.png" loading="lazy" decoding="async" alt="Mind map showing cost reduction strategies organized by category: Compute (right-size, spot, savings plans), Storage (tiering, lifecycle, snapshot), Database (stop/pause, reserved, auto-scaling), and Networking (delete idle, review ASGs)"><p class="diagram-caption"><em>Figure 6: AWS Cost Reduction Strategies by Service Category</em></p></div>
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="cost-optimization-pillar">🏛️ 8. The Cost Optimization Pillar</h2></summary><div class="section-content">
+<p>The Cost Optimization pillar of the Well-Architected Framework is a set of design principles and best practices that help you build and run systems at the lowest possible cost, without compromising performance, reliability, or security. It's organized around three core practices.</p>
+
+<h3>1. Choose the Right Pricing Models</h3>
+<p>Align your purchasing strategy with your workload characteristics. Use On-Demand for unpredictable workloads, Reserved/Savings Plans for stable baselines, and Spot for fault-tolerant batch jobs. <span class="exam-highlight-sentence">Mixing pricing models within a single architecture is a best practice — use Reserved for your steady-state web tier, and Spot for batch processing.</span></p>
+
+<h3>2. Match Capacity with Demand</h3>
+<p>The old on-premises model forced you to provision for peak demand and waste resources the rest of the time. AWS lets you dynamically scale capacity to match actual demand:</p>
+<ul>
+  <li>Use <strong>Auto Scaling</strong> to automatically add and remove EC2 instances based on load</li>
+  <li>Start with smaller instance sizes and scale up only when monitoring confirms you need it</li>
+  <li>Use serverless services like Lambda, which automatically scale to zero when idle and charge only per execution</li>
+</ul>
+
+<h3>3. Implement Processes to Identify Resource Waste</h3>
+<p>Even well-architected systems accumulate waste over time — forgotten instances, idle load balancers, orphaned EBS volumes. Establish regular reviews using:</p>
+<ul>
+  <li><strong>AWS Trusted Advisor</strong> — proactively flags underutilized resources and cost-saving opportunities</li>
+  <li><strong>AWS Cost Explorer</strong> — visualizes spending patterns over time, broken down by service and region</li>
+  <li><strong>CloudWatch</strong> — monitors utilization metrics so you can make data-driven right-sizing decisions</li>
+</ul>
+
+<div class="success-box">✅ <strong>Real Example from Session:</strong> The instructor discovered $4,000-5,000/month in SageMaker charges for resources spun up in Europe that had been forgotten. Using Cost Explorer and intentional cleanup brought that to near zero. This illustrates why automated monitoring matters — humans forget things.</div>
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="tools">🛠️ 9. Cost Management Tools</h2></summary><div class="section-content">
+<p>AWS provides three complementary tools for understanding and managing your costs. Understanding when to use each is important for both the exam and real-world practice.</p>
+
+<h3>AWS Pricing Calculator</h3>
+<p><strong>Use before you build.</strong> Plan and estimate costs for proposed architectures without needing an AWS account. Accessible at <a href="https://calculator.aws/#/" target="_blank" rel="noopener noreferrer">calculator.aws</a>.</p>
+
+<h3>AWS Trusted Advisor</h3>
+<p><strong>Use to audit your existing account.</strong> Trusted Advisor continuously analyzes your AWS environment and provides recommendations across five categories: Cost Optimization, Performance, Security, Fault Tolerance, and Service Limits. For cost optimization specifically, it will flag:</p>
+<ul>
+  <li>Underutilized EC2 instances (low CPU usage over an extended period)</li>
+  <li>Idle load balancers</li>
+  <li>Unattached EBS volumes</li>
+  <li>Reserved Instance utilization — whether you're actually using the RIs you've purchased</li>
+</ul>
+<div class="info-box">💡 <strong>Access:</strong> Basic Trusted Advisor checks (including core cost optimization and security checks) are available to all AWS customers for free. More detailed checks require a Business or Enterprise Support plan. In the AWS Console, search for "Trusted Advisor."</div>
+<p><span class="exam-highlight-sentence">Trusted Advisor is free for all AWS accounts and provides recommendations across Cost Optimization, Security, Performance, Fault Tolerance, and Service Limits.</span></p>
+
+<div class="diagram-container"><img src="images/trusted-advisor-dashboard.png" loading="lazy" decoding="async" alt="Illustration of the AWS Trusted Advisor dashboard showing five check categories with color-coded status indicators: green for no issues, yellow for investigation recommended, red for action required, across Cost Optimization, Security, Performance, Fault Tolerance, and Service Limits"><p class="diagram-caption"><em>Figure 7: AWS Trusted Advisor — Five Check Categories</em></p></div>
+
+<h3>AWS Cost Explorer</h3>
+<p><strong>Use to analyze past and current spending.</strong> Cost Explorer is a free visualization tool built into the AWS Console that lets you view your spending history, break it down by service or region, and identify trends. You can:</p>
+<ul>
+  <li>View monthly or daily cost breakdowns going back 12 months</li>
+  <li>Filter by service (e.g., "How much did I spend on SageMaker last month?")</li>
+  <li>Filter by region (e.g., "Which region is costing me the most?")</li>
+  <li>View Reserved Instance utilization and recommendations</li>
+  <li>Forecast future costs based on current usage trends</li>
+</ul>
+<p><span class="exam-highlight-sentence">AWS Cost Explorer is a free tool that provides visual representations of AWS costs and usage over time, with filtering by service, region, and linked accounts.</span></p>
+<div class="success-box">✅ <strong>Best Practice:</strong> Set up a monthly Cost Explorer review habit. Even a 5-minute check can surface forgotten resources, unexpected data transfer charges, or services that are growing faster than anticipated.</div>
+
+<h3>Comparing the Three Tools</h3>
+<table>
+  <thead><tr><th>Tool</th><th>When to Use</th><th>Looking At</th><th>Cost</th></tr></thead>
+  <tbody>
+    <tr><td>Pricing Calculator</td><td>Before deploying</td><td>Estimated future costs</td><td>Free, no account needed</td></tr>
+    <tr><td>Trusted Advisor</td><td>Ongoing — audit existing resources</td><td>Recommendations to reduce waste</td><td>Free (basic checks)</td></tr>
+    <tr><td>Cost Explorer</td><td>Ongoing — analyze actual spend</td><td>Historical and current spending</td><td>Free</td></tr>
+  </tbody>
+</table>
+</div></details>
+
+<details class="collapsible-section"><summary><h2>📝 Overall Summary</h2></summary><div class="section-content"><ul>
+  <li><strong>Three cost drivers:</strong> All AWS costs come down to compute, storage, and outbound data transfer — understanding this helps you predict where your bill will come from.</li>
+  <li><strong>On-Demand is flexible but expensive:</strong> The default pay-as-you-go model is great for unpredictable workloads but costs the most per unit of compute.</li>
+  <li><strong>Reserved Instances save up to 72%:</strong> Committing to 1- or 3-year terms for stable workloads dramatically reduces costs — the trade-off is flexibility.</li>
+  <li><strong>Spot Instances offer the deepest discounts:</strong> Up to 90% off for interruptible, fault-tolerant workloads like batch jobs and ML training.</li>
+  <li><strong>S3 has eight storage classes:</strong> Moving infrequently accessed data down through tiers (Standard → IA → Glacier → Deep Archive) can reduce storage costs by orders of magnitude.</li>
+  <li><strong>Right-sizing is the fastest win:</strong> Most AWS bills have waste from over-provisioned instances — starting small and scaling based on CloudWatch data is a best practice.</li>
+  <li><strong>Pricing Calculator helps you plan before building:</strong> Free, no account required, available at calculator.aws.</li>
+  <li><strong>Trusted Advisor audits your existing account:</strong> Free recommendations for cost, security, performance, and fault tolerance.</li>
+  <li><strong>Cost Explorer shows you what you've already spent:</strong> Visualize historical spend by service and region to find surprises and trends.</li>
+  <li><strong>Cost Optimization is a Well-Architected pillar:</strong> It's not an afterthought — it's one of six foundational pillars alongside Security, Reliability, and Performance Efficiency.</li>
+</ul></div></details>
+
+<details class="collapsible-section"><summary><h2>📖 Glossary</h2></summary><div class="section-content"><div id="glossaryContainer" data-glossary-source="json/glossary.json"></div></div></details>
+
+<details class="collapsible-section"><summary><h2>🎤 Interview Questions</h2></summary><div class="section-content"><p class="interview-intro">📚 Test your understanding with these questions.</p><div class="interview-progress"><p id="interviewProgress">Progress: 0/25 (0%)</p></div><div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn" id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1 / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn" id="nextInterviewBtn">Next →</button></div><div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json"></div><div style="margin-top: 2rem; text-align: center;"><button onclick="resetInterviewProgress()" class="quiz-reset-btn">🔄 Reset Progress</button></div></div></details>
+
+<details class="collapsible-section"><summary><h2>📝 Multiple Choice Questions</h2></summary><div class="section-content"><div class="quiz-header-info"><p>📝 Test your knowledge with immediate feedback.</p></div><div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn" id="prevBtn">← Previous</button><div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button></div><div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div><div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊 View Summary</button><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄 Reset All</button></div></div></details>
+
+<details class="collapsible-section"><summary><h2>💼 Hands-On Projects</h2></summary><div class="section-content"><div class="prerequisites-box"><h4>📋 Prerequisites</h4><ul><li>✅ AWS account (free tier)</li><li>✅ Knowledge: EC2 basics, S3 basics, IAM</li></ul></div>
+<h3>Project 1: Estimate an Architecture with Pricing Calculator</h3>
+<div class="info-box"><p><strong>🎯 Objective:</strong> Use the AWS Pricing Calculator to estimate the monthly cost of a simple 3-tier web application</p><p><strong>⏱️ Time:</strong> 20-30 min</p><p><strong>💰 Cost:</strong> Free — no AWS account required</p></div>
+<ol>
+  <li>Go to <a href="https://calculator.aws/#/" target="_blank" rel="noopener noreferrer">calculator.aws</a></li>
+  <li>Create a new estimate and select region US East (N. Virginia)</li>
+  <li>Add an EC2 instance: t3.micro, On-Demand, Linux, 730 hours/month</li>
+  <li>Add an RDS instance: db.t3.micro, MySQL, On-Demand, Single-AZ</li>
+  <li>Add S3: 50 GB standard storage, 10,000 PUT requests, 100,000 GET requests</li>
+  <li>Review the monthly and annual totals</li>
+  <li>Now change the EC2 to a 1-year Reserved plan and compare the savings</li>
+  <li>Export the estimate as a URL and share it</li>
+</ol>
+<p><strong>Verification:</strong> Your On-Demand estimate should be around $30-50/month for these minimal resources. The Reserved 1-year plan should show ~30-40% savings on the EC2 component.</p>
+
+<h3>Project 2: Explore Cost Explorer in Your Account</h3>
+<div class="info-box"><p><strong>🎯 Objective:</strong> Navigate Cost Explorer to identify your biggest cost drivers</p><p><strong>⏱️ Time:</strong> 15-20 min</p><p><strong>💰 Cost:</strong> Free — Cost Explorer itself is free to use</p></div>
+<ol>
+  <li>Log into the AWS Console and search for "Cost Explorer"</li>
+  <li>Enable Cost Explorer if it's your first time (takes up to 24 hours to populate data)</li>
+  <li>In the Cost and Usage report, set the date range to "Last 3 months"</li>
+  <li>Group by "Service" to see which services cost the most</li>
+  <li>Filter by a specific service (e.g., EC2) to see usage trends</li>
+  <li>Check the "Recommendations" section for Reserved Instance suggestions</li>
+</ol>
+
+<h3>Project 3: Review Trusted Advisor Cost Checks</h3>
+<div class="info-box"><p><strong>🎯 Objective:</strong> Use Trusted Advisor to identify potential cost savings in your account</p><p><strong>⏱️ Time:</strong> 15 min</p><p><strong>💰 Cost:</strong> Free</p></div>
+<ol>
+  <li>In AWS Console, search for "Trusted Advisor"</li>
+  <li>Navigate to the "Cost Optimization" category</li>
+  <li>Review any flagged items (low-utilization EC2, idle load balancers, unattached EBS volumes)</li>
+  <li>For each flagged item, decide: stop, delete, or right-size</li>
+  <li>Also review the "Security" category — fixing security issues is always more important than cost</li>
+</ol>
+</div></details>
+
+<details class="collapsible-section"><summary><h2>☑️ Learning Checklist</h2></summary><div class="section-content"><div class="checklist-progress"><p>Progress: <span id="checklistProgress">0/15</span></p><div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%;">0%</div></div></div><div id="checklistContainer" data-checklist-source="json/checklist.json"></div><div style="margin-top: 2rem; text-align: center;"><button onclick="resetChecklist()" class="quiz-reset-btn">🔄 Reset Checklist</button></div></div></details>
+
+<details class="collapsible-section"><summary><h2>🤔 Reflection Questions</h2></summary><div class="section-content">
+<div class="question-block"><h4>1. You're building a web app that will have steady traffic 24/7. What pricing model should you consider once you've confirmed the baseline compute needed, and why?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Think about what "steady" usage means for cost predictability — and what AWS rewards when you can predict your usage in advance.</p></div></details></div>
+<div class="question-block"><h4>2. A company needs to run nightly ML training jobs. The jobs take 4-6 hours and can tolerate occasional interruptions with automatic checkpointing. What EC2 pricing model should they use and why?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Consider which pricing model offers the deepest discount and what the tradeoff is in terms of availability guarantees.</p></div></details></div>
+<div class="question-block"><h4>3. Your S3 bucket contains 500 GB of application logs. Logs older than 90 days are only accessed during audits (a few times per year). Logs older than 7 years don't need to be accessed at all but must be retained for compliance. What would an efficient storage tiering strategy look like?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Think about S3 Lifecycle Policies and which storage classes balance cost vs. retrieval speed requirements for each age bucket.</p></div></details></div>
+<div class="question-block"><h4>4. What is the difference between stopping an EC2 instance and terminating it? When would you choose each?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Think about what happens to the instance data and EBS volumes in each case, and the cost implications of each choice.</p></div></details></div>
+<div class="question-block"><h4>5. Why does AWS charge for outbound data transfer but generally not for inbound? What does this reveal about the business model?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Think about when outbound data transfer occurs and who the data is being sent to. When does the value exchange happen in a typical application?</p></div></details></div>
+<div class="question-block"><h4>6. You're architecting for a retail company that has massive traffic spikes during holiday seasons and very low traffic in January and February. How would you design the compute layer to be cost-optimal while handling peak load?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Think about combining pricing models — reserved for the baseline you always need, and something else for the spike periods.</p></div></details></div>
+</div></details>
+
+<details class="collapsible-section"><summary><h2>🔗 Links &amp; References</h2></summary><div class="section-content">
+<h3>📚 Official AWS Documentation</h3>
+<table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody>
+  <tr><td><a href="https://aws.amazon.com/pricing/" target="_blank" rel="noopener noreferrer">AWS Pricing Overview</a></td><td>Main pricing page with links to per-service pricing</td></tr>
+  <tr><td><a href="https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html" target="_blank" rel="noopener noreferrer">Cost Optimization Pillar Whitepaper</a></td><td>Official Well-Architected guidance on cost optimization</td></tr>
+  <tr><td><a href="https://docs.aws.amazon.com/awssupport/latest/user/trusted-advisor.html" target="_blank" rel="noopener noreferrer">AWS Trusted Advisor Docs</a></td><td>Full documentation on Trusted Advisor checks and usage</td></tr>
+  <tr><td><a href="https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html" target="_blank" rel="noopener noreferrer">AWS Cost Explorer Docs</a></td><td>Guide to using Cost Explorer for spend analysis</td></tr>
+  <tr><td><a href="https://aws.amazon.com/s3/storage-classes/" target="_blank" rel="noopener noreferrer">S3 Storage Classes</a></td><td>Full comparison of all S3 storage tiers with pricing</td></tr>
+</tbody></table>
+<h3>🎓 Recommended Reading</h3>
+<table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody>
+  <tr><td><a href="https://aws.amazon.com/aws-cost-management/aws-cost-optimization/" target="_blank" rel="noopener noreferrer">AWS Cost Optimization Hub</a></td><td>Curated resources and tools for cost optimization</td></tr>
+  <tr><td><a href="https://wa.aws.amazon.com/wellarchitected/2020-07-02T19-33-23/wat.pillar.costOptimization.en.html" target="_blank" rel="noopener noreferrer">Well-Architected Tool — Cost Pillar</a></td><td>Interactive tool for evaluating your architecture</td></tr>
+</tbody></table>
+<h3>🔧 Tools &amp; Calculators</h3>
+<table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody>
+  <tr><td><a href="https://calculator.aws/#/" target="_blank" rel="noopener noreferrer">AWS Pricing Calculator</a></td><td>Estimate costs before building — no account required</td></tr>
+  <tr><td><a href="https://aws.amazon.com/free/" target="_blank" rel="noopener noreferrer">AWS Free Tier</a></td><td>Full list of always-free and 12-month free tier offerings</td></tr>
+</tbody></table>
+</div></details>
+
+</div><div class="tags"><span class="tag">AWS</span><span class="tag">Cost Optimization</span><span class="tag">Well-Architected</span><span class="tag">Pricing</span><span class="tag">EC2</span><span class="tag">S3</span></div></div><script defer src="../../../js/notes-template.js"></script></body></html>
