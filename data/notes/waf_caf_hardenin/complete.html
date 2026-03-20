@@ -1,0 +1,391 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Complete beginner-friendly notes on AWS Well-Architected Framework, Cloud Adoption Framework, System Hardening, and Network Hardening for AWS Cloud Practitioner exam preparation."><meta name="keywords" content="AWS, WAF, CAF, Well-Architected Framework, Cloud Adoption Framework, System Hardening, Network Hardening, cloud, certification"><meta property="og:title" content="WAF, CAF & Security Hardening - AWS Training"><meta property="og:description" content="Complete beginner-friendly notes on AWS Well-Architected Framework, Cloud Adoption Framework, System Hardening, and Network Hardening."><meta property="og:type" content="article"><meta property="og:url" content="https://namrata2709.github.io/Resources/data/notes/waf-caf-hardening/waf-caf-hardening-complete.html"><meta property="og:image" content="https://namrata2709.github.io/Resources/data/notes/waf-caf-hardening/images/waf-6-pillars.jpeg"><link rel="canonical" href="https://namrata2709.github.io/Resources/data/notes/waf-caf-hardening/waf-caf-hardening-complete.html"><title>WAF, CAF & Security Hardening - Complete Notes - AWS Training</title><link rel="stylesheet" href="../../../css/styles.css"><link rel="stylesheet" href="../../../css/notes-template.css"><script src="../../../js/theme.js"></script></head><body class="complete-notes"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"AWS WAF, CAF, System Hardening & Network Hardening","description":"Complete beginner-friendly notes on AWS Well-Architected Framework, Cloud Adoption Framework, System Hardening, and Network Hardening for AWS Cloud Practitioner exam preparation.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-12-29","dateModified":"2025-12-29","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/waf-caf-hardening/waf-caf-hardening-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/waf-caf-hardening/images/waf-6-pillars.jpeg","articleSection":"AWS Training","keywords":["AWS","WAF","CAF","Security","Hardening","Cloud Practitioner"],"educationalLevel":"Beginner to Intermediate"}</script><div class="note-container"><div class="note-header"><h1>☁️ WAF, CAF, System Hardening & Network Hardening</h1><p class="note-date">📅 December 29, 2025</p><div class="version-info"><p><strong>Version:</strong> 1.0</p><p><strong>Last Updated:</strong> December 29, 2025</p><p><strong>Status:</strong> ✅ Current</p></div></div><div class="note-content">
+
+<div class="highlight-box">⚡ <strong>What You'll Learn:</strong> The AWS Well-Architected Framework (WAF) with its 6 pillars, the Cloud Adoption Framework (CAF) with its 6 perspectives, and two key security concepts — Network Hardening and System Hardening. These topics appear in the AWS Cloud Practitioner exam!</div>
+
+<h2>📑 Table of Contents</h2>
+<ul>
+<li><a href="#waf">1. AWS Well-Architected Framework (WAF)</a></li>
+<li><a href="#waf-pillars">2. The 6 Pillars of WAF</a></li>
+<li><a href="#caf">3. AWS Cloud Adoption Framework (CAF)</a></li>
+<li><a href="#caf-perspectives">4. The 6 Perspectives of CAF</a></li>
+<li><a href="#waf-vs-caf">5. WAF vs CAF — Key Difference</a></li>
+<li><a href="#hardening-intro">6. Why Hardening is Needed</a></li>
+<li><a href="#network-hardening">7. Network Hardening</a></li>
+<li><a href="#system-hardening">8. System Hardening</a></li>
+<li><a href="#summary">9. Overall Summary</a></li>
+<li><a href="#glossary-section">10. Glossary</a></li>
+<li><a href="#interview-section">11. Interview Questions</a></li>
+<li><a href="#mcq-section">12. Multiple Choice Questions</a></li>
+<li><a href="#projects-section">13. Hands-On Projects</a></li>
+<li><a href="#checklist-section">14. Learning Checklist</a></li>
+<li><a href="#reflection-section">15. Reflection Questions</a></li>
+<li><a href="#links-section">16. Links &amp; References</a></li>
+</ul>
+
+<details class="collapsible-section" open><summary><h2 id="waf">🏛️ 1. AWS Well-Architected Framework (WAF)</h2></summary><div class="section-content">
+
+<p>Imagine you just moved into a new house 🏠. The construction is done, but now you need to make sure everything runs properly — electricity, plumbing, security alarms, energy efficiency. Moving in was just the first step!</p>
+
+<p>That's exactly what the <span class="exam-highlight-sentence">AWS Well-Architected Framework (WAF) is a set of best practices to design, build, and review workloads on AWS.</span> It's not a service you turn on — it's a <strong>framework</strong>, a guide that helps you after you've already set things up in AWS.</p>
+
+<div class="info-box">💡 <strong>What problems does WAF solve?</strong> After companies migrate to AWS, they often face unexpected issues: huge bills at month-end, security breaches, no disaster recovery plan, poor performance. The WAF gives them a structured checklist to continuously review and improve their cloud setup.</div>
+
+<p>Think of WAF as a quality audit system — like how hospitals have periodic inspections to ensure they're following all best practices. WAF lets you inspect your AWS architecture against industry standards.</p>
+
+<div class="diagram-container"><img src="images/6_pillars_of_the_waf.jpeg" decoding="async" alt="Hexagonal diagram showing the 6 pillars of the AWS Well-Architected Framework: Operational Excellence, Security, Reliability, Cost Optimization, Performance Efficiency, and Sustainability"><p class="diagram-caption"><em>Figure 1: The 6 Pillars of the AWS Well-Architected Framework</em></p></div>
+
+<div class="success-box">✅ <strong>Remember:</strong> <span class="exam-highlight-sentence">WAF is NOT a service — it is a framework for technical correctness of your AWS workloads.</span> It helps you after migration.</div>
+
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="waf-pillars">🏗️ 2. The 6 Pillars of WAF</h2></summary><div class="section-content">
+
+<p>The WAF is built on <span class="exam-highlight-term">6 pillars</span>. Think of these as the 6 departments of a well-run company. Each focuses on a different area of your cloud health.</p>
+
+<details class="collapsible-section"><summary><h3>🖥️ Pillar 1: Operational Excellence</h3></summary><div class="section-content">
+<p><strong>What it means:</strong> Running and monitoring systems to deliver business value and continually improving processes and procedures.</p>
+<p><strong>Real-world analogy:</strong> Think of a restaurant kitchen. Operational Excellence means the kitchen has clear workflows, chefs know their roles, orders are tracked, and the head chef regularly reviews what went wrong to improve next time.</p>
+<p><strong>In AWS terms:</strong> Automate deployments, monitor with CloudWatch, run frequent small changes rather than big risky ones, anticipate failures and respond to them.</p>
+<div class="highlight-box">⚡ Key question to ask: <em>"Are we running our systems efficiently AND learning from every incident?"</em></div>
+</div></details>
+
+<details class="collapsible-section"><summary><h3>🔒 Pillar 2: Security</h3></summary><div class="section-content">
+<p><strong>What it means:</strong> <span class="exam-highlight-sentence">Protecting your information systems from unauthorized access, data breaches, and cyber attacks.</span></p>
+<p><strong>Real-world analogy:</strong> Security is like the lock on your front door, the CCTV camera outside, and the safe inside your bedroom. Multiple layers of protection.</p>
+<p><strong>In AWS terms:</strong> Use IAM for access control, encrypt data at rest and in transit, enable CloudTrail for audit logs, use Security Groups and NACLs for network access control.</p>
+<div class="success-box">✅ Security covers: Identity management, detecting threats, protecting data, maintaining compliance.</div>
+</div></details>
+
+<details class="collapsible-section"><summary><h3>🔄 Pillar 3: Reliability</h3></summary><div class="section-content">
+<p><strong>What it means:</strong> <span class="exam-highlight-sentence">Ensuring a workload performs its intended function correctly and consistently when it's expected to.</span></p>
+<p><strong>Real-world analogy:</strong> A reliable car starts every time you turn the key, even in rain or cold weather. Reliability in cloud means your app keeps working even when one server crashes.</p>
+<p><strong>In AWS terms:</strong> Use Auto Scaling so your app handles traffic spikes, Multi-AZ deployments so one data center failure doesn't take you down, backups with S3 and RDS snapshots.</p>
+<div class="highlight-box">⚡ Key question: <em>"Can my system recover automatically from failures?"</em></div>
+</div></details>
+
+<details class="collapsible-section"><summary><h3>⚡ Pillar 4: Performance Efficiency</h3></summary><div class="section-content">
+<p><strong>What it means:</strong> Using IT and compute resources efficiently — getting maximum output from minimum input.</p>
+<p><strong>Real-world analogy:</strong> A fuel-efficient car gets more kilometres per litre. Performance efficiency in cloud means you're not over-provisioning (paying for resources you don't use) or under-provisioning (slow performance).</p>
+<p><strong>In AWS terms:</strong> Choose the right EC2 instance type for your workload, use serverless (Lambda) where appropriate, use CloudFront CDN to serve content closer to users.</p>
+<div class="success-box">✅ Performance efficiency is about the <em>right resource</em> at the <em>right time</em>.</div>
+</div></details>
+
+<details class="collapsible-section"><summary><h3>💰 Pillar 5: Cost Optimization</h3></summary><div class="section-content">
+<p><strong>What it means:</strong> <span class="exam-highlight-sentence">Avoiding unnecessary costs by understanding and controlling where money is being spent.</span></p>
+<p><strong>Real-world analogy:</strong> Turning off lights when you leave a room. In cloud, this means shutting down unused EC2 instances, deleting old EBS snapshots, right-sizing your infrastructure.</p>
+<p><strong>In AWS terms:</strong> Use Reserved Instances for predictable workloads, Spot Instances for flexible jobs, AWS Cost Explorer to track spending, S3 lifecycle policies to move old data to cheaper storage.</p>
+<div class="highlight-box">⚡ Key question: <em>"Am I paying for anything I don't actually need?"</em></div>
+</div></details>
+
+<details class="collapsible-section"><summary><h3>🌱 Pillar 6: Sustainability</h3></summary><div class="section-content">
+<p><strong>What it means:</strong> <span class="exam-highlight-sentence">Minimizing the environmental impacts of running cloud workloads.</span></p>
+<p><strong>Real-world analogy:</strong> Choosing a hybrid car over a petrol-only car to reduce your carbon footprint. In cloud, this means reducing energy consumption.</p>
+<p><strong>In AWS terms:</strong> Use managed services (less infrastructure to manage), select regions powered by renewable energy, optimize code to run faster with less compute.</p>
+<div class="success-box">✅ Sustainability was the <em>newest addition</em> to WAF pillars — added in 2021. Expect a question about it!</div>
+</div></details>
+
+<div class="info-box">📝 <strong>Memory Trick for 6 Pillars:</strong> <span class="exam-highlight-term">OSRPCS</span> — <strong>O</strong>perational Excellence, <strong>S</strong>ecurity, <strong>R</strong>eliability, <strong>P</strong>erformance Efficiency, <strong>C</strong>ost Optimization, <strong>S</strong>ustainability. Or remember: <em>"Our Security Really Performs Cost Sustainably"</em> 🎯</div>
+
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="caf">🗺️ 3. AWS Cloud Adoption Framework (CAF)</h2></summary><div class="section-content">
+
+<p>Now here's a different scenario: Your company has decided to move to the cloud, but you haven't started yet. You're asking, "Are we even READY to migrate?" That's where the CAF comes in.</p>
+
+<p><span class="exam-highlight-sentence">The AWS Cloud Adoption Framework (CAF) helps organizations understand how to prepare for cloud migration — it is a framework for organizational readiness.</span></p>
+
+<div class="info-box">💡 <strong>Key Insight:</strong> Moving to the cloud is NOT just a technology change — it's an organisational change. You need to train people, update processes, change how teams work, and ensure security compliance. CAF addresses all of these.</div>
+
+<p>Think of it like relocating your entire office to a new city. You don't just pack computers — you need HR to manage employee transitions, Finance to budget the move, IT to set up the new network, and Management to communicate the strategy. CAF covers all these angles.</p>
+
+<div class="diagram-container"><img src="images/cloud_adoption_framework.jpeg" loading="lazy" decoding="async" alt="Table showing the 6 perspectives of the AWS Cloud Adoption Framework: Business, People, Governance, Platform, Operations, and Security with their areas of focus and common roles"><p class="diagram-caption"><em>Figure 2: The 6 Perspectives of the AWS Cloud Adoption Framework</em></p></div>
+
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="caf-perspectives">🔭 4. The 6 Perspectives of CAF</h2></summary><div class="section-content">
+
+<p>CAF has <span class="exam-highlight-term">6 perspectives</span> — not "pillars" like WAF, but "perspectives." Each perspective represents a different viewpoint or stakeholder group.</p>
+
+<details class="collapsible-section"><summary><h3>💼 Perspective 1: Business</h3></summary><div class="section-content">
+<p><strong>Focus:</strong> Business support capabilities to optimize business value with cloud adoption.</p>
+<p><strong>Who's involved:</strong> Business Managers, Finance Managers, Budget Owners, Strategy Stakeholders.</p>
+<p><strong>What they're asking:</strong> "How does moving to cloud align with our business goals? What's the ROI? How do we justify this investment to the board?"</p>
+<div class="highlight-box">⚡ Business perspective ensures cloud migration serves actual business outcomes, not just IT goals.</div>
+</div></details>
+
+<details class="collapsible-section"><summary><h3>👥 Perspective 2: People</h3></summary><div class="section-content">
+<p><strong>Focus:</strong> People development, training, communications, and change management.</p>
+<p><strong>Who's involved:</strong> Human Resources, Staffing, People Managers.</p>
+<p><strong>What they're asking:</strong> "Do our employees have the skills to work in a cloud environment? How do we train them? How do we manage the cultural shift?"</p>
+<div class="success-box">✅ This is often overlooked — technology changes fail when people aren't prepared. CAF makes sure human factors are addressed.</div>
+</div></details>
+
+<details class="collapsible-section"><summary><h3>📊 Perspective 3: Governance</h3></summary><div class="section-content">
+<p><strong>Focus:</strong> Managing and measuring resulting business outcomes.</p>
+<p><strong>Who's involved:</strong> CIO, Program Managers, Project Managers, Enterprise Architects, Business Analysts, Portfolio Managers.</p>
+<p><strong>What they're asking:</strong> "How do we track our cloud spending? How do we ensure compliance? What KPIs measure cloud success?"</p>
+<div class="highlight-box">⚡ Governance is about control and measurement — making sure the migration stays on track and delivers expected value.</div>
+</div></details>
+
+<details class="collapsible-section"><summary><h3>🖥️ Perspective 4: Platform</h3></summary><div class="section-content">
+<p><strong>Focus:</strong> Develop, maintain, and optimize cloud solutions and services.</p>
+<p><strong>Who's involved:</strong> CTO, IT Managers, Solution Architects.</p>
+<p><strong>What they're asking:</strong> "How do we architect our applications for the cloud? What services do we use? How do we design our VPCs and networking?"</p>
+<div class="success-box">✅ Platform perspective is most technical — it's about the actual cloud infrastructure design and implementation.</div>
+</div></details>
+
+<details class="collapsible-section"><summary><h3>⚙️ Perspective 5: Operations</h3></summary><div class="section-content">
+<p><strong>Focus:</strong> Allows system health and reliability through the move to the cloud, and delivers an agile cloud computing operation.</p>
+<p><strong>Who's involved:</strong> IT Operations Managers, IT Support Managers.</p>
+<p><strong>What they're asking:</strong> "How do we monitor our cloud systems? How do we handle incidents? How do we maintain uptime in the cloud?"</p>
+<div class="highlight-box">⚡ Operations perspective ensures day-to-day cloud management is smooth and reliable after migration.</div>
+</div></details>
+
+<details class="collapsible-section"><summary><h3>🔐 Perspective 6: Security</h3></summary><div class="section-content">
+<p><strong>Focus:</strong> Ensures that the workloads deployed or developed in the cloud align to the organization's security control, resiliency, and compliance requirements.</p>
+<p><strong>Who's involved:</strong> CISO, IT Security Managers, IT Security Analysts, Head of Audit and Compliance.</p>
+<p><strong>What they're asking:</strong> "Are our cloud workloads secure? Do we meet compliance requirements like GDPR, HIPAA? How do we handle data protection?"</p>
+<div class="success-box">✅ Security in CAF is about organizational compliance — making sure the migration follows security policies and regulations.</div>
+</div></details>
+
+<div class="info-box">📝 <strong>Memory Trick for 6 Perspectives:</strong> <span class="exam-highlight-term">BGPPOS</span> — <strong>B</strong>usiness, <strong>G</strong>overnance, <strong>P</strong>eople, <strong>P</strong>latform, <strong>O</strong>perations, <strong>S</strong>ecurity. Or: <em>"Big Governments Prefer Proper Operational Security"</em> 🎯</div>
+
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="waf-vs-caf">⚖️ 5. WAF vs CAF — The Key Difference</h2></summary><div class="section-content">
+
+<p>This is the #1 confusion in the exam. Let's clear it up once and for all!</p>
+
+<div class="diagram-container"><img src="images/cloud_adoption_framework.jpeg" loading="lazy" decoding="async" alt="CAF perspectives table showing Business, People, Governance, Platform, Operations, and Security perspectives for cloud migration readiness"><p class="diagram-caption"><em>Figure 3: CAF helps with organizational readiness before and during cloud migration</em></p></div>
+
+<table>
+<thead><tr><th>Feature</th><th>WAF (Well-Architected Framework)</th><th>CAF (Cloud Adoption Framework)</th></tr></thead>
+<tbody>
+<tr><td><strong>Purpose</strong></td><td>Technical correctness of workloads</td><td>Organizational readiness for migration</td></tr>
+<tr><td><strong>When used</strong></td><td>After you're already in AWS</td><td>Before and during migration</td></tr>
+<tr><td><strong>Focus</strong></td><td>Architecture quality</td><td>People, process, technology alignment</td></tr>
+<tr><td><strong>Components</strong></td><td>6 Pillars</td><td>6 Perspectives</td></tr>
+<tr><td><strong>Question it answers</strong></td><td>"Is our cloud architecture good?"</td><td>"Are we ready to go to cloud?"</td></tr>
+<tr><td><strong>Primary audience</strong></td><td>Architects, DevOps, Developers</td><td>Business leaders, HR, IT, Security teams</td></tr>
+</tbody>
+</table>
+
+<div class="error-box">❌ <strong>Common Exam Mistake:</strong> Confusing WAF pillars with CAF perspectives. Remember: <span class="exam-highlight-sentence">WAF has 6 PILLARS for technical correctness; CAF has 6 PERSPECTIVES for organisational readiness.</span></div>
+
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="hardening-intro">🔐 6. Why Hardening is Needed</h2></summary><div class="section-content">
+
+<p>Here's a fundamental truth of security: <span class="exam-highlight-sentence">Security is about controlling access.</span></p>
+
+<p>Let's use an analogy. Imagine you have a gold bar 🥇 worth ₹50 lakhs. How do you protect it? You don't just leave it on the table! You put it in a locker → inside a cupboard → inside a locked bedroom → inside a secured house with a gate → with CCTV cameras watching who enters. Multiple layers of protection, both before someone reaches the gold and after.</p>
+
+<p>In the digital world, we protect servers and data the same way. There are two places where access can be controlled:</p>
+
+<ul>
+<li><strong>Before someone reaches the system</strong> → This is <span class="exam-highlight-term">Network Hardening</span></li>
+<li><strong>After someone reaches the system</strong> → This is <span class="exam-highlight-term">System Hardening</span></li>
+</ul>
+
+<div class="info-box">💡 <strong>Why is hardening needed?</strong> When you install an operating system or set up a server, it comes open by default — configured for ease of use, not security. Hardening is the process of securing it by reducing attack surfaces and controlling access.</div>
+
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="network-hardening">🌐 7. Network Hardening</h2></summary><div class="section-content">
+
+<p><span class="exam-highlight-sentence">Network hardening is the process of controlling access BEFORE someone reaches the system.</span> It's your first line of defence.</p>
+
+<p>Think of it as the security at the entrance of your apartment building — the guard, the locked gate, the intercom system. Only authorised people get past this point. If they can't reach your apartment door, they definitely can't break in.</p>
+
+<p>Network hardening answers three key questions:</p>
+<ul>
+<li>🔸 <strong>Who</strong> is allowed to connect?</li>
+<li>🔸 <strong>From where</strong> can they connect?</li>
+<li>🔸 <strong>On which port</strong> can they connect?</li>
+</ul>
+
+<div class="diagram-container"><img src="images/network_hardening.jpeg" loading="lazy" decoding="async" alt="Network hardening architecture diagram showing Firewall with ACLs and port blocking, IDPS system with real-time alerts, Core infrastructure with routers and switches, VPN gateway with IPsec tunnels and MFA, all connecting through Internet"><p class="diagram-caption"><em>Figure 4: Components of Network Hardening Architecture — Firewall, IDPS, Core Infrastructure, and VPN Gateway</em></p></div>
+
+<h3>🔧 Components of Network Hardening</h3>
+
+<details class="collapsible-section"><summary><h4>🛡️ Firewall</h4></summary><div class="section-content">
+<p>A firewall is the primary gatekeeper. It examines incoming and outgoing traffic and blocks what doesn't meet the rules.</p>
+<ul>
+<li><strong>ACLs (Access Control Lists):</strong> Rules that define what traffic is allowed or denied</li>
+<li><strong>Port blocking:</strong> Block specific ports (e.g., block port 23 Telnet, allow port 443 HTTPS)</li>
+<li><strong>Geo-blocking:</strong> Block traffic from specific countries or IP ranges</li>
+</ul>
+<p><strong>AWS equivalent:</strong> Security Groups and Network ACLs (NACLs) act as firewalls in AWS.</p>
+</div></details>
+
+<details class="collapsible-section"><summary><h4>🚨 IDPS System (Intrusion Detection and Prevention System)</h4></summary><div class="section-content">
+<p>If the firewall is the gate, IDPS is the security camera and alarm system that watches for suspicious behaviour even from authorised users.</p>
+<ul>
+<li><strong>Real-time alerts:</strong> Immediately notifies admins of suspicious activity</li>
+<li><strong>Anomaly detection:</strong> Flags unusual patterns (e.g., a user downloading 10GB of data at 3am)</li>
+</ul>
+<p><strong>AWS equivalent:</strong> AWS GuardDuty provides intelligent threat detection for your AWS environment.</p>
+</div></details>
+
+<details class="collapsible-section"><summary><h4>🏗️ Core Infrastructure</h4></summary><div class="section-content">
+<p>The physical and logical network devices that route traffic through your organisation.</p>
+<ul>
+<li><strong>Router:</strong> Directs traffic between networks</li>
+<li><strong>Switch:</strong> Connects devices within the same network</li>
+<li><strong>Wireless access point:</strong> Provides WiFi — needs strong encryption (WPA3)</li>
+</ul>
+<p>These need hardening too — default passwords changed, firmware updated, unused ports disabled.</p>
+</div></details>
+
+<details class="collapsible-section"><summary><h4>🔒 VPN Gateway</h4></summary><div class="section-content">
+<p>VPN (Virtual Private Network) creates an encrypted tunnel for remote access — like a secure underground passage into your building.</p>
+<ul>
+<li><strong>IPsec tunnels:</strong> Encrypts all traffic between the user and the network</li>
+<li><strong>MFA (Multi-Factor Authentication):</strong> Requires two or more forms of identity verification</li>
+</ul>
+<p><strong>AWS equivalent:</strong> AWS Site-to-Site VPN and AWS Client VPN for secure remote access.</p>
+</div></details>
+
+<div class="success-box">✅ <strong>Practical AWS Example of Network Hardening:</strong><br>
+In your Security Group, you configure:<br>
+• <span class="exam-highlight-term">Port 80</span> — open from the internet (for web traffic)<br>
+• <span class="exam-highlight-term">Port 22</span> (SSH) — open ONLY from your admin IP address<br>
+• Everything else — blocked by default<br><br>
+This means even if someone finds your server's IP, they can't SSH into it unless they're on your admin machine. That's network hardening in action!</div>
+
+</div></details>
+
+<details class="collapsible-section"><summary><h2 id="system-hardening">🖥️ 8. System Hardening</h2></summary><div class="section-content">
+
+<p><span class="exam-highlight-sentence">System hardening is the process of controlling access AFTER someone reaches the system.</span> Once a user or process has passed network security and is inside, what can they do? System hardening answers that question.</p>
+
+<p>Continuing our apartment analogy: you've passed the building gate (network hardening). Now you're inside the apartment. System hardening is about what you can do inside — which rooms you can enter, which drawers you can open, which appliances you can use.</p>
+
+<div class="diagram-container"><img src="images/system_hardening.jpeg" loading="lazy" decoding="async" alt="Systems hardening diagram showing 5 categories: Server Hardening, Software Hardening, Operating System Hardening, Database Hardening, and Network Hardening branching from a central Systems Hardening node"><p class="diagram-caption"><em>Figure 5: The 5 Types of System Hardening</em></p></div>
+
+<h3>🔧 What System Hardening Controls</h3>
+
+<p>System hardening focuses on the following layers of a system:</p>
+
+<details class="collapsible-section"><summary><h4>💻 Operating System (OS) Hardening</h4></summary><div class="section-content">
+<p>The OS is the foundation — securing it protects everything running on top of it.</p>
+<ul>
+<li>Remove unnecessary software and services (attack surface reduction)</li>
+<li>Apply all security patches and updates promptly</li>
+<li>Configure strong password policies</li>
+<li>Disable unnecessary user accounts</li>
+<li>Enable audit logging to track all activities</li>
+</ul>
+<p><strong>Example:</strong> A fresh Linux server has many services running by default. OS hardening disables FTP, Telnet, and other unused services, keeping only what's needed.</p>
+</div></details>
+
+<details class="collapsible-section"><summary><h4>👤 User Access Control</h4></summary><div class="section-content">
+<p>Who gets access to what inside the system?</p>
+<ul>
+<li>Principle of Least Privilege — give users only what they need</li>
+<li>Use IAM-style role-based access control</li>
+<li>Separate admin accounts from regular user accounts</li>
+<li>Regularly review and remove stale accounts</li>
+</ul>
+<div class="highlight-box">⚡ <strong>Key principle:</strong> <span class="exam-highlight-sentence">Users should have the minimum permissions needed to do their job — no more, no less.</span> This is called the Principle of Least Privilege.</div>
+</div></details>
+
+<details class="collapsible-section"><summary><h4>🔧 Service Hardening</h4></summary><div class="section-content">
+<p>Which services are allowed to run on the system?</p>
+<ul>
+<li>Disable services not required for the system's purpose</li>
+<li>Use service accounts with minimal permissions</li>
+<li>Regularly audit running services</li>
+</ul>
+<p><strong>Example:</strong> A web server doesn't need to run a database service or FTP service. Disabling these reduces the attack surface.</p>
+</div></details>
+
+<details class="collapsible-section"><summary><h4>📁 File and Permission Management</h4></summary><div class="section-content">
+<p>Who can read, write, or execute which files?</p>
+<ul>
+<li>Set proper file permissions (e.g., sensitive config files readable only by root)</li>
+<li>Encrypt sensitive files at rest</li>
+<li>Regular permission audits</li>
+<li>Integrity monitoring to detect unexpected file changes</li>
+</ul>
+</div></details>
+
+<details class="collapsible-section"><summary><h4>🗄️ Database Hardening</h4></summary><div class="section-content">
+<p>Databases store your most valuable data — they need extra protection.</p>
+<ul>
+<li>Remove default database users and sample databases</li>
+<li>Encrypt data at rest and in transit</li>
+<li>Restrict database access to only the application servers that need it</li>
+<li>Implement query monitoring to detect unusual access patterns</li>
+</ul>
+<p><strong>AWS equivalent:</strong> RDS encryption, IAM database authentication, security group rules restricting DB access.</p>
+</div></details>
+
+<details class="collapsible-section"><summary><h4>🖥️ Server Hardening</h4></summary><div class="section-content">
+<p>Physical and virtual server-level security measures.</p>
+<ul>
+<li>Keep OS and software updated with security patches</li>
+<li>Remove unnecessary software (bloatware reduction)</li>
+<li>Configure host-based firewalls</li>
+<li>Enable intrusion detection at the host level</li>
+</ul>
+<p><strong>AWS equivalent:</strong> AWS Systems Manager Patch Manager keeps your EC2 instances patched automatically.</p>
+</div></details>
+
+<div class="error-box">❌ <strong>Common Mistake:</strong> People think setting up a server once is enough. <span class="exam-highlight-sentence">Hardening is an ongoing process — new vulnerabilities are discovered regularly, and systems must be continuously monitored and updated.</span></div>
+
+<h3>🔄 Network Hardening vs System Hardening — Quick Recap</h3>
+
+<table>
+<thead><tr><th>Aspect</th><th>Network Hardening</th><th>System Hardening</th></tr></thead>
+<tbody>
+<tr><td><strong>When it applies</strong></td><td>Before reaching the system</td><td>After reaching the system</td></tr>
+<tr><td><strong>What it controls</strong></td><td>Who can connect, from where, on which port</td><td>What users can do, which services run, file permissions</td></tr>
+<tr><td><strong>Analogy</strong></td><td>Building entrance security</td><td>Room access inside the building</td></tr>
+<tr><td><strong>AWS tools</strong></td><td>Security Groups, NACLs, WAF, GuardDuty</td><td>IAM, Systems Manager, KMS encryption</td></tr>
+<tr><td><strong>Focus</strong></td><td>Network traffic and connectivity</td><td>OS, users, services, files, applications</td></tr>
+</tbody>
+</table>
+
+</div></details>
+
+<details class="collapsible-section" id="summary"><summary><h2>📝 Overall Summary</h2></summary><div class="section-content"><ul>
+<li><strong>WAF (Well-Architected Framework):</strong> A set of best practices for technical correctness of AWS workloads, applied AFTER migration. Has 6 pillars: Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization, Sustainability.</li>
+<li><strong>WAF is NOT a service:</strong> It's a framework (a checklist/guide) to evaluate and improve your architecture.</li>
+<li><strong>CAF (Cloud Adoption Framework):</strong> Helps organisations prepare for cloud migration — focused on organisational readiness. Has 6 perspectives: Business, People, Governance, Platform, Operations, Security.</li>
+<li><strong>WAF vs CAF:</strong> WAF = technical correctness AFTER migration; CAF = organisational readiness BEFORE/DURING migration.</li>
+<li><strong>Cloud is organisational change:</strong> Moving to cloud is not just infrastructure change — it requires people, process, and technology alignment (this is what CAF emphasises).</li>
+<li><strong>Security = controlling access:</strong> The core principle behind both system and network hardening.</li>
+<li><strong>Network Hardening:</strong> Controls access BEFORE reaching the system. Uses firewalls, IDPS, VPN gateways. In AWS: Security Groups, NACLs, GuardDuty.</li>
+<li><strong>System Hardening:</strong> Controls access AFTER reaching the system. Covers OS, users, services, files, databases. In AWS: IAM, Systems Manager, encryption.</li>
+<li><strong>Hardening is ongoing:</strong> Not a one-time activity — new vulnerabilities emerge constantly, requiring continuous monitoring and updates.</li>
+<li><strong>Principle of Least Privilege:</strong> A key concept in system hardening — give users minimum necessary permissions.</li>
+</ul></div></details>
+
+<details class="collapsible-section" id="glossary-section"><summary><h2>📖 Glossary</h2></summary><div class="section-content"><div id="glossaryContainer" data-glossary-source="json/glossary.json"></div></div></details>
+
+<details class="collapsible-section" id="interview-section"><summary><h2>🎤 Interview Questions</h2></summary><div class="section-content"><p class="interview-intro">📚 Test your understanding with these questions.</p><div class="interview-progress"><p id="interviewProgress">Progress: 0/25 (0%)</p></div><div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn" id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1 / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn" id="nextInterviewBtn">Next →</button></div><div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json"></div><div style="margin-top: 2rem; text-align: center;"><button onclick="resetInterviewProgress()" class="quiz-reset-btn">🔄 Reset Progress</button></div></div></details>
+
+<details class="collapsible-section" id="mcq-section"><summary><h2>📝 Multiple Choice Questions</h2></summary><div class="section-content"><div class="quiz-header-info"><p>📝 Test your knowledge with immediate feedback.</p></div><div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn" id="prevBtn">← Previous</button><div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button></div><div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div><div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊 View Summary</button><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄 Reset All</button></div></div></details>
+
+<details class="collapsible-section" id="projects-section"><summary><h2>💼 Hands-On Projects</h2></summary><div class="section-content"><div class="prerequisites-box"><h4>📋 Prerequisites</h4><ul><li>✅ AWS account (Free Tier)</li><li>✅ Knowledge: EC2, Security Groups, IAM (covered in previous sessions)</li></ul></div><h3>Project 1: Apply Network Hardening to an EC2 Instance</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Configure Security Groups to allow only specific ports and sources — practical network hardening on AWS.</p><p><strong>⏱️ Time:</strong> 20-30 min</p><p><strong>💰 Cost:</strong> Free Tier</p></div><ol><li>Launch a new EC2 instance (Amazon Linux 2, t2.micro)</li><li>During setup, create a new Security Group named "hardened-sg"</li><li>Add inbound rule: HTTP (port 80) — Source: Anywhere (0.0.0.0/0)</li><li>Add inbound rule: SSH (port 22) — Source: My IP only</li><li>Do NOT add any other inbound rules</li><li>Launch the instance and verify you can SSH from your machine</li><li>Try SSH from a mobile hotspot or VPN (should fail — good!)</li><li><strong>Verification:</strong> Use online port scanners to check only port 80 is visible externally</li><li><strong>Cleanup:</strong> Terminate the instance to avoid charges</li></ol><h3>Project 2: WAF Self-Review with AWS Well-Architected Tool</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Use the free AWS Well-Architected Tool to assess a workload against the 6 pillars.</p><p><strong>⏱️ Time:</strong> 30-45 min</p><p><strong>💰 Cost:</strong> Free</p></div><ol><li>Go to AWS Console → Search "Well-Architected Tool"</li><li>Click "Define workload" → Name it "My Test Workload"</li><li>Select Industry: Technology, Environment: Pre-production</li><li>Start a review — answer questions across all 6 pillars</li><li>Review the improvement plan it generates</li><li>Note which pillar has the most "High Risk" items</li><li><strong>Cleanup:</strong> Delete the workload from the tool (no charges involved)</li></ol></div></details>
+
+<details class="collapsible-section" id="checklist-section"><summary><h2>☑️ Learning Checklist</h2></summary><div class="section-content"><div class="checklist-progress"><p>Progress: <span id="checklistProgress">0/15</span></p><div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%;">0%</div></div></div><div id="checklistContainer" data-checklist-source="json/checklist.json"></div><div style="margin-top: 2rem; text-align: center;"><button onclick="resetChecklist()" class="quiz-reset-btn">🔄 Reset Checklist</button></div></div></details>
+
+<details class="collapsible-section" id="reflection-section"><summary><h2>🤔 Reflection Questions</h2></summary><div class="section-content">
+<div class="question-block"><h4>1. Your company just finished migrating 50 applications to AWS. A colleague says "We need to apply the CAF now." Is your colleague correct? Why or why not?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Think about when CAF is used versus when WAF is used. The migration is already done — which framework applies now?</p></div></details></div>
+
+<div class="question-block"><h4>2. You open port 22 (SSH) on a Security Group to allow access from 0.0.0.0/0 (everywhere). Which hardening principle does this violate, and how would you fix it?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Network hardening principle: control WHO can connect, FROM WHERE. SSH should only be accessible from trusted IP addresses.</p></div></details></div>
+
+<div class="question-block"><h4>3. A developer has root access to the production database "just in case they need it." What hardening principle does this violate?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>System hardening and IAM principle: what's the minimum access needed for their role?</p></div></details></div>
+
+<div class="question-block"><h4>4. Which WAF pillar is most relevant when your application crashes under high traffic during a sale event? What AWS services would address this?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>The app crashed when expected to work — think about which pillar ensures systems work correctly and consistently.</p></div></details></div>
+
+<div class="question-block"><h4>5. Your company's monthly AWS bill jumped 300% unexpectedly. Which WAF pillar should you focus on, and which AWS tool would help you investigate?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Unexpected bills relate to one pillar specifically. AWS has a dedicated tool for cost analysis and visibility.</p></div></details></div>
+
+<div class="question-block"><h4>6. A new HR manager joins your company and needs help understanding why the People perspective of CAF matters. How would you explain it to them?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Think about what happens when technology changes but employees aren't trained or prepared. How does that affect the migration?</p></div></details></div>
+</div></details>
+
+<details class="collapsible-section" id="links-section"><summary><h2>🔗 Links &amp; References</h2></summary><div class="section-content"><h3>📚 Official AWS Documentation</h3><table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody><tr><td><a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html" target="_blank" rel="noopener noreferrer">Well-Architected Framework</a></td><td>Official WAF documentation with all pillars</td></tr><tr><td><a href="https://aws.amazon.com/cloud-adoption-framework/" target="_blank" rel="noopener noreferrer">Cloud Adoption Framework</a></td><td>Official CAF overview and whitepaper</td></tr><tr><td><a href="https://aws.amazon.com/security/" target="_blank" rel="noopener noreferrer">AWS Security</a></td><td>AWS security services and best practices</td></tr></tbody></table><h3>🎓 Recommended Reading</h3><table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody><tr><td><a href="https://aws.amazon.com/architecture/well-architected/" target="_blank" rel="noopener noreferrer">AWS Well-Architected Tool</a></td><td>Free tool to review architecture against WAF</td></tr><tr><td><a href="https://aws.amazon.com/compliance/" target="_blank" rel="noopener noreferrer">AWS Compliance Programs</a></td><td>Compliance frameworks AWS supports</td></tr></tbody></table><h3>🔧 Additional Resources</h3><table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody><tr><td><a href="https://aws.amazon.com/free/" target="_blank" rel="noopener noreferrer">AWS Free Tier</a></td><td>Practice with free AWS resources</td></tr><tr><td><a href="https://explore.skillbuilder.aws/" target="_blank" rel="noopener noreferrer">AWS Skill Builder</a></td><td>Free and paid AWS training courses</td></tr></tbody></table></div></details>
+
+</div><div class="tags"><span class="tag">AWS</span><span class="tag">WAF</span><span class="tag">CAF</span><span class="tag">Security</span><span class="tag">Hardening</span><span class="tag">Cloud Practitioner</span></div></div><script defer src="../../../js/notes-template.js"></script></body></html>
