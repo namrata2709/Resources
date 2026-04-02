@@ -113,7 +113,7 @@
                     <div class="feedback-icon" id="feedbackIcon${question.id}"></div>
                     <div class="feedback-content">
                         <p class="feedback-result" id="feedbackResult${question.id}"></p>
-                        <div class="explanation-box">
+                        <div class="explanation-box" id="explanationBox${question.id}" style="display: none;">
                             <p><strong>Correct Answer:</strong> ${question.correctAnswer}) ${question.options.find(o => o.letter === question.correctAnswer).text}</p>
                             <p><strong>Explanation:</strong> ${question.explanation.correct}</p>
                             <p>${question.explanation.why}</p>
@@ -160,25 +160,27 @@
         if (nextBtn) nextBtn.disabled = currentQuizQuestion === totalQuizQuestions;
 
         updateQuizScore();
+
+        // Rebuild bottom navigation for the now-active question (if it has feedback showing)
+        updateBottomNavigation(currentQuizQuestion);
     }
 
     function updateBottomNavigation(questionNum) {
+        // Remove bottom nav from ALL slides first (clean slate on every navigation)
+        document.querySelectorAll('.quiz-bottom-navigation').forEach(nav => nav.remove());
+
         const slide = document.querySelector(`.quiz-slide[data-question="${questionNum}"]`);
         if (!slide) return;
 
-        let bottomNav = slide.querySelector('.quiz-bottom-navigation');
-        
-        if (!bottomNav) {
-            bottomNav = document.createElement('div');
-            bottomNav.className = 'quiz-bottom-navigation';
-            
-            const feedback = document.getElementById(`feedback${questionNum}`);
-            if (feedback) feedback.appendChild(bottomNav);
-        }
+        // Only show bottom nav if this question has been attempted (feedback is visible)
+        const feedback = document.getElementById(`feedback${questionNum}`);
+        if (!feedback || feedback.style.display === 'none' || feedback.style.display === '') return;
 
-        bottomNav.innerHTML = '';
+        const bottomNav = document.createElement('div');
+        bottomNav.className = 'quiz-bottom-navigation';
+        feedback.appendChild(bottomNav);
 
-        if (currentQuizQuestion > 1) {
+        if (questionNum > 1) {
             const prevBtn = document.createElement('button');
             prevBtn.className = 'quiz-bottom-nav-btn';
             prevBtn.textContent = '← Previous Question';
@@ -186,7 +188,7 @@
             bottomNav.appendChild(prevBtn);
         }
 
-        if (currentQuizQuestion < totalQuizQuestions) {
+        if (questionNum < totalQuizQuestions) {
             const nextBtn = document.createElement('button');
             nextBtn.className = 'quiz-bottom-nav-btn';
             nextBtn.textContent = 'Next Question →';
@@ -240,15 +242,18 @@
 
         if (feedback && feedbackIcon && feedbackResult) {
             feedback.style.display = 'block';
+            const explanationBox = document.getElementById(`explanationBox${questionNum}`);
             
             if (isCorrect) {
                 feedback.className = 'quiz-feedback correct';
                 feedbackIcon.textContent = '✅';
                 feedbackResult.textContent = '🎉 Correct! Well done!';
+                if (explanationBox) explanationBox.style.display = 'block';
             } else {
                 feedback.className = 'quiz-feedback incorrect';
                 feedbackIcon.textContent = '❌';
-                feedbackResult.textContent = '❌ Incorrect. Review the explanation below.';
+                feedbackResult.textContent = '❌ Incorrect. Try again!';
+                if (explanationBox) explanationBox.style.display = 'none';
             }
         }
 
@@ -268,7 +273,6 @@
             });
         }
 
-        updateBottomNavigation(questionNum);
         updateQuizScore();
         saveQuizState();
     }
@@ -414,11 +418,24 @@
                         submitBtn.textContent = 'Answer Submitted ✔';
                     }
                     
+                    const submitBtn2 = document.getElementById(`submitBtn${questionNum}`);
+                    if (submitBtn2 && !answer.isCorrect) {
+                        submitBtn2.textContent = 'Try Again';
+                        submitBtn2.style.background = 'var(--warning)';
+                    }
+
+                    const feedbackIcon = document.getElementById(`feedbackIcon${questionNum}`);
+                    const feedbackResult = document.getElementById(`feedbackResult${questionNum}`);
                     const feedback = document.getElementById(`feedback${questionNum}`);
                     if (feedback) {
                         feedback.style.display = 'block';
                         feedback.className = answer.isCorrect ? 'quiz-feedback correct' : 'quiz-feedback incorrect';
                     }
+                    if (feedbackIcon) feedbackIcon.textContent = answer.isCorrect ? '✅' : '❌';
+                    if (feedbackResult) feedbackResult.textContent = answer.isCorrect ? '🎉 Correct! Well done!' : '❌ Incorrect. Try again!';
+
+                    const explanationBox = document.getElementById(`explanationBox${questionNum}`);
+                    if (explanationBox) explanationBox.style.display = answer.isCorrect ? 'block' : 'none';
                 });
             }
         } catch (e) {

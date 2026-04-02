@@ -959,7 +959,6 @@
         // Create toggle button
         const toggleContainer = document.createElement('div');
         toggleContainer.className = 'print-answer-key-container';
-        toggleContainer.style.cssText = 'margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-radius: 8px;';
         toggleContainer.innerHTML = `
             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                 <input type="checkbox" id="printAnswerKeyToggle" style="width: 20px; height: 20px; cursor: pointer;">
@@ -1386,40 +1385,14 @@
         topBtn.className = 'jump-to-top-btn';
         topBtn.setAttribute('aria-label', 'Scroll to top');
         topBtn.innerHTML = '⬆️';
-        topBtn.style.cssText = `
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border: 2px solid var(--border-color);
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s ease;
-            z-index: 998;
-            opacity: 0;
-            visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        `;
-        
+        topBtn.className = 'jump-to-top-btn';
+
         topBtn.addEventListener('click', function() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-        
+
         window.addEventListener('scroll', function() {
-            if (window.pageYOffset > 500) {
-                topBtn.style.opacity = '1';
-                topBtn.style.visibility = 'visible';
-            } else {
-                topBtn.style.opacity = '0';
-                topBtn.style.visibility = 'hidden';
-            }
+            topBtn.classList.toggle('visible', window.pageYOffset > 500);
         });
         
         document.body.appendChild(topBtn);
@@ -2124,18 +2097,22 @@
     // UTILITY FUNCTIONS
     // ============================================
     
+    // Single reusable toast element
+    const _toastEl = (function() {
+        const el = document.createElement('div');
+        el.className = 'toast-notification';
+        document.addEventListener('DOMContentLoaded', () => document.body.appendChild(el));
+        return el;
+    })();
+    let _toastTimer = null;
+
     function showNotification(message) {
-        const notification = document.createElement('div');
-        notification.className = 'toast-notification';
-        notification.textContent = message;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => notification.classList.add('visible'), 10);
-        
-        setTimeout(() => {
-            notification.classList.remove('visible');
-            setTimeout(() => notification.remove(), 300);
+        _toastEl.textContent = message;
+        _toastEl.classList.add('visible');
+
+        clearTimeout(_toastTimer);
+        _toastTimer = setTimeout(() => {
+            _toastEl.classList.remove('visible');
         }, 3000);
     }
 

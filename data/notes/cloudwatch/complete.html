@@ -1,0 +1,608 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Amazon CloudWatch complete guide - monitoring metrics, logs, AI-powered log analysis, Log Insights, and real-world infrastructure troubleshooting for AWS beginners."><meta name="keywords" content="AWS, CloudWatch, cloud monitoring, logs, metrics, Log Insights, SageMaker, Bedrock, AWS training"><meta property="og:title" content="Amazon CloudWatch - AWS Training"><meta property="og:description" content="Amazon CloudWatch complete guide - monitoring metrics, logs, AI-powered log analysis, Log Insights, and real-world infrastructure troubleshooting for AWS beginners."><meta property="og:type" content="article"><meta property="og:url" content="https://namrata2709.github.io/Resources/data/notes/cloudwatch/cloudwatch-complete.html"><meta property="og:image" content="https://namrata2709.github.io/Resources/data/notes/cloudwatch/images/cloudwatch-overview.png"><link rel="canonical" href="https://namrata2709.github.io/Resources/data/notes/cloudwatch/cloudwatch-complete.html"><title>Amazon CloudWatch - Complete Notes - AWS Training</title><link rel="stylesheet" href="../../../css/styles.css"><link rel="stylesheet" href="../../../css/notes-template.css"><script src="../../../js/theme.js"></script></head><body class="complete-notes"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Amazon CloudWatch","description":"Amazon CloudWatch complete guide - monitoring metrics, logs, AI-powered log analysis, Log Insights, and real-world infrastructure troubleshooting for AWS beginners.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-03-27","dateModified":"2025-03-27","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/cloudwatch/cloudwatch-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/cloudwatch/images/cloudwatch-overview.png","articleSection":"AWS Training","keywords":["AWS","CloudWatch","Monitoring","Logs","Metrics","Log Insights","SageMaker","Bedrock"],"educationalLevel":"Beginner to Intermediate"}</script><div class="note-container"><div class="note-header"><h1>☁️ Amazon CloudWatch</h1><p class="note-date">📅 March 27, 2025</p><div class="version-info"><p><strong>Version:</strong> 1.0</p><p><strong>Last Updated:</strong> March 27, 2025</p><p><strong>Status:</strong> ✅ Current</p></div></div><div class="note-content">
+
+<h2>🌟 Introduction</h2>
+<p>Imagine you're running a restaurant. You have a kitchen, waitstaff, a cashier, and maybe a delivery service. If something goes wrong — a dish is taking too long, the cashier keeps making errors, or deliveries keep failing — you need to know <em>what</em> went wrong, <em>when</em> it happened, and <em>why</em>. Amazon CloudWatch is exactly that for your AWS infrastructure: it's your all-seeing eye that watches over your services, collects evidence of problems, and helps you figure out what to fix.</p>
+
+<p><span class="exam-highlight-sentence">Amazon CloudWatch is AWS's native monitoring and observability service that collects metrics, logs, and events from virtually every AWS service.</span> It is the first place you go when something in your cloud environment behaves unexpectedly.</p>
+
+<div class="diagram-container"><img src="images/cloudwatch-overview.png" decoding="async" alt="Amazon CloudWatch overview diagram showing metrics, logs, alarms, and dashboards flowing into CloudWatch from various AWS services like EC2, Lambda, S3, and Bedrock"><p class="diagram-caption"><em>Figure 1: CloudWatch as the central monitoring hub collecting data from multiple AWS services</em></p></div>
+
+<div class="highlight-box">⚡ <strong>Key Insight:</strong> CloudWatch is not a single tool — it's a family of capabilities: Metrics, Logs, Alarms, Dashboards, Log Insights, and now AI-powered analysis. Think of it as your cloud health monitoring center.</div>
+
+<h2>📋 Table of Contents</h2>
+<ul>
+<li><a href="#what-is-cloudwatch">1. What Is CloudWatch?</a></li>
+<li><a href="#metrics-vs-logs">2. Metrics vs. Logs — What's the Difference?</a></li>
+<li><a href="#cloudwatch-logs">3. CloudWatch Logs Deep Dive</a></li>
+<li><a href="#log-insights">4. Log Insights — Querying Your Logs</a></li>
+<li><a href="#ai-features">5. AI-Powered Features in CloudWatch</a></li>
+<li><a href="#real-world-demo">6. Real-World Demo: Troubleshooting an AI App</a></li>
+<li><a href="#cloudtrail-comparison">7. CloudWatch vs. CloudTrail</a></li>
+<li><a href="#unix-timestamps">8. Unix Timestamps — The Secret Language of Logs</a></li>
+<li><a href="#infrastructure-failures">9. When Infrastructure Itself Fails</a></li>
+<li><a href="#best-practices">10. Best Practices for Monitoring</a></li>
+</ul>
+
+<details class="collapsible-section" id="what-is-cloudwatch"><summary><h2>1. 🔍 What Is CloudWatch?</h2></summary><div class="section-content">
+
+<p>Let's start with the big picture. When you run applications on AWS, dozens of services are working together — EC2 instances running your code, S3 storing your files, Lambda functions responding to events, AI models answering user queries. All of these services produce data about their own health and behavior. CloudWatch is the place where all of that data flows.</p>
+
+<p><span class="exam-highlight-sentence">CloudWatch collects monitoring data in two main forms: Metrics (numerical data points over time) and Logs (text-based records of events).</span></p>
+
+<h3>What Does CloudWatch Monitor?</h3>
+<p>Almost everything! Here are common examples:</p>
+<ul>
+<li><strong>CPU Utilization</strong> on EC2 instances — if your processor is at 80%+, that's effectively at capacity and you need to act</li>
+<li><strong>Network traffic in and out</strong> — unusual spikes can indicate attacks or bugs</li>
+<li><strong>Application latency</strong> — how long users wait for a response (5 seconds = normal for AI apps; 4.5 minutes = disaster)</li>
+<li><strong>Error rates</strong> — how many requests are failing (HTTP 500 errors, timeouts, etc.)</li>
+<li><strong>Custom application logs</strong> — anything your code writes to a log file</li>
+</ul>
+
+<div class="info-box">💡 <strong>The 80% CPU Rule:</strong> <span class="exam-highlight-term">80% CPU utilization</span> is effectively full capacity. At that level, the system can't efficiently schedule and move tasks around. Best practice is to set an alarm well <em>below</em> 100% and trigger auto-scaling before things go critical.</div>
+
+<h3>How Does CloudWatch Get Its Data?</h3>
+<p>Some AWS services send data to CloudWatch automatically — you don't have to do anything. Others require you to explicitly enable logging. <span class="exam-highlight-sentence">Some AWS services automatically send logs to CloudWatch, while others require manual configuration to enable logging.</span> Additionally, many services store logs in both CloudWatch <em>and</em> Amazon S3, giving you flexibility in how you analyze them.</p>
+
+<div class="diagram-container"><img src="images/cloudwatch-data-sources.png" loading="lazy" decoding="async" alt="Diagram showing CloudWatch data sources including EC2, Lambda, RDS, SageMaker, Bedrock, API Gateway and S3 all sending metrics and logs to CloudWatch"><p class="diagram-caption"><em>Figure 2: Data flows from multiple AWS services into CloudWatch automatically or with configuration</em></p></div>
+
+<div class="success-box">✅ <strong>Pro Tip:</strong> If you have your own AWS console account, explore CloudWatch to see what data is already being collected. Even a basic setup will have more data than you expect. It's a great place to understand your environment's baseline behavior.</div>
+
+</div></details>
+
+<details class="collapsible-section" id="metrics-vs-logs"><summary><h2>2. 📊 Metrics vs. Logs — What's the Difference?</h2></summary><div class="section-content">
+
+<p>People often confuse metrics and logs, but they serve very different purposes. Think of it this way: <strong>metrics</strong> are your car's dashboard (speed, fuel, temperature as numbers), while <strong>logs</strong> are the car's black box recorder (a detailed story of everything that happened).</p>
+
+<div class="diagram-container"><img src="images/metrics-vs-logs.png" loading="lazy" decoding="async" alt="Side by side comparison diagram showing Metrics as numerical time-series graphs for CPU latency and errors versus Logs as text records with timestamps and event details"><p class="diagram-caption"><em>Figure 3: Metrics give you the "what number" at a glance; Logs give you the "what happened" in detail</em></p></div>
+
+<h3>CloudWatch Metrics</h3>
+<p><span class="exam-highlight-sentence">CloudWatch Metrics are numerical data points collected over time, used to track the performance and health of AWS resources.</span> They are:</p>
+<ul>
+<li>Great for graphs and dashboards</li>
+<li>Easy to set alarms on (e.g., "alert me when latency exceeds 10 seconds")</li>
+<li>Show you trends over time (was the problem all day, or just at 8:40 AM?)</li>
+<li>Support comparison across time periods</li>
+</ul>
+
+<p>In the real-world demo we saw, looking at <span class="exam-highlight-term">latency metrics</span> on a dashboard immediately revealed three anomalies on March 24th: one response took 18.5 seconds, one took 45 seconds, and another over 10 seconds — all clustered around 8:40 AM. Without metrics, you'd have no idea these spikes happened.</p>
+
+<h3>CloudWatch Logs</h3>
+<p>Logs are the detailed records. They contain things like error messages, request/response details, timestamps, user actions, and status codes. <span class="exam-highlight-sentence">CloudWatch Logs stores text-based records of events from applications and AWS services, organized into Log Groups and Log Streams.</span></p>
+
+<ul>
+<li>More verbose and harder to read at scale (thousands of entries)</li>
+<li>Contain the "why" behind a problem that metrics only hint at</li>
+<li>Require querying tools (like Log Insights) to be useful</li>
+<li>Can be searched, filtered, and analyzed with SQL-like queries</li>
+</ul>
+
+<div class="highlight-box">⚡ <strong>The Detective Analogy:</strong> Metrics show you <em>that</em> a crime happened. Logs show you <em>what</em> happened. CloudTrail shows you <em>who</em> did it and how. You often need all three.</div>
+
+<h3>HTTP Status Codes — What Logs Are Full Of</h3>
+<p>When working with web services and AI models (which are essentially web applications), your logs will be full of <span class="exam-highlight-term">HTTP status codes</span>. Here's a quick cheat sheet:</p>
+
+<table>
+<thead><tr><th>Code Range</th><th>Meaning</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><span class="exam-highlight-term">200</span></td><td>Success ✅</td><td>Request processed, got a response</td></tr>
+<tr><td>4xx</td><td>Client error — you did something wrong</td><td>400 Bad Request, 403 Forbidden</td></tr>
+<tr><td><span class="exam-highlight-term">500</span></td><td>Server error — the service has a problem</td><td>502 Gateway Error, 503 Service Unavailable</td></tr>
+</tbody>
+</table>
+
+<p>In our demo, the instructor saw <span class="exam-highlight-term">500-family errors</span> appearing in logs during the outage periods — which is a strong signal that the problem was on the infrastructure/service side, not in the user's code.</p>
+
+</div></details>
+
+<details class="collapsible-section" id="cloudwatch-logs"><summary><h2>3. 📁 CloudWatch Logs Deep Dive</h2></summary><div class="section-content">
+
+<p>CloudWatch Logs is where most of your troubleshooting will happen. When an application behaves strangely, you go to its logs and ask: "What were you doing when this happened?"</p>
+
+<h3>Log Groups and Log Streams</h3>
+<p>Logs are organized hierarchically. <span class="exam-highlight-sentence">CloudWatch organizes logs into Log Groups (one per application or service) and Log Streams (one per instance or deployment) for structured organization.</span></p>
+
+<ul>
+<li><strong>Log Group</strong>: A container for all logs from a particular application or AWS service (e.g., all logs from your SageMaker model endpoint)</li>
+<li><strong>Log Stream</strong>: A sequence of log events from a specific source within that group (e.g., logs from one particular model variant)</li>
+</ul>
+
+<h3>What's Actually In a Log?</h3>
+<p>When you look at a raw CloudWatch log for an AI model endpoint (like a SageMaker deployment), you'll see:</p>
+<ul>
+<li><strong>Keep-alive / health check pings</strong> — the system constantly asking "are you still there?" These are the majority of entries and mostly noise</li>
+<li><strong>Invocation records</strong> — actual user requests (HTTP POST to invoke the model)</li>
+<li><strong>Response codes</strong> — 200 for success, 500 for failure</li>
+<li><strong>Timestamps</strong> — in Unix epoch format (more on this in section 8)</li>
+<li><strong>Request/response metadata</strong> — region, model ID, request size, duration</li>
+</ul>
+
+<div class="error-box">❌ <strong>The Noise Problem:</strong> When a model is "always on" (not serverless), it generates constant keep-alive pings. A model running for hours can have hundreds of these pings for every real user request. This is one reason why AI-powered log summarization is so valuable — you don't want to read through 714 keep-alive entries to find 3 actual errors.</div>
+
+<h3>Navigating to the Right Logs</h3>
+<p>One practical tip from the demo: when you're working in services like SageMaker or Bedrock, you often get a <strong>direct link to CloudWatch logs</strong> from within the service console. This saves you from having to navigate CloudWatch manually and figure out which log group belongs to your specific application or model variant.</p>
+
+<div class="success-box">✅ <strong>Real-World Workflow:</strong> See an error in your app → click the CloudWatch logs link in SageMaker/Bedrock console → jump directly to that model's log group → use Log Insights to query for errors → identify the timestamp → correlate with other monitoring tools.</div>
+
+<div class="diagram-container"><img src="images/cloudwatch-log-navigation.png" loading="lazy" decoding="async" alt="Flowchart showing navigation from SageMaker or Bedrock console through direct CloudWatch link to log groups and log streams then into Log Insights for querying"><p class="diagram-caption"><em>Figure 4: Direct log navigation from service consoles saves significant troubleshooting time</em></p></div>
+
+</div></details>
+
+<details class="collapsible-section" id="log-insights"><summary><h2>4. 🔎 Log Insights — Querying Your Logs</h2></summary><div class="section-content">
+
+<p>Raw logs are overwhelming. Thousands of lines of text, most of it routine noise. CloudWatch Log Insights is your search engine for logs — it lets you run queries to extract exactly the information you need.</p>
+
+<p><span class="exam-highlight-sentence">CloudWatch Log Insights is an interactive query tool that lets you search, filter, and analyze log data using a SQL-like query language.</span></p>
+
+<h3>How Log Insights Works</h3>
+<ul>
+<li>You select one or more log groups to query</li>
+<li>You choose a time range (relative like "last hour," or absolute like "March 24th, all day")</li>
+<li>You write (or generate with AI) a query</li>
+<li>Results appear almost instantly, even across millions of log entries</li>
+</ul>
+
+<h3>The Log Insights Query Language</h3>
+<p>The query language has SQL-like syntax but is purpose-built for logs. <span class="exam-highlight-sentence">CloudWatch Log Insights uses its own query language with commands like fields, filter, stats, sort, and limit to analyze log data.</span> Here are common patterns:</p>
+
+<pre><code># Get all log entries (basic)
+fields @timestamp, @message
+| sort @timestamp desc
+| limit 20
+
+# Filter for errors
+fields @timestamp, @message
+| filter @message like /500/
+| sort @timestamp desc
+
+# Count events by type
+stats count(*) as eventCount by statusCode
+| sort eventCount desc</code></pre>
+
+<p>The good news: you don't have to learn this syntax deeply if you use the AI query generator (covered in the next section). But understanding the structure helps you interpret and modify generated queries.</p>
+
+<h3>Saving Queries</h3>
+<p>If you find yourself running the same query over and over (e.g., "show me all 500 errors"), <span class="exam-highlight-sentence">CloudWatch Log Insights allows you to save frequently used queries for quick reuse.</span> This is especially valuable in a team environment where multiple people monitor the same application.</p>
+
+<div class="info-box">💡 <strong>Practical Use Case:</strong> Imagine you have multiple AI model variants deployed (maybe testing Model A vs Model B). You can query log groups from both simultaneously in Log Insights and compare their error rates, response times, and failure patterns side by side.</div>
+
+<div class="diagram-container"><img src="images/log-insights-query-flow.png" loading="lazy" decoding="async" alt="Diagram showing Log Insights workflow from selecting log groups and time range through writing or AI-generating a query to getting results with counts timestamps and error details"><p class="diagram-caption"><em>Figure 5: Log Insights query workflow — from raw logs to actionable results</em></p></div>
+
+</div></details>
+
+<details class="collapsible-section" id="ai-features"><summary><h2>5. 🤖 AI-Powered Features in CloudWatch</h2></summary><div class="section-content">
+
+<p>This is one of the most exciting recent additions to CloudWatch. AWS recognized that logs are overwhelming for humans and added AI capabilities to help. <span class="exam-highlight-sentence">AWS launched AI-powered log summarization in CloudWatch Log Insights globally in August 2024, following a trial in select regions in June 2024.</span></p>
+
+<h3>Feature 1: AI Summarize Results</h3>
+<p>After running a Log Insights query, you can click "Summarize Results" and AI will analyze all the results and give you a plain-English summary of what it found.</p>
+
+<p>In the demo, after running a query that returned 717 log events (mostly keep-alive pings), clicking AI Summarize instantly told us:</p>
+<ul>
+<li>There's a SageMaker endpoint receiving two types of requests (POST for model invocations, GET for health checks)</li>
+<li>Most POST requests return 200 (success)</li>
+<li>Two requests failed — and here's why</li>
+<li>Possible mitigations for the failures</li>
+</ul>
+
+<p>Without this, you'd have to manually scan 717 log lines. <span class="exam-highlight-sentence">The AI summarize feature in CloudWatch can analyze hundreds of log entries and identify patterns, anomalies, and potential root causes automatically.</span></p>
+
+<div class="success-box">✅ <strong>Time Savings:</strong> Finding 3 error events among 717 log entries manually could take 20-30 minutes. AI summarization does it in seconds and also suggests what might be causing the problems — something a raw log scan can't do.</div>
+
+<h3>Feature 2: Natural Language Query Generation</h3>
+<p>Don't know the CloudWatch query syntax? Just describe what you want in plain English. <span class="exam-highlight-sentence">CloudWatch Log Insights includes an AI-powered natural language query generator that converts plain English descriptions into valid Log Insights queries.</span></p>
+
+<p>Examples of queries you can type in plain English:</p>
+<ul>
+<li>"Show all 500 code errors"</li>
+<li>"Find all errors"</li>
+<li>"Show me requests that took more than 10 seconds"</li>
+<li>"Count failures by hour for the last 24 hours"</li>
+</ul>
+
+<p>The AI will:</p>
+<ol>
+<li>Show you what it interpreted from your request (with markup)</li>
+<li>Generate the actual query code</li>
+<li>Remove the markup and run the query</li>
+</ol>
+
+<div class="info-box">💡 <strong>Honest Limitation:</strong> The AI query generator is not perfect. It sometimes produces queries that don't run on the first try, or that interpret your request differently than intended. But it handles most common requests well, especially straightforward filter and count operations. You can iterate — if the first result isn't right, refine your description.</div>
+
+<h3>How AI Features Compare to Building Your Own</h3>
+<p>In the demo, the instructor had actually built a custom log analysis tool using Bedrock before discovering CloudWatch's built-in AI features. The experience revealed an important lesson: <strong>build things yourself to learn, but use managed services in production</strong>.</p>
+
+<p>The custom-built tool worked, but had issues like:</p>
+<ul>
+<li>Poor Unix timestamp conversion (the AI would guess dates incorrectly)</li>
+<li>Limited query flexibility</li>
+<li>Required significant development effort</li>
+</ul>
+
+<p>The built-in CloudWatch AI features handle most of this correctly out of the box. <span class="exam-highlight-sentence">Generative AI is not reliable for tasks requiring mathematical precision, such as converting Unix timestamps — use deterministic code (like Python) for such calculations instead.</span></p>
+
+<div class="error-box">❌ <strong>Critical Lesson on AI Limitations:</strong> LLMs cannot reliably convert Unix epoch timestamps to human-readable dates. When asked to do so, they will fabricate plausible-sounding dates. If you need accurate timestamps, use a programming language's date library — not an AI model. This is a fundamental limitation of language models: they predict likely text, not calculate correct math.</div>
+
+</div></details>
+
+<details class="collapsible-section" id="real-world-demo"><summary><h2>6. 🛠️ Real-World Demo: Troubleshooting an AI App</h2></summary><div class="section-content">
+
+<p>Let's walk through the exact troubleshooting scenario demonstrated in class. This gives you a concrete mental model for how CloudWatch fits into real-world problem-solving.</p>
+
+<h3>The Setup</h3>
+<p>The application stack being monitored:</p>
+<ul>
+<li>A <strong>SageMaker endpoint</strong> hosting a custom image classification model (pizza vs. not pizza)</li>
+<li>An <strong>EC2 instance</strong> running test scripts and a conversational AI app</li>
+<li>A <strong>Bedrock-based chatbot</strong> using Claude models via inference profiles</li>
+<li>All generating logs in CloudWatch</li>
+</ul>
+
+<h3>Step 1: Noticing the Problem via Metrics</h3>
+<p>On March 24th, the instructor noticed something strange — some requests were taking much longer than usual. Normal latency for the AI app was around 5 seconds. But three incidents showed:</p>
+<ul>
+<li>One response at ~18.5 seconds</li>
+<li>One at ~45 seconds</li>
+<li>One at just over 10 seconds</li>
+</ul>
+
+<p>On March 17th, it was even worse: latency jumped to 30 seconds, then 2 minutes, then nearly <span class="exam-highlight-term">4.5 minutes</span>. Some requests timed out entirely with no response at all.</p>
+
+<p><span class="exam-highlight-sentence">Monitoring metrics dashboards can surface latency anomalies and error patterns that would be invisible to someone only looking at whether the service is "up" or "down."</span></p>
+
+<h3>Step 2: Looking at Logs for Context</h3>
+<p>The metrics told the instructor <em>when</em> and <em>how bad</em> the problem was. Next step: go to CloudWatch Logs for the specific models and applications experiencing issues.</p>
+
+<p>In the SageMaker logs, most entries were health-check keep-alives (noise). Using Log Insights + AI Summarize quickly surfaced the meaningful events.</p>
+
+<h3>Step 3: Finding the Errors</h3>
+<p>Using the natural language query "find all errors" on the Bedrock logs for March 24th, the query returned exactly 3 results — all around 8:39–9:05 AM. These were <span class="exam-highlight-term">Service Unavailable exceptions</span> — the service itself was reporting it couldn't handle requests.</p>
+
+<div class="diagram-container"><img src="images/troubleshooting-workflow.png" loading="lazy" decoding="async" alt="Step by step troubleshooting workflow diagram showing five stages: Observe latency spike in metrics dashboard, navigate to CloudWatch Logs, run Log Insights query for errors, identify timestamps of failures, correlate with AWS status page and infrastructure events"><p class="diagram-caption"><em>Figure 6: The 5-step troubleshooting workflow using CloudWatch for AI application monitoring</em></p></div>
+
+<h3>Step 4: Connecting the Dots</h3>
+<p>Timestamps from logs: 8:39, 8:42, 9:05 AM (Pacific time). Correlating with AWS's own service health dashboard confirmed: there was an AWS infrastructure incident during those exact windows. The problem wasn't in the app's code — it was in the underlying infrastructure.</p>
+
+<p>The root cause: the app was using a <strong>global inference profile</strong> for Claude Sonnet. Global profiles route requests to whichever Claude endpoint has the best availability worldwide. But when data centers in the Middle East region were experiencing severe disruptions (caused by real-world geopolitical events), the global routing was overwhelmed. Too many requests, too few available endpoints — causing massive delays and timeouts.</p>
+
+<h3>Step 5: The Fix</h3>
+<p>The solution was to switch from a <span class="exam-highlight-term">global inference profile</span> to a <span class="exam-highlight-term">US regional inference profile</span>. This limits routing to US data centers only, which still load-balances between multiple regions (Oregon, Virginia, etc.) but avoids the impacted Middle East endpoints entirely.</p>
+
+<div class="info-box">💡 <strong>Inference Profiles Explained:</strong> When using large models like Claude Sonnet on Bedrock, you cannot invoke the model directly by ID. You must use an inference profile — essentially a smart load balancer that distributes your requests across multiple instances of the model. Global profiles route worldwide; regional profiles stay within a geography. <span class="exam-highlight-sentence">For models like Claude Sonnet on Amazon Bedrock, direct model invocation is not supported — you must use a cross-region inference profile instead.</span></div>
+
+<h3>What CloudWatch Could and Couldn't Tell Us</h3>
+<table>
+<thead><tr><th>Question</th><th>CloudWatch Answer</th></tr></thead>
+<tbody>
+<tr><td>When did failures happen?</td><td>✅ Yes — exact timestamps from logs</td></tr>
+<tr><td>How bad was the latency?</td><td>✅ Yes — metrics dashboard showed spikes</td></tr>
+<tr><td>That there were Service Unavailable errors?</td><td>✅ Yes — explicit error codes in logs</td></tr>
+<tr><td>Why the service was unavailable?</td><td>❌ No — needed AWS status page + external context</td></tr>
+<tr><td>Which line of code caused an error?</td><td>❌ No — needed application-level debugging logs</td></tr>
+<tr><td>Who made API calls that failed?</td><td>❌ No — needed CloudTrail for API-level audit</td></tr>
+</tbody>
+</table>
+
+<div class="highlight-box">⚡ <strong>Key Takeaway:</strong> CloudWatch tells you <em>that</em> things are failing and <em>when</em> they're failing. It's the starting point, not the full answer. You will always need additional tools — CloudTrail, application logs, AWS Status page — to complete the picture.</div>
+
+</div></details>
+
+<details class="collapsible-section" id="cloudtrail-comparison"><summary><h2>7. 🔍 CloudWatch vs. CloudTrail — Know the Difference</h2></summary><div class="section-content">
+
+<p>This is a very common source of confusion — and a very common exam question. CloudWatch and CloudTrail both help you monitor your AWS environment, but they watch very different things.</p>
+
+<p><span class="exam-highlight-sentence">CloudWatch monitors operational metrics and application logs, while CloudTrail records API calls and tracks who did what in your AWS account.</span></p>
+
+<div class="diagram-container"><img src="images/cloudwatch-vs-cloudtrail.png" loading="lazy" decoding="async" alt="Side by side comparison diagram showing CloudWatch on the left monitoring metrics CPU network latency and app logs versus CloudTrail on the right recording API calls IAM actions console login attempts and resource changes with arrows showing the difference in focus"><p class="diagram-caption"><em>Figure 7: CloudWatch watches HOW services perform; CloudTrail watches WHO is doing WHAT in your account</em></p></div>
+
+<h3>Amazon CloudWatch</h3>
+<ul>
+<li><strong>Focus:</strong> Operational performance and application behavior</li>
+<li><strong>What it captures:</strong> CPU usage, network traffic, latency, application log messages, custom metrics</li>
+<li><strong>Good for:</strong> "Why is my app slow?" "Which requests are failing?" "When did the error spike happen?"</li>
+<li><strong>Think of it as:</strong> A hospital patient monitor — tracking vitals in real time</li>
+</ul>
+
+<h3>Amazon CloudTrail</h3>
+<ul>
+<li><strong>Focus:</strong> API activity and account governance</li>
+<li><strong>What it captures:</strong> Every API call made in your AWS account — who called it, when, from where, and whether it succeeded</li>
+<li><strong>Good for:</strong> "Who deleted this S3 bucket?" "Did someone try to log in and fail?" "When was this security group modified?"</li>
+<li><strong>Think of it as:</strong> A security camera system — recording who comes and goes and what they touch</li>
+</ul>
+
+<table>
+<thead><tr><th>Aspect</th><th>CloudWatch</th><th>CloudTrail</th></tr></thead>
+<tbody>
+<tr><td>Primary use</td><td>Performance monitoring</td><td>Audit and compliance</td></tr>
+<tr><td>Data type</td><td>Metrics, logs, events</td><td>API call records</td></tr>
+<tr><td>Who cares?</td><td>DevOps, developers</td><td>Security, compliance, auditors</td></tr>
+<tr><td>Real-time?</td><td>Yes (near real-time)</td><td>Slight delay (minutes)</td></tr>
+<tr><td><span class="exam-highlight-term">Retention default</span></td><td>Configurable (never expires by default for logs)</td><td>90 days in event history; S3 for longer</td></tr>
+</tbody>
+</table>
+
+<div class="info-box">💡 <strong>Real-World Example:</strong> You notice your application is slow (CloudWatch shows latency spike). You then check CloudTrail and see that someone modified a security group rule 10 minutes before the slowdown started. CloudWatch told you the symptom; CloudTrail told you the possible cause. Together, they solve the mystery.</div>
+
+<div class="success-box">✅ <strong>Exam Tip:</strong> When a question asks about <em>performance</em>, <em>logs</em>, or <em>application health</em> → think CloudWatch. When a question asks about <em>API calls</em>, <em>who changed what</em>, or <em>compliance</em> → think CloudTrail.</div>
+
+</div></details>
+
+<details class="collapsible-section" id="unix-timestamps"><summary><h2>8. ⏱️ Unix Timestamps — The Secret Language of Logs</h2></summary><div class="section-content">
+
+<p>Every log entry in CloudWatch (and most logging systems in the world) has a timestamp. But it won't look like "March 24th, 8:39 AM." It'll look like this: <code>1711269540000</code></p>
+
+<p>This is called a <span class="exam-highlight-term">Unix epoch timestamp</span>, and once you understand it, reading logs becomes much less confusing.</p>
+
+<h3>What Is Unix Epoch Time?</h3>
+<p><span class="exam-highlight-sentence">Unix epoch time counts the number of seconds (or milliseconds) that have elapsed since January 1st, 1970 at 00:00:00 UTC — the "Unix epoch."</span></p>
+
+<p>When you see a 10-digit number in a log, it's seconds since 1970. When you see a 13-digit number (like in CloudWatch), it's <em>milliseconds</em> since 1970 — giving you precision down to one-thousandth of a second.</p>
+
+<h3>Why Do We Use This Format?</h3>
+<ul>
+<li><strong>Language-neutral:</strong> Every programming language and operating system understands this number</li>
+<li><strong>Sortable:</strong> Higher number = later time, always. No timezone confusion.</li>
+<li><strong>Precision:</strong> Millisecond-level accuracy for sequencing events</li>
+<li><strong>Simple comparison:</strong> Subtract two timestamps to get exact duration</li>
+</ul>
+
+<h3>How to Convert Unix Timestamps</h3>
+<p>You need a converter tool — don't do it in your head, and definitely don't ask an AI to do it.</p>
+<ul>
+<li><strong>Online:</strong> epochconverter.com or unixtimestamp.com</li>
+<li><strong>Linux/Mac terminal:</strong> <code>date -d @1711269540</code> (seconds) or <code>date -d @1711269540000</code> (milliseconds)</li>
+<li><strong>Python:</strong> <code>from datetime import datetime; datetime.fromtimestamp(1711269540)</code></li>
+</ul>
+
+<pre><code># Python conversion example
+from datetime import datetime, timezone
+
+# CloudWatch millisecond timestamp
+ms_timestamp = 1711269540000
+
+# Convert to human-readable UTC
+dt = datetime.fromtimestamp(ms_timestamp / 1000, tz=timezone.utc)
+print(dt)  # 2024-03-24 08:39:00+00:00</code></pre>
+
+<div class="error-box">❌ <strong>Critical Warning:</strong> <span class="exam-highlight-sentence">Generative AI models cannot reliably convert Unix timestamps and will fabricate plausible but incorrect dates.</span> Always use a deterministic tool (Python, JavaScript date library, or an online converter) for timestamp conversion. This is not a limitation that can be "prompted away" — it's fundamental to how LLMs work. They predict likely output, not perform arithmetic.</div>
+
+<h3>UTC vs. Local Time in CloudWatch</h3>
+<p>CloudWatch stores and displays all timestamps in <span class="exam-highlight-term">UTC (Coordinated Universal Time)</span>. If you're in Pacific Time (UTC-7 or UTC-8), you'll need to subtract 7 or 8 hours from what you see. In the demo, an error logged at 15:39 UTC was actually 8:39 AM Pacific — which matched exactly when the instructor noticed problems in their application. CloudWatch often gives you an option to adjust for local time, but the underlying storage is always UTC.</p>
+
+</div></details>
+
+<details class="collapsible-section" id="infrastructure-failures"><summary><h2>9. 🌍 When Infrastructure Itself Fails — Real-World Context</h2></summary><div class="section-content">
+
+<p>One of the most important lessons from this session went beyond CloudWatch itself: sometimes the problem you're monitoring isn't in <em>your</em> code or <em>your</em> configuration. Sometimes, the cloud itself experiences failures — and the failures can be caused by events far outside anyone's control.</p>
+
+<h3>The Incident: What Actually Happened</h3>
+<p>During the period covered in class (March 2025), AWS experienced disruptions affecting data centers in the Middle East region. Unlike typical cloud incidents (hardware failure, software bug, power issue), this one was tied to real-world geopolitical events. <span class="exam-highlight-sentence">Multiple AWS data centers within 300 miles of each other experienced damage severe enough that they could not be brought back online quickly, unlike typical hardware replacement scenarios.</span></p>
+
+<p>The impact was felt by many users as:</p>
+<ul>
+<li>Timeout errors from Claude and other AI services</li>
+<li>Dramatically increased latency (minutes instead of seconds)</li>
+<li>"Service Unavailable" errors that weren't caused by user code</li>
+<li>Applications that appeared redundant were no longer redundant</li>
+</ul>
+
+<h3>The "Fake Redundancy" Problem</h3>
+<p>Many customers had designed their applications to use both a European region and the Bahrain (Middle East) region for redundancy — believing they were protected against failure. But when Bahrain became unavailable, they discovered they effectively had single-region deployments. <span class="exam-highlight-sentence">If a secondary region becomes completely unavailable, applications designed for multi-region redundancy may effectively be running in a single region, eliminating the intended failover protection.</span></p>
+
+<div class="highlight-box">⚡ <strong>Werner Vogels' Law (Chief Technology Officer, Amazon):</strong> "Everything fails all the time." Even infrastructure designed to handle hurricanes and earthquakes can face scenarios beyond original design parameters. Cloud architecture must account for cascading, multi-point failures, not just single component failures.</div>
+
+<h3>Inference Profiles: Global vs. Regional</h3>
+<p>This infrastructure issue directly impacted anyone using <strong>global inference profiles</strong> on Amazon Bedrock (the managed AI service). Here's the breakdown:</p>
+
+<table>
+<thead><tr><th>Profile Type</th><th>Routing Behavior</th><th>Impact During Incident</th></tr></thead>
+<tbody>
+<tr><td><span class="exam-highlight-term">Global Profile</span></td><td>Routes to best-available model endpoint worldwide</td><td>❌ Severely impacted — trying to route through unavailable Middle East capacity</td></tr>
+<tr><td><span class="exam-highlight-term">US Regional Profile</span></td><td>Routes only within US data centers (Oregon, Virginia, etc.)</td><td>✅ Mostly unaffected — stayed within functioning US capacity</td></tr>
+<tr><td><span class="exam-highlight-term">EU Regional Profile</span></td><td>Routes only within European data centers</td><td>⚠️ Partially impacted depending on specific regions</td></tr>
+</tbody>
+</table>
+
+<div class="info-box">💡 <strong>The Air Traffic Control Analogy:</strong> Think of AWS routing as air traffic control. During the Middle East incident, it was like losing multiple major airports simultaneously. The global "control tower" was overwhelmed trying to reroute all that traffic. Switching to a regional profile is like telling the system "I only fly domestic — don't even try to route me through international airports right now."</div>
+
+<h3>Regulatory Constraints on Failover</h3>
+<p>One important caveat: you can't always just switch regions. <span class="exam-highlight-sentence">Regulatory requirements like GDPR in Europe or HIPAA in healthcare may restrict which AWS regions you can use to store and process data, limiting your failover options during outages.</span></p>
+
+<ul>
+<li>Healthcare data (HIPAA) may need to stay in specific US regions</li>
+<li>European user data (GDPR) may need to stay within EU regions</li>
+<li>Some government data must stay within national borders</li>
+</ul>
+
+<p>This means your disaster recovery plan must account for legal constraints, not just technical ones. You can't just "move everything to the US" if your users' data has EU residency requirements.</p>
+
+<h3>How AWS Communicates Incidents</h3>
+<p>AWS proactively communicates outages through:</p>
+<ul>
+<li><strong>AWS Service Health Dashboard</strong> — public page showing current status of all services by region</li>
+<li><strong>Personal Health Dashboard</strong> — shows incidents affecting <em>your specific account and resources</em></li>
+<li><strong>Email notifications</strong> — sent to customers with resources in affected regions, including specific guidance on what to move and where</li>
+<li><strong>Account teams</strong> — enterprise customers receive direct support; individual developers must rely on self-service tools</li>
+</ul>
+
+<div class="success-box">✅ <strong>Actionable Takeaway:</strong> Bookmark the <a href="https://health.aws.amazon.com/health/status" target="_blank" rel="noopener noreferrer">AWS Service Health Dashboard</a>. When you're experiencing weird errors and CloudWatch shows you it's not your code, check the health dashboard. If there's a known incident, you'll see it there — which saves hours of fruitless debugging.</div>
+
+</div></details>
+
+<details class="collapsible-section" id="best-practices"><summary><h2>10. ✅ Best Practices for CloudWatch Monitoring</h2></summary><div class="section-content">
+
+<h3>Structuring Your Monitoring Strategy</h3>
+<p>Good monitoring isn't about watching everything — it's about watching the <em>right things</em> and getting alerted when they cross meaningful thresholds.</p>
+
+<ol>
+<li><strong>Know your baseline first</strong> — Before you can spot anomalies, you need to know what "normal" looks like. For an AI app, 5-second response time might be normal. For a database query, 200ms might be the baseline.</li>
+<li><strong>Set alarms with buffer</strong> — If 80% CPU is your concern point, set the alarm at 70%. You want to react <em>before</em> things go critical, not during a crisis.</li>
+<li><strong>Layer your monitoring tools</strong> — CloudWatch for operational data, CloudTrail for API audit, AWS Security Hub for security posture, application-level logging for code-level debugging</li>
+<li><strong>Enable logging explicitly where needed</strong> — Not all services log to CloudWatch by default. When you deploy a new service, verify its logs are flowing where you expect</li>
+<li><strong>Use Log Insights' AI features</strong> — Don't manually scan hundreds of log entries when AI summarization can surface the key patterns in seconds</li>
+</ol>
+
+<h3>For AI Applications Specifically</h3>
+<p>Monitoring AI applications on AWS has some unique considerations:</p>
+<ul>
+<li><span class="exam-highlight-sentence">AI model endpoints on SageMaker generate high volumes of keep-alive health check logs that constitute the majority of log entries and must be filtered to find meaningful events.</span></li>
+<li>Track latency carefully — AI model inference is inherently slower than traditional API calls, and latency spikes are often the first sign of infrastructure problems</li>
+<li>Monitor token usage for Bedrock models — costs are per-token, and unexpected spikes in usage can indicate bugs or abuse</li>
+<li>Use regional inference profiles when global reliability is uncertain; use global profiles when you prioritize availability and have regulatory flexibility</li>
+</ul>
+
+<h3>Privacy Considerations</h3>
+<p>When building apps that log user interactions, think carefully about what gets captured. <span class="exam-highlight-sentence">Application logs may capture user inputs and AI responses; always review vendor privacy policies to understand whether logged data is used for model training.</span></p>
+
+<ul>
+<li>Some AI vendors use conversation logs for training — opt out if privacy matters</li>
+<li>Design apps to encrypt sensitive content before logging if full transparency isn't needed</li>
+<li>Treat user-generated content in logs as sensitive data with appropriate retention policies</li>
+</ul>
+
+<div class="diagram-container"><img src="images/monitoring-layers.png" loading="lazy" decoding="async" alt="Layered monitoring architecture diagram showing four layers from top to bottom: Application Layer with custom logs and error tracking, AWS Service Layer with CloudWatch metrics and logs, API and Security Layer with CloudTrail, and Infrastructure Layer with AWS Health Dashboard and status pages"><p class="diagram-caption"><em>Figure 8: A complete monitoring strategy requires multiple overlapping layers — no single tool sees everything</em></p></div>
+
+</div></details>
+
+<details class="collapsible-section"><summary><h2>📝 Overall Summary</h2></summary><div class="section-content"><ul>
+<li><strong>CloudWatch is your monitoring hub:</strong> It collects metrics (numbers over time) and logs (text events) from virtually every AWS service, and is the first place to look when something goes wrong.</li>
+<li><strong>Metrics vs. Logs:</strong> Metrics show performance trends (great for dashboards and alarms); logs show event details (great for root cause analysis). You need both.</li>
+<li><strong>80% CPU rule:</strong> Treat 80% processor utilization as effectively full capacity — set alarms and auto-scaling triggers before reaching this threshold.</li>
+<li><strong>Log Insights:</strong> A built-in query tool that lets you search and analyze millions of log entries using a SQL-like language, without manually scanning raw logs.</li>
+<li><strong>AI-powered summarization:</strong> Available globally in CloudWatch since August 2024 — it analyzes hundreds of log entries, surfaces patterns and anomalies, and suggests mitigations in plain English.</li>
+<li><strong>Natural language queries:</strong> CloudWatch Log Insights can generate query code from plain-English descriptions, making log analysis accessible even without knowing the query syntax.</li>
+<li><strong>CloudWatch ≠ CloudTrail:</strong> CloudWatch monitors operational performance; CloudTrail audits API calls and tracks who did what. Use both for complete visibility.</li>
+<li><strong>Unix timestamps:</strong> Logs use millisecond epoch timestamps (counting from Jan 1, 1970). Always use code or tools to convert them — AI models will fabricate incorrect dates.</li>
+<li><strong>Inference profiles matter:</strong> Large Bedrock models like Claude Sonnet require inference profiles (not direct invocation). Global profiles offer wider reach but more exposure to regional outages; regional profiles provide more isolation.</li>
+<li><strong>CloudWatch is a starting point:</strong> It tells you when and what failed, but not always why. Combine it with CloudTrail, application logs, and the AWS Health Dashboard to complete your investigation.</li>
+</ul></div></details>
+
+<details class="collapsible-section"><summary><h2>📖 Glossary</h2></summary><div class="section-content"><div id="glossaryContainer" data-glossary-source="json/glossary.json"></div></div></details>
+
+<details class="collapsible-section"><summary><h2>🎤 Interview Questions</h2></summary><div class="section-content"><p class="interview-intro">📚 Test your understanding with these questions.</p><div class="interview-progress"><p id="interviewProgress">Progress: 0/25 (0%)</p></div><div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn" id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1 / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn" id="nextInterviewBtn">Next →</button></div><div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json"></div><div style="margin-top: 2rem; text-align: center;"><button onclick="resetInterviewProgress()" class="quiz-reset-btn">🔄 Reset Progress</button></div></div></details>
+
+<details class="collapsible-section"><summary><h2>📝 Multiple Choice Questions</h2></summary><div class="section-content"><div class="quiz-header-info"><p>📝 Test your knowledge with immediate feedback.</p></div><div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn" id="prevBtn">← Previous</button><div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button></div><div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div><div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊 View Summary</button><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄 Reset All</button></div></div></details>
+
+<details class="collapsible-section"><summary><h2>💼 Hands-On Projects</h2></summary><div class="section-content"><div class="prerequisites-box"><h4>📋 Prerequisites</h4><ul><li>✅ AWS account (free tier is enough for Levels 1–6)</li><li>✅ Basic understanding of EC2 (from previous sessions)</li><li>✅ SSH client (Terminal on Mac/Linux, PuTTY or Windows Terminal on Windows)</li><li>✅ Knowledge: EC2 launch, Security Groups, IAM basics</li></ul></div><div class="highlight-box">⚡ <strong>How These Labs Are Structured:</strong> There are 10 levels — 🟢 Green (beginner), 🟡 Yellow (intermediate), 🔴 Red (advanced), ⚫ Black (expert). Complete them in order — each level builds on the previous. You can stop at any level and still have a working monitoring setup.</div><div class="info-box"><p>💡 <strong>Cost Warning:</strong> Levels 1–6 stay within AWS Free Tier (t2.micro EC2, standard CloudWatch, SNS email). Level 7 uses Lambda (free tier: 1M requests/month). Always clean up resources after practice to avoid unexpected charges.</p></div><h3>🟢 Level 1: Launch EC2 + Get First Logs Flowing</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Launch an EC2 instance, install the CloudWatch Agent, and see your first custom logs appear in CloudWatch</p><p><strong>⏱️ Time:</strong> 30–40 min</p><p><strong>💰 Cost:</strong> Free tier (t2.micro)</p></div><h4>Step 1: Launch an EC2 Instance</h4><ol><li>Go to EC2 Console → Launch Instance</li><li>Choose: <strong>Ubuntu Server 22.04 LTS</strong></li><li>Instance type: <strong>t2.micro</strong> (free tier)</li><li>Key pair: Create new → download <code>.pem</code> file</li><li>Security group: Allow ports <strong>22 (SSH)</strong> and <strong>80 (HTTP)</strong></li><li>IAM Instance Profile: Attach a role with <strong>CloudWatchAgentServerPolicy</strong></li><li>Launch the instance</li></ol><div class="diagram-container"><img src="images/screenshot_ec2_launch.jpeg" decoding="async" alt="AWS EC2 console showing the Launch Instance page with Ubuntu 22.04 selected, t2.micro instance type highlighted, and the security group settings showing ports 22 and 80 allowed"><p class="diagram-caption"><em>Screenshot 1: EC2 Launch — Ubuntu 22.04 with t2.micro and SSH/HTTP ports open</em></p></div><h4>Step 2: Connect via SSH</h4><pre><code># On Mac/Linux terminal (replace with your key file and EC2 public IP)
+chmod 400 your-key.pem
+ssh -i your-key.pem ubuntu@your-ec2-public-ip</code></pre><div class="diagram-container"><img src="images/screenshot_ssh_connected.jpeg" loading="lazy" decoding="async" alt="Terminal window showing successful SSH connection to EC2 Ubuntu instance with the ubuntu@ip-address prompt visible confirming connection is established"><p class="diagram-caption"><em>Screenshot 2: Successful SSH connection — you should see the Ubuntu welcome message and ubuntu@ prompt</em></p></div><h4>Step 3: Install the CloudWatch Agent</h4><pre><code>sudo apt update
+sudo apt install amazon-cloudwatch-agent -y</code></pre><h4>Step 4: Create a Log File for Your App</h4><pre><code>sudo mkdir -p /var/log/myapp
+sudo touch /var/log/myapp/app.log
+sudo chmod 666 /var/log/myapp/app.log
+echo "App started" | sudo tee /var/log/myapp/app.log</code></pre><h4>Step 5: Configure the CloudWatch Agent</h4><pre><code>sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard</code></pre><p>When the wizard asks questions, choose:</p><ul><li>OS: <strong>Linux</strong></li><li>Running on EC2: <strong>Yes</strong></li><li>Collect logs: <strong>Yes</strong></li><li>Log file path: <code>/var/log/myapp/app.log</code></li><li>Log group name: <code>/myapp/logs</code></li><li>Log stream name: <strong>default (press Enter)</strong></li></ul><h4>Step 6: Start the Agent</h4><pre><code>sudo systemctl start amazon-cloudwatch-agent
+sudo systemctl enable amazon-cloudwatch-agent
+# Verify it is running:
+sudo systemctl status amazon-cloudwatch-agent</code></pre><div class="diagram-container"><img src="images/screenshot_agent_running.jpeg" loading="lazy" decoding="async" alt="Terminal showing systemctl status amazon-cloudwatch-agent output with green active running status text confirming the agent is successfully started and enabled"><p class="diagram-caption"><em>Screenshot 3: CloudWatch Agent running — green active running status confirms success</em></p></div><h4>✅ Verification: See Your Logs in CloudWatch</h4><ol><li>Go to CloudWatch Console → Log groups</li><li>Find <code>/myapp/logs</code> — it should appear within 1–2 minutes</li><li>Click it → click the log stream → you should see "App started"</li></ol><div class="diagram-container"><img src="images/screenshot_loggroup_myapp.jpeg" loading="lazy" decoding="async" alt="CloudWatch console showing the Log groups page with slash-myapp-slash-logs group visible in the list with a recent last event time indicating logs are flowing successfully from the EC2 instance"><p class="diagram-caption"><em>Screenshot 4: /myapp/logs log group visible in CloudWatch — logs are flowing from your EC2 instance</em></p></div><div class="success-box">✅ <strong>Level 1 Complete!</strong> You now have: custom app logs flowing to CloudWatch, EC2 system metrics available automatically (CPU, network, disk I/O).</div><h3>🟢 Level 2: Generate Real, Meaningful Logs</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Create a script that generates realistic INFO, WARN, and ERROR logs continuously so you have something to actually analyze</p><p><strong>⏱️ Time:</strong> 15–20 min</p><p><strong>💰 Cost:</strong> Free tier</p></div><h4>Step 1: Create the Log Generator Script</h4><pre><code>nano ~/log-generator.sh</code></pre><p>Paste this content:</p><pre><code>#!/bin/bash
+while true
+do
+  echo "[INFO]  Request received from 10.0.0.0" >> /var/log/myapp/app.log
+
+  if [ 0 -eq 0 ]; then
+    echo "[ERROR]  DB connection failed - timeout after 30s" >> /var/log/myapp/app.log
+  fi
+
+  if [ 0 -eq 0 ]; then
+    echo "[WARN]  Slow response detected: 800ms" >> /var/log/myapp/app.log
+  fi
+
+  sleep 1
+done</code></pre><h4>Step 2: Run the Generator in the Background</h4><pre><code>chmod +x ~/log-generator.sh
+nohup ~/log-generator.sh &amp;
+echo "Generator PID: "</code></pre><h4>Step 3: Verify Logs Are Flowing</h4><pre><code># Watch logs locally
+tail -f /var/log/myapp/app.log</code></pre><div class="diagram-container"><img src="images/screenshot_log_generator_output.jpeg" loading="lazy" decoding="async" alt="Terminal showing tail -f output of app.log with multiple timestamped lines including INFO request received messages, occasional ERROR DB connection failed messages, and WARN slow response messages showing realistic log patterns"><p class="diagram-caption"><em>Screenshot 5: Log generator running — mix of INFO, ERROR, and WARN entries appearing every second</em></p></div><p>Wait 2–3 minutes, then go to CloudWatch → Log groups → <code>/myapp/logs</code> → verify the new entries are appearing.</p><div class="success-box">✅ <strong>Level 2 Complete!</strong> You now have: continuous INFO, ERROR, and WARN logs flowing — realistic data to analyze in the next levels.</div><h3>🟡 Level 3: Create a Metric Alarm + Get Email Alerts</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Create a CloudWatch alarm that emails you when CPU exceeds 70%, then deliberately trigger it</p><p><strong>⏱️ Time:</strong> 20–25 min</p><p><strong>💰 Cost:</strong> Free tier (10 alarms free, SNS email free)</p></div><h4>Step 1: Create a CPU Alarm in CloudWatch</h4><ol><li>CloudWatch Console → Alarms → Create Alarm</li><li>Click "Select metric" → EC2 → Per-Instance Metrics → CPUUtilization</li><li>Select your instance → Click "Select metric"</li><li>Conditions: <strong>Greater than 70</strong> (threshold)</li><li>Period: <strong>1 minute</strong></li></ol><div class="diagram-container"><img src="images/screenshot_create_alarm.jpeg" loading="lazy" decoding="async" alt="CloudWatch Create Alarm console page showing the Specify metric and conditions step with CPUUtilization metric selected, threshold type set to Static, condition set to Greater than, and the value field showing 70 percent"><p class="diagram-caption"><em>Screenshot 6: Creating a CPU alarm — threshold set to 70% with 1-minute evaluation period</em></p></div><h4>Step 2: Set Up SNS Email Notification</h4><ol><li>In the alarm wizard, under "Notification" → Create new topic</li><li>Topic name: <code>cloudwatch-alerts</code></li><li>Email: <strong>your email address</strong></li><li>Click "Create topic"</li><li>Check your email → confirm the SNS subscription</li></ol><div class="diagram-container"><img src="images/screenshot_sns_email_confirm.jpeg" loading="lazy" decoding="async" alt="Email inbox showing AWS Notification Subscription Confirmation email with a Confirm subscription link button and the SNS topic ARN and endpoint email address visible in the message body"><p class="diagram-caption"><em>Screenshot 7: SNS subscription confirmation email — click the link before continuing</em></p></div><h4>Step 3: Trigger a CPU Spike</h4><pre><code># On your EC2 instance — this maxes out CPU
+yes &gt; /dev/null &amp;
+yes &gt; /dev/null &amp;
+# Wait 2-3 minutes for CloudWatch to detect the spike</code></pre><h4>Step 4: Watch the Alarm Trigger</h4><ol><li>Go to CloudWatch → Alarms</li><li>Watch your alarm change from <strong>OK</strong> → <strong>In alarm</strong></li><li>Check your email — you should receive the alert notification</li></ol><div class="diagram-container"><img src="images/screenshot_alarm_triggered.jpeg" loading="lazy" decoding="async" alt="CloudWatch Alarms page showing the High-CPU-Alert alarm with red In alarm status badge next to it and a small graph below showing CPU utilization spiking above the 70 percent threshold line"><p class="diagram-caption"><em>Screenshot 8: Alarm in In alarm state — CPU spike triggered the threshold, email notification sent</em></p></div><h4>Step 5: Stop the CPU Spike</h4><pre><code>killall yes</code></pre><p>After 1–2 minutes the alarm will return to <strong>OK</strong> state and you will get a recovery email.</p><div class="success-box">✅ <strong>Level 3 Complete!</strong> You now have: automatic alerting when CPU is high, proven end-to-end that alarms → SNS → email works.</div><h3>🟡 Level 4: Analyze Logs with Log Insights Queries</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Use CloudWatch Log Insights to run real queries against your generated logs and find patterns</p><p><strong>⏱️ Time:</strong> 20–30 min</p><p><strong>💰 Cost:</strong> Free tier (first 5GB/month scanned free)</p></div><h4>Step 1: Open Log Insights</h4><p>CloudWatch Console → Logs → Log Insights → Select log group: <code>/myapp/logs</code></p><h4>Query 1: See the Most Recent Logs</h4><pre><code>fields @timestamp, @message
+| sort @timestamp desc
+| limit 20</code></pre><div class="diagram-container"><img src="images/screenshot_log_insights_basic.jpeg" loading="lazy" decoding="async" alt="CloudWatch Log Insights console showing the query editor with the basic fields timestamp message query typed in, the log group slash-myapp-slash-logs selected, and the results table below showing 20 recent log entries with timestamps and message content"><p class="diagram-caption"><em>Screenshot 9: Log Insights basic query — 20 most recent entries sorted by newest first</em></p></div><h4>Query 2: Find All ERROR Entries</h4><pre><code>fields @timestamp, @message
+| filter @message like /ERROR/
+| sort @timestamp desc</code></pre><h4>Query 3: Count Events Per Minute (Spot Spikes)</h4><pre><code>stats count(*) as eventCount by bin(1m)
+| sort @timestamp asc</code></pre><div class="diagram-container"><img src="images/screenshot_log_insights_count.jpeg" loading="lazy" decoding="async" alt="CloudWatch Log Insights showing the stats count query results as a bar chart visualization with time on the x-axis and event count on the y-axis showing spikes during the log generator active period"><p class="diagram-caption"><em>Screenshot 10: Events per minute graph — spikes correspond to when your log generator was most active</em></p></div><h4>Query 4: Count ERROR vs WARN vs INFO</h4><pre><code>stats count(*) as total by strcontains(@message, "ERROR") as isError,
+strcontains(@message, "WARN") as isWarn
+| sort total desc</code></pre><h4>Step 2: Try the AI Natural Language Query Generator</h4><ol><li>In Log Insights, find the "Query generator" or natural language input</li><li>Type: <code>show me all error messages from the last hour</code></li><li>Let it generate the query → Run it</li><li>Type: <code>count errors by minute</code> → Run</li></ol><div class="diagram-container"><img src="images/screenshot_ai_query_generator.jpeg" loading="lazy" decoding="async" alt="CloudWatch Log Insights AI query generator interface showing a natural language input field with the text show me all error messages from the last hour typed in and below it the auto-generated CloudWatch query code created from that plain English description"><p class="diagram-caption"><em>Screenshot 11: AI query generator converts plain English to Log Insights query syntax automatically</em></p></div><h4>Step 3: Use AI Summarize Results</h4><ol><li>Run the basic query (Query 1 above) — get at least 50 results</li><li>Look for "Summarize results" button in the results panel</li><li>Click it and read the AI analysis</li></ol><div class="diagram-container"><img src="images/screenshot_ai_summarize.jpeg" loading="lazy" decoding="async" alt="CloudWatch Log Insights showing the AI summarization panel on the right side of the results with a plain English summary paragraph identifying that most log entries are INFO requests, approximately 20 percent are ERROR DB connection failed events, and the pattern appears consistent over time"><p class="diagram-caption"><em>Screenshot 12: AI Summarize Results — instant plain-English analysis of hundreds of log entries</em></p></div><div class="success-box">✅ <strong>Level 4 Complete!</strong> You can now: filter logs by severity, count events over time, use AI to generate queries from plain English, and get AI summaries of large log sets.</div><h3>🟡 Level 5: Lambda + API Gateway Real Service Logs</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Create a Lambda function with intentional random failures, expose it via API Gateway, generate real HTTP traffic, and analyze the mixed 200/500 responses in CloudWatch</p><p><strong>⏱️ Time:</strong> 30–40 min</p><p><strong>💰 Cost:</strong> Free tier (Lambda: 1M requests/month free; API Gateway: 1M calls/month free for 12 months)</p></div><h4>Step 1: Create the Lambda Function</h4><ol><li>Lambda Console → Create function → Author from scratch</li><li>Name: <code>cloudwatch-demo</code>, Runtime: <strong>Python 3.12</strong></li><li>Paste this code:</li></ol><pre><code>import random
+import json
+
+def lambda_handler(event, context):
+    # 1 in 3 requests will fail intentionally
+    if random.randint(1, 3) == 1:
+        raise Exception("Random failure - simulating real-world errors")
+    
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"message": "Success!", "requestId": context.aws_request_id})
+    }</code></pre><h4>Step 2: Add API Gateway Trigger</h4><ol><li>In your Lambda function → Add trigger → API Gateway</li><li>Create new HTTP API</li><li>Security: Open (for demo purposes)</li><li>Note the API endpoint URL</li></ol><div class="diagram-container"><img src="images/screenshot_lambda_api_trigger.jpeg" loading="lazy" decoding="async" alt="Lambda function configuration page showing the Function overview diagram with an API Gateway trigger box connected to the Lambda function box and below it the API endpoint URL visible that will be used to invoke the function"><p class="diagram-caption"><em>Screenshot 13: Lambda function with API Gateway trigger — copy the endpoint URL for testing</em></p></div><h4>Step 3: Generate Traffic (from EC2 or your terminal)</h4><pre><code># Replace YOUR_API_URL with the API Gateway endpoint
+API_URL="https://your-api-id.execute-api.us-east-1.amazonaws.com/default/cloudwatch-demo"
+
+# Send 50 requests
+for i in {1..50}; do
+  STATUS="000"
+  echo "Request : HTTP "
+  sleep 0.5
+done</code></pre><div class="diagram-container"><img src="images/screenshot_api_traffic.jpeg" loading="lazy" decoding="async" alt="Terminal showing the output of the for loop curl requests with Request 1 HTTP 200, Request 2 HTTP 200, Request 3 HTTP 500, Request 4 HTTP 200 and so on demonstrating the mix of successful and failed responses"><p class="diagram-caption"><em>Screenshot 14: Mixed 200 and 500 responses — roughly 1 in 3 requests failing as designed</em></p></div><h4>Step 4: View Lambda Logs in CloudWatch</h4><ol><li>Lambda Console → your function → Monitor tab → View logs in CloudWatch</li><li>Or directly: CloudWatch → Log groups → <code>/aws/lambda/cloudwatch-demo</code></li><li>Run Log Insights: filter for errors</li></ol><pre><code>fields @timestamp, @message
+| filter @message like /ERROR/
+| sort @timestamp desc</code></pre><div class="success-box">✅ <strong>Level 5 Complete!</strong> You have generated real AWS service logs with mixed success and failure patterns — exactly what production troubleshooting looks like.</div><h3>🔴 Level 6: Simulate Production Load (CPU + Disk Stress)</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Intentionally stress your EC2 instance to see how CloudWatch captures multi-dimensional system pressure: CPU, disk, and log volume simultaneously</p><p><strong>⏱️ Time:</strong> 20–25 min</p><p><strong>💰 Cost:</strong> Free tier</p></div><h4>Step 1: CPU Stress</h4><pre><code># Spawn 2 CPU-maxing processes
+yes &gt; /dev/null &amp;
+yes &gt; /dev/null &amp;
+echo "CPU stress started. PIDs: "</code></pre><h4>Step 2: Disk Write Stress</h4><pre><code># Write 500MB file (creates disk I/O pressure)
+dd if=/dev/zero of=/tmp/bigfile bs=1M count=500
+echo "Disk write complete"</code></pre><h4>Step 3: Watch All Metrics Together in CloudWatch</h4><ol><li>CloudWatch → Metrics → EC2 → Per-Instance Metrics</li><li>Select: CPUUtilization, DiskWriteOps, NetworkIn</li><li>View as a combined graph (Add to graph)</li></ol><div class="diagram-container"><img src="images/screenshot_combined_metrics.jpeg" loading="lazy" decoding="async" alt="CloudWatch Metrics console showing a combined line graph with three metrics plotted: CPUUtilization shown as a red line spiking to near 100 percent, DiskWriteOps shown as a blue line with a large spike during the dd command, and NetworkIn as a green baseline during the stress period"><p class="diagram-caption"><em>Screenshot 15: Multi-metric view — CPU, disk, and network all captured simultaneously during stress test</em></p></div><h4>Step 4: Stop the Stress</h4><pre><code>killall yes
+rm /tmp/bigfile</code></pre><div class="success-box">✅ <strong>Level 6 Complete!</strong> You have seen how CloudWatch captures correlated pressure across multiple dimensions simultaneously — the same pattern you would investigate in a real incident.</div><h3>🔴 Level 7: Auto-Remediation — System Fixes Itself</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Create a Lambda function that automatically reboots your EC2 instance when CPU stays above 80% — letting the system heal itself</p><p><strong>⏱️ Time:</strong> 30–40 min</p><p><strong>💰 Cost:</strong> Free tier</p></div><div class="error-box">❌ <strong>Warning:</strong> This lab reboots your EC2 instance automatically. Make sure your log-generator.sh is stopped first, and that you do not have unsaved work on the instance. The reboot takes about 2 minutes.</div><h4>Step 1: Create the Auto-Remediation Lambda</h4><ol><li>Lambda Console → Create function → Name: <code>auto-remediate-ec2</code></li><li>Runtime: Python 3.12</li><li>Paste this code (replace YOUR_INSTANCE_ID):</li></ol><pre><code>import boto3
+
+ec2 = boto3.client('ec2', region_name='us-east-1')
+
+def lambda_handler(event, context):
+    instance_id = "i-YOUR_INSTANCE_ID"  # Replace this
+    
+    print(f"Auto-remediation triggered for {instance_id}")
+    print(f"Alarm state: {event.get('detail', {}).get('state', 'unknown')}")
+    
+    response = ec2.reboot_instances(InstanceIds=[instance_id])
+    
+    print(f"Reboot initiated: {response}")
+    return {"status": "reboot_initiated", "instance": instance_id}</code></pre><h4>Step 2: Grant the Lambda EC2 Permissions</h4><ol><li>Lambda → Configuration → Permissions → Click the execution role</li><li>IAM → Attach policy → <strong>AmazonEC2FullAccess</strong> (or a custom policy with ec2:RebootInstances)</li></ol><h4>Step 3: Connect the Alarm to the Lambda</h4><ol><li>Go to your CPU alarm from Level 3</li><li>Edit → In alarm actions → Add action</li><li>Choose: <strong>Lambda function</strong> → select <code>auto-remediate-ec2</code></li><li>Save</li></ol><div class="diagram-container"><img src="images/screenshot_alarm_lambda_action.jpeg" loading="lazy" decoding="async" alt="CloudWatch alarm edit page showing the Notification section with an existing SNS email action and below it a new Lambda function action being added with auto-remediate-ec2 selected from the dropdown menu"><p class="diagram-caption"><em>Screenshot 16: Alarm action configured to trigger Lambda — both email notification AND auto-remediation</em></p></div><h4>Step 4: Test Auto-Remediation</h4><pre><code># Trigger CPU spike on EC2
+yes &gt; /dev/null &amp;
+yes &gt; /dev/null &amp;
+yes &gt; /dev/null &amp;
+# Wait 3-5 minutes for alarm to trigger Lambda reboot</code></pre><p>Watch in EC2 Console — your instance will go <strong>Running → Stopping → Stopped → Pending → Running</strong> automatically.</p><div class="success-box">✅ <strong>Level 7 Complete!</strong> Your system now heals itself. This is production-grade auto-remediation: alarm → Lambda → reboot without human intervention.</div><h3>🔴 Level 8: AI-Powered Log Analysis</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Use CloudWatch built-in AI summarization on a large log dataset and experience the difference between manual searching and AI-assisted analysis</p><p><strong>⏱️ Time:</strong> 20–30 min</p><p><strong>💰 Cost:</strong> Small Log Insights scan cost (typically less than /bin/sh.01 for this exercise)</p></div><h4>Step 1: Generate a Large Log Dataset</h4><p>Make sure your log-generator.sh has been running for at least 10 minutes to have 500+ entries. If not, run it now and wait:</p><pre><code>nohup ~/log-generator.sh &amp;
+# Wait 10+ minutes
+tail -n 5 /var/log/myapp/app.log  # Check entry count</code></pre><h4>Step 2: Run Log Insights on the Full Dataset</h4><ol><li>CloudWatch → Log Insights → <code>/myapp/logs</code></li><li>Time range: Last 30 minutes</li><li>Run: <code>fields @timestamp, @message | limit 500</code></li><li>Note how many results returned</li></ol><h4>Step 3: Use AI Summarize</h4><ol><li>With your 500+ results loaded, click <strong>Summarize results</strong></li><li>Read the summary — it should identify: dominant log type (INFO), error frequency, warning patterns</li></ol><div class="diagram-container"><img src="images/screenshot_ai_large_summary.jpeg" loading="lazy" decoding="async" alt="CloudWatch Log Insights showing the AI Summary panel with a detailed paragraph describing the log patterns found: approximately 75 percent INFO requests, 20 percent ERROR DB connection failed events occurring randomly, and 5 percent WARN slow response events with estimated timing"><p class="diagram-caption"><em>Screenshot 17: AI summary of 500+ log entries — instantly identifies error rate, patterns, and dominant behaviors</em></p></div><h4>Step 4: Try Natural Language Queries</h4><p>In the AI query input, try these in plain English:</p><ul><li>"show me only the error messages"</li><li>"count how many errors happened each minute"</li><li>"find slow responses over 1000ms"</li><li>"what time did we have the most errors?"</li></ul><div class="diagram-container"><img src="images/screenshot_nl_query_results.jpeg" loading="lazy" decoding="async" alt="CloudWatch Log Insights showing a natural language query find slow responses over 1000ms typed in the AI query generator and below it the generated query code using filter message like slash WARN slash with the query results showing the matching WARN slow response entries"><p class="diagram-caption"><em>Screenshot 18: Natural language query for slow responses — AI generates correct Log Insights query automatically</em></p></div><div class="success-box">✅ <strong>Level 8 Complete!</strong> You have experienced AI-powered log analysis: fast summarization of large datasets and natural language querying without knowing the query syntax.</div><h3>⚫ Level 9: Chaos Engineering — Break Things Intentionally</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Deliberately break different parts of your monitoring setup to understand how CloudWatch behaves when things fail — and learn what missing data tells you</p><p><strong>⏱️ Time:</strong> 25–35 min</p><p><strong>💰 Cost:</strong> Free tier</p></div><div class="error-box">❌ <strong>Important:</strong> The network failure step (iptables) will disconnect your SSH session. You will need to use EC2 Instance Connect in the browser console OR wait for the rule to be removed via reboot. Read all steps before executing.</div><h4>Chaos Test 1: Kill the App (Missing Logs)</h4><pre><code># Stop log generator
+pkill -f log-generator.sh
+echo "Log generator stopped"</code></pre><p>Go to CloudWatch → your log group. Watch what happens to the log stream — entries stop appearing. This is called a log gap and is itself a signal in production: absence of expected logs means something is wrong.</p><h4>Chaos Test 2: Stop the CloudWatch Agent</h4><pre><code># Stop the agent — CloudWatch loses visibility entirely
+sudo systemctl stop amazon-cloudwatch-agent</code></pre><p>In CloudWatch → Metrics → EC2 → CPUUtilization for your instance. After 5 minutes, observe that the metric line shows <strong>no data</strong> (gaps in the graph). In production, this pattern tells you either the instance is gone or the agent crashed.</p><div class="diagram-container"><img src="images/screenshot_missing_metrics.jpeg" loading="lazy" decoding="async" alt="CloudWatch metrics graph showing CPU utilization as a normal line for the first portion of the time range then a gap with no data points for the period after the CloudWatch agent was stopped demonstrating how missing metrics look on a dashboard"><p class="diagram-caption"><em>Screenshot 19: Missing metrics gap — when the agent stops, CloudWatch shows empty data rather than zero</em></p></div><h4>Chaos Test 3: Fill the Disk</h4><pre><code># Create a 2GB file to pressure disk space
+fallocate -l 2G /tmp/bigfile2
+df -h  # Check disk usage</code></pre><p>Watch CloudWatch → EC2 → DiskSpaceUtilization (if disk metrics are enabled). Clean up immediately after: <code>rm /tmp/bigfile2</code></p><h4>Chaos Test 4: Restart Everything</h4><pre><code># Restart the agent
+sudo systemctl start amazon-cloudwatch-agent
+
+# Restart log generator
+nohup ~/log-generator.sh &amp;</code></pre><p>Observe in CloudWatch how the metrics resume — the gap in the graph shows exactly the downtime window.</p><div class="success-box">✅ <strong>Level 9 Complete!</strong> You have learned that missing data is itself data. Log gaps, metric gaps, and missing heartbeats are all CloudWatch signals just as important as error spikes.</div><h3>⚫ Level 10: Full Troubleshooting Simulation (Think Like a DevOps Engineer)</h3><div class="info-box"><p><strong>🎯 Objective:</strong> Run through the complete real-world troubleshooting flow — starting from something is wrong with no other information and systematically diagnosing using all the CloudWatch tools you have learned</p><p><strong>⏱️ Time:</strong> 30–45 min</p><p><strong>💰 Cost:</strong> Free tier</p></div><h4>The Scenario</h4><p>You receive an alert: <em>Users are reporting the app is slow and sometimes returning errors. No other information available.</em></p><h4>Step 1 — Check Metrics Dashboard (What and When)</h4><ol><li>Go to CloudWatch → Dashboards (or create one)</li><li>Add widgets: CPUUtilization, NetworkIn, NetworkOut for your EC2</li><li>Look for: spikes, drops, gaps in the last 1 hour</li><li>Note any anomalous timestamps</li></ol><div class="diagram-container"><img src="images/screenshot_dashboard_investigation.jpeg" loading="lazy" decoding="async" alt="CloudWatch Dashboard showing a custom dashboard with four widgets: CPU utilization line graph with a spike visible, Network In and Out bar charts, and a metric alarm status widget showing the High-CPU-Alert in alarm state with a red indicator"><p class="diagram-caption"><em>Screenshot 20: Monitoring dashboard showing correlated signals — CPU spike and alarm status visible together</em></p></div><h4>Step 2 — Go to Logs (What Specifically Happened)</h4><ol><li>CloudWatch → Log Insights → <code>/myapp/logs</code></li><li>Set time range to match the spike you saw in metrics</li><li>Run error query:</li></ol><pre><code>fields @timestamp, @message
+| filter @message like /ERROR/
+| sort @timestamp asc</code></pre><ol start="4"><li>Click "Summarize results" → read the AI summary</li><li>Note the exact timestamps of the first and last errors</li></ol><h4>Step 3 — Check the AWS Health Dashboard</h4><ol><li>Go to <a href="https://health.aws.amazon.com/health/status" target="_blank" rel="noopener noreferrer">health.aws.amazon.com</a></li><li>Look for any events in your region around the time of your errors</li><li>Also check the Personal Health Dashboard in your AWS Console</li></ol><h4>Step 4 — Decide: Infrastructure or Application?</h4><table><thead><tr><th>What You Found</th><th>Likely Cause</th><th>Action</th></tr></thead><tbody><tr><td>CPU spike + ERROR logs + AWS Health shows incident</td><td>Infrastructure problem</td><td>Wait for AWS to resolve, or switch region/endpoint</td></tr><tr><td>CPU normal + ERROR logs + AWS Health clear</td><td>Application bug</td><td>Check application code, recent deployments</td></tr><tr><td>CPU spike + few errors + no AWS incidents</td><td>Load problem</td><td>Scale out EC2 or optimize code</td></tr><tr><td>Missing logs + no metrics</td><td>Agent/instance down</td><td>Check instance health, restart agent</td></tr></tbody></table><h4>Step 5 — Apply the Fix</h4><pre><code># If app needs restart:
+pkill -f log-generator.sh
+sleep 2
+nohup ~/log-generator.sh &amp;
+
+# If agent needs restart:
+sudo systemctl restart amazon-cloudwatch-agent
+
+# If it was a CPU issue that resolved:
+# Monitor for 5 minutes to confirm return to baseline</code></pre><div class="diagram-container"><img src="images/screenshot_recovery_metrics.jpeg" loading="lazy" decoding="async" alt="CloudWatch metrics graph showing CPU utilization returning to baseline after the troubleshooting steps with a clear before spike during and after recovery pattern visible in the line graph and the alarm status widget now showing OK in green"><p class="diagram-caption"><em>Screenshot 21: Post-recovery metrics — CPU returns to baseline, alarm transitions back to OK</em></p></div><div class="success-box">✅ <strong>Level 10 Complete — All Levels Done!</strong> You have now done the complete real-world monitoring workflow: set up monitoring from scratch → generated real logs → created alarms → analyzed with AI → broke things intentionally → diagnosed and fixed using the full CloudWatch toolkit. This is exactly what a DevOps or Cloud engineer does in production.</div><h4>🧹 Full Cleanup Checklist</h4><div class="error-box">❌ <strong>Do this after all labs to avoid charges:</strong><ul><li>Stop EC2 instance (or terminate if done)</li><li>Delete CloudWatch alarms (stay within 10 free limit)</li><li>Delete Lambda functions (cloudwatch-demo, auto-remediate-ec2)</li><li>Delete API Gateway</li><li>Delete SNS topic (cloudwatch-alerts)</li><li>Delete log group /myapp/logs (to avoid log storage charges)</li><li>Delete large temp files on EC2: <code>rm /tmp/bigfile*</code></li></ul></div></div></details>
+
+<details class="collapsible-section"><summary><h2>☑️ Learning Checklist</h2></summary><div class="section-content"><div class="checklist-progress"><p>Progress: <span id="checklistProgress">0/15</span></p><div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%;">0%</div></div></div><div id="checklistContainer" data-checklist-source="json/checklist.json"></div><div style="margin-top: 2rem; text-align: center;"><button onclick="resetChecklist()" class="quiz-reset-btn">🔄 Reset Checklist</button></div></div></details>
+
+<details class="collapsible-section"><summary><h2>🤔 Reflection Questions</h2></summary><div class="section-content">
+<div class="question-block"><h4>1. Your e-commerce app suddenly receives user complaints that checkout is failing. You don't have an error message yet. What's your first move in CloudWatch, and what specifically would you look for?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Think about the difference between metrics and logs. Which tells you "something is wrong" vs. "here's specifically what went wrong"? Where would checkout errors show up as HTTP codes?</p></div></details></div>
+
+<div class="question-block"><h4>2. A colleague says "CloudWatch told me everything is fine" right before a major outage is discovered. What are three things CloudWatch might have missed, and what tools would catch them?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Consider: who changed a configuration, what an application error log says internally, whether the AWS service itself has a known incident. What tools cover these gaps?</p></div></details></div>
+
+<div class="question-block"><h4>3. You're looking at a log entry with a Unix timestamp of 1711270200000. Without converting it, can you determine whether this event happened before or after another event with timestamp 1711269540000? Why is this property of Unix timestamps useful?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Think about what epoch timestamps represent as a raw number. Higher = later? Always? This makes sorting and duration calculation much simpler than dealing with human-readable date strings across timezones.</p></div></details></div>
+
+<div class="question-block"><h4>4. You're building an AI chatbot for a European healthcare company. During a regional AWS outage, you want to fail over to another region. What two major types of constraints might prevent this, and how would you design around them?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Think about data sovereignty (where data is legally allowed to live) and healthcare compliance (which specific regulations govern health data). Are all EU regions equivalent from a regulatory perspective?</p></div></details></div>
+
+<div class="question-block"><h4>5. A developer argues "I'll just ask the AI to analyze my logs and convert all the timestamps — no need to write Python code." Based on what you learned, what would you tell them?</h4><details style="margin-left: 2rem; margin-top: 0.5rem;"><summary style="cursor: pointer; color: var(--accent); font-weight: 600;">💡 Hint</summary><div style="padding: 1rem; background: var(--bg-secondary); margin-top: 0.5rem; border-radius: 6px;"><p>Recall the specific limitation of LLMs with timestamp conversion discussed in class. Why does this happen at a fundamental level? What does "predicting likely text" mean for a task requiring mathematical precision?</p></div></details></div>
+
+</div></details>
+
+<details class="collapsible-section"><summary><h2>🔗 Links & References</h2></summary><div class="section-content"><h3>📚 Official AWS Documentation</h3><table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody><tr><td><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/" target="_blank" rel="noopener noreferrer">CloudWatch User Guide</a></td><td>Complete official documentation for CloudWatch metrics, alarms, and dashboards</td></tr><tr><td><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/" target="_blank" rel="noopener noreferrer">CloudWatch Logs User Guide</a></td><td>Official documentation for log groups, log streams, and Log Insights</td></tr><tr><td><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/CWL_QuerySyntax.html" target="_blank" rel="noopener noreferrer">Log Insights Query Syntax</a></td><td>Full reference for the CloudWatch Log Insights query language</td></tr><tr><td><a href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/" target="_blank" rel="noopener noreferrer">CloudTrail User Guide</a></td><td>Official guide to API auditing and CloudTrail vs CloudWatch comparison</td></tr><tr><td><a href="https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles.html" target="_blank" rel="noopener noreferrer">Bedrock Inference Profiles</a></td><td>How to use cross-region and global inference profiles for Claude and other models</td></tr></tbody></table><h3>🎓 Recommended Reading</h3><table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody><tr><td><a href="https://aws.amazon.com/blogs/aws/new-natural-language-query-generation-for-amazon-cloudwatch-logs-insights/" target="_blank" rel="noopener noreferrer">CloudWatch AI Query Generation Blog</a></td><td>AWS blog post announcing natural language query generation for Log Insights</td></tr><tr><td><a href="https://health.aws.amazon.com/health/status" target="_blank" rel="noopener noreferrer">AWS Service Health Dashboard</a></td><td>Real-time status of all AWS services — bookmark this for troubleshooting</td></tr><tr><td><a href="https://aws.amazon.com/architecture/well-architected/" target="_blank" rel="noopener noreferrer">AWS Well-Architected Framework</a></td><td>Best practices for reliability, including monitoring and observability pillar</td></tr></tbody></table><h3>🔧 Additional Resources</h3><table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody><tr><td><a href="https://www.epochconverter.com/" target="_blank" rel="noopener noreferrer">Epoch Converter</a></td><td>Convert Unix timestamps to human-readable dates and vice versa</td></tr><tr><td><a href="https://console.aws.amazon.com/cloudwatch/" target="_blank" rel="noopener noreferrer">CloudWatch Console</a></td><td>Direct link to CloudWatch in the AWS Console</td></tr></tbody></table></div></details>
+
+</div><div class="tags"><span class="tag">AWS</span><span class="tag">CloudWatch</span><span class="tag">Monitoring</span><span class="tag">Logs</span><span class="tag">Log Insights</span><span class="tag">Bedrock</span><span class="tag">SageMaker</span></div></div><script defer src="../../../js/notes-template.js"></script></body></html>
