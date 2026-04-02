@@ -61,62 +61,9 @@
     // ============================================
 
     function initPrintMode() {
-        let openDetailsBefore = [];
-
-        // Detect when user is about to print
-        window.addEventListener('beforeprint', function () {
-            console.log('🖨️ Preparing for print...');
-
-            // Save current exam mode
-            const currentMode = document.body.className.match(/exam-mode-(\w+)/)?.[1] || 'none';
-            sessionStorage.setItem('prePrintExamMode', currentMode);
-
-            // Temporarily set to highlight mode (show all highlights)
-            setExamMode('highlight');
-
-            // Store which details were already open
-            openDetailsBefore = [];
-            const allDetails = document.querySelectorAll('details');
-            allDetails.forEach((detail, index) => {
-                if (detail.hasAttribute('open')) {
-                    openDetailsBefore.push(index);
-                }
-                // Expand all sections for printing
-                detail.setAttribute('open', '');
-            });
-
-            // Mark correct answers in quiz (optional - for answer key)
-            markCorrectAnswers();
-
-            console.log('✅ Print preparation complete');
-            console.log(`📋 Stored ${openDetailsBefore.length} already-open sections`);
-        });
-
-        // Restore after printing
-        window.addEventListener('afterprint', function () {
-            console.log('🔄 Restoring after print...');
-
-            // Restore previous exam mode
-            const previousMode = sessionStorage.getItem('prePrintExamMode') || 'none';
-            setExamMode(previousMode);
-            sessionStorage.removeItem('prePrintExamMode');
-
-            // Restore collapsed state
-            const allDetails = document.querySelectorAll('details');
-            allDetails.forEach((detail, index) => {
-                // Only keep open if it was open before
-                if (!openDetailsBefore.includes(index)) {
-                    detail.removeAttribute('open');
-                }
-            });
-
-            // Clear the stored state
-            openDetailsBefore = [];
-
-            console.log(`✅ Restored exam mode: ${previousMode}`);
-            console.log('✅ Restored collapsed sections');
-        });
+        // Print preparation handled by executePrint() via the print modal.
     }
+
 
     function markCorrectAnswers() {
         // Only if MCQ data is loaded
@@ -178,20 +125,7 @@
 
         // Enhanced click handler with feedback
         button.addEventListener('click', function () {
-            // Change button state
-            emoji.textContent = '⏳';
-            text.textContent = 'Opening...';
-            button.disabled = true;
-
-            // Open print dialog
-            window.print();
-
-            // Reset button after short delay
-            setTimeout(function () {
-                emoji.textContent = '🖨️';
-                text.textContent = 'Print';
-                button.disabled = false;
-            }, 1000);
+            openPrintModal();
         });
 
         document.body.appendChild(button);
@@ -949,40 +883,223 @@
     // PRINT ANSWER KEY FEATURE
     // ============================================
 
+    // ============================================
+    // PRINT MODAL SYSTEM
+    // ============================================
+
     function initPrintAnswerKey() {
-        // Only for complete notes with MCQs
-        if (!document.body.classList.contains('complete-notes')) return;
-        
-        const quizContainer = document.getElementById('quizContainer');
-        if (!quizContainer) return;
-        
-        // Create toggle button
-        const toggleContainer = document.createElement('div');
-        toggleContainer.className = 'print-answer-key-container';
-        toggleContainer.innerHTML = `
-            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                <input type="checkbox" id="printAnswerKeyToggle" style="width: 20px; height: 20px; cursor: pointer;">
-                <span style="font-weight: 600;">Print with Answer Key (highlights correct answers)</span>
-            </label>
-            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: var(--text-secondary);">
-                ℹ️ Enable this before printing to show correct answers highlighted in green
-            </p>
-        `;
-        
-        // Insert before quiz container
-        quizContainer.parentElement.insertBefore(toggleContainer, quizContainer);
-        
-        // Handle toggle
-        const toggle = document.getElementById('printAnswerKeyToggle');
-        toggle.addEventListener('change', function() {
-            if (this.checked) {
-                document.body.classList.add('print-answer-key');
-                console.log('✅ Answer key enabled for printing');
-            } else {
-                document.body.classList.remove('print-answer-key');
-                console.log('❌ Answer key disabled');
+        // Replaced by print modal — intercept Ctrl+P
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                openPrintModal();
             }
         });
+        // Also intercept menuPrint if it exists
+        const menuPrint = document.getElementById('menuPrint');
+        if (menuPrint) {
+            menuPrint.removeEventListener('click', window.print);
+            menuPrint.addEventListener('click', function() {
+                openPrintModal();
+                if (typeof closeAllMenus === 'function') closeAllMenus();
+            });
+        }
+    }
+
+    function openPrintModal() {
+        // Remove existing modal if any
+        const existing = document.getElementById('printModal');
+        if (existing) existing.remove();
+
+        // Detect available sections
+        const sections = [
+            { id: 'noteContent',       label: '📄 Notes / Content',       el: document.querySelector('.note-content') },
+            { id: 'quizContainer',     label: '❓ MCQ Quiz',               el: document.getElementById('quizContainer'),
+              sub: [
+                { id: 'mcqHighlight', label: 'Highlight correct answers' },
+                { id: 'mcqExplain',   label: 'Include explanations' }
+              ]
+            },
+            { id: 'checklistContainer',label: '✅ Checklist',              el: document.getElementById('checklistContainer') },
+            { id: 'glossaryContainer', label: '📖 Glossary',               el: document.getElementById('glossaryContainer') },
+            { id: 'interviewContainer',label: '🎤 Interview Questions',     el: document.getElementById('interviewContainer'),
+              sub: [
+                { id: 'interviewAnswers', label: 'Include answers' }
+              ]
+            },
+            { id: 'flashcardDeck',     label: '🃏 Flashcards',             el: document.querySelector('.flashcard-deck') },
+        ].filter(s => s.el);
+
+        if (sections.length === 0) {
+            window.print();
+            return;
+        }
+
+        // Build modal HTML
+        let sectionsHTML = sections.map(s => `
+            <label class="pm-section-label">
+                <input type="checkbox" class="pm-section-cb" data-section="${s.id}" checked>
+                <span>${s.label}</span>
+            </label>
+            ${s.sub ? s.sub.map(sub => `
+                <label class="pm-sub-label" data-parent="${s.id}">
+                    <input type="checkbox" class="pm-sub-cb" data-option="${sub.id}" checked>
+                    <span>${sub.label}</span>
+                </label>
+            `).join('') : ''}
+        `).join('');
+
+        const modal = document.createElement('div');
+        modal.id = 'printModal';
+        modal.className = 'print-modal-overlay';
+        modal.innerHTML = `
+            <div class="print-modal">
+                <div class="print-modal-header">
+                    <h2>🖨️ Print Options</h2>
+                    <button class="print-modal-close" aria-label="Close">✕</button>
+                </div>
+                <div class="print-modal-body">
+                    <p class="pm-hint">Select sections to include in print:</p>
+                    <div class="pm-sections">${sectionsHTML}</div>
+                </div>
+                <div class="print-modal-footer">
+                    <button class="pm-cancel-btn">Cancel</button>
+                    <button class="pm-print-btn">🖨️ Print</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Sub-checkbox visibility toggle
+        modal.querySelectorAll('.pm-section-cb').forEach(cb => {
+            const updateSubs = () => {
+                modal.querySelectorAll(`.pm-sub-label[data-parent="${cb.dataset.section}"]`)
+                    .forEach(sub => sub.style.opacity = cb.checked ? '1' : '0.4');
+            };
+            cb.addEventListener('change', updateSubs);
+            updateSubs();
+        });
+
+        // Close handlers
+        const closeModal = () => modal.remove();
+        modal.querySelector('.print-modal-close').addEventListener('click', closeModal);
+        modal.querySelector('.pm-cancel-btn').addEventListener('click', closeModal);
+        modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+        // Print handler
+        modal.querySelector('.pm-print-btn').addEventListener('click', function() {
+            const selected = {};
+            modal.querySelectorAll('.pm-section-cb').forEach(cb => {
+                selected[cb.dataset.section] = cb.checked;
+            });
+            const opts = {};
+            modal.querySelectorAll('.pm-sub-cb').forEach(cb => {
+                opts[cb.dataset.option] = cb.checked;
+            });
+            closeModal();
+            executePrint(selected, opts, sections);
+        });
+    }
+
+    function executePrint(selected, opts, sections) {
+        const hidden = [];
+
+        // Hide unselected sections
+        sections.forEach(s => {
+            if (!selected[s.id] && s.el) {
+                // Hide the closest collapsible-section ancestor or the element itself
+                const wrapper = s.el.closest('.collapsible-section') || s.el.closest('details') || s.el;
+                wrapper.setAttribute('data-print-hidden', 'true');
+                wrapper.style.display = 'none';
+                hidden.push(wrapper);
+            }
+        });
+
+        // MCQ options
+        if (selected['quizContainer']) {
+            markCorrectAnswers();
+            if (opts.mcqHighlight) document.body.classList.add('print-answer-key');
+            // Show/hide explanation boxes
+            document.querySelectorAll('.explanation-box').forEach(box => {
+                const prevDisplay = window.getComputedStyle(box).display;
+                box.setAttribute('data-pre-print-display', prevDisplay !== 'none' ? prevDisplay : 'block');
+                if (!opts.mcqExplain) box.style.display = 'none';
+                else if (prevDisplay === 'none') {/* leave hidden — only show if already visible */}
+            });
+        }
+
+        // Interview options
+        if (selected['interviewContainer']) {
+            const answers = document.querySelectorAll('#interviewContainer .answer-side');
+            answers.forEach(a => {
+                if (!opts.interviewAnswers) {
+                    a.setAttribute('data-print-hidden-answer', 'true');
+                    a.style.display = 'none';
+                }
+            });
+        }
+
+        // Show all quiz/flashcard slides
+        document.querySelectorAll('.quiz-slide, .flashcard-slide').forEach(slide => {
+            slide.setAttribute('data-pre-print-active', slide.classList.contains('active') ? 'true' : 'false');
+            slide.style.display = 'block';
+        });
+
+        // Expand all details
+        const openDetailsBefore = [];
+        document.querySelectorAll('details').forEach((d, i) => {
+            if (d.hasAttribute('open')) openDetailsBefore.push(i);
+            d.setAttribute('open', '');
+        });
+
+        // Store exam mode & switch to highlight
+        const prevMode = document.body.className.match(/exam-mode-(\w+)/)?.[1] || 'none';
+        setExamMode('highlight');
+
+        window.print();
+
+        // Restore after print
+        const restore = function() {
+            // Restore hidden sections
+            hidden.forEach(el => {
+                el.removeAttribute('data-print-hidden');
+                el.style.display = '';
+            });
+
+            // Restore MCQ state
+            document.body.classList.remove('print-answer-key');
+            document.querySelectorAll('.explanation-box, .quiz-feedback').forEach(box => {
+                const prev = box.getAttribute('data-pre-print-display');
+                if (prev !== null) { box.style.display = prev; box.removeAttribute('data-pre-print-display'); }
+            });
+
+            // Restore interview answers
+            document.querySelectorAll('[data-print-hidden-answer]').forEach(a => {
+                a.style.display = '';
+                a.removeAttribute('data-print-hidden-answer');
+            });
+
+            // Restore slides
+            document.querySelectorAll('.quiz-slide, .flashcard-slide').forEach(slide => {
+                const wasActive = slide.getAttribute('data-pre-print-active') === 'true';
+                slide.style.display = '';
+                slide.classList.toggle('active', wasActive);
+                slide.removeAttribute('data-pre-print-active');
+            });
+
+            // Restore details
+            document.querySelectorAll('details').forEach((d, i) => {
+                if (!openDetailsBefore.includes(i)) d.removeAttribute('open');
+            });
+
+            // Restore exam mode
+            setExamMode(prevMode);
+
+            window.removeEventListener('afterprint', restore);
+        };
+
+        window.addEventListener('afterprint', restore);
     }
 
     // ============================================
@@ -1274,7 +1391,7 @@
         // Print click
         document.getElementById('menuPrint').addEventListener('click', function() {
             closeAllMenus();
-            window.print();
+            openPrintModal();
         });
         
         // Bookmarks click
