@@ -1,6 +1,65 @@
 import os
 import json
 from datetime import datetime
+import re
+
+def get_folder_creation_date(base):
+    """Get earliest file date inside folder (approx creation date)"""
+    
+    oldest_time = None
+
+    for root, _, files in os.walk(base):
+        for f in files:
+            path = os.path.join(root, f)
+
+            try:
+                t = os.path.getmtime(path)  # last modified time
+
+                if oldest_time is None or t < oldest_time:
+                    oldest_time = t
+
+            except Exception:
+                continue
+
+    if oldest_time:
+        return datetime.fromtimestamp(oldest_time).strftime("%Y-%m-%d")
+
+    # fallback if folder empty
+    return "1970-01-01"
+
+def parse_date(date_str):
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d")
+    except:
+        return datetime.min
+    
+def extract_date_from_html(base_path):
+    """Extract date from complete.html or overview.html"""
+    
+    for filename in ["complete.html", "overview.html"]:
+        file_path = os.path.join(base_path, filename)
+        
+        if os.path.isfile(file_path):
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                
+                # Find date inside <p class="note-date">
+                match = re.search(
+                    r'<p class="note-date">.*?📅\s*(.*?)</p>',
+                    content
+                )
+                
+                if match:
+                    raw_date = match.group(1).strip()
+                    # Convert "December 24, 2025" → "2025-12-24"
+                    parsed = datetime.strptime(raw_date, "%B %d, %Y")
+                    return parsed.strftime("%Y-%m-%d")
+            
+            except Exception as e:
+                print(f"⚠️ Error reading date from {filename}: {e}")
+    
+    return None
 
 ROOT = "../data/notes"
 OUTPUT = "../data/notes-list.json"
@@ -95,10 +154,12 @@ def build_note(folder):
 
     # Try to get date from metadata, otherwise use current date
     date_str = extract_date_from_metadata(base)
-    if not date_str:
-        # Use current date as fallback
-        date_str = datetime.now().strftime("%Y-%m-%d")
 
+    if not date_str:
+        date_str = extract_date_from_html(base)
+
+    if not date_str:
+        date_str = get_folder_creation_date(base)  # optional fallback
     return {
         "title": clean_title(folder),
         "folder": folder,
@@ -139,7 +200,10 @@ def main():
             notes.append(build_note(item))
 
     # Sort by date (most recent first)
-    notes.sort(key=lambda x: x["date"], reverse=True)
+    notes.sort(
+        key=lambda x: parse_date(x["date"]),
+        reverse=True
+    )
 
     # Write to JSON
     with open(OUTPUT, "w", encoding="utf-8") as f:
