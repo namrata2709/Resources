@@ -38,7 +38,10 @@
             loadInterviewState();
             updateInterviewDisplay();
 
-            document.addEventListener('keydown', handleInterviewKeyboard);
+            const flashcardDeck = document.querySelector('.flashcard-deck');
+            if (flashcardDeck) {
+                document.addEventListener('keydown', handleInterviewKeyboard);
+            }
 
             console.log(`🎤 Initialized interview questions with ${totalInterviewQuestions} questions from ${jsonSource}`);
         } catch (error) {
@@ -105,8 +108,6 @@
     }
 
     function handleInterviewKeyboard(e) {
-        if (!document.querySelector('.flashcard-deck')) return;
-
         if (e.key === 'ArrowLeft' && currentInterviewQuestion > 1) {
             previousInterviewQuestion();
         }

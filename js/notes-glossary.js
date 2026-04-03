@@ -61,7 +61,7 @@
         if (!container || !glossaryData) return;
 
         // Sort terms alphabetically by term name
-        const sortedTerms = sortTermsAlphabetically(glossaryData.terms);
+        const terms = glossaryData.terms;
 
         // Create table
         const table = document.createElement('table');
@@ -80,7 +80,7 @@
         // Create table body
         const tbody = document.createElement('tbody');
         
-        sortedTerms.forEach(term => {
+        terms.forEach(term => {
             const row = document.createElement('tr');
             
             // Term column
@@ -106,19 +106,9 @@
         table.appendChild(tbody);
         container.appendChild(table);
 
-        console.log(`✅ Rendered ${sortedTerms.length} glossary terms in alphabetical order`);
+        console.log(`✅ Rendered ${terms.length} glossary terms in alphabetical order`);
     }
 
-    function sortTermsAlphabetically(terms) {
-        return [...terms].sort((a, b) => {
-            const termA = a.term.toLowerCase();
-            const termB = b.term.toLowerCase();
-            
-            if (termA < termB) return -1;
-            if (termA > termB) return 1;
-            return 0;
-        });
-    }
 
     console.log('🚀 Glossary module loaded successfully');
 

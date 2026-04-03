@@ -27,7 +27,6 @@
             initCodeBlocks();
             injectStaticElements();
             initExamMode();
-            initPrintMode();
             initPrintAnswerKey();
             initAccessibility();
             enhanceExistingElements();
@@ -65,8 +64,6 @@
         const headings = noteContent.querySelectorAll('h2[id], h3[id]');
         if (headings.length === 0) return;
 
-        const existing = noteContent.querySelector('.toc-container, #table-of-contents, nav.toc');
-        if (existing) existing.remove();
 
         const ol = document.createElement('ol');
         ol.className = 'toc-list';
@@ -109,35 +106,7 @@
 
         console.log(`✅ Table of contents injected (${headings.length} entries)`);
     }
-    // ============================================
-    // PRINT MODE ENHANCEMENT
-    // ============================================
 
-
-    function initPrintMode() {
-        // Handled by openPrintModal() / executePrint()
-    }
-
-    function markCorrectAnswers() {
-        // Only if MCQ data is loaded
-        if (typeof window.quizData === 'undefined') return;
-
-        const allQuestions = document.querySelectorAll('.quiz-slide');
-        allQuestions.forEach((slide, index) => {
-            const questionData = window.quizData.questions[index];
-            if (!questionData) return;
-
-            const correctLetter = questionData.correctAnswer;
-            const optionCards = slide.querySelectorAll('.quiz-option-card');
-
-            optionCards.forEach(card => {
-                const letter = card.querySelector('.option-letter')?.textContent?.trim();
-                if (letter === correctLetter) {
-                    card.setAttribute('data-correct', 'true');
-                }
-            });
-        });
-    }
 
     // ============================================
     // STATIC ELEMENT INJECTION (NEW SECTION)
@@ -1951,7 +1920,7 @@
         console.log('✅ Table of contents highlighting initialized');
     }
 
-    
+
 
     // ============================================
     // FEATURE #8: DARK MODE AUTO-DETECT
@@ -2043,7 +2012,7 @@
             // Create skeleton
             const skeleton = document.createElement('div');
             skeleton.className = 'skeleton-loader';
-
+            skeleton.setAttribute('data-skeleton', 'true');
             for (let i = 0; i < container.lines; i++) {
                 const line = document.createElement('div');
                 line.className = 'skeleton-line';
@@ -2059,11 +2028,12 @@
             // Remove skeleton after content loads
             const observer = new MutationObserver(function (mutations) {
                 mutations.forEach(function (mutation) {
-                    if (mutation.addedNodes.length > 0) {
-                        // Content loaded, remove skeleton
-                        skeleton.remove();
-                        observer.disconnect();
-                    }
+                    mutation.addedNodes.forEach(function (node) {
+                        if (node.dataset && !node.dataset.skeleton) {
+                            skeleton.remove();
+                            observer.disconnect();
+                        }
+                    });
                 });
             });
 

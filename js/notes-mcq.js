@@ -419,15 +419,14 @@
                     }
 
                     const submitBtn = document.getElementById(`submitBtn${questionNum}`);
-                    if (submitBtn && answer.isCorrect) {
-                        submitBtn.disabled = true;
-                        submitBtn.textContent = 'Answer Submitted ✔';
-                    }
-
-                    const submitBtn2 = document.getElementById(`submitBtn${questionNum}`);
-                    if (submitBtn2 && !answer.isCorrect) {
-                        submitBtn2.textContent = 'Try Again';
-                        submitBtn2.style.background = 'var(--warning)';
+                    if (submitBtn) {
+                        if (answer.isCorrect) {
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = 'Answer Submitted ✔';
+                        } else {
+                            submitBtn.textContent = 'Try Again';
+                            submitBtn.style.background = 'var(--warning)';
+                        }
                     }
 
                     const feedbackIcon = document.getElementById(`feedbackIcon${questionNum}`);

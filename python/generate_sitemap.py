@@ -9,8 +9,8 @@ from datetime import datetime
 from pathlib import Path
 
 BASE_URL = "https://namrata2709.github.io/Resources"
-NOTES_DIR = "data/notes"
-OUTPUT_FILE = "sitemap.xml"
+NOTES_DIR = "../data/notes"
+OUTPUT_FILE = "../sitemap.xml"
 
 def is_date_folder(folder_name):
     """Check if folder name matches DD-MM-YYYY pattern"""
@@ -39,28 +39,19 @@ def generate_sitemap():
             'changefreq': 'weekly',
             'priority': '1.0' if page == '' else '0.9'
         })
-    
     # Scan notes folders
     notes_path = Path(NOTES_DIR)
     if notes_path.exists():
         for folder in sorted(notes_path.iterdir()):
             if folder.is_dir() and not folder.name.startswith('.'):
-                # Add overview.html
-                overview = folder / "overview.html"
-                if overview.exists():
-                    urls.append({
-                        'loc': f"{BASE_URL}/data/notes/{folder.name}/overview.html",
-                        'lastmod': datetime.fromtimestamp(overview.stat().st_mtime).strftime('%Y-%m-%d'),
-                        'changefreq': 'monthly',
-                        'priority': '0.8'
-                    })
+                
                 
                 # Add completed.html
-                completed = folder / "completed.html"
-                if completed.exists():
+                complete = folder / "complete.html"
+                if complete.exists():
                     urls.append({
-                        'loc': f"{BASE_URL}/data/notes/{folder.name}/completed.html",
-                        'lastmod': datetime.fromtimestamp(completed.stat().st_mtime).strftime('%Y-%m-%d'),
+                        'loc': f"{BASE_URL}/data/notes/{folder.name}/complete.html",
+                        'lastmod': datetime.fromtimestamp(complete.stat().st_mtime).strftime('%Y-%m-%d'),
                         'changefreq': 'monthly',
                         'priority': '0.7'
                     })
