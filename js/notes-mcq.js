@@ -4,11 +4,11 @@
  * File: js/notes-mcq.js
  */
 
-(function() {
+(function () {
     'use strict';
 
-    const pageId = typeof document !== 'undefined' 
-        ? document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase() 
+    const pageId = typeof document !== 'undefined'
+        ? document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()
         : 'default';
 
     let currentQuizQuestion = 1;
@@ -31,15 +31,15 @@
         }
 
         const jsonSource = container.dataset.mcqSource || 'mcq.json';
-        
+
         try {
             await loadQuizFromJSON(jsonSource);
             renderQuiz();
             loadQuizState();
             updateQuizDisplay();
-            
+
             document.addEventListener('keydown', handleQuizKeyboard);
-            
+
             console.log(`📝 Initialized MCQ quiz with ${totalQuizQuestions} questions from ${jsonSource}`);
         } catch (error) {
             console.error('❌ Error loading quiz:', error);
@@ -57,10 +57,10 @@
         if (!response.ok) {
             throw new Error(`Failed to load ${jsonFile}: ${response.statusText}`);
         }
-        
+
         quizData = await response.json();
         totalQuizQuestions = quizData.questions.length;
-        
+
         console.log(`✅ Loaded ${totalQuizQuestions} questions from JSON`);
     }
 
@@ -128,11 +128,11 @@
 
     function handleQuizKeyboard(e) {
         if (!document.querySelector('.quiz-carousel-container')) return;
-        
+
         if (e.key === 'ArrowLeft' && currentQuizQuestion > 1) {
             previousQuestion();
         }
-        
+
         if (e.key === 'ArrowRight' && currentQuizQuestion < totalQuizQuestions) {
             nextQuestion();
         }
@@ -140,7 +140,7 @@
 
     function updateQuizDisplay() {
         const slides = document.querySelectorAll('.quiz-slide');
-        
+
         slides.forEach(slide => slide.classList.remove('active'));
 
         const currentSlide = document.querySelector(`.quiz-slide[data-question="${currentQuizQuestion}"]`);
@@ -155,7 +155,7 @@
 
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
-        
+
         if (prevBtn) prevBtn.disabled = currentQuizQuestion === 1;
         if (nextBtn) nextBtn.disabled = currentQuizQuestion === totalQuizQuestions;
 
@@ -219,7 +219,7 @@
 
         const correctAnswer = slide.dataset.correct;
         const selectedInput = slide.querySelector('input[type="radio"]:checked');
-        
+
         if (!selectedInput) {
             alert('Please select an answer before submitting.');
             return;
@@ -243,7 +243,7 @@
         if (feedback && feedbackIcon && feedbackResult) {
             feedback.style.display = 'block';
             const explanationBox = document.getElementById(`explanationBox${questionNum}`);
-            
+
             if (isCorrect) {
                 feedback.className = 'quiz-feedback correct';
                 feedbackIcon.textContent = '✅';
@@ -284,9 +284,9 @@
 
         const scoreDisplay = document.getElementById('quizScoreDisplay');
         if (!scoreDisplay) return;
-        
+
         scoreDisplay.textContent = `Score: ${correct}/${answered} (${percentage}%)`;
-        
+
         if (percentage >= 80) {
             scoreDisplay.style.background = 'var(--success-bg)';
             scoreDisplay.style.color = 'var(--success)';
@@ -301,7 +301,7 @@
 
     function showQuizSummary() {
         const answered = Object.keys(quizAnswers).length;
-        
+
         if (answered === 0) {
             alert('Please answer at least one question first.');
             return;
@@ -309,14 +309,14 @@
 
         const correct = Object.values(quizAnswers).filter(a => a.isCorrect).length;
         const percentage = ((correct / answered) * 100).toFixed(1);
-        
+
         let message = `📊 QUIZ SUMMARY\n${'='.repeat(40)}\n\n`;
         message += `Total Questions: ${totalQuizQuestions}\n`;
         message += `Questions Answered: ${answered}\n`;
         message += `Correct Answers: ${correct}\n`;
         message += `Incorrect Answers: ${answered - correct}\n`;
         message += `Current Score: ${percentage}%\n\n`;
-        
+
         if (percentage >= 90) {
             message += '🏆 OUTSTANDING! Excellent mastery!';
         } else if (percentage >= 80) {
@@ -328,11 +328,11 @@
         } else {
             message += '📖 NEEDS IMPROVEMENT: Study more thoroughly.';
         }
-        
+
         if (answered < totalQuizQuestions) {
             message += `\n\n⚠️ ${totalQuizQuestions - answered} unanswered questions remaining.`;
         }
-        
+
         alert(message);
     }
 
@@ -347,7 +347,7 @@
         const slides = document.querySelectorAll('.quiz-slide');
         slides.forEach(slide => {
             const questionNum = slide.dataset.question;
-            
+
             const feedback = document.getElementById(`feedback${questionNum}`);
             if (feedback) feedback.style.display = 'none';
 
@@ -366,7 +366,7 @@
 
         try {
             localStorage.removeItem(`${pageId}-quiz-state`);
-            localStorage.removeItem(`${pageId}-quizs`);
+            localStorage.removeItem(`${pageId}-quiz-answers`);
         } catch (e) {
             console.warn('Could not clear quiz state:', e);
         }
@@ -381,7 +381,7 @@
                 currentQuestion: currentQuizQuestion,
                 lastUpdated: new Date().toISOString()
             }));
-            localStorage.setItem(`${pageId}-quizs`, JSON.stringify(quizAnswers));
+            localStorage.setItem(`${pageId}-quiz-answers`, JSON.stringify(quizAnswers));
         } catch (e) {
             console.warn('Could not save quiz state:', e);
         }
@@ -390,34 +390,40 @@
     function loadQuizState() {
         try {
             const stateStr = localStorage.getItem(`${pageId}-quiz-state`);
-            const answersStr = localStorage.getItem(`${pageId}-quizs`);
-            
+            const oldKey = `${pageId}-quizs`;
+            const newKey = `${pageId}-quiz-answers`;
+            if (localStorage.getItem(oldKey) && !localStorage.getItem(newKey)) {
+                localStorage.setItem(newKey, localStorage.getItem(oldKey));
+                localStorage.removeItem(oldKey);
+            }
+            const answersStr = localStorage.getItem(newKey);
+
             if (stateStr) {
                 const state = JSON.parse(stateStr);
                 currentQuizQuestion = state.currentQuestion || 1;
             }
-            
+
             if (answersStr) {
                 quizAnswers = JSON.parse(answersStr);
-                
+
                 Object.keys(quizAnswers).forEach(questionNum => {
                     const slide = document.querySelector(`.quiz-slide[data-question="${questionNum}"]`);
                     if (!slide) return;
-                    
+
                     const answer = quizAnswers[questionNum];
-                    
+
                     const radio = slide.querySelector(`input[value="${answer.selected}"]`);
                     if (radio) {
                         radio.checked = true;
                         if (answer.isCorrect) radio.disabled = true;
                     }
-                    
+
                     const submitBtn = document.getElementById(`submitBtn${questionNum}`);
                     if (submitBtn && answer.isCorrect) {
                         submitBtn.disabled = true;
                         submitBtn.textContent = 'Answer Submitted ✔';
                     }
-                    
+
                     const submitBtn2 = document.getElementById(`submitBtn${questionNum}`);
                     if (submitBtn2 && !answer.isCorrect) {
                         submitBtn2.textContent = 'Try Again';

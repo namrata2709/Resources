@@ -12,6 +12,9 @@
 (function () {
     'use strict';
 
+    // Shared page ID — used by all modules via window.NotePageId
+    window.NotePageId = document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
@@ -26,29 +29,28 @@
             initExamMode();
             initPrintMode();
             initPrintAnswerKey();
-            initAccessibility();        
+            initAccessibility();
             enhanceExistingElements();
             enhanceAccessibilityLandmarks();
-            
+
             // NEW: Inject menu system (replaces individual buttons)
             injectFABMenus();
-            
+
             // All other features
             injectJumpToTopButton();
             injectReadingTimeBadge();
             injectReadingProgressBar();
+            injectTableOfContents();
             initTableOfContentsHighlight();
-            enhanceCopyCodeButtons();
             initDarkModeAutoDetect();
             initSearchHistory();
-            injectSearchFilters();
             initHighlightPersistence();
             injectLoadingSkeletons();
             enhanceKeyboardShortcutsPanel();
             initSmoothTransitions();
             initBookmarkSystem();
             initStudyTimer();
-            
+
             console.log('✅ Notes template initialized successfully');
             console.log('✨ Menu system + all features loaded');
         } catch (error) {
@@ -56,14 +58,65 @@
         }
     }
 
+    function injectTableOfContents() {
+        const noteContent = document.querySelector('.note-content');
+        if (!noteContent) return;
+
+        const headings = noteContent.querySelectorAll('h2[id], h3[id]');
+        if (headings.length === 0) return;
+
+        const existing = noteContent.querySelector('.toc-container, #table-of-contents, nav.toc');
+        if (existing) existing.remove();
+
+        const ol = document.createElement('ol');
+        ol.className = 'toc-list';
+
+        headings.forEach(function (heading) {
+            const id = heading.getAttribute('id');
+            const text = heading.textContent.replace(/[⭐☆]/g, '').trim();
+            const level = heading.tagName.toLowerCase();
+
+            const li = document.createElement('li');
+            li.className = 'toc-item toc-' + level;
+
+            const a = document.createElement('a');
+            a.href = '#' + id;
+            a.textContent = text;
+            a.className = 'toc-link';
+
+            li.appendChild(a);
+            ol.appendChild(li);
+        });
+
+        const container = document.createElement('nav');
+        container.className = 'toc-container';
+        container.id = 'table-of-contents';
+        container.setAttribute('aria-label', 'Table of contents');
+        container.innerHTML = '<h2 class="toc-title">📋 Table of Contents</h2>';
+        container.appendChild(ol);
+
+        const firstH2 = noteContent.querySelector('h2[id]');
+        if (firstH2) {
+            // Walk up to find the direct child of noteContent
+            let directChild = firstH2;
+            while (directChild.parentElement !== noteContent) {
+                directChild = directChild.parentElement;
+            }
+            noteContent.insertBefore(container, directChild);
+        } else {
+            noteContent.prepend(container);
+        }
+
+        console.log(`✅ Table of contents injected (${headings.length} entries)`);
+    }
     // ============================================
     // PRINT MODE ENHANCEMENT
     // ============================================
 
-    function initPrintMode() {
-        // Print preparation handled by executePrint() via the print modal.
-    }
 
+    function initPrintMode() {
+        // Handled by openPrintModal() / executePrint()
+    }
 
     function markCorrectAnswers() {
         // Only if MCQ data is loaded
@@ -124,9 +177,7 @@
         button.appendChild(text);
 
         // Enhanced click handler with feedback
-        button.addEventListener('click', function () {
-            openPrintModal();
-        });
+        button.addEventListener('click', function () { openPrintModal(); });
 
         document.body.appendChild(button);
 
@@ -833,9 +884,31 @@
         }
     }
 
+
     function showCopySuccess(button, buttonText) {
         button.classList.add('copied');
         buttonText.textContent = 'Copied!';
+
+        // Tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'copy-tooltip';
+        tooltip.textContent = 'Copied! ✓';
+        const rect = button.getBoundingClientRect();
+        tooltip.style.position = 'fixed';
+        tooltip.style.top = (rect.top - 40) + 'px';
+        tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+        tooltip.style.transform = 'translateX(-50%)';
+        document.body.appendChild(tooltip);
+        setTimeout(() => tooltip.classList.add('visible'), 10);
+        setTimeout(() => {
+            tooltip.classList.remove('visible');
+            setTimeout(() => tooltip.remove(), 300);
+        }, 2000);
+
+        // Haptic feedback
+        if ('vibrate' in navigator) {
+            navigator.vibrate(10);
+        }
 
         setTimeout(function () {
             button.classList.remove('copied');
@@ -883,223 +956,421 @@
     // PRINT ANSWER KEY FEATURE
     // ============================================
 
-    // ============================================
-    // PRINT MODAL SYSTEM
-    // ============================================
-
     function initPrintAnswerKey() {
-        // Replaced by print modal — intercept Ctrl+P
-        document.addEventListener('keydown', function(e) {
+        // Intercept Ctrl+P / Cmd+P
+        document.addEventListener('keydown', function (e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
                 e.preventDefault();
                 openPrintModal();
             }
         });
-        // Also intercept menuPrint if it exists
-        const menuPrint = document.getElementById('menuPrint');
-        if (menuPrint) {
-            menuPrint.removeEventListener('click', window.print);
-            menuPrint.addEventListener('click', function() {
-                openPrintModal();
-                if (typeof closeAllMenus === 'function') closeAllMenus();
-            });
-        }
     }
 
+    // ============================================
+    // PRINT MODAL
+    // ============================================
+
+    // ============================================
+    // PRINT MODAL
+    // ============================================
+
     function openPrintModal() {
-        // Remove existing modal if any
         const existing = document.getElementById('printModal');
         if (existing) existing.remove();
 
-        // Detect available sections
-        const sections = [
-            { id: 'noteContent',       label: '📄 Notes / Content',       el: document.querySelector('.note-content') },
-            { id: 'quizContainer',     label: '❓ MCQ Quiz',               el: document.getElementById('quizContainer'),
-              sub: [
-                { id: 'mcqHighlight', label: 'Highlight correct answers' },
-                { id: 'mcqExplain',   label: 'Include explanations' }
-              ]
-            },
-            { id: 'checklistContainer',label: '✅ Checklist',              el: document.getElementById('checklistContainer') },
-            { id: 'glossaryContainer', label: '📖 Glossary',               el: document.getElementById('glossaryContainer') },
-            { id: 'interviewContainer',label: '🎤 Interview Questions',     el: document.getElementById('interviewContainer'),
-              sub: [
-                { id: 'interviewAnswers', label: 'Include answers' }
-              ]
-            },
-            { id: 'flashcardDeck',     label: '🃏 Flashcards',             el: document.querySelector('.flashcard-deck') },
-        ].filter(s => s.el);
-
-        if (sections.length === 0) {
-            window.print();
-            return;
+        // Collect ALL h2 sections from .note-content
+        const noteContent = document.querySelector('.note-content');
+        const allSections = [];
+        if (noteContent) {
+            noteContent.querySelectorAll('details.collapsible-section').forEach(function (det) {
+                const h2 = det.querySelector('h2[id]');
+                if (!h2) return;
+                const text = h2.textContent.replace(/[⭐☆▶◀]/g, '').trim();
+                allSections.push({ id: h2.id, label: text, el: det });
+            });
         }
 
-        // Build modal HTML
-        let sectionsHTML = sections.map(s => `
-            <label class="pm-section-label">
-                <input type="checkbox" class="pm-section-cb" data-section="${s.id}" checked>
-                <span>${s.label}</span>
-            </label>
-            ${s.sub ? s.sub.map(sub => `
-                <label class="pm-sub-label" data-parent="${s.id}">
-                    <input type="checkbox" class="pm-sub-cb" data-option="${sub.id}" checked>
-                    <span>${sub.label}</span>
-                </label>
-            `).join('') : ''}
-        `).join('');
+        // Detect which sections are interactive
+        const INTERACTIVE_IDS = ['quizContainer', 'checklistContainer', 'glossaryContainer', 'interviewContainer'];
+        const interactiveSections = [
+            {
+                id: 'quizContainer',
+                label: '❓ MCQ Quiz',
+                subOptions: [
+                    { id: 'mcqHighlight', label: 'Highlight correct answers' },
+                    { id: 'mcqExplain', label: 'Include explanations' }
+                ]
+            },
+            { id: 'checklistContainer', label: '✅ Checklist' },
+            { id: 'glossaryContainer', label: '📖 Glossary' },
+            {
+                id: 'interviewContainer',
+                label: '🎤 Interview Questions',
+                subOptions: [
+                    { id: 'interviewAnswers', label: 'Include answers' }
+                ]
+            }
+        ].filter(function (s) { return !!document.getElementById(s.id); });
 
+        // Split sections into content vs interactive
+        const contentSections = allSections.filter(function (s) {
+            return !INTERACTIVE_IDS.some(function (iid) {
+                return s.el.querySelector('#' + iid);
+            });
+        });
+
+        // Build toggle pill HTML
+        function tog(dataAttr, dataVal) {
+            return '<span class="pm-toggle pm-checked" role="checkbox" aria-checked="true" tabindex="0" '
+                + dataAttr + '="' + dataVal + '"></span>';
+        }
+
+        // Content rows
+        const contentHTML = contentSections.length ? (
+            '<div class="pm-group">'
+            + '<div class="pm-group-header">'
+            + tog('data-group', 'content')
+            + '<span class="pm-group-title">📄 Note Content</span>'
+            + '</div>'
+            + '<div class="pm-group-body" id="pmContentBody">'
+            + contentSections.map(function (s) {
+                return '<label class="pm-section-label">'
+                    + tog('data-section', s.id)
+                    + '<span>' + s.label + '</span></label>';
+            }).join('')
+            + '</div></div>'
+        ) : '';
+
+        // Interactive rows
+        const interactiveHTML = interactiveSections.length ? (
+            '<div class="pm-group">'
+            + '<div class="pm-group-header">'
+            + tog('data-group', 'interactive')
+            + '<span class="pm-group-title">⚙️ Interactive Sections</span>'
+            + '</div>'
+            + '<div class="pm-group-body" id="pmInteractiveBody">'
+            + interactiveSections.map(function (s) {
+                const subs = (s.subOptions || []).map(function (sub) {
+                    return '<label class="pm-sub-label" data-parent="' + s.id + '">'
+                        + tog('data-option', sub.id)
+                        + '<span>' + sub.label + '</span></label>';
+                }).join('');
+                return '<label class="pm-section-label">'
+                    + tog('data-section', s.id)
+                    + '<span>' + s.label + '</span></label>'
+                    + subs;
+            }).join('')
+            + '</div></div>'
+        ) : '';
+
+        // Preset buttons
+        const presetBtns = [
+            { p: 'all', label: 'All' },
+            contentSections.length ? { p: 'content', label: 'Content only' } : null,
+            interactiveSections.length ? { p: 'interactive', label: 'Interactive only' } : null,
+            { p: 'custom', label: 'Custom' }
+        ].filter(Boolean).map(function (b) {
+            return '<button class="pm-preset' + (b.p === 'all' ? ' active' : '') + '" data-preset="' + b.p + '">' + b.label + '</button>';
+        }).join('');
+
+        // Build modal
         const modal = document.createElement('div');
         modal.id = 'printModal';
         modal.className = 'print-modal-overlay';
-        modal.innerHTML = `
-            <div class="print-modal">
-                <div class="print-modal-header">
-                    <h2>🖨️ Print Options</h2>
-                    <button class="print-modal-close" aria-label="Close">✕</button>
-                </div>
-                <div class="print-modal-body">
-                    <p class="pm-hint">Select sections to include in print:</p>
-                    <div class="pm-sections">${sectionsHTML}</div>
-                </div>
-                <div class="print-modal-footer">
-                    <button class="pm-cancel-btn">Cancel</button>
-                    <button class="pm-print-btn">🖨️ Print</button>
-                </div>
-            </div>
-        `;
-
+        modal.innerHTML =
+            '<div class="print-modal">'
+            + '<div class="print-modal-header">'
+            + '<h2>🖨️ Print Options</h2>'
+            + '<button class="print-modal-close" aria-label="Close">✕</button>'
+            + '</div>'
+            + '<div class="print-modal-body">'
+            + '<div class="pm-preset-row">' + presetBtns + '</div>'
+            + '<div class="pm-sections">' + contentHTML + interactiveHTML + '</div>'
+            + '</div>'
+            + '<div class="print-modal-footer">'
+            + '<button class="pm-cancel-btn">Cancel</button>'
+            + '<button class="pm-print-btn">🖨️ Print</button>'
+            + '</div>'
+            + '</div>';
         document.body.appendChild(modal);
 
-        // Sub-checkbox visibility toggle
-        modal.querySelectorAll('.pm-section-cb').forEach(cb => {
-            const updateSubs = () => {
-                modal.querySelectorAll(`.pm-sub-label[data-parent="${cb.dataset.section}"]`)
-                    .forEach(sub => sub.style.opacity = cb.checked ? '1' : '0.4');
-            };
-            cb.addEventListener('change', updateSubs);
-            updateSubs();
+        // Toggle helpers
+        function setTog(el, on) {
+            el.setAttribute('aria-checked', on ? 'true' : 'false');
+            el.classList.toggle('pm-checked', on);
+        }
+        function isOn(el) { return el.getAttribute('aria-checked') === 'true'; }
+
+        function syncSubs(sectionId, on) {
+            modal.querySelectorAll('.pm-sub-label[data-parent="' + sectionId + '"]').forEach(function (sub) {
+                sub.classList.toggle('pm-dim', !on);
+                setTog(sub.querySelector('.pm-toggle'), on);
+            });
+        }
+
+        function syncGroupCB(groupId) {
+            const bodyId = groupId === 'content' ? '#pmContentBody' : '#pmInteractiveBody';
+            const body = modal.querySelector(bodyId);
+            if (!body) return;
+            const anyOn = Array.from(body.querySelectorAll('[data-section]')).some(isOn);
+            const gcb = modal.querySelector('[data-group="' + groupId + '"]');
+            if (gcb) setTog(gcb, anyOn);
+        }
+
+        modal.addEventListener('click', function (e) {
+            const t = e.target.closest('.pm-toggle');
+            if (!t) return;
+            const nowOn = !isOn(t);
+
+            if (t.hasAttribute('data-group')) {
+                setTog(t, nowOn);
+                const bodyId = t.getAttribute('data-group') === 'content' ? '#pmContentBody' : '#pmInteractiveBody';
+                const body = modal.querySelector(bodyId);
+                if (body) body.querySelectorAll('[data-section]').forEach(function (cb) {
+                    setTog(cb, nowOn);
+                    syncSubs(cb.getAttribute('data-section'), nowOn);
+                });
+            } else if (t.hasAttribute('data-section')) {
+                setTog(t, nowOn);
+                syncSubs(t.getAttribute('data-section'), nowOn);
+                const g = t.closest('.pm-group');
+                if (g) {
+                    const gcb = g.querySelector('[data-group]');
+                    if (gcb) syncGroupCB(gcb.getAttribute('data-group'));
+                }
+            } else if (t.hasAttribute('data-option')) {
+                setTog(t, nowOn);
+            }
+
+            // Switch to custom on manual change
+            modal.querySelectorAll('.pm-preset').forEach(function (b) { b.classList.remove('active'); });
+            modal.querySelector('[data-preset="custom"]').classList.add('active');
         });
 
-        // Close handlers
-        const closeModal = () => modal.remove();
-        modal.querySelector('.print-modal-close').addEventListener('click', closeModal);
-        modal.querySelector('.pm-cancel-btn').addEventListener('click', closeModal);
-        modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-
-        // Print handler
-        modal.querySelector('.pm-print-btn').addEventListener('click', function() {
-            const selected = {};
-            modal.querySelectorAll('.pm-section-cb').forEach(cb => {
-                selected[cb.dataset.section] = cb.checked;
-            });
-            const opts = {};
-            modal.querySelectorAll('.pm-sub-cb').forEach(cb => {
-                opts[cb.dataset.option] = cb.checked;
-            });
-            closeModal();
-            executePrint(selected, opts, sections);
-        });
-    }
-
-    function executePrint(selected, opts, sections) {
-        const hidden = [];
-
-        // Hide unselected sections
-        sections.forEach(s => {
-            if (!selected[s.id] && s.el) {
-                // Hide the closest collapsible-section ancestor or the element itself
-                const wrapper = s.el.closest('.collapsible-section') || s.el.closest('details') || s.el;
-                wrapper.setAttribute('data-print-hidden', 'true');
-                wrapper.style.display = 'none';
-                hidden.push(wrapper);
+        modal.addEventListener('keydown', function (e) {
+            if ((e.key === ' ' || e.key === 'Enter') && e.target.classList.contains('pm-toggle')) {
+                e.preventDefault(); e.target.click();
             }
         });
 
-        // MCQ options
-        if (selected['quizContainer']) {
-            markCorrectAnswers();
-            if (opts.mcqHighlight) document.body.classList.add('print-answer-key');
-            // Show/hide explanation boxes
-            document.querySelectorAll('.explanation-box').forEach(box => {
-                const prevDisplay = window.getComputedStyle(box).display;
-                box.setAttribute('data-pre-print-display', prevDisplay !== 'none' ? prevDisplay : 'block');
-                if (!opts.mcqExplain) box.style.display = 'none';
-                else if (prevDisplay === 'none') {/* leave hidden — only show if already visible */}
+        function applyPreset(preset) {
+            modal.querySelectorAll('.pm-preset').forEach(function (b) { b.classList.remove('active'); });
+            modal.querySelector('[data-preset="' + preset + '"]').classList.add('active');
+
+            const onContent = (preset === 'all' || preset === 'content');
+            const onInteractive = (preset === 'all' || preset === 'interactive');
+
+            const gcbContent = modal.querySelector('[data-group="content"]');
+            const gcbInteractive = modal.querySelector('[data-group="interactive"]');
+            const cbContent = modal.querySelector('#pmContentBody');
+            const cbInteractive = modal.querySelector('#pmInteractiveBody');
+
+            if (gcbContent) setTog(gcbContent, onContent);
+            if (cbContent) cbContent.querySelectorAll('[data-section]').forEach(function (cb) {
+                setTog(cb, onContent);
+                syncSubs(cb.getAttribute('data-section'), onContent);
+            });
+
+            if (gcbInteractive) setTog(gcbInteractive, onInteractive);
+            if (cbInteractive) cbInteractive.querySelectorAll('[data-section]').forEach(function (cb) {
+                setTog(cb, onInteractive);
+                syncSubs(cb.getAttribute('data-section'), onInteractive);
             });
         }
 
-        // Interview options
-        if (selected['interviewContainer']) {
-            const answers = document.querySelectorAll('#interviewContainer .answer-side');
-            answers.forEach(a => {
-                if (!opts.interviewAnswers) {
-                    a.setAttribute('data-print-hidden-answer', 'true');
-                    a.style.display = 'none';
+        modal.querySelectorAll('.pm-preset').forEach(function (btn) {
+            btn.addEventListener('click', function () { applyPreset(btn.dataset.preset); });
+        });
+
+        const closeModal = function () { modal.remove(); };
+        modal.querySelector('.print-modal-close').addEventListener('click', closeModal);
+        modal.querySelector('.pm-cancel-btn').addEventListener('click', closeModal);
+        modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+
+        modal.querySelector('.pm-print-btn').addEventListener('click', function () {
+            // Read selected content sections
+            const selectedContent = {};
+            modal.querySelectorAll('#pmContentBody [data-section]').forEach(function (t) {
+                selectedContent[t.getAttribute('data-section')] = isOn(t);
+            });
+
+            // Read selected interactive sections
+            const selectedInteractive = {};
+            modal.querySelectorAll('#pmInteractiveBody [data-section]').forEach(function (t) {
+                selectedInteractive[t.getAttribute('data-section')] = isOn(t);
+            });
+
+            // Read sub-options
+            const opts = {};
+            modal.querySelectorAll('[data-option]').forEach(function (t) {
+                opts[t.getAttribute('data-option')] = isOn(t);
+            });
+
+            closeModal();
+            executePrint({
+                content: selectedContent,
+                interactive: selectedInteractive,
+                opts: opts,
+                contentSections: contentSections,
+                interactiveSections: interactiveSections
+            });
+        });
+    }
+
+    // ============================================
+    // EXECUTE PRINT — new window, zero DOM mutation
+    // ============================================
+
+    function executePrint(config) {
+        const { content, interactive, opts, contentSections, interactiveSections } = config;
+
+        // Resolve the print CSS path relative to current page location
+        // Assumes css/notes-print.css lives at the same level as the css/ folder
+        const printCSSHref = (function () {
+            const scripts = document.querySelectorAll('link[rel="stylesheet"]');
+            for (let i = 0; i < scripts.length; i++) {
+                const href = scripts[i].href;
+                if (href.includes('notes-template.css')) {
+                    return href.replace('notes-template.css', 'notes-print.css');
                 }
+            }
+            // Fallback: derive from current page URL
+            const base = window.location.href.replace(/\/[^/]*$/, '/');
+            return base + '../../../css/notes-print.css';
+        })();
+
+        // --- 1. Note header (always) ---
+        const noteHeader = document.querySelector('.note-header');
+        const headerHTML = noteHeader ? noteHeader.outerHTML : '';
+
+        // --- 2. Content sections ---
+        let sectionsHTML = '';
+
+        contentSections.forEach(function (s) {
+            if (!content[s.id]) return;
+            const clone = s.el.cloneNode(true);
+
+            const h2 = clone.querySelector('summary h2');
+            const headingText = h2 ? h2.textContent.replace(/[⭐☆▶◀]/g, '').trim() : '';
+
+            clone.querySelectorAll('button, .bookmark-btn, .copy-code-btn').forEach(function (el) { el.remove(); });
+
+            const sectionContent = clone.querySelector('.section-content');
+            const innerHTML = sectionContent ? sectionContent.innerHTML : clone.innerHTML;
+
+            sectionsHTML +=
+                '<div class="print-section">'
+                + (headingText ? '<h2 class="print-section-heading">' + headingText + '</h2>' : '')
+                + '<div class="print-section-body">' + innerHTML + '</div>'
+                + '</div>';
+        });
+
+        // --- 3. Interactive sections ---
+        interactiveSections.forEach(function (s) {
+            if (!interactive[s.id]) return;
+            const container = document.getElementById(s.id);
+            if (!container) return;
+
+            const wrapper = container.closest('details.collapsible-section') || container;
+            const clone = wrapper.cloneNode(true);
+
+            const h2 = clone.querySelector('summary h2');
+            const headingText = h2 ? h2.textContent.replace(/[⭐☆▶◀]/g, '').trim() : '';
+
+            clone.querySelectorAll(
+                'button, .quiz-navigation, .quiz-nav-btn, .quiz-bottom-navigation, '
+                + '.quiz-summary-section, .submit-quiz-btn, .flashcard-navigation, '
+                + '.show-answer-btn, .copy-code-btn, .bookmark-btn, .search-container'
+            ).forEach(function (el) { el.remove(); });
+
+            clone.querySelectorAll('details').forEach(function (d) { d.setAttribute('open', ''); });
+
+            clone.querySelectorAll('.quiz-slide, .flashcard-slide').forEach(function (slide) {
+                slide.style.display = 'block';
+                slide.classList.add('active');
             });
+
+            if (s.id === 'quizContainer') {
+                clone.querySelectorAll('.quiz-slide').forEach(function (slide) {
+                    const correctLetter = slide.dataset.correct;
+                    if (!correctLetter) return;
+
+                    slide.querySelectorAll('.quiz-option-card').forEach(function (card) {
+                        const letter = card.querySelector('.option-letter');
+                        if (letter && letter.textContent.trim() === correctLetter) {
+                            card.setAttribute('data-correct', 'true');
+                        }
+                    });
+
+                    slide.querySelectorAll('.quiz-feedback').forEach(function (fb) {
+                        fb.style.display = (opts.mcqHighlight || opts.mcqExplain) ? 'block' : 'none';
+                    });
+
+                    slide.querySelectorAll('.explanation-box').forEach(function (box) {
+                        box.style.display = opts.mcqExplain ? 'block' : 'none';
+                    });
+                });
+            }
+
+            if (s.id === 'interviewContainer' && !opts.interviewAnswers) {
+                clone.querySelectorAll('.answer-side').forEach(function (el) { el.remove(); });
+            }
+
+            const sectionContent = clone.querySelector('.section-content');
+            const innerHTML = sectionContent ? sectionContent.innerHTML : clone.innerHTML;
+
+            sectionsHTML +=
+                '<div class="print-section">'
+                + (headingText ? '<h2 class="print-section-heading">' + headingText + '</h2>' : '')
+                + '<div class="print-section-body">' + innerHTML + '</div>'
+                + '</div>';
+        });
+
+        // --- 4. Footer (always) ---
+        const noteFooter = document.querySelector('.content-footer');
+        const footerHTML = noteFooter ? noteFooter.outerHTML : '';
+
+        // --- 5. Build print page ---
+        const printHTML = '<!DOCTYPE html>\n'
+            + '<html>\n<head>\n'
+            + '<meta charset="UTF-8">\n'
+            + '<title>Print — ' + document.title + '</title>\n'
+            + '<link rel="stylesheet" href="' + printCSSHref + '">\n'
+            + '</head>\n'
+            + '<body>\n'
+            + '<div class="note-container">\n'
+            + headerHTML + '\n'
+            + '<div class="note-content">\n'
+            + sectionsHTML + '\n'
+            + '</div>\n'
+            + footerHTML + '\n'
+            + '</div>\n'
+            + '</body>\n</html>';
+
+        // --- 6. Open new window ---
+        const printWin = window.open('', '_blank', 'width=900,height=700');
+        if (!printWin) {
+            showNotification('Pop-up blocked — please allow pop-ups for this site to print.');
+            return;
         }
 
-        // Show all quiz/flashcard slides
-        document.querySelectorAll('.quiz-slide, .flashcard-slide').forEach(slide => {
-            slide.setAttribute('data-pre-print-active', slide.classList.contains('active') ? 'true' : 'false');
-            slide.style.display = 'block';
-        });
+        printWin.document.open();
+        printWin.document.write(printHTML);
+        printWin.document.close();
 
-        // Expand all details
-        const openDetailsBefore = [];
-        document.querySelectorAll('details').forEach((d, i) => {
-            if (d.hasAttribute('open')) openDetailsBefore.push(i);
-            d.setAttribute('open', '');
-        });
-
-        // Store exam mode & switch to highlight
-        const prevMode = document.body.className.match(/exam-mode-(\w+)/)?.[1] || 'none';
-        setExamMode('highlight');
-
-        window.print();
-
-        // Restore after print
-        const restore = function() {
-            // Restore hidden sections
-            hidden.forEach(el => {
-                el.removeAttribute('data-print-hidden');
-                el.style.display = '';
-            });
-
-            // Restore MCQ state
-            document.body.classList.remove('print-answer-key');
-            document.querySelectorAll('.explanation-box, .quiz-feedback').forEach(box => {
-                const prev = box.getAttribute('data-pre-print-display');
-                if (prev !== null) { box.style.display = prev; box.removeAttribute('data-pre-print-display'); }
-            });
-
-            // Restore interview answers
-            document.querySelectorAll('[data-print-hidden-answer]').forEach(a => {
-                a.style.display = '';
-                a.removeAttribute('data-print-hidden-answer');
-            });
-
-            // Restore slides
-            document.querySelectorAll('.quiz-slide, .flashcard-slide').forEach(slide => {
-                const wasActive = slide.getAttribute('data-pre-print-active') === 'true';
-                slide.style.display = '';
-                slide.classList.toggle('active', wasActive);
-                slide.removeAttribute('data-pre-print-active');
-            });
-
-            // Restore details
-            document.querySelectorAll('details').forEach((d, i) => {
-                if (!openDetailsBefore.includes(i)) d.removeAttribute('open');
-            });
-
-            // Restore exam mode
-            setExamMode(prevMode);
-
-            window.removeEventListener('afterprint', restore);
+        // Fire print after stylesheet loads
+        printWin.onload = function () {
+            printWin.focus();
+            printWin.print();
         };
 
-        window.addEventListener('afterprint', restore);
+        // Fallback for browsers where onload already fired
+        setTimeout(function () {
+            if (printWin && !printWin.closed) {
+                printWin.focus();
+                printWin.print();
+            }
+        }, 1000);
     }
 
     // ============================================
@@ -1115,8 +1386,8 @@
                 { selector: '#glossaryContainer', role: 'complementary', label: 'Glossary' },
                 { selector: '#interviewContainer', role: 'complementary', label: 'Interview questions' }
             ];
-            
-            sections.forEach(function(section) {
+
+            sections.forEach(function (section) {
                 const element = document.querySelector(section.selector);
                 if (element) {
                     const details = element.closest('details');
@@ -1126,27 +1397,27 @@
                     }
                 }
             });
-            
+
             // Ensure all collapsible sections have aria-expanded
-            document.querySelectorAll('details').forEach(function(details) {
+            document.querySelectorAll('details').forEach(function (details) {
                 const summary = details.querySelector('summary');
                 if (summary) {
                     // Set initial state
                     summary.setAttribute('aria-expanded', details.hasAttribute('open').toString());
-                    
+
                     // Update on toggle
-                    details.addEventListener('toggle', function() {
+                    details.addEventListener('toggle', function () {
                         summary.setAttribute('aria-expanded', details.hasAttribute('open').toString());
                     });
                 }
             });
-            
+
             // Add landmark to main content
             const noteContent = document.querySelector('.note-content');
             if (noteContent && !noteContent.hasAttribute('role')) {
                 noteContent.setAttribute('role', 'main');
             }
-            
+
             console.log('✅ Accessibility landmarks enhanced');
         } catch (error) {
             console.error('❌ Error enhancing accessibility:', error);
@@ -1180,14 +1451,14 @@
     // ============================================
     // FLOATING MENU SYSTEM (Like sample image)
     // ============================================
-    
+
     function injectFABMenus() {
         createBottomLeftMenu();
         createTopRightMenu();
         createMenuOverlay();
         console.log('✅ Menu panels injected');
     }
-    
+
     function createBottomLeftMenu() {
         // Create menu button
         const menuBtn = document.createElement('button');
@@ -1195,12 +1466,12 @@
         menuBtn.id = 'floatingMenuBtn';
         menuBtn.setAttribute('aria-label', 'Settings menu');
         menuBtn.innerHTML = '☰';
-        
+
         // Create menu panel
         const menuPanel = document.createElement('div');
         menuPanel.className = 'floating-menu-panel';
         menuPanel.id = 'floatingMenuPanel';
-        
+
         // Get current exam mode
         const currentExamMode = localStorage.getItem('examMode') || 'none';
         const examModeLabels = {
@@ -1208,7 +1479,7 @@
             'highlight': 'Highlight',
             'test': 'Test'
         };
-        
+
         // Get current theme
         const currentTheme = localStorage.getItem('theme') || 'light';
         const themeLabels = {
@@ -1216,7 +1487,7 @@
             'dark': 'Dark',
             'comfort': 'Comfort'
         };
-        
+
         menuPanel.innerHTML = `
             <h4>Settings</h4>
             <div class="floating-menu-item" id="menuExamMode">
@@ -1230,12 +1501,12 @@
                 <span class="floating-menu-item-shortcut">${themeLabels[currentTheme]}</span>
             </div>
         `;
-        
+
         document.body.appendChild(menuBtn);
         document.body.appendChild(menuPanel);
-        
+
         // Toggle menu
-        menuBtn.addEventListener('click', function(e) {
+        menuBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             const isActive = menuPanel.classList.contains('visible');
             closeAllMenus();
@@ -1247,9 +1518,9 @@
                 showMenuOverlay();
             }
         });
-        
+
         // Exam mode click
-        document.getElementById('menuExamMode').addEventListener('click', function() {
+        document.getElementById('menuExamMode').addEventListener('click', function () {
             const examToggle = document.getElementById('examModeToggle');
             if (examToggle) {
                 examToggle.click();
@@ -1258,9 +1529,9 @@
             }
             closeAllMenus();
         });
-        
+
         // Theme click
-        document.getElementById('menuTheme').addEventListener('click', function() {
+        document.getElementById('menuTheme').addEventListener('click', function () {
             const themeToggle = document.getElementById('themeToggle');
             if (themeToggle) {
                 themeToggle.click();
@@ -1269,20 +1540,20 @@
             }
             closeAllMenus();
         });
-        
+
         // Update menu item states
         function updateMenuStates() {
             const examMode = localStorage.getItem('examMode') || 'none';
             const theme = localStorage.getItem('theme') || 'light';
-            
+
             const examShortcut = document.querySelector('#menuExamMode .floating-menu-item-shortcut');
             const themeShortcut = document.querySelector('#menuTheme .floating-menu-item-shortcut');
-            
+
             if (examShortcut) examShortcut.textContent = examModeLabels[examMode];
             if (themeShortcut) themeShortcut.textContent = themeLabels[theme];
         }
     }
-    
+
     function createTopRightMenu() {
         // Create menu button
         const menuBtn = document.createElement('button');
@@ -1290,10 +1561,10 @@
         menuBtn.id = 'actionsMenuBtn';
         menuBtn.setAttribute('aria-label', 'Tools menu');
         menuBtn.innerHTML = '☰';
-        
+
         // Build menu items
         let menuHTML = '<h4>Tools</h4>';
-        
+
         // Search
         menuHTML += `
             <div class="floating-menu-item" id="menuSearch">
@@ -1302,7 +1573,7 @@
                 <span class="floating-menu-item-shortcut">/</span>
             </div>
         `;
-        
+
         // Print
         menuHTML += `
             <div class="floating-menu-item" id="menuPrint">
@@ -1311,7 +1582,7 @@
                 <span class="floating-menu-item-shortcut">Ctrl+P</span>
             </div>
         `;
-        
+
         // Bookmarks
         menuHTML += `
             <div class="floating-menu-item" id="menuBookmarks">
@@ -1319,7 +1590,7 @@
                 <span class="floating-menu-item-text">Bookmarks</span>
             </div>
         `;
-        
+
         // Export (complete notes only)
         if (document.body.classList.contains('complete-notes')) {
             menuHTML += `
@@ -1329,7 +1600,7 @@
                 </div>
             `;
         }
-        
+
         // Timer toggle
         const timerHidden = localStorage.getItem('timerHidden') === 'true';
         menuHTML += `
@@ -1340,18 +1611,18 @@
                 <span class="floating-menu-item-shortcut">${timerHidden ? 'Show' : 'Hide'}</span>
             </div>
         `;
-        
+
         // Create menu panel
         const menuPanel = document.createElement('div');
         menuPanel.className = 'actions-menu-panel';
         menuPanel.id = 'actionsMenuPanel';
         menuPanel.innerHTML = menuHTML;
-        
+
         document.body.appendChild(menuBtn);
         document.body.appendChild(menuPanel);
-        
+
         // Toggle menu
-        menuBtn.addEventListener('click', function(e) {
+        menuBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             const isActive = menuPanel.classList.contains('visible');
             closeAllMenus();
@@ -1363,20 +1634,20 @@
                 showMenuOverlay();
             }
         });
-        
+
         // Search click - FIXED
-        document.getElementById('menuSearch').addEventListener('click', function() {
+        document.getElementById('menuSearch').addEventListener('click', function () {
             closeAllMenus();
-            
+
             // Wait for menu to close, then open search
-            setTimeout(function() {
+            setTimeout(function () {
                 const searchContainer = document.getElementById('search-container');
                 if (searchContainer) {
                     searchContainer.classList.add('visible');
                     searchContainer.style.display = 'block'; // Force display
                     const searchInput = document.getElementById('search-input');
                     if (searchInput) {
-                        setTimeout(function() {
+                        setTimeout(function () {
                             searchInput.focus();
                             searchInput.select();
                         }, 100);
@@ -1387,34 +1658,34 @@
                 }
             }, 200);
         });
-        
+
         // Print click
-        document.getElementById('menuPrint').addEventListener('click', function() {
+        document.getElementById('menuPrint').addEventListener('click', function () {
             closeAllMenus();
             openPrintModal();
         });
-        
+
         // Bookmarks click
-        document.getElementById('menuBookmarks').addEventListener('click', function() {
+        document.getElementById('menuBookmarks').addEventListener('click', function () {
             closeAllMenus();
-            
+
             const bookmarksPanel = document.getElementById('bookmarksPanel');
             if (bookmarksPanel) {
                 bookmarksPanel.classList.toggle('visible');
             }
         });
-        
+
         // Export click (if exists)
         const exportBtn = document.getElementById('menuExport');
         if (exportBtn) {
-            exportBtn.addEventListener('click', function() {
+            exportBtn.addEventListener('click', function () {
                 exportExamHighlights();
                 closeAllMenus();
             });
         }
-        
+
         // Timer toggle click
-        document.getElementById('menuTimer').addEventListener('click', function() {
+        document.getElementById('menuTimer').addEventListener('click', function () {
             const timerDisplay = document.getElementById('studyTimerDisplay');
             if (timerDisplay) {
                 timerDisplay.classList.toggle('hidden');
@@ -1425,7 +1696,7 @@
             }
             closeAllMenus();
         });
-        
+
         // Update timer menu state
         function updateTimerMenuState() {
             const timerDisplay = document.getElementById('studyTimerDisplay');
@@ -1436,7 +1707,7 @@
             }
         }
     }
-    
+
     function createMenuOverlay() {
         const overlay = document.createElement('div');
         overlay.className = 'menu-overlay';
@@ -1444,41 +1715,41 @@
         overlay.addEventListener('click', closeAllMenus);
         document.body.appendChild(overlay);
     }
-    
+
     function showMenuOverlay() {
         document.getElementById('menuOverlay').classList.add('active');
     }
-    
+
     function closeAllMenus() {
-        document.querySelectorAll('.floating-menu-panel, .actions-menu-panel').forEach(function(panel) {
+        document.querySelectorAll('.floating-menu-panel, .actions-menu-panel').forEach(function (panel) {
             panel.classList.remove('visible');
         });
-        document.querySelectorAll('.floating-menu-btn, .actions-menu-btn').forEach(function(btn) {
+        document.querySelectorAll('.floating-menu-btn, .actions-menu-btn').forEach(function (btn) {
             btn.classList.remove('active');
         });
         document.getElementById('menuOverlay').classList.remove('active');
     }
-    
+
     function exportExamHighlights() {
         const sentenceHighlights = document.querySelectorAll('.exam-highlight-sentence');
         const termHighlights = document.querySelectorAll('.exam-highlight-term');
-        
+
         let content = '# Exam Highlights\n\n';
         content += `Generated: ${new Date().toLocaleString()}\n`;
         content += `Page: ${document.title}\n\n`;
-        
+
         content += '## Key Sentences\n\n';
-        sentenceHighlights.forEach(function(highlight, i) {
+        sentenceHighlights.forEach(function (highlight, i) {
             content += `${i + 1}. ${highlight.textContent.trim()}\n\n`;
         });
-        
+
         content += '\n## Key Terms\n\n';
         const terms = Array.from(termHighlights).map(h => h.textContent.trim());
         const uniqueTerms = [...new Set(terms)];
-        uniqueTerms.forEach(function(term, i) {
+        uniqueTerms.forEach(function (term, i) {
             content += `${i + 1}. ${term}\n`;
         });
-        
+
         // Download
         const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
@@ -1487,31 +1758,29 @@
         a.download = document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase() + '-highlights.txt';
         a.click();
         URL.revokeObjectURL(url);
-        
+
         showNotification('Highlights exported!');
     }
-    
+
     // Replace old button functions with stubs
     function injectSearchButton() {
         console.log('ℹ️ Search in top-right menu');
     }
-    
+
     function injectJumpToTopButton() {
-        // Keep simple jump to top button
         const topBtn = document.createElement('button');
         topBtn.className = 'jump-to-top-btn';
         topBtn.setAttribute('aria-label', 'Scroll to top');
         topBtn.innerHTML = '⬆️';
-        topBtn.className = 'jump-to-top-btn';
 
-        topBtn.addEventListener('click', function() {
+        topBtn.addEventListener('click', function () {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function () {
             topBtn.classList.toggle('visible', window.pageYOffset > 500);
         });
-        
+
         document.body.appendChild(topBtn);
         console.log('✅ Jump to top button injected');
     }
@@ -1519,153 +1788,153 @@
     // ============================================
     // FEATURE #3: SEARCH HISTORY
     // ============================================
-    
+
     function initSearchHistory() {
         const pageId = document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase();
         const historyKey = 'searchHistory-' + pageId;
-        
+
         // Load search history
         window.searchHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
-        
+
         // Add search history to search input
         const searchInput = document.getElementById('search-input');
         if (!searchInput) return;
-        
+
         // Create datalist for autocomplete
         const datalist = document.createElement('datalist');
         datalist.id = 'search-history-list';
-        
-        window.searchHistory.slice(0, 5).forEach(function(term) {
+
+        window.searchHistory.slice(0, 5).forEach(function (term) {
             const option = document.createElement('option');
             option.value = term;
             datalist.appendChild(option);
         });
-        
+
         searchInput.setAttribute('list', 'search-history-list');
         searchInput.parentElement.appendChild(datalist);
-        
+
         // Save search on successful search
         const originalPerformSearch = window.NotesSearch?.performSearch;
         if (originalPerformSearch) {
-            window.NotesSearch.performSearch = function(query) {
+            window.NotesSearch.performSearch = function (query) {
                 originalPerformSearch.call(this, query);
-                
+
                 if (query && query.length >= 2) {
                     // Add to history
                     window.searchHistory = window.searchHistory.filter(h => h !== query);
                     window.searchHistory.unshift(query);
                     window.searchHistory = window.searchHistory.slice(0, 10); // Keep last 10
                     localStorage.setItem(historyKey, JSON.stringify(window.searchHistory));
-                    
+
                     // Update datalist
                     updateSearchHistoryDatalist();
                 }
             };
         }
-        
+
         function updateSearchHistoryDatalist() {
             const datalist = document.getElementById('search-history-list');
             if (!datalist) return;
-            
+
             datalist.innerHTML = '';
-            window.searchHistory.slice(0, 5).forEach(function(term) {
+            window.searchHistory.slice(0, 5).forEach(function (term) {
                 const option = document.createElement('option');
                 option.value = term;
                 datalist.appendChild(option);
             });
         }
-        
+
         console.log('✅ Search history initialized');
     }
 
     // ============================================
     // FEATURE #4: ESTIMATED READING TIME
     // ============================================
-    
+
     function injectReadingTimeBadge() {
         const noteContent = document.querySelector('.note-content');
         if (!noteContent) return;
-        
+
         // Calculate reading time (200 words per minute)
         const text = noteContent.innerText;
         const words = text.trim().split(/\s+/).length;
         const minutes = Math.ceil(words / 200);
-        
+
         const badge = document.createElement('div');
         badge.className = 'reading-time-badge';
         badge.innerHTML = `<span class="reading-time-icon">📖</span> <span class="reading-time-text">${minutes} min read</span>`;
-        
+
         const header = document.querySelector('.note-header');
         if (header) {
             header.appendChild(badge);
         }
-        
+
         console.log(`✅ Reading time badge injected (${minutes} minutes)`);
     }
 
     // ============================================
     // FEATURE #5: READING PROGRESS BAR
     // ============================================
-    
+
     function injectReadingProgressBar() {
         const progressBar = document.createElement('div');
         progressBar.className = 'reading-progress-bar';
         progressBar.id = 'readingProgressBar';
-        
+
         const progressFill = document.createElement('div');
         progressFill.className = 'reading-progress-fill';
         progressBar.appendChild(progressFill);
-        
+
         document.body.insertBefore(progressBar, document.body.firstChild);
-        
+
         // Update progress on scroll
         function updateProgress() {
             const windowHeight = window.innerHeight;
             const documentHeight = document.documentElement.scrollHeight;
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
+
             const scrollPercentage = (scrollTop / (documentHeight - windowHeight)) * 100;
             const clampedPercentage = Math.min(100, Math.max(0, scrollPercentage));
-            
+
             progressFill.style.width = clampedPercentage + '%';
         }
-        
+
         window.addEventListener('scroll', updateProgress);
         window.addEventListener('resize', updateProgress);
-        
+
         // Initial update
         updateProgress();
-        
+
         console.log('✅ Reading progress bar injected');
     }
 
     // ============================================
     // FEATURE #6: TABLE OF CONTENTS HIGHLIGHT
     // ============================================
-    
+
     function initTableOfContentsHighlight() {
         const tocLinks = document.querySelectorAll('a[href^="#"]');
         if (tocLinks.length === 0) return;
-        
+
         const sections = document.querySelectorAll('h2[id], h3[id]');
         if (sections.length === 0) return;
-        
+
         const observerOptions = {
             root: null,
             rootMargin: '-20% 0px -70% 0px',
             threshold: 0
         };
-        
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
+
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
                     const id = entry.target.getAttribute('id');
-                    
+
                     // Remove active class from all links
-                    tocLinks.forEach(function(link) {
+                    tocLinks.forEach(function (link) {
                         link.classList.remove('toc-active');
                     });
-                    
+
                     // Add active class to matching link
                     const activeLink = document.querySelector(`a[href="#${id}"]`);
                     if (activeLink) {
@@ -1674,161 +1943,90 @@
                 }
             });
         }, observerOptions);
-        
-        sections.forEach(function(section) {
+
+        sections.forEach(function (section) {
             observer.observe(section);
         });
-        
+
         console.log('✅ Table of contents highlighting initialized');
     }
 
-    // ============================================
-    // FEATURE #7: COPY CODE TOOLTIP
-    // ============================================
     
-    function enhanceCopyCodeButtons() {
-        const copyButtons = document.querySelectorAll('.copy-code-btn');
-        
-        copyButtons.forEach(function(button) {
-            const originalClickHandler = button.onclick;
-            
-            button.addEventListener('click', function(e) {
-                // Show tooltip
-                showCopyTooltip(button);
-                
-                // Trigger haptic feedback if available
-                if ('vibrate' in navigator) {
-                    navigator.vibrate(10);
-                }
-            });
-        });
-        
-        function showCopyTooltip(button) {
-            const tooltip = document.createElement('div');
-            tooltip.className = 'copy-tooltip';
-            tooltip.textContent = 'Copied! ✓';
-            
-            // Position relative to button
-            const rect = button.getBoundingClientRect();
-            tooltip.style.position = 'fixed';
-            tooltip.style.top = (rect.top - 40) + 'px';
-            tooltip.style.left = (rect.left + rect.width / 2) + 'px';
-            tooltip.style.transform = 'translateX(-50%)';
-            
-            document.body.appendChild(tooltip);
-            
-            // Animate in
-            setTimeout(() => tooltip.classList.add('visible'), 10);
-            
-            // Remove after 2 seconds
-            setTimeout(() => {
-                tooltip.classList.remove('visible');
-                setTimeout(() => tooltip.remove(), 300);
-            }, 2000);
-        }
-        
-        console.log('✅ Copy code tooltips enhanced');
-    }
 
     // ============================================
     // FEATURE #8: DARK MODE AUTO-DETECT
     // ============================================
-    
+
     function initDarkModeAutoDetect() {
-        // Only auto-detect on first visit
+        const THEMES = ['light', 'dark', 'comfort'];
+
+        function applyTheme(theme) {
+            // Validate against the same three themes theme.js uses
+            const validated = THEMES.includes(theme) ? theme : 'light';
+            document.documentElement.setAttribute('data-theme', validated);
+            localStorage.setItem('theme', validated);
+        }
+
+        // Only auto-detect on first visit — if user already picked a theme, respect it
         if (localStorage.getItem('theme')) {
             console.log('ℹ️ User has theme preference, skipping auto-detect');
             return;
         }
-        
+
+        // OS only reports dark or light — comfort has no OS equivalent
+        // so auto-detect only sets dark or light on first visit
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-        
+
         if (prefersDark) {
-            setTheme('dark');
-            localStorage.setItem('theme', 'dark');
+            applyTheme('dark');
             console.log('✅ Auto-detected dark mode preference');
-        } else if (prefersLight) {
-            setTheme('light');
-            localStorage.setItem('theme', 'light');
+        } else {
+            applyTheme('light');
             console.log('✅ Auto-detected light mode preference');
         }
-        
-        // Listen for system theme changes
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-            if (!localStorage.getItem('userSetTheme')) {
-                setTheme(e.matches ? 'dark' : 'light');
-                showNotification('Theme updated to match system preference');
+
+        // Listen for OS theme changes — only switch between dark and light
+        // Never override comfort if user manually selected it
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+            const currentTheme = localStorage.getItem('theme');
+
+            // If user manually chose comfort, never auto-change it
+            if (currentTheme === 'comfort') {
+                console.log('ℹ️ User is in comfort mode — ignoring OS theme change');
+                return;
             }
+
+            const newTheme = e.matches ? 'dark' : 'light';
+            applyTheme(newTheme);
+            showNotification('Theme updated to match system preference');
         });
     }
 
-    // ============================================
-    // FEATURE #9: SEARCH FILTERS
-    // ============================================
-    
-    function injectSearchFilters() {
-        const searchBox = document.querySelector('.search-box');
-        if (!searchBox) return;
-        
-        const filterContainer = document.createElement('div');
-        filterContainer.className = 'search-filter-container';
-        filterContainer.innerHTML = `
-            <select id="search-filter" aria-label="Filter search results">
-                <option value="all">All content</option>
-                <option value="exam">Exam highlights</option>
-                <option value="code">Code examples</option>
-                <option value="headings">Headings only</option>
-            </select>
-        `;
-        
-        searchBox.appendChild(filterContainer);
-        
-        const filter = document.getElementById('search-filter');
-        filter.addEventListener('change', function() {
-            // Re-run current search with filter
-            const searchInput = document.getElementById('search-input');
-            if (searchInput && searchInput.value) {
-                if (typeof window.NotesSearch !== 'undefined') {
-                    window.NotesSearch.performSearch(searchInput.value);
-                }
-            }
-        });
-        
-        // Store filter preference
-        const savedFilter = localStorage.getItem('searchFilter') || 'all';
-        filter.value = savedFilter;
-        
-        filter.addEventListener('change', function() {
-            localStorage.setItem('searchFilter', this.value);
-        });
-        
-        console.log('✅ Search filters injected');
-    }
+
 
     // ============================================
     // FEATURE #10: HIGHLIGHT PERSISTENCE
     // ============================================
-    
+
     function initHighlightPersistence() {
         // Already implemented in exam mode, just add visual feedback
         const examToggle = document.getElementById('examModeToggle');
         if (!examToggle) return;
-        
-        examToggle.addEventListener('click', function() {
+
+        examToggle.addEventListener('click', function () {
             setTimeout(() => {
                 const currentMode = document.body.className.match(/exam-mode-(\w+)/)?.[1] || 'none';
                 showNotification(`Exam mode: ${currentMode.toUpperCase()} (saved)`);
             }, 100);
         });
-        
+
         console.log('✅ Highlight persistence notifications enabled');
     }
 
     // ============================================
     // FEATURE #11: LOADING SKELETONS
     // ============================================
-    
+
     function injectLoadingSkeletons() {
         // Add skeletons for quiz, checklist, glossary, interview
         const containers = [
@@ -1837,15 +2035,15 @@
             { id: 'glossaryContainer', lines: 5 },
             { id: 'interviewContainer', lines: 3 }
         ];
-        
-        containers.forEach(function(container) {
+
+        containers.forEach(function (container) {
             const element = document.getElementById(container.id);
             if (!element) return;
-            
+
             // Create skeleton
             const skeleton = document.createElement('div');
             skeleton.className = 'skeleton-loader';
-            
+
             for (let i = 0; i < container.lines; i++) {
                 const line = document.createElement('div');
                 line.className = 'skeleton-line';
@@ -1854,13 +2052,13 @@
                 }
                 skeleton.appendChild(line);
             }
-            
+
             // Show skeleton while loading
             element.appendChild(skeleton);
-            
+
             // Remove skeleton after content loads
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
                     if (mutation.addedNodes.length > 0) {
                         // Content loaded, remove skeleton
                         skeleton.remove();
@@ -1868,24 +2066,24 @@
                     }
                 });
             });
-            
+
             observer.observe(element, { childList: true });
         });
-        
+
         console.log('✅ Loading skeletons injected');
     }
 
     // ============================================
     // FEATURE #12: ENHANCED KEYBOARD SHORTCUTS PANEL
     // ============================================
-    
+
     function enhanceKeyboardShortcutsPanel() {
         const helpPanel = document.getElementById('keyboard-shortcuts-help');
         if (!helpPanel) return;
-        
+
         // Enhance the existing panel with better styling
         helpPanel.classList.add('enhanced-shortcuts-panel');
-        
+
         // Add category headers
         const dl = helpPanel.querySelector('dl');
         if (dl) {
@@ -1905,12 +2103,12 @@
                     { key: 'Alt+K', desc: 'Show shortcuts' }
                 ]
             };
-            
+
             let newHTML = '<div class="shortcuts-grid">';
-            
-            Object.keys(shortcuts).forEach(function(category) {
+
+            Object.keys(shortcuts).forEach(function (category) {
                 newHTML += `<div class="shortcut-category"><h4>${category}</h4>`;
-                shortcuts[category].forEach(function(shortcut) {
+                shortcuts[category].forEach(function (shortcut) {
                     newHTML += `
                         <div class="shortcut-item">
                             <kbd>${shortcut.key}</kbd>
@@ -1920,79 +2118,79 @@
                 });
                 newHTML += '</div>';
             });
-            
+
             newHTML += '</div>';
-            
+
             helpPanel.innerHTML = '<h3>⌨️ Keyboard Shortcuts</h3>' + newHTML;
         }
-        
+
         console.log('✅ Keyboard shortcuts panel enhanced');
     }
 
     // ============================================
     // FEATURE #13: SMOOTH TRANSITIONS
     // ============================================
-    
+
     function initSmoothTransitions() {
         // Add smooth transition class to body
         document.body.classList.add('smooth-transitions');
-        
+
         // Smooth scroll for all anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
-            anchor.addEventListener('click', function(e) {
+        document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+            anchor.addEventListener('click', function (e) {
                 const href = this.getAttribute('href');
                 if (href === '#') return;
-                
+
                 e.preventDefault();
                 const target = document.querySelector(href);
-                
+
                 if (target) {
                     target.scrollIntoView({
                         behavior: 'smooth',
                         block: 'start'
                     });
-                    
+
                     // Update URL without jumping
                     history.pushState(null, null, href);
                 }
             });
         });
-        
+
         console.log('✅ Smooth transitions initialized');
     }
 
     // ============================================
     // FEATURE #14: BOOKMARK SYSTEM
     // ============================================
-    
+
     function initBookmarkSystem() {
-        const pageId = window.location.pathname;
-        const bookmarksKey = 'bookmarks-' + pageId.replace(/[^a-z0-9]/gi, '-');
-        
+        const pageId = window.NotePageId;
+        const bookmarksKey = 'bookmarks-' + pageId;
+
         // Load bookmarks
         let bookmarks = JSON.parse(localStorage.getItem(bookmarksKey) || '[]');
-        
+
         // Add bookmark buttons to section headers
         const headers = document.querySelectorAll('.note-content h2[id], .note-content h3[id]');
-        
-        headers.forEach(function(header) {
+
+        headers.forEach(function (header) {
             const id = header.getAttribute('id');
             const isBookmarked = bookmarks.includes(id);
-            
+
             const bookmarkBtn = document.createElement('button');
             bookmarkBtn.className = 'bookmark-btn' + (isBookmarked ? ' bookmarked' : '');
             bookmarkBtn.setAttribute('aria-label', 'Bookmark this section');
             bookmarkBtn.setAttribute('title', isBookmarked ? 'Remove bookmark' : 'Bookmark this section');
             bookmarkBtn.innerHTML = isBookmarked ? '⭐' : '☆';
-            
-            bookmarkBtn.addEventListener('click', function(e) {
+
+            bookmarkBtn.addEventListener('click', function (e) {
                 e.preventDefault();
                 toggleBookmark(id, bookmarkBtn);
             });
-            
+
             header.appendChild(bookmarkBtn);
         });
-        
+
         function toggleBookmark(id, button) {
             if (bookmarks.includes(id)) {
                 // Remove bookmark
@@ -2009,23 +2207,23 @@
                 button.setAttribute('title', 'Remove bookmark');
                 showNotification('Bookmark added');
             }
-            
+
             localStorage.setItem(bookmarksKey, JSON.stringify(bookmarks));
-            
+
             // Update or create bookmarks panel
             updateBookmarksPanel();
         }
-        
+
         // Always create bookmarks panel (even if empty)
         injectBookmarksPanel();
-        
+
         function injectBookmarksPanel() {
             // Remove existing panel if any
             const existingPanel = document.getElementById('bookmarksPanel');
             if (existingPanel) {
                 existingPanel.remove();
             }
-            
+
             const panel = document.createElement('div');
             panel.className = 'bookmarks-panel';
             panel.id = 'bookmarksPanel';
@@ -2034,63 +2232,63 @@
                 <ul class="bookmarks-list"></ul>
                 <button class="close-bookmarks-btn" onclick="document.getElementById('bookmarksPanel').classList.remove('visible')">Close</button>
             `;
-            
+
             document.body.appendChild(panel);
             updateBookmarksPanel();
         }
-        
+
         function updateBookmarksPanel() {
             const panel = document.getElementById('bookmarksPanel');
             if (!panel) return;
-            
+
             const list = panel.querySelector('.bookmarks-list');
             list.innerHTML = '';
-            
+
             if (bookmarks.length === 0) {
                 list.innerHTML = '<li style="color: var(--text-secondary); font-style: italic;">No bookmarks yet. Click ⭐ on any heading.</li>';
                 return;
             }
-            
-            bookmarks.forEach(function(id) {
+
+            bookmarks.forEach(function (id) {
                 const header = document.getElementById(id);
                 if (!header) return;
-                
+
                 const li = document.createElement('li');
                 const link = document.createElement('a');
                 link.href = '#' + id;
                 link.textContent = header.textContent.replace(/[⭐☆]/, '').trim();
-                link.addEventListener('click', function() {
+                link.addEventListener('click', function () {
                     panel.classList.remove('visible');
                 });
-                
+
                 li.appendChild(link);
                 list.appendChild(li);
             });
         }
-        
+
         console.log(`✅ Bookmark system initialized (${bookmarks.length} bookmarks)`);
     }
 
     // ============================================
     // FEATURE #16: STUDY TIMER
     // ============================================
-    
+
     function initStudyTimer() {
-        const pageId = window.location.pathname.replace(/[^a-z0-9]/gi, '-');
+        const pageId = window.NotePageId;
         const timerKey = 'studyTime-' + pageId;
         const sessionKey = 'studySession-' + pageId;
-        
+
         const startTime = Date.now();
         const storedTotal = parseInt(localStorage.getItem(timerKey) || '0');
-        
+
         // Create timer display with close and reset buttons
         const timerDisplay = document.createElement('div');
         timerDisplay.className = 'study-timer-display';
         timerDisplay.id = 'studyTimerDisplay';
-        
+
         // Check if timer should be hidden (from localStorage)
         let timerHidden = localStorage.getItem('timerHidden') === 'true';
-        
+
         // Auto-hide on mobile devices
         const isMobile = window.innerWidth <= 768;
         if (isMobile && localStorage.getItem('timerHidden') === null) {
@@ -2098,11 +2296,11 @@
             timerHidden = true;
             localStorage.setItem('timerHidden', 'true');
         }
-        
+
         if (timerHidden) {
             timerDisplay.classList.add('hidden');
         }
-        
+
         timerDisplay.innerHTML = `
             <button class="timer-close-btn" id="timerCloseBtn" title="Hide timer">×</button>
             <div class="timer-icon">⏱️</div>
@@ -2115,18 +2313,18 @@
                 <div class="timer-hint">💡 Alt+Shift+T or Menu → Tools → Timer</div>
             </div>
         `;
-        
+
         document.body.appendChild(timerDisplay);
-        
+
         // Close button
-        document.getElementById('timerCloseBtn').addEventListener('click', function() {
+        document.getElementById('timerCloseBtn').addEventListener('click', function () {
             timerDisplay.classList.add('hidden');
             localStorage.setItem('timerHidden', 'true');
             showNotification('Timer hidden. Use Menu → Tools → Timer to show.');
         });
-        
+
         // Keyboard shortcut to toggle timer (Alt+Shift+T)
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.altKey && e.shiftKey && e.key === 'T') {
                 e.preventDefault();
                 timerDisplay.classList.toggle('hidden');
@@ -2135,16 +2333,16 @@
                 showNotification(isHidden ? 'Timer hidden' : 'Timer shown');
             }
         });
-        
-        
+
+
         // Update every 10 seconds
         const updateInterval = setInterval(updateTimer, 10000);
-        
+
         // Initial update after 1 second
         setTimeout(updateTimer, 1000);
-        
+
         // Reset button
-        document.getElementById('timerResetBtn').addEventListener('click', function() {
+        document.getElementById('timerResetBtn').addEventListener('click', function () {
             if (confirm('Reset total study time for this page?')) {
                 localStorage.removeItem(timerKey);
                 localStorage.removeItem(sessionKey);
@@ -2152,46 +2350,46 @@
                 showNotification('Study timer reset');
             }
         });
-        
+
         // Save on page unload
         window.addEventListener('beforeunload', saveStudyTime);
-        
+
         // Save every 2 minutes
         const saveInterval = setInterval(saveStudyTime, 120000);
-        
+
         function updateTimer() {
             const sessionTime = Date.now() - startTime;
             const sessionMinutes = Math.floor(sessionTime / 60000);
             const sessionSeconds = Math.floor((sessionTime % 60000) / 1000);
-            
+
             // Show session time
             if (sessionMinutes > 0) {
                 document.getElementById('sessionTime').textContent = sessionMinutes + 'm';
             } else {
                 document.getElementById('sessionTime').textContent = sessionSeconds + 's';
             }
-            
+
             // Update total display
             const currentTotal = storedTotal + sessionTime;
             document.getElementById('totalTime').textContent = formatTime(currentTotal);
         }
-        
+
         function saveStudyTime() {
             const sessionTime = Date.now() - startTime;
             const newTotal = storedTotal + sessionTime;
             localStorage.setItem(timerKey, newTotal.toString());
             localStorage.setItem(sessionKey, Date.now().toString());
         }
-        
+
         function formatTime(ms) {
             const totalMinutes = Math.floor(ms / 60000);
-            
+
             if (totalMinutes === 0) return '0m';
             if (totalMinutes < 60) return totalMinutes + 'm';
-            
+
             const hours = Math.floor(totalMinutes / 60);
             const mins = totalMinutes % 60;
-            
+
             if (hours < 24) {
                 return hours + 'h ' + (mins > 0 ? mins + 'm' : '');
             } else {
@@ -2200,11 +2398,11 @@
                 return days + 'd ' + (remainingHours > 0 ? remainingHours + 'h' : '');
             }
         }
-        
+
         console.log('✅ Study timer initialized');
-        
+
         // Cleanup on page unload
-        window.addEventListener('beforeunload', function() {
+        window.addEventListener('beforeunload', function () {
             clearInterval(updateInterval);
             clearInterval(saveInterval);
         });
@@ -2213,23 +2411,19 @@
     // ============================================
     // UTILITY FUNCTIONS
     // ============================================
-    
-    // Single reusable toast element
-    const _toastEl = (function() {
-        const el = document.createElement('div');
-        el.className = 'toast-notification';
-        document.addEventListener('DOMContentLoaded', () => document.body.appendChild(el));
-        return el;
-    })();
-    let _toastTimer = null;
 
     function showNotification(message) {
-        _toastEl.textContent = message;
-        _toastEl.classList.add('visible');
+        const notification = document.createElement('div');
+        notification.className = 'toast-notification';
+        notification.textContent = message;
 
-        clearTimeout(_toastTimer);
-        _toastTimer = setTimeout(() => {
-            _toastEl.classList.remove('visible');
+        document.body.appendChild(notification);
+
+        setTimeout(() => notification.classList.add('visible'), 10);
+
+        setTimeout(() => {
+            notification.classList.remove('visible');
+            setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
 

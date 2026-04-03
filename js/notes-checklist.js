@@ -4,12 +4,12 @@
  * File: js/notes-checklist.js
  */
 
-(function() {
+(function () {
     'use strict';
 
     // Generate unique page ID from document title
-    const pageId = typeof document !== 'undefined' 
-        ? document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase() 
+    const pageId = typeof document !== 'undefined'
+        ? document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()
         : 'default';
 
     let checklistData = null;
@@ -30,13 +30,13 @@
         }
 
         const jsonSource = container.dataset.checklistSource || 'json/checklist.json';
-        
+
         try {
             await loadChecklistFromJSON(jsonSource);
             renderChecklist();
             loadChecklistState();
             updateChecklistProgress();
-            
+
             console.log(`✅ Initialized checklist with ${getTotalItems()} items from ${jsonSource}`);
         } catch (error) {
             console.error('❌ Error loading checklist:', error);
@@ -54,13 +54,13 @@
         if (!response.ok) {
             throw new Error(`Failed to load ${jsonFile}: ${response.statusText}`);
         }
-        
+
         checklistData = await response.json();
-        
+
         if (!checklistData.categories || checklistData.categories.length === 0) {
             throw new Error('No categories found in checklist JSON');
         }
-        
+
         console.log(`✅ Loaded ${checklistData.categories.length} categories from JSON`);
     }
 
@@ -87,7 +87,7 @@
     function createChecklistCategory(category) {
         const section = document.createElement('div');
         section.className = 'checklist-category';
-        
+
         const title = document.createElement('h3');
         title.textContent = category.title;
         section.appendChild(title);
@@ -105,28 +105,28 @@
         table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
-        
+
         category.items.forEach(item => {
             const row = document.createElement('tr');
-            
+
             const statusCell = document.createElement('td');
             statusCell.className = 'text-center';
-            
+
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.className = 'checklist-item';
             checkbox.dataset.key = item.id;
             checkbox.id = `check-${item.id}`;
-            
+
             statusCell.appendChild(checkbox);
             row.appendChild(statusCell);
 
             const textCell = document.createElement('td');
-            
+
             const label = document.createElement('label');
             label.htmlFor = `check-${item.id}`;
             label.textContent = item.text;
-            
+
             textCell.appendChild(label);
             row.appendChild(textCell);
 
@@ -142,7 +142,7 @@
     function handleCheckboxChange(event) {
         const checkbox = event.target;
         const key = checkbox.dataset.key;
-        
+
         checklistState[key] = checkbox.checked;
         saveChecklistState();
         updateChecklistProgress();
@@ -152,35 +152,25 @@
         const totalItems = getTotalItems();
         const checkedItems = getCheckedCount();
         const percentage = totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
-        
+
         const progressText = document.getElementById('checklistProgress');
         const progressFill = document.getElementById('progressFill');
-        
+
         if (progressText) {
             progressText.textContent = `${checkedItems}/${totalItems}`;
         }
-        
+
         if (progressFill) {
             progressFill.style.width = `${percentage}%`;
             progressFill.textContent = `${percentage}%`;
         }
 
-        // Save progress metadata
-        try {
-            localStorage.setItem(`${pageId}-checklist-progress`, JSON.stringify({
-                checked: checkedItems,
-                total: totalItems,
-                percentage: percentage,
-                lastUpdated: new Date().toISOString()
-            }));
-        } catch (e) {
-            console.warn('Could not save checklist progress:', e);
-        }
+
     }
 
     function getTotalItems() {
         if (!checklistData || !checklistData.categories) return 0;
-        
+
         return checklistData.categories.reduce((total, category) => {
             return total + (category.items ? category.items.length : 0);
         }, 0);
@@ -192,7 +182,7 @@
 
     function saveChecklistState() {
         try {
-            localStorage.setItem(`${pageId}-checklist-state`, JSON.stringify(checklistState));
+            localStorage.setItem(`${pageId}-checklist-state`, JSON.stringify({ v: 1, data: checklistState }));
         } catch (e) {
             console.warn('Could not save checklist state:', e);
         }
@@ -202,8 +192,13 @@
         try {
             const savedState = localStorage.getItem(`${pageId}-checklist-state`);
             if (savedState) {
-                checklistState = JSON.parse(savedState);
-                
+                const parsed = JSON.parse(savedState);
+                if (!parsed.v) {
+                    localStorage.removeItem(`${pageId}-checklist-state`);
+                    return;
+                }
+                checklistState = parsed.data;
+                updateChecklistProgress();
                 // Apply saved state to checkboxes
                 Object.keys(checklistState).forEach(key => {
                     const checkbox = document.getElementById(`check-${key}`);
@@ -211,6 +206,7 @@
                         checkbox.checked = checklistState[key];
                     }
                 });
+
             }
         } catch (e) {
             console.warn('Could not load checklist state:', e);
@@ -234,7 +230,6 @@
         // Clear localStorage
         try {
             localStorage.removeItem(`${pageId}-checklist-state`);
-            localStorage.removeItem(`${pageId}-checklist-progress`);
         } catch (e) {
             console.warn('Could not clear checklist storage:', e);
         }

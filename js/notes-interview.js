@@ -4,11 +4,11 @@
  * File: js/notes-interview.js
  */
 
-(function() {
+(function () {
     'use strict';
 
-    const pageId = typeof document !== 'undefined' 
-        ? document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase() 
+    const pageId = typeof document !== 'undefined'
+        ? document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()
         : 'default';
 
     let currentInterviewQuestion = 1;
@@ -31,15 +31,15 @@
         }
 
         const jsonSource = container.dataset.interviewSource || 'json/interview.json';
-        
+
         try {
             await loadInterviewFromJSON(jsonSource);
             renderInterview();
             loadInterviewState();
             updateInterviewDisplay();
-            
+
             document.addEventListener('keydown', handleInterviewKeyboard);
-            
+
             console.log(`🎤 Initialized interview questions with ${totalInterviewQuestions} questions from ${jsonSource}`);
         } catch (error) {
             console.error('❌ Error loading interview questions:', error);
@@ -57,10 +57,10 @@
         if (!response.ok) {
             throw new Error(`Failed to load ${jsonFile}: ${response.statusText}`);
         }
-        
+
         interviewData = await response.json();
         totalInterviewQuestions = interviewData.questions.length;
-        
+
         console.log(`✅ Loaded ${totalInterviewQuestions} interview questions from JSON`);
     }
 
@@ -106,11 +106,11 @@
 
     function handleInterviewKeyboard(e) {
         if (!document.querySelector('.flashcard-deck')) return;
-        
+
         if (e.key === 'ArrowLeft' && currentInterviewQuestion > 1) {
             previousInterviewQuestion();
         }
-        
+
         if (e.key === 'ArrowRight' && currentInterviewQuestion < totalInterviewQuestions) {
             nextInterviewQuestion();
         }
@@ -127,7 +127,7 @@
 
     function updateInterviewDisplay() {
         const slides = document.querySelectorAll('.flashcard-slide');
-        
+
         slides.forEach(slide => {
             slide.classList.remove('active');
             slide.style.display = 'none';
@@ -146,7 +146,7 @@
 
         const prevBtn = document.getElementById('prevInterviewBtn');
         const nextBtn = document.getElementById('nextInterviewBtn');
-        
+
         if (prevBtn) prevBtn.disabled = currentInterviewQuestion === 1;
         if (nextBtn) nextBtn.disabled = currentInterviewQuestion === totalInterviewQuestions;
 
@@ -155,8 +155,8 @@
 
     function updateInterviewProgress() {
         const viewed = Object.keys(viewedAnswers).length;
-        const percentage = totalInterviewQuestions > 0 
-            ? ((viewed / totalInterviewQuestions) * 100).toFixed(1) 
+        const percentage = totalInterviewQuestions > 0
+            ? ((viewed / totalInterviewQuestions) * 100).toFixed(1)
             : 0;
 
         const progressDisplay = document.getElementById('interviewProgress');
@@ -184,7 +184,7 @@
     function toggleInterviewAnswer(questionId) {
         const answer = document.getElementById(`answer${questionId}`);
         const button = document.getElementById(`answerBtn${questionId}`);
-        
+
         if (!answer || !button) return;
 
         if (answer.style.display === 'none' || answer.style.display === '') {
@@ -212,7 +212,7 @@
             const questionId = slide.dataset.questionId;
             const answer = document.getElementById(`answer${questionId}`);
             const button = document.getElementById(`answerBtn${questionId}`);
-            
+
             if (answer) answer.style.display = 'none';
             if (button) button.textContent = 'Show Answer';
         });
@@ -231,10 +231,11 @@
     function saveInterviewState() {
         try {
             localStorage.setItem(`${pageId}-interview-state`, JSON.stringify({
+                v: 1,
                 currentQuestion: currentInterviewQuestion,
                 lastUpdated: new Date().toISOString()
             }));
-            localStorage.setItem(`${pageId}-interview-viewed`, JSON.stringify(viewedAnswers));
+            localStorage.setItem(`${pageId}-interview-viewed`, JSON.stringify({ v: 1, data: viewedAnswers }));
         } catch (e) {
             console.warn('Could not save interview state:', e);
         }
@@ -244,19 +245,44 @@
         try {
             const stateStr = localStorage.getItem(`${pageId}-interview-state`);
             const viewedStr = localStorage.getItem(`${pageId}-interview-viewed`);
-            
+
+            if (stateStr) {
+                const state = JSON.parse(stateStr);
+                if (!state.v) {
+                    localStorage.removeItem(`${pageId}-interview-state`);
+                } else {
+                    currentInterviewQuestion = state.currentQuestion || 1;
+                }
+            }
+            if (viewedStr) {
+                const parsed = JSON.parse(viewedStr);
+                if (!parsed.v) {
+                    localStorage.removeItem(`${pageId}-interview-viewed`);
+                } else {
+                    viewedAnswers = parsed.data;
+                    Object.keys(viewedAnswers).forEach(questionId => {
+                        const answer = document.getElementById(`answer${questionId}`);
+                        const button = document.getElementById(`answerBtn${questionId}`);
+
+                        if (answer && viewedAnswers[questionId]) {
+                            answer.style.display = 'block';
+                            if (button) button.textContent = 'Hide Answer';
+                        }
+                    });
+                }
+            }
             if (stateStr) {
                 const state = JSON.parse(stateStr);
                 currentInterviewQuestion = state.currentQuestion || 1;
             }
-            
+
             if (viewedStr) {
                 viewedAnswers = JSON.parse(viewedStr);
-                
+
                 Object.keys(viewedAnswers).forEach(questionId => {
                     const answer = document.getElementById(`answer${questionId}`);
                     const button = document.getElementById(`answerBtn${questionId}`);
-                    
+
                     if (answer && viewedAnswers[questionId]) {
                         answer.style.display = 'block';
                         if (button) button.textContent = 'Hide Answer';
