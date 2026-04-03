@@ -118,9 +118,7 @@
         injectStaticMeta();
         injectBreadcrumb();
         injectBreadcrumbSchema();
-        injectPrintButton();
         injectThemeToggle();
-        injectExamModeToggle();
         injectFooter();
         injectGoogleAnalytics();
         loadConditionalScripts();
@@ -128,30 +126,7 @@
 
         console.log('✅ All static elements injected');
     }
-    function injectPrintButton() {
-        const button = document.createElement('button');
-        button.className = 'print-button';
-        button.setAttribute('aria-label', 'Print or save this page as PDF');
-        button.setAttribute('title', 'Print (Ctrl+P)');
 
-        const emoji = document.createElement('span');
-        emoji.className = 'print-icon';
-        emoji.textContent = '🖨️';
-
-        const text = document.createElement('span');
-        text.className = 'print-text';
-        text.textContent = 'Print';
-
-        button.appendChild(emoji);
-        button.appendChild(text);
-
-        // Enhanced click handler with feedback
-        button.addEventListener('click', function () { openPrintModal(); });
-
-        document.body.appendChild(button);
-
-        console.log('✅ Print button injected');
-    }
 
     function injectStaticMeta() {
         const head = document.head;
@@ -270,33 +245,6 @@
         console.log('✅ Theme toggle button injected');
     }
 
-    function injectExamModeToggle() {
-        // Only inject if this is a complete notes page
-        const isCompleteNotes = document.body.classList.contains('complete-notes');
-
-        if (!isCompleteNotes) {
-            console.log('ℹ️ Overview notes - Exam mode toggle skipped');
-            return;
-        }
-
-        const button = document.createElement('button');
-        button.id = 'examModeToggle';
-        button.className = 'exam-mode-toggle';
-        button.setAttribute('aria-label', 'Toggle exam mode');
-        button.setAttribute('title', 'Exam Study Mode: None');
-        button.innerHTML = `
-            <span class="exam-icon">📚</span>
-            <span class="exam-mode-text">None</span>
-        `;
-
-        // Insert after theme toggle
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-            themeToggle.insertAdjacentElement('afterend', button);
-        }
-
-        console.log('✅ Exam mode toggle injected (Complete notes)');
-    }
 
     function injectFooter() {
 
@@ -555,11 +503,6 @@
             themeToggle.setAttribute('aria-label', 'Toggle theme between light, dark, and comfort modes');
         }
 
-        const examToggle = document.getElementById('examModeToggle');
-        if (examToggle && !examToggle.getAttribute('aria-label')) {
-            examToggle.setAttribute('aria-label', 'Toggle exam study mode: none, highlight, or test');
-        }
-
         const printButton = document.querySelector('.print-button');
         if (printButton && !printButton.getAttribute('aria-label')) {
             printButton.setAttribute('aria-label', 'Print or save this page as PDF');
@@ -689,96 +632,58 @@
     // ============================================
 
     function initExamMode() {
-        const examToggle = document.getElementById('examModeToggle');
-        if (!examToggle) {
-            console.log('ℹ️ No exam mode toggle found on this page');
+        // Only runs on complete-notes pages
+        const isCompleteNotes = document.body.classList.contains('complete-notes');
+        if (!isCompleteNotes) {
+            console.log('ℹ️ Overview notes - Exam mode skipped');
             return;
         }
 
-        // Count both types of highlights on page
+        // Count highlights
         const sentenceHighlights = document.querySelectorAll('.exam-highlight-sentence').length;
         const termHighlights = document.querySelectorAll('.exam-highlight-term').length;
-        const totalHighlights = sentenceHighlights + termHighlights;
+        console.log(`📚 Found ${sentenceHighlights + termHighlights} exam highlights`);
 
-        console.log(`📚 Found ${totalHighlights} exam highlights on this page:`);
-        console.log(`   - ${sentenceHighlights} sentence highlights (full context)`);
-        console.log(`   - ${termHighlights} term highlights (fill-in-blank)`);
-
-        // Load saved exam mode from localStorage
+        // Restore saved mode
         const savedMode = localStorage.getItem('examMode') || 'none';
         setExamMode(savedMode);
 
-        // Toggle through modes: none → highlight → test → none
-        examToggle.addEventListener('click', function () {
-            const currentMode = document.body.className.match(/exam-mode-(\w+)/)?.[1] || 'none';
-            let nextMode;
-
-            if (currentMode === 'none') {
-                nextMode = 'highlight';
-            } else if (currentMode === 'highlight') {
-                nextMode = 'test';
-            } else {
-                nextMode = 'none';
-            }
-
-            setExamMode(nextMode);
-            localStorage.setItem('examMode', nextMode);
-
-            console.log(`🔄 Exam mode changed: ${currentMode} → ${nextMode}`);
-        });
-
-        // Keyboard shortcut: Alt + E to toggle modes
+        // Keyboard shortcut: Alt+E
         document.addEventListener('keydown', function (e) {
             if (e.altKey && e.key.toLowerCase() === 'e') {
                 e.preventDefault();
-                examToggle.click();
+                cycleExamMode();
             }
         });
 
         console.log(`📚 Exam mode initialized: ${savedMode} (Press Alt+E to toggle)`);
     }
 
+    function cycleExamMode() {
+        const currentMode = document.body.className.match(/exam-mode-(\w+)/)?.[1] || 'none';
+        const nextMode = currentMode === 'none' ? 'highlight'
+            : currentMode === 'highlight' ? 'test'
+                : 'none';
+
+        setExamMode(nextMode);
+        localStorage.setItem('examMode', nextMode);
+
+        setTimeout(() => {
+            const mode = document.body.className.match(/exam-mode-(\w+)/)?.[1] || 'none';
+            showNotification(`Exam mode: ${mode.toUpperCase()} (saved)`);
+        }, 100);
+
+        console.log(`🔄 Exam mode changed: ${currentMode} → ${nextMode}`);
+    }
+    window.cycleExamMode = cycleExamMode;
     function setExamMode(mode) {
         const body = document.body;
-        const modeText = document.querySelector('.exam-mode-text');
-        const modeIcon = document.querySelector('.exam-icon');
-
         // Remove all exam mode classes
         body.classList.remove('exam-mode-none', 'exam-mode-highlight', 'exam-mode-test');
 
         // Add new mode class
         body.classList.add(`exam-mode-${mode}`);
 
-        // Update button text and icon
-        if (modeText) {
-            const modeNames = {
-                'none': 'None',
-                'highlight': 'Highlight',
-                'test': 'Test'
-            };
-            modeText.textContent = modeNames[mode] || 'None';
-        }
-
-        if (modeIcon) {
-            const modeIcons = {
-                'none': '📚',      // Normal reading
-                'highlight': '📝', // Show all highlights
-                'test': '🎯'       // Fill-in-blank mode
-            };
-            modeIcon.textContent = modeIcons[mode] || '📚';
-        }
-
-        // Update button title for accessibility
-        const examToggle = document.getElementById('examModeToggle');
-        if (examToggle) {
-            const modeTitles = {
-                'none': 'Exam Study Mode: None - Normal reading (Click to show highlights)',
-                'highlight': 'Exam Study Mode: Highlight - See all exam content (Click for test mode)',
-                'test': 'Exam Study Mode: Test - Fill-in-blank practice (Click to reset)'
-            };
-            examToggle.setAttribute('title', modeTitles[mode]);
-            examToggle.setAttribute('aria-label', modeTitles[mode]);
-        }
 
         // Log mode details
         logModeDetails(mode);
@@ -913,11 +818,11 @@
 
     function showCopyError(button, buttonText) {
         buttonText.textContent = 'Failed';
-        button.style.backgroundColor = '#f44336';
+        button.classList.add('copy-error');
 
         setTimeout(function () {
             buttonText.textContent = 'Copy';
-            button.style.backgroundColor = '';
+            button.classList.remove('copy-error');
         }, 2000);
     }
 
@@ -1205,7 +1110,8 @@
             }
             // Fallback: derive from current page URL
             const base = window.location.href.replace(/\/[^/]*$/, '/');
-            return base + '../../../css/notes-print.css';
+            console.error('❌ Could not resolve notes-print.css path. Is notes-template.css loaded?');
+            return null;
         })();
 
         // --- 1. Note header (always) ---
@@ -1239,7 +1145,7 @@
             if (!interactive[s.id]) return;
             const container = document.getElementById(s.id);
             if (!container) return;
-
+            if (container.querySelector('.error-box')) return;
             const wrapper = container.closest('details.collapsible-section') || container;
             const clone = wrapper.cloneNode(true);
 
@@ -1316,6 +1222,10 @@
             + '</div>\n'
             + '</body>\n</html>';
 
+        if (!printCSSHref) {
+            window.showNotification('Print failed: stylesheet not found.');
+            return;
+        }
         // --- 6. Open new window ---
         const printWin = window.open('', '_blank', 'width=900,height=700');
         if (!printWin) {
@@ -1331,6 +1241,9 @@
         printWin.onload = function () {
             printWin.focus();
             printWin.print();
+            printWin.addEventListener('afterprint', function () {
+                printWin.close();
+            });
         };
 
         // Fallback for browsers where onload already fired
@@ -1338,6 +1251,9 @@
             if (printWin && !printWin.closed) {
                 printWin.focus();
                 printWin.print();
+                printWin.addEventListener('afterprint', function () {
+                    printWin.close();
+                });
             }
         }, 1000);
     }
@@ -1490,12 +1406,8 @@
 
         // Exam mode click
         document.getElementById('menuExamMode').addEventListener('click', function () {
-            const examToggle = document.getElementById('examModeToggle');
-            if (examToggle) {
-                examToggle.click();
-                // Update display after click
-                setTimeout(updateMenuStates, 100);
-            }
+            cycleExamMode();
+            setTimeout(updateMenuStates, 100);
             closeAllMenus();
         });
 
@@ -1731,10 +1643,7 @@
         showNotification('Highlights exported!');
     }
 
-    // Replace old button functions with stubs
-    function injectSearchButton() {
-        console.log('ℹ️ Search in top-right menu');
-    }
+
 
     function injectJumpToTopButton() {
         const topBtn = document.createElement('button');
@@ -1759,7 +1668,7 @@
     // ============================================
 
     function initSearchHistory() {
-        const pageId = document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+        const pageId = window.NotePageId;
         const historyKey = 'searchHistory-' + pageId;
 
         // Load search history
@@ -1973,24 +1882,7 @@
 
 
 
-    // ============================================
-    // FEATURE #10: HIGHLIGHT PERSISTENCE
-    // ============================================
 
-    function initHighlightPersistence() {
-        // Already implemented in exam mode, just add visual feedback
-        const examToggle = document.getElementById('examModeToggle');
-        if (!examToggle) return;
-
-        examToggle.addEventListener('click', function () {
-            setTimeout(() => {
-                const currentMode = document.body.className.match(/exam-mode-(\w+)/)?.[1] || 'none';
-                showNotification(`Exam mode: ${currentMode.toUpperCase()} (saved)`);
-            }, 100);
-        });
-
-        console.log('✅ Highlight persistence notifications enabled');
-    }
 
     // ============================================
     // FEATURE #11: LOADING SKELETONS
@@ -2371,11 +2263,7 @@
 
         console.log('✅ Study timer initialized');
 
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', function () {
-            clearInterval(updateInterval);
-            clearInterval(saveInterval);
-        });
+
     }
 
     // ============================================

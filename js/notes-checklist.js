@@ -8,9 +8,7 @@
     'use strict';
 
     // Generate unique page ID from document title
-    const pageId = typeof document !== 'undefined'
-        ? document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()
-        : 'default';
+    const pageId = window.NotePageId || document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase();
 
     let checklistData = null;
     let checklistState = {};
@@ -82,6 +80,8 @@
         });
 
         console.log(`✅ Rendered ${getTotalItems()} checklist items`);
+        // ADD after the log:
+        window.NotesSearch?.rebuildIndex();
     }
 
     function createChecklistCategory(category) {
@@ -214,9 +214,20 @@
     }
 
     function resetChecklist() {
-        if (!confirm('Reset all checklist items? This cannot be undone.')) {
+        const btn = document.querySelector('[onclick="resetChecklist()"]');
+        if (!btn || btn.dataset.confirmPending !== 'true') {
+            if (btn) {
+                btn.dataset.confirmPending = 'true';
+                btn.textContent = 'Click again to confirm';
+                setTimeout(() => {
+                    btn.dataset.confirmPending = 'false';
+                    btn.textContent = 'Reset Checklist';
+                }, 3000);
+            }
             return;
         }
+        btn.dataset.confirmPending = 'false';
+        btn.textContent = 'Reset Checklist';
 
         // Clear state
         checklistState = {};

@@ -7,9 +7,7 @@
 (function () {
     'use strict';
 
-    const pageId = typeof document !== 'undefined'
-        ? document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()
-        : 'default';
+    const pageId = window.NotePageId || document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase();
 
     let currentInterviewQuestion = 1;
     let totalInterviewQuestions = 0;
@@ -79,6 +77,8 @@
         });
 
         console.log(`✅ Rendered ${totalInterviewQuestions} interview questions`);
+        // ADD after the log:
+        window.NotesSearch?.rebuildIndex();
     }
 
     function createInterviewSlide(question, isActive) {
@@ -94,7 +94,7 @@
                     <h4>Question ${question.id}</h4>
                     <p>${question.question}</p>
                 </div>
-                <button onclick="toggleInterviewAnswer(${question.id})" class="show-answer-btn" id="answerBtn${question.id}">
+                <button class="show-answer-btn" id="answerBtn${question.id}">
                     Show Answer
                 </button>
                 <div class="answer-side" id="answer${question.id}" style="display: none;">
@@ -103,6 +103,8 @@
                 </div>
             </div>
         `;
+        slide.querySelector(`#answerBtn${question.id}`)
+         .addEventListener('click', function() { toggleInterviewAnswer(question.id); });
 
         return slide;
     }
@@ -272,24 +274,7 @@
                     });
                 }
             }
-            if (stateStr) {
-                const state = JSON.parse(stateStr);
-                currentInterviewQuestion = state.currentQuestion || 1;
-            }
 
-            if (viewedStr) {
-                viewedAnswers = JSON.parse(viewedStr);
-
-                Object.keys(viewedAnswers).forEach(questionId => {
-                    const answer = document.getElementById(`answer${questionId}`);
-                    const button = document.getElementById(`answerBtn${questionId}`);
-
-                    if (answer && viewedAnswers[questionId]) {
-                        answer.style.display = 'block';
-                        if (button) button.textContent = 'Hide Answer';
-                    }
-                });
-            }
         } catch (e) {
             console.warn('Could not load interview state:', e);
         }

@@ -162,9 +162,40 @@
         const lowerQuery = query.toLowerCase();
         searchResults = [];
 
+        const filterEl = document.getElementById('search-filter');
+        const activeFilter = filterEl ? filterEl.value : 'all';
+
         searchIndex.forEach(function (item) {
-            if (item.text.includes(lowerQuery)) {
+            if (!item.text.includes(lowerQuery)) return;
+
+            if (activeFilter === 'all') {
                 searchResults.push(item);
+                return;
+            }
+
+            const parent = item.parentElement;
+            if (!parent) return;
+
+            if (activeFilter === 'headings') {
+                const headingTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
+                if (headingTags.includes(parent.tagName)) {
+                    searchResults.push(item);
+                }
+                return;
+            }
+
+            if (activeFilter === 'code') {
+                if (parent.closest('pre, code')) {
+                    searchResults.push(item);
+                }
+                return;
+            }
+
+            if (activeFilter === 'exam') {
+                if (parent.closest('.exam-highlight-sentence, .exam-highlight-term')) {
+                    searchResults.push(item);
+                }
+                return;
             }
         });
 
@@ -412,8 +443,8 @@
         performSearch: performSearch,
         clearSearch: clearSearchResults,
         nextResult: nextResult,
-        previousResult: previousResult
+        previousResult: previousResult,
+        rebuildIndex: buildSearchIndex      // ← add this line
     };
-
     console.log('🔍 Search module loaded');
 })();

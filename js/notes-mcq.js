@@ -7,9 +7,7 @@
 (function () {
     'use strict';
 
-    const pageId = typeof document !== 'undefined'
-        ? document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()
-        : 'default';
+    const pageId = window.NotePageId || document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase();
 
     let currentQuizQuestion = 1;
     let quizAnswers = {};
@@ -76,6 +74,8 @@
         });
 
         console.log(`✅ Rendered ${totalQuizQuestions} quiz questions`);
+        // ADD after the log:
+        window.NotesSearch?.rebuildIndex();
     }
 
     function createQuizSlide(question, isActive) {
@@ -303,43 +303,57 @@
         const answered = Object.keys(quizAnswers).length;
 
         if (answered === 0) {
-            alert('Please answer at least one question first.');
+            if (window.showNotification) window.showNotification('Please answer at least one question first.', 'warning');
             return;
         }
 
         const correct = Object.values(quizAnswers).filter(a => a.isCorrect).length;
         const percentage = ((correct / answered) * 100).toFixed(1);
 
-        let message = `📊 QUIZ SUMMARY\n${'='.repeat(40)}\n\n`;
-        message += `Total Questions: ${totalQuizQuestions}\n`;
-        message += `Questions Answered: ${answered}\n`;
-        message += `Correct Answers: ${correct}\n`;
-        message += `Incorrect Answers: ${answered - correct}\n`;
-        message += `Current Score: ${percentage}%\n\n`;
+        let grade, color;
+        if (percentage >= 90) { grade = '🏆 OUTSTANDING! Excellent mastery!'; color = 'var(--success)'; }
+        else if (percentage >= 80) { grade = '🎉 EXCELLENT! Strong understanding!'; color = 'var(--success)'; }
+        else if (percentage >= 70) { grade = '👍 GOOD! Review missed questions.'; color = 'var(--warning)'; }
+        else if (percentage >= 60) { grade = '📚 FAIR: More review needed.'; color = 'var(--warning)'; }
+        else { grade = '📖 NEEDS IMPROVEMENT: Study more thoroughly.'; color = 'var(--error)'; }
 
-        if (percentage >= 90) {
-            message += '🏆 OUTSTANDING! Excellent mastery!';
-        } else if (percentage >= 80) {
-            message += '🎉 EXCELLENT! Strong understanding!';
-        } else if (percentage >= 70) {
-            message += '👍 GOOD! Review missed questions.';
-        } else if (percentage >= 60) {
-            message += '📚 FAIR: More review needed.';
-        } else {
-            message += '📖 NEEDS IMPROVEMENT: Study more thoroughly.';
-        }
+        // Remove any existing summary
+        const existing = document.getElementById('quizSummaryInline');
+        if (existing) existing.remove();
 
-        if (answered < totalQuizQuestions) {
-            message += `\n\n⚠️ ${totalQuizQuestions - answered} unanswered questions remaining.`;
-        }
+        const summary = document.createElement('div');
+        summary.id = 'quizSummaryInline';
+        summary.className = 'quiz-summary-section';
+        summary.innerHTML = `
+        <h3 style="color:${color}">📊 Quiz Summary</h3>
+        <p>Total Questions: <strong>${totalQuizQuestions}</strong></p>
+        <p>Questions Answered: <strong>${answered}</strong></p>
+        <p>Correct: <strong>${correct}</strong> &nbsp; Incorrect: <strong>${answered - correct}</strong></p>
+        <p style="font-size:1.2em;font-weight:700;color:${color}">Score: ${percentage}%</p>
+        <p>${grade}</p>
+        ${answered < totalQuizQuestions ? `<p style="color:var(--warning)">⚠️ ${totalQuizQuestions - answered} unanswered questions remaining.</p>` : ''}
+        <button onclick="document.getElementById('quizSummaryInline').remove()" class="quiz-summary-btn">Close</button>
+    `;
 
-        alert(message);
+        const carousel = document.querySelector('.quiz-carousel-container');
+        if (carousel) carousel.after(summary);
     }
 
     function resetEntireQuiz() {
-        if (!confirm('Reset the entire quiz? This will clear all answers and cannot be undone.')) {
+        const btn = document.querySelector('[onclick="resetEntireQuiz()"]');
+        if (!btn || btn.dataset.confirmPending !== 'true') {
+            if (btn) {
+                btn.dataset.confirmPending = 'true';
+                btn.textContent = 'Click again to confirm';
+                setTimeout(() => {
+                    btn.dataset.confirmPending = 'false';
+                    btn.textContent = 'Reset Quiz';
+                }, 3000);
+            }
             return;
         }
+        btn.dataset.confirmPending = 'false';
+        btn.textContent = 'Reset Quiz';
 
         quizAnswers = {};
         currentQuizQuestion = 1;

@@ -4,7 +4,7 @@
  * File: js/notes-glossary.js
  */
 
-(function() {
+(function () {
     'use strict';
 
     let glossaryData = null;
@@ -24,11 +24,11 @@
         }
 
         const jsonSource = container.dataset.glossarySource || 'json/glossary.json';
-        
+
         try {
             await loadGlossaryFromJSON(jsonSource);
             renderGlossary();
-            
+
             console.log(`✅ Initialized glossary with ${glossaryData.terms.length} terms from ${jsonSource}`);
         } catch (error) {
             console.error('❌ Error loading glossary:', error);
@@ -46,13 +46,13 @@
         if (!response.ok) {
             throw new Error(`Failed to load ${jsonFile}: ${response.statusText}`);
         }
-        
+
         glossaryData = await response.json();
-        
+
         if (!glossaryData.terms || glossaryData.terms.length === 0) {
             throw new Error('No terms found in glossary JSON');
         }
-        
+
         console.log(`✅ Loaded ${glossaryData.terms.length} terms from JSON`);
     }
 
@@ -65,7 +65,7 @@
 
         // Create table
         const table = document.createElement('table');
-        
+
         // Create table header
         const thead = document.createElement('thead');
         thead.innerHTML = `
@@ -79,10 +79,10 @@
 
         // Create table body
         const tbody = document.createElement('tbody');
-        
+
         terms.forEach(term => {
             const row = document.createElement('tr');
-            
+
             // Term column
             const termCell = document.createElement('td');
             const termStrong = document.createElement('strong');
@@ -107,6 +107,8 @@
         container.appendChild(table);
 
         console.log(`✅ Rendered ${terms.length} glossary terms in alphabetical order`);
+        // ADD after the log:
+        window.NotesSearch?.rebuildIndex();
     }
 
 
