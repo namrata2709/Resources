@@ -42,7 +42,7 @@ data/notes/topic-name/
 
 **Minified template (use as single line):**
 ```html
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="[First 155 chars]"><meta name="keywords" content="AWS, [service], cloud, certification"><meta property="og:title" content="[Topic] - AWS Training"><meta property="og:description" content="[Same as description]"><meta property="og:type" content="article"><meta property="og:url" content="https://namrata2709.github.io/Resources/data/notes/[topic]/[file].html"><meta property="og:image" content="https://namrata2709.github.io/Resources/data/notes/[topic]/images/[first-img].png"><link rel="canonical" href="[Same as og:url]"><title>[Topic] - [Type] - AWS Training</title><link rel="stylesheet" href="../../../css/styles.css"><link rel="stylesheet" href="../../../css/notes-template.css"><script src="../../../js/theme.js"></script></head><body class="complete-notes"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"[Topic]","description":"[First 155 chars]","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"[YYYY-MM-DD]","dateModified":"[YYYY-MM-DD]","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"[Full URL]"},"image":"[First diagram URL]","articleSection":"AWS Training","keywords":["AWS","[service]"],"educationalLevel":"Beginner to Intermediate"}</script><div class="note-container"><div class="note-header"><h1>[Title]</h1><p class="note-date">📅 [Month DD, YYYY]</p><div class="version-info"><p><strong>Version:</strong> 1.0</p><p><strong>Last Updated:</strong> [Month DD, YYYY]</p><p><strong>Status:</strong> ✅ Current</p></div></div><div class="note-content"><!-- CONTENT --></div><div class="tags"><span class="tag">AWS</span><span class="tag">[Service]</span></div></div><script defer src="../../../js/notes-template.js"></script></body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="[First 155 chars]"><meta name="keywords" content="AWS, [service], cloud, certification"><meta property="og:title" content="[Topic] - AWS Training"><meta property="og:description" content="[Same as description]"><meta property="og:type" content="article"><meta property="og:url" content="https://namrata2709.github.io/Resources/data/notes/[topic]/[file].html"><meta property="og:image" content="https://namrata2709.github.io/Resources/data/notes/[topic]/images/[first-img].png"><link rel="canonical" href="[Same as og:url]"><title>[Topic] - [Type] - AWS Training</title><link rel="stylesheet" href="../../../css/styles.css"><link rel="stylesheet" href="../../../css/notes-template.css"><script src="../../../js/theme.js"></script></head><body class="complete-notes"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"[Topic]","description":"[First 155 chars]","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"[YYYY-MM-DD]","dateModified":"[YYYY-MM-DD]","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"[Full URL]"},"image":"[First diagram URL]","articleSection":"AWS Training","keywords":["AWS","[service]"],"educationalLevel":"Beginner to Intermediate"}</script><div class="note-container"><div class="note-header"><h1>[Title]</h1><p class="note-date">📅 [Month DD, YYYY]</p><div class="version-info"><p><strong>Version:</strong> 1.0</p><p><strong>Last Updated:</strong> [Month DD, YYYY]</p><p><strong>Status:</strong> ✅ Current</p></div></div><div class="note-content"><!-- CONTENT --></div><div class="tags"><span class="tag">AWS</span><span class="tag">[Service]</span></div></div><script defer src="../../../js/notes-page.js"></script></body></html>
 ```
 
 **JavaScript Auto-Injects:**
@@ -61,7 +61,7 @@ data/notes/topic-name/
 - ❌ NO hand-written Table of Contents — JS generates it automatically from heading IDs
 - ✅ MUST set `class="complete-notes"` on `<body>`
 - ✅ Theme.js in `<head>` (immediate load, prevents flash)
-- ✅ Notes-template.js at `</body>` with `defer` (non-blocking)
+- ✅ notes-page.js at `</body>` with `defer` (non-blocking)
 - ✅ Use ONLY CSS classes from notes-template.css
 - ✅ All HTML MUST be minified (single-line output)
 
@@ -282,7 +282,7 @@ Highlight only what can directly appear in an exam, and always embed key terms i
 
 ## Heading ID Rules (MANDATORY — Bookmark System Depends On This)
 
-The bookmark system in `notes-template.js` injects ⭐ buttons by querying:
+The bookmark system in `notes-page.js` injects ⭐ buttons by querying:
 ```js
 document.querySelectorAll('.note-content h2[id], .note-content h3[id]')
 ```
@@ -399,11 +399,11 @@ Convert the heading text to lowercase, replace spaces and special characters wit
 **Split when:** Content reaches 90% artifact limit (~180k chars)
 
 **Part 1:** `<!DOCTYPE html>...<body class="complete-notes"><div class="note-container"><div class="note-header">...</div><div class="note-content"><!-- Intro + Sections --><!-- CONTINUES IN PART 2 -->`
-Note: Theme.js in HEAD, NO notes-template.js yet
+Note: Theme.js in HEAD, NO notes-page.js yet
 
 **Part 2+:** `<!-- NO HTML tags, just content --><!-- Continue sections --><!-- CONTINUES IN PART 3 -->`
 
-**Final:** `<!-- Final sections + mandatory end sections --></div><div class="tags">...</div></div><script defer src="../../../js/notes-template.js"></script></body></html>`
+**Final:** `<!-- Final sections + mandatory end sections --></div><div class="tags">...</div></div><script defer src="../../../js/notes-page.js"></script></body></html>`
 
 **Rules:** Split at topic boundaries | No "Part X" messages | Merged = valid HTML
 
@@ -1122,7 +1122,7 @@ CRITICAL RULES:
 - [ ] HTML minified (single-line)
 - [ ] Body class: `complete-notes`
 - [ ] NO inline styles/JS, breadcrumb, toggles, footer, static meta tags
-- [ ] Theme.js in `<head>`, notes-template.js at `</body>` end with `defer`
+- [ ] Theme.js in `<head>`, notes-page.js at `</body>` end with `defer`
 - [ ] First 2-3 images: only `decoding="async"`
 - [ ] Remaining images: `loading="lazy" decoding="async"`
 - [ ] Descriptive alt text (10+ words)
