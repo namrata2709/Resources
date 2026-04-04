@@ -4220,7 +4220,78 @@ a+a {
    TOC — COLLAPSIBLE SUBLIST TOGGLE
    ============================================ */
 
-/* Hide sublist by default; only visible when toggled open */
+/* Every h2 row: flex so bullet + link fill width, arrow on far right */
+.toc-item.toc-h2 {
+    display: flex;
+    flex-direction: column;
+    list-style: none
+}
+
+/* The row itself (bullet + link + arrow) */
+.toc-item.toc-h2 > .toc-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%
+}
+
+/* Bullet icon on the left — consistent for every h2 */
+.toc-bullet {
+    flex-shrink: 0;
+    color: var(--text-muted, var(--text-secondary));
+    font-size: .65rem;
+    line-height: 1;
+    opacity: .55
+}
+
+/* The link takes all remaining space */
+.toc-item.toc-h2 > .toc-row > .toc-link {
+    flex: 1;
+    display: block
+}
+
+/* Arrow toggle button — pinned to the right */
+.toc-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: .65rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: transform .2s ease, color .15s ease, background .15s ease;
+    transform: rotate(0deg);
+    margin-left: auto
+}
+
+.toc-toggle:hover {
+    color: var(--accent);
+    background: var(--bg-secondary)
+}
+
+/* Arrow points right → rotates down when open */
+.toc-toggle.toc-toggle--open {
+    transform: rotate(90deg)
+}
+
+/* Suppress scale from the global button:active rule */
+.toc-toggle:active {
+    transform: rotate(0deg) scale(1) !important
+}
+
+.toc-toggle.toc-toggle--open:active {
+    transform: rotate(90deg) scale(1) !important
+}
+
+/* Sublist: hidden by default */
 .toc-sublist {
     display: none;
     margin: 0;
@@ -4232,74 +4303,18 @@ a+a {
     display: block
 }
 
-/* Toggle arrow button — sits before the h2 link */
-.toc-toggle {
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0 6px 0 0;
-    cursor: pointer;
-    color: var(--text-secondary);
-    font-size: .7rem;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    border-radius: 3px;
-    flex-shrink: 0;
-    transition: transform .2s ease, color .15s ease;
-    vertical-align: middle;
-    transform: rotate(0deg)
-}
-
-.toc-toggle:hover {
-    color: var(--accent);
-    background: var(--bg-secondary)
-}
-
-/* Arrow rotates 90° when open */
-.toc-toggle.toc-toggle--open {
-    transform: rotate(90deg)
-}
-
-/* h2 TOC items need flex so arrow + link sit on one line */
-.toc-item.toc-h2 {
-    display: flex;
-    flex-direction: column
-}
-
-.toc-item.toc-h2 > .toc-toggle,
-.toc-item.toc-h2 > .toc-link {
-    display: inline-flex;
-    align-items: center
-}
-
-/* Row wrapper for arrow + link */
-.toc-item.toc-h2 {
-    display: block
-}
-
-/* Ensure the arrow and link appear on the same line */
-.toc-item.toc-h2 > .toc-toggle {
-    display: inline-flex
-}
-
-.toc-item.toc-h2 > .toc-link {
-    display: inline
-}
-
-/* Indent the h3 sublist items */
+/* h3 sub-items: indented, smaller */
 .toc-sublist .toc-item {
-    padding-left: 1.25rem
+    list-style: none
 }
 
-/* Suppress the active transition on the toggle button itself */
-.toc-toggle:active {
-    transform: rotate(90deg) scale(1) !important
+.toc-sublist .toc-item > .toc-link {
+    display: block;
+    padding: .2rem .5rem .2rem 2rem;
+    font-size: .85em;
+    color: var(--text-secondary)
 }
 
-.toc-toggle:not(.toc-toggle--open):active {
-    transform: rotate(45deg) scale(1) !important
+.toc-sublist .toc-item > .toc-link:hover {
+    color: var(--accent)
 }

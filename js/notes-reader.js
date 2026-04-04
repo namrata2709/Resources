@@ -174,28 +174,45 @@
             a.textContent = text;
             a.className = 'toc-link';
 
-            li.appendChild(a);
-
             if (level === 'h2') {
-                // Create sublist — shown only if h3s are added later
+                // Row wrapper: [bullet] [link] [arrow if has h3s]
+                const row = document.createElement('div');
+                row.className = 'toc-row';
+
+                const bullet = document.createElement('span');
+                bullet.className = 'toc-bullet';
+                bullet.innerHTML = '&#9679;'; // ●
+
+                row.appendChild(bullet);
+                row.appendChild(a);
+
+                li.appendChild(row);
+
+                // Sublist — toggle + children added when first h3 appears
                 currentSubUl = document.createElement('ul');
                 currentSubUl.className = 'toc-sublist';
                 li.appendChild(currentSubUl);
+
                 currentH2Li = li;
                 ul.appendChild(li);
+
             } else if (level === 'h3') {
+                li.appendChild(a);
+
                 if (!currentSubUl) {
                     ul.appendChild(li);
                 } else {
-                    // First h3 under this h2: inject toggle arrow into the h2 row
+                    // First h3 under this h2: inject the arrow toggle into its row
                     if (currentSubUl.children.length === 0 && currentH2Li) {
+                        const row = currentH2Li.querySelector('.toc-row');
+                        const subUlRef = currentSubUl;
+
                         const toggle = document.createElement('button');
                         toggle.className = 'toc-toggle';
                         toggle.setAttribute('aria-label', 'Expand subsections');
                         toggle.setAttribute('aria-expanded', 'false');
                         toggle.innerHTML = '&#9654;'; // ▶
 
-                        const subUlRef = currentSubUl;
                         toggle.addEventListener('click', function (e) {
                             e.preventDefault();
                             const expanded = subUlRef.classList.toggle('toc-sublist--open');
@@ -203,8 +220,7 @@
                             toggle.classList.toggle('toc-toggle--open', expanded);
                         });
 
-                        // Insert arrow before the link
-                        currentH2Li.insertBefore(toggle, currentH2Li.firstChild);
+                        if (row) row.appendChild(toggle);
                     }
 
                     currentSubUl.appendChild(li);
