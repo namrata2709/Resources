@@ -156,8 +156,8 @@
         if (headings.length === 0) return;
 
 
-        const ol = document.createElement('ul');
-        ol.className = 'toc-list';
+        const ul = document.createElement('ul');
+        ul.className = 'toc-list';
 
         let currentH2Li = null;
         let currentSubUl = null;
