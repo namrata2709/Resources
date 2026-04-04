@@ -200,16 +200,18 @@
         container.innerHTML = '<h2 class="toc-title">📋 Table of Contents</h2>';
         container.appendChild(ul);
 
-        const firstH2 = noteContent.querySelector('h2[id]');
-        if (firstH2) {
-            // Walk up to find the direct child of noteContent
-            let directChild = firstH2;
-            while (directChild.parentElement !== noteContent) {
-                directChild = directChild.parentElement;
-            }
-            noteContent.insertBefore(container, directChild);
-        } else {
-            noteContent.prepend(container);
+        // Insert TOC as the very first child of .note-content
+        noteContent.insertBefore(container, noteContent.firstChild);
+
+        // After TOC is inserted, find the Introduction <details> and ensure it's open
+        const introDetails = noteContent.querySelector('details.collapsible-section');
+        if (introDetails) {
+            // Close all other details first
+            noteContent.querySelectorAll('details.collapsible-section').forEach(function (d) {
+                d.removeAttribute('open');
+            });
+            // Open only the intro
+            introDetails.setAttribute('open', '');
         }
 
         console.log(`✅ Table of contents injected (${headings.length} entries)`);

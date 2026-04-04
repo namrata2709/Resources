@@ -48,7 +48,7 @@ data/notes/topic-name/
 **JavaScript Auto-Injects:**
 - Static meta tags (author, robots, og:site_name, twitter:card, theme-color)
 - Breadcrumb navigation + structured data
-- **Table of Contents** (auto-built from all `h2[id]` and `h3[id]` inside `.note-content`, inserted before the first `h2`)
+- **Table of Contents** (auto-built from all h2[id] and h3[id] inside .note-content, inserted as the very first element inside .note-content, before Introduction)
 - Theme toggle button (right side)
 - Exam mode toggle (left, complete-notes only)
 - Footer (license, copyright, disclaimer)
@@ -64,7 +64,9 @@ data/notes/topic-name/
 - ✅ notes-page.js at `</body>` with `defer` (non-blocking)
 - ✅ Use ONLY CSS classes from notes-template.css
 - ✅ All HTML MUST be minified (single-line output)
-
+- ✅ Introduction MUST always be present as the first <details class="collapsible-section"> inside .note-content
+- ✅ Introduction <details> MUST NOT have the `open` attribute in HTML — JS opens it automatically after placing TOC first
+- ❌ Do NOT add `open` to any other <details> — only Introduction is opened by JS
 ---
 
 ## Image Optimization
@@ -1135,6 +1137,8 @@ CRITICAL RULES:
 - [ ] `[topic]-screenshot-guide.md` produced — one entry per screenshot placeholder in the HTML (standard: Connection/Setup + Hands-On Projects; lab: all tasks wherever screenshots were added)
 - [ ] `[topic]-image-prompts.md` produced last — covers all diagrams, no screenshots included
 - [ ] Hands-On Project steps use `<ol>` with screenshot placeholder after each console action
+- [ ] Introduction collapsible is present as the FIRST <details> inside .note-content
+- [ ] No <details> has the `open` attribute in HTML (JS controls this)
 
 **Additionally for lab notes:**
 - [ ] Lab Overview and What You Will Accomplish are not collapsible
