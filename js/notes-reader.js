@@ -181,7 +181,7 @@
 
                 const bullet = document.createElement('span');
                 bullet.className = 'toc-bullet';
-                bullet.innerHTML = '&#9679;'; // ●
+                bullet.innerHTML = '&ndash;'; // –
 
                 row.appendChild(bullet);
                 row.appendChild(a);
