@@ -155,7 +155,6 @@
         const headings = noteContent.querySelectorAll('h2[id], h3[id]');
         if (headings.length === 0) return;
 
-
         const ul = document.createElement('ul');
         ul.className = 'toc-list';
 
@@ -178,6 +177,7 @@
             li.appendChild(a);
 
             if (level === 'h2') {
+                // Create sublist — shown only if h3s are added later
                 currentSubUl = document.createElement('ul');
                 currentSubUl.className = 'toc-sublist';
                 li.appendChild(currentSubUl);
@@ -185,9 +185,28 @@
                 ul.appendChild(li);
             } else if (level === 'h3') {
                 if (!currentSubUl) {
-                    // No parent h2 yet — fallback: append to root
                     ul.appendChild(li);
                 } else {
+                    // First h3 under this h2: inject toggle arrow into the h2 row
+                    if (currentSubUl.children.length === 0 && currentH2Li) {
+                        const toggle = document.createElement('button');
+                        toggle.className = 'toc-toggle';
+                        toggle.setAttribute('aria-label', 'Expand subsections');
+                        toggle.setAttribute('aria-expanded', 'false');
+                        toggle.innerHTML = '&#9654;'; // ▶
+
+                        const subUlRef = currentSubUl;
+                        toggle.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const expanded = subUlRef.classList.toggle('toc-sublist--open');
+                            toggle.setAttribute('aria-expanded', expanded.toString());
+                            toggle.classList.toggle('toc-toggle--open', expanded);
+                        });
+
+                        // Insert arrow before the link
+                        currentH2Li.insertBefore(toggle, currentH2Li.firstChild);
+                    }
+
                     currentSubUl.appendChild(li);
                 }
             }
@@ -206,11 +225,9 @@
         // After TOC is inserted, find the Introduction <details> and ensure it's open
         const introDetails = noteContent.querySelector('details.collapsible-section');
         if (introDetails) {
-            // Close all other details first
             noteContent.querySelectorAll('details.collapsible-section').forEach(function (d) {
                 d.removeAttribute('open');
             });
-            // Open only the intro
             introDetails.setAttribute('open', '');
         }
 
