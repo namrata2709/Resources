@@ -156,8 +156,11 @@
         if (headings.length === 0) return;
 
 
-        const ol = document.createElement('ol');
+        const ol = document.createElement('ul');
         ol.className = 'toc-list';
+
+        let currentH2Li = null;
+        let currentSubUl = null;
 
         headings.forEach(function (heading) {
             const id = heading.getAttribute('id');
@@ -173,7 +176,21 @@
             a.className = 'toc-link';
 
             li.appendChild(a);
-            ol.appendChild(li);
+
+            if (level === 'h2') {
+                currentSubUl = document.createElement('ul');
+                currentSubUl.className = 'toc-sublist';
+                li.appendChild(currentSubUl);
+                currentH2Li = li;
+                ul.appendChild(li);
+            } else if (level === 'h3') {
+                if (!currentSubUl) {
+                    // No parent h2 yet — fallback: append to root
+                    ul.appendChild(li);
+                } else {
+                    currentSubUl.appendChild(li);
+                }
+            }
         });
 
         const container = document.createElement('nav');
@@ -181,7 +198,7 @@
         container.id = 'table-of-contents';
         container.setAttribute('aria-label', 'Table of contents');
         container.innerHTML = '<h2 class="toc-title">📋 Table of Contents</h2>';
-        container.appendChild(ol);
+        container.appendChild(ul);
 
         const firstH2 = noteContent.querySelector('h2[id]');
         if (firstH2) {
@@ -698,7 +715,7 @@
 
         console.log('✅ Search history initialized');
     }
-    
+
     function showNotification(message) {
         const notification = document.createElement('div');
         notification.className = 'toast-notification';
