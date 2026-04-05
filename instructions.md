@@ -349,7 +349,7 @@ Convert the heading text to lowercase, replace spaces and special characters wit
 
 **4. MCQs (JSON):** `<details class="collapsible-section"><summary><h2 id="multiple-choice-questions">📝 Multiple Choice Questions</h2></summary><div class="section-content"><div class="quiz-header-info"><p>📝 Test your knowledge with immediate feedback.</p></div><div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn" id="prevBtn">← Previous</button><div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button></div><div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div><div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊 View Summary</button><div class="quiz-reset-container"><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄 Reset All</button></div></div></div></details>`
 
-**5. Hands-On Projects:** `<details class="collapsible-section"><summary><h2 id="hands-on-projects">💼 Hands-On Projects</h2></summary><div class="section-content"><div class="prerequisites-box"><h4>📋 Prerequisites</h4><ul><li>✅ AWS account</li><li>✅ Knowledge: [topics]</li></ul></div><h3 id="project-1-name">Project 1: [Name]</h3><div class="info-box"><p><strong>🎯 Objective:</strong> [What you'll build]</p><p><strong>⏱️ Time:</strong> 30-45 min</p><p><strong>💰 Cost:</strong> Free tier</p></div><ol><li><p>[Step instruction]</p><div class="diagram-container"><img src="images/screenshot-[step-name].png" loading="lazy" decoding="async" alt="Screenshot showing [exactly what is visible]: [key fields, buttons, or state]"><p class="diagram-caption"><em>📸 Screenshot: [What to look for]</em></p></div></li></ol><!-- Verification + Cleanup --></div></details>`
+**5. Hands-On Projects:** `<details class="collapsible-section"><summary><h2 id="hands-on-projects">💼 Hands-On Projects</h2></summary><div class="section-content"><div class="prerequisites-box"><h4>📋 Prerequisites</h4><ul><li>✅ AWS account</li><li>✅ Knowledge: [topics]</li></ul></div><details class="collapsible-section"><summary><h3 id="project-1-name">Project 1: [Name]</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> [What you'll build]</p><p><strong>⏱️ Time:</strong> 30-45 min</p><p><strong>💰 Cost:</strong> Free tier</p></div><ol><li><p>[Step instruction]</p><div class="diagram-container"><img src="images/screenshot-[step-name].png" loading="lazy" decoding="async" alt="Screenshot showing [exactly what is visible]: [key fields, buttons, or state]"><p class="diagram-caption"><em>📸 Screenshot: [What to look for]</em></p></div></li></ol><!-- Verification + Cleanup --></div></details><!-- Repeat nested <details class="collapsible-section"> for each additional project --></div></details>`
 
 **Screenshot rules for Hands-On Projects:**
 - Every step that involves a console action MUST have a corresponding screenshot placeholder
@@ -587,7 +587,7 @@ For every AWS service topic, always include even if not mentioned:
 |---|---|---|
 | **Primary purpose** | Teach theory with light practice | Hands-on skill building through tasks |
 | **Content ratio** | ~80% theory, ~20% hands-on | ~20% theory, ~80% tasks |
-| **Hands-On Projects** | End section — light console projects | Called "Real-World Projects" — same depth, built into the lab body |
+| **Hands-On Projects** | End section — each project is a nested `<details>` with h3 inside `<summary>` | Same nested `<details>` structure — built into the lab body if requested |
 | **Structure** | Concept-based sections | Theory intro → Tasks → Optional extended tasks → Real-world projects |
 | **Code blocks** | Minimal | Extensive — every command shown in full |
 | **Screenshots** | Connection/Setup steps and Hands-On Project steps | Any step — console or CLI — where a screenshot helps student understanding |
@@ -620,7 +620,7 @@ Personal Account Setup (collapsible — optional, only if explicitly requested)
   Each extended task is its own collapsible <details class="collapsible-section"> with h2 heading inside <summary>
 
 [Hands-On Projects] (optional — only if user explicitly requests)
-  Same name as standard notes — "Real-World Projects" is retired
+  Same name as standard notes
   Each project is its own h3 heading inside the Hands-On Projects collapsible section
   Same depth and structure as Hands-On Projects in standard notes
 
@@ -1148,7 +1148,7 @@ CRITICAL RULES:
 - [ ] Every `h2` and `h3` inside `.note-content` has a unique `id` attribute (required for bookmark system)
 - [ ] `[topic]-screenshot-guide.md` produced — one entry per screenshot placeholder in the HTML (standard: Connection/Setup + Hands-On Projects; lab: all tasks wherever screenshots were added)
 - [ ] `[topic]-image-prompts.md` produced last — covers all diagrams, no screenshots included
-- [ ] Hands-On Project steps use `<ol>` with screenshot placeholder after each console action
+- [ ] Each Hands-On Project is a nested `<details class="collapsible-section">` with `<h3 id="...">` inside `<summary>`; steps use `<ol>` with screenshot placeholder after each console action
 - [ ] Introduction collapsible is present as the FIRST <details> inside .note-content
 - [ ] No <details> has the `open` attribute in HTML (JS controls this)
 
