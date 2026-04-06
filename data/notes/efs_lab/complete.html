@@ -2622,7 +2622,7 @@ ln -s /efs/index.html /var/www/html/index.html</code></pre>
           </summary>
           <div class="section-content">
             <section>
-              <h2 id="break-fix">🔧 Guided Failure Exercise — Break and Fix EFS</h2>
+              <h3 id="break-fix">🔧 Guided Failure Exercise — Break and Fix EFS</h3>
               <p><span class="exam-highlight-sentence">The most common EFS connectivity break is a missing or wrong
                   security group rule — always check the mount target SG inbound rules first when NFS <span
                     class="exam-highlight-term">times out</span>.</span></p>
@@ -2636,7 +2636,7 @@ ln -s /efs/index.html /var/www/html/index.html</code></pre>
               <div class="highlight-box">⚡ Understanding how things break is more valuable than knowing how they work
                 when
                 everything is fine. Each failure below is something you will encounter in real cloud environments.</div>
-              <h3 id="failure-1-wrong-security-group">💥 Failure 1 — Wrong Security Group (the silent hang)</h3>
+              <h4>💥 Failure 1 — Wrong Security Group (the silent hang)</h4>
               <p>In EFS console → Network tab → Edit → remove EFS Mount Target SG from one AZ, add the default SG →
                 Save.
                 Then:</p>
@@ -2650,14 +2650,14 @@ sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,ret
               <div class="error-box">❌ A hanging mount = security group problem first, always. Never blame the NFS
                 config
                 before checking the SG.</div>
-              <h3 id="failure-2-missing-mount-directory">💥 Failure 2 — Missing Mount Directory</h3>
+              <h4>💥 Failure 2 — Missing Mount Directory</h4>
               <pre><code>sudo rmdir efs/
 sudo mount -t nfs4 -o nfsvers=4.1 fs-XXXXXXXX.efs.us-west-2.amazonaws.com:/ efs</code></pre>
               <p><strong>What you observe:</strong> <code>mount: mount point efs does not exist</code> — immediate,
                 clear
                 error.</p>
               <p><strong>Fix:</strong> <code>sudo mkdir efs && sudo mount ...</code></p>
-              <h3 id="failure-3-fstab-without-netdev">💥 Failure 3 — fstab Without _netdev</h3>
+              <h4>💥 Failure 3 — fstab Without _netdev</h4>
               <pre><code>sudo nano /etc/fstab
 # Edit: remove _netdev from your EFS entry → save</code></pre>
               <p><strong>What you observe:</strong> <code>sudo mount -a</code> works (network is already up). The real
@@ -2667,12 +2667,12 @@ sudo mount -t nfs4 -o nfsvers=4.1 fs-XXXXXXXX.efs.us-west-2.amazonaws.com:/ efs<
                 fails
                 health checks and gets terminated.</p>
               <p><strong>Fix:</strong> Always include <code>_netdev</code>. Put it back.</p>
-              <h3 id="failure-4-permission-denied-writing">💥 Failure 4 — Permission Denied Writing</h3>
+              <h4>💥 Failure 4 — Permission Denied Writing</h4>
               <pre><code>sudo chown root:root efs/
 touch efs/newfile.txt</code></pre>
               <p><strong>What you observe:</strong> <code>Permission denied</code></p>
               <p><strong>Fix:</strong> <code>sudo chown ec2-user:ec2-user efs/</code></p>
-              <h3 id="failure-5-wrong-file-system-id">💥 Failure 5 — Wrong File System ID</h3>
+              <h4>💥 Failure 5 — Wrong File System ID</h4>
               <pre><code>sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-00000000.efs.us-west-2.amazonaws.com:/ efs</code></pre>
               <p><strong>What you observe:</strong> DNS lookup failure or long hang. No file system with that ID exists.
               </p>
@@ -2691,7 +2691,7 @@ touch efs/newfile.txt</code></pre>
             </section>
 
             <section>
-              <h2 id="troubleshooting">🔍 Troubleshooting Reference</h2>
+              <h3 id="troubleshooting">🔍 Troubleshooting Reference</h3>
               <p><span class="exam-highlight-sentence">EFS mount failures follow a predictable pattern: wrong DNS →
                   connection refused; wrong SG → connection timeout; wrong mount options → <span
                     class="exam-highlight-term">mount error 13</span> (permission denied).</span></p>
@@ -2820,7 +2820,7 @@ touch efs/newfile.txt</code></pre>
             </section>
 
             <section>
-              <h2 id="noisy-neighbor">🔊 The Noisy Neighbor Problem</h2>
+              <h3 id="noisy-neighbor">🔊 The Noisy Neighbor Problem</h3>
               <p><span class="exam-highlight-sentence">EFS Bursting throughput is shared across the file system — a
                   noisy neighbor is another process or instance exhausting the <span class="exam-highlight-term">burst
                     credits</span>, causing throttling for all other clients.</span></p>
