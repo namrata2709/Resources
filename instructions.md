@@ -613,11 +613,12 @@ Prerequisites (collapsible — optional, only if explicitly requested)
 Personal Account Setup (collapsible — optional, only if explicitly requested)
 
 [Lab Tasks — user defines what these are]
-  Each task is its own collapsible <details class="collapsible-section"> with h2 heading inside <summary>
+  Each task is its own collapsible <details class="collapsible-section"> with h3 heading inside <summary>
   Tasks can be console, CLI, scripting, or a mix — depends on the lab topic
 
 [Extended Lab] (optional — only if user explicitly requests with specific focus e.g. "add AWS CLI tasks", "add debugging tasks", "add Linux tasks")
-  Each extended task is its own collapsible <details class="collapsible-section"> with h2 heading inside <summary>
+  Each extended task is its own collapsible <details class="collapsible-section"> with h3 heading inside <summary>
+  Hands-On Projects: Each project is h3 — never h2
 
 [Hands-On Projects] (optional — only if user explicitly requests)
   Same name as standard notes
@@ -697,7 +698,7 @@ Labs include theory but keep it focused:
 - ❌ No separate "Real-World Projects" name — use "Hands-On Projects" everywhere, same as standard notes
 - ❌ No long standalone theory walls inside tasks — theory belongs in Background
 - ❌ No non-collapsible Lab Overview or What You Will Accomplish — both are collapsible and placed after Background
-
+❌ No h3 or id attributes on headings inside tasks, extended tasks, or personal setup sections
 ---
 
 ## Screenshot Guide Format (All Notes — Always Required)
@@ -1163,7 +1164,8 @@ CRITICAL RULES:
 - [ ] Introduction collapsible present as FIRST section (same as standard notes)
 - [ ] Background / Theory uses nested collapsibles — one per sub-topic (what, why, when, how)
 - [ ] Lab Overview and What You Will Accomplish are collapsible and placed AFTER Background
-- [ ] Each task is a collapsible <details> with h2 inside <summary>
+- [ ] Each task is a collapsible <details> with h3 inside <summary>
+- Sub-headings inside tasks use h4 with no id attributes
 - [ ] No Hands-On Projects end section — projects live in the lab body if requested
 - [ ] Hands-On Projects used (not "Real-World Projects") — each project is h3, not h2
 - [ ] Extended Lab only if explicitly requested with a specific focus

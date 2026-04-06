@@ -280,7 +280,7 @@
               original lab PDF but must be done first.</p>
 
             <section>
-              <h2 id="personal-account-setup">🖥️ No Lab Access? Personal Account Setup Guide</h2>
+              <h3 id="personal-account-setup">🖥️ No Lab Access? Personal Account Setup Guide</h3>
               <div class="info-box">💡 <strong>Skip this section if you have AWS Academy / Vocareum lab access.</strong>
                 This guide is only for students doing the lab on their own AWS account.</div>
 
@@ -288,11 +288,7 @@
                 working on a personal account, you need to build this infrastructure yourself. This takes about 10–15
                 extra minutes but teaches you how production environments are actually set up.</p>
 
-              <details class="collapsible-section">
-                <summary>
-                  <div class="setup-step-header">▶ Step 1 —
-                    Create a VPC</div>
-                </summary>
+              <h4>Step 1 — Create a VPC</h4>
                 <div class="section-content">
                   <ol>
                     <li>Go to <strong>VPC → Your VPCs → Create VPC</strong>.</li>
@@ -308,15 +304,9 @@
                   </ol>
                   <div class="success-box">✅ You now have an isolated private network. No internet access yet — we'll
                     add that next.</div>
-                </div>
-              </details>
+                
 
-              <details class="collapsible-section">
-                <summary>
-                  <div class="setup-step-header">▶ Step 2 —
-                    Create a Public Subnet</div>
-                </summary>
-                <div class="section-content">
+              <h4>Step 2 — Create a Public Subnet</h4>
                   <ol>
                     <li>Go to <strong>VPC → Subnets → Create subnet</strong>.</li>
                     <li>Select your <code>EFS-Lab-VPC</code>.</li>
@@ -334,15 +324,9 @@
                   </ol>
                   <div class="info-box">💡 Auto-assign public IP lets EC2 instances in this subnet get a public IP
                     automatically — needed so you can SSH in or use EC2 Instance Connect.</div>
-                </div>
-              </details>
-
-              <details class="collapsible-section">
-                <summary>
-                  <div class="setup-step-header">▶ Step 3 —
-                    Create and Attach an Internet Gateway</div>
-                </summary>
-                <div class="section-content">
+                
+                <h4>Step 3 —
+                    Create and Attach an Internet Gateway</h4>
                   <ol>
                     <li>Go to <strong>VPC → Internet Gateways → Create internet gateway</strong>.</li>
                     <li>Name: <code>EFS-Lab-IGW</code> → Click <strong>Create</strong>.</li>
@@ -351,15 +335,8 @@
                   </ol>
                   <div class="info-box">💡 Without an IGW your VPC has no path to the internet. EC2 Instance Connect and
                     SSH both need this to work.</div>
-                </div>
-              </details>
-
-              <details class="collapsible-section">
-                <summary>
-                  <div class="setup-step-header">▶ Step 4 —
-                    Configure the Route Table</div>
-                </summary>
-                <div class="section-content">
+                <h4>Step 4 —
+                    Configure the Route Table</h4>
                   <ol>
                     <li>Go to <strong>VPC → Route Tables</strong>. Find the route table automatically created for
                       <code>EFS-Lab-VPC</code>.
@@ -378,14 +355,8 @@
                   </ol>
                   <div class="success-box">✅ Traffic from your subnet can now reach the internet — and internet traffic
                     can reach EC2 instances in the subnet.</div>
-                </div>
-              </details>
-
-              <details class="collapsible-section">
-                <summary>
-                  <div class="setup-step-header">▶ Step 5 —
-                    Create the EFSClient Security Group</div>
-                </summary>
+                <h4>Step 5 —
+                    Create the EFSClient Security Group</h4>
                 <div class="section-content">
                   <p>The lab assumes an <strong>EFSClient</strong> SG already exists. You'll create it now.</p>
                   <ol>
@@ -408,15 +379,8 @@
                   </ol>
                   <div class="info-box">💡 In the lab environment, EFSClient already exists and is pre-attached to the
                     EC2 instance. On a personal account you create it yourself — the concept is identical.</div>
-                </div>
-              </details>
-
-              <details class="collapsible-section">
-                <summary>
-                  <div class="setup-step-header">▶ Step 6 —
-                    Launch the EC2 Instance</div>
-                </summary>
-                <div class="section-content">
+                  <h4>Step 6 —
+                    Launch the EC2 Instance</h4>
                   <ol>
                     <li>Go to <strong>EC2 → Instances → Launch instances</strong>.</li>
                     <li>Fill settings:
@@ -445,14 +409,8 @@
                   <div class="highlight-box">💰 <strong>Cost reminder:</strong> t2.micro / t3.micro is free tier
                     eligible (750 hours/month). This lab runs in well under 2 hours. Delete the instance when done to
                     avoid any charges.</div>
-                </div>
-              </details>
-
-              <details class="collapsible-section">
-                <summary>
-                  <div class="setup-step-header">▶ Step 7 —
-                    Connect to Your EC2 Instance</div>
-                </summary>
+                  <h4>Step 7 —
+                    Connect to Your EC2 Instance</h4>
                 <div class="section-content">
                   <p><strong>Option A — EC2 Instance Connect (easiest, no key needed):</strong></p>
                   <ol>
@@ -469,14 +427,9 @@ ssh -i efs-lab-key.pem ec2-user@&lt;your-public-ip&gt;</code></pre>
                   </ol>
                   <div class="success-box">✅ Once connected you see the prompt <code>[ec2-user@ip-10-0-1-x ~]$</code> —
                     you're ready for Task 0.</div>
-                </div>
-              </details>
-
-              <details class="collapsible-section">
-                <summary>
-                  <div class="setup-step-header">▶ Personal
-                    Account vs Lab Account — Key Differences</div>
-                </summary>
+                
+                  <h4>Personal Account vs Lab Account — Key Differences</h4>
+                
                 <div class="section-content">
                   <table>
                     <thead>
@@ -526,8 +479,7 @@ ssh -i efs-lab-key.pem ec2-user@&lt;your-public-ip&gt;</code></pre>
                   </table>
                   <div class="info-box">💡 <strong>Everything from Task 0 onwards is identical</strong> whether you use
                     a lab account or personal account. The difference is only in this setup section.</div>
-                </div>
-              </details>
+                
 
             </section>
 
