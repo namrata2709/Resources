@@ -13,7 +13,7 @@ def get_folder_creation_date(base):
             path = os.path.join(root, f)
 
             try:
-                t = os.path.getmtime(path)  # last modified time
+                t = os.path.getmtime(path)
 
                 if oldest_time is None or t < oldest_time:
                     oldest_time = t
@@ -24,15 +24,16 @@ def get_folder_creation_date(base):
     if oldest_time:
         return datetime.fromtimestamp(oldest_time).strftime("%Y-%m-%d")
 
-    # fallback if folder empty
     return "1970-01-01"
+
 
 def parse_date(date_str):
     try:
         return datetime.strptime(date_str, "%Y-%m-%d")
     except:
         return datetime.min
-    
+
+
 def extract_date_from_html(base_path):
     """Extract date from complete.html or overview.html"""
     
@@ -44,7 +45,6 @@ def extract_date_from_html(base_path):
                 with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
                 
-                # Find date inside <p class="note-date">
                 match = re.search(
                     r'<p class="note-date">.*?📅\s*(.*?)</p>',
                     content
@@ -52,7 +52,6 @@ def extract_date_from_html(base_path):
                 
                 if match:
                     raw_date = match.group(1).strip()
-                    # Convert "December 24, 2025" → "2025-12-24"
                     parsed = datetime.strptime(raw_date, "%B %d, %Y")
                     return parsed.strftime("%Y-%m-%d")
             
@@ -61,17 +60,66 @@ def extract_date_from_html(base_path):
     
     return None
 
+
+def extract_title_from_html(base_path):
+    """Extract title from complete.html or overview.html"""
+
+    for filename in ["complete.html", "overview.html"]:
+        file_path = os.path.join(base_path, filename)
+
+        if os.path.isfile(file_path):
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+
+                match = re.search(
+                    r'<div class="note-header">.*?<h1>(.*?)</h1>',
+                    content,
+                    re.DOTALL
+                )
+
+                if match:
+                    return match.group(1).strip()
+
+            except Exception as e:
+                print(f"⚠️ Error reading title from {filename}: {e}")
+
+    return None
+    """Extract title from complete.html or overview.html"""
+
+    for filename in ["complete.html", "overview.html"]:
+        file_path = os.path.join(base_path, filename)
+
+        if os.path.isfile(file_path):
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+
+                match = re.search(
+                    r'<h[12] class="note-header">(.*?)</h[12]>',
+                    content
+                )
+
+                if match:
+                    return match.group(1).strip()
+
+            except Exception as e:
+                print(f"⚠️ Error reading title from {filename}: {e}")
+
+    return None
+
+
 ROOT = "../data/notes"
 OUTPUT = "../data/notes-list.json"
 
 IMAGE_EXT = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg")
 
+
 def clean_title(name):
-    """Convert folder name to display title"""
     return name.replace("-", " ").replace("_", " ").title()
 
+
 def detect_category(folder_name):
-    """Detect AWS category from folder name"""
     categories = {
         "compute": ["ec2", "lambda", "elastic-beanstalk", "ecs", "eks", "fargate"],
         "storage": ["s3", "ebs", "efs", "glacier", "storage-gateway"],
@@ -90,8 +138,8 @@ def detect_category(folder_name):
     
     return "General"
 
+
 def detect_difficulty(folder_name):
-    """Detect difficulty level from folder name"""
     folder_lower = folder_name.lower()
     
     if any(word in folder_lower for word in ["basics", "introduction", "fundamentals", "overview"]):
@@ -101,8 +149,8 @@ def detect_difficulty(folder_name):
     else:
         return "Intermediate"
 
+
 def extract_date_from_metadata(base_path):
-    """Try to extract date from metadata.json if it exists"""
     metadata_path = os.path.join(base_path, "metadata.json")
     if os.path.isfile(metadata_path):
         try:
@@ -113,9 +161,14 @@ def extract_date_from_metadata(base_path):
             pass
     return None
 
+
 def build_note(folder):
-    """Build note entry for a topic folder"""
     base = os.path.join(ROOT, folder)
+
+    # Extract title (NEW)
+    title = extract_title_from_html(base)
+    if not title:
+        title = clean_title(folder)
 
     # Collect images
     images = []
@@ -138,7 +191,6 @@ def build_note(folder):
 
         lower = f.lower()
 
-        # Skip certain files
         if lower.endswith(".md"):
             continue
         if lower in ["youtube.html", "whiteboard.pdf", "metadata.json"]:
@@ -152,16 +204,17 @@ def build_note(folder):
                 "icon": "📄"
             })
 
-    # Try to get date from metadata, otherwise use current date
+    # Date logic
     date_str = extract_date_from_metadata(base)
 
     if not date_str:
         date_str = extract_date_from_html(base)
 
     if not date_str:
-        date_str = get_folder_creation_date(base)  # optional fallback
+        date_str = get_folder_creation_date(base)
+
     return {
-        "title": clean_title(folder),
+        "title": title,
         "folder": folder,
         "date": date_str,
         "type": "daily",
@@ -172,46 +225,40 @@ def build_note(folder):
         "files": sorted(files, key=lambda x: x["file"])
     }
 
+
 def is_valid_topic_folder(folder_path):
-    """Check if folder is a valid topic folder"""
-    # Must be a directory
     if not os.path.isdir(folder_path):
         return False
     
-    # Must not be hidden or special directories
     folder_name = os.path.basename(folder_path)
     if folder_name.startswith('.') or folder_name in ['images', 'json', '__pycache__']:
         return False
     
-    # Must contain at least overview.html or complete.html
     has_overview = os.path.isfile(os.path.join(folder_path, "overview.html"))
     has_complete = os.path.isfile(os.path.join(folder_path, "complete.html"))
     
     return has_overview or has_complete
 
+
 def main():
     notes = []
 
-    # Scan all folders in ROOT
     for item in os.listdir(ROOT):
         item_path = os.path.join(ROOT, item)
         
         if is_valid_topic_folder(item_path):
             notes.append(build_note(item))
 
-    # Sort by date (most recent first)
     notes.sort(
         key=lambda x: parse_date(x["date"]),
         reverse=True
     )
 
-    # Write to JSON
     with open(OUTPUT, "w", encoding="utf-8") as f:
         json.dump({"notes": notes}, f, indent=2, ensure_ascii=False)
 
     print(f"✅ Wrote {len(notes)} topics to {OUTPUT}")
     
-    # Print summary
     categories = {}
     for note in notes:
         cat = note.get("category", "General")
@@ -221,5 +268,7 @@ def main():
     for cat, count in sorted(categories.items()):
         print(f"   {cat}: {count} topics")
 
+
 if __name__ == "__main__":
     main()
+
