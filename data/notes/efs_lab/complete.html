@@ -279,8 +279,9 @@
             <p class="section-divider-subtitle">Follow Tasks 0–6 in order. Task 0 is the trainer's fix — not in the
               original lab PDF but must be done first.</p>
 
-            <section>
-              <h3 id="personal-account-setup">🖥️ No Lab Access? Personal Account Setup Guide</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="personal-account-setup">🖥️ No Lab Access? Personal Account Setup Guide</h3></summary>
+              <div class="section-content">
               <div class="info-box">💡 <strong>Skip this section if you have AWS Academy / Vocareum lab access.</strong>
                 This guide is only for students doing the lab on their own AWS account.</div>
 
@@ -481,11 +482,15 @@ ssh -i efs-lab-key.pem ec2-user@&lt;your-public-ip&gt;</code></pre>
                     a lab account or personal account. The difference is only in this setup section.</div>
                 
 
-            </section>
+            </div></details>
 
-            <section>
-              <h3 id="task0">⚠️ Task 0 — Install Packages First (Trainer Fix — Not in Original Lab)</h3>
-              <div class="diagram-container"><img src="images/efs-install-sequence.png" loading="lazy" decoding="async"
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="task0">⚠️ Task 0 — Install Packages First (Trainer Fix — Not in Original Lab)</h3>
+  </summary>
+  <div class="section-content">
+    <div class="diagram-container"><img src="images/efs-install-sequence.png" loading="lazy" decoding="async"
                   alt="Sequence diagram showing install order: yum install amazon-efs-utils → wait 60 seconds → mount EFS — with warning that mounting before package install finishes causes errors">
               </div>
               <div class="highlight-box">⚡ <strong>Trainer's Fix:</strong> The original lab PDF skips straight to Task 1
@@ -509,11 +514,17 @@ ssh -i efs-lab-key.pem ec2-user@&lt;your-public-ip&gt;</code></pre>
               <div class="info-box">💡 <strong>Professor suggestion:</strong> The trainer encourages trying both mount
                 methods — the NFS client (Task 4) and the EFS helper (Ext. Task 10). You can do either one first in Task
                 4, then unmount and compare with the other method afterwards.</div>
-            </section>
+  </div>
+</details>
 
-            <section>
-              <h3 id="task1">🔒 Task 1 — Create the EFS Security Group</h3>
-              <p>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="task1">🔒 Task 1 — Create the EFS Security Group</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">EFS uses a chained security group model — the mount target SG
                   allows inbound <span class="exam-highlight-term">NFS port 2049</span> from the <span
                     class="exam-highlight-term">EFSClient SG</span>, not from an IP range.</span>
@@ -554,12 +565,17 @@ ssh -i efs-lab-key.pem ec2-user@&lt;your-public-ip&gt;</code></pre>
                 <p class="diagram-caption"><em>Figure: 📸 EFS Mount Target SG inbound rule showing port 2049 source as
                     EFSClient SG ID</em></p>
               </div>
+  </div>
+</details>
 
-            </section>
 
-            <section>
-              <h3 id="task2">📁 Task 2 — Create the EFS File System</h3>
-              <p>
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="task2">📁 Task 2 — Create the EFS File System</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">A <span class="exam-highlight-term">mount target</span> is an ENI
                   (Elastic Network Interface) in a specific subnet and AZ — you need one per AZ for high
                   availability.</span>
@@ -608,12 +624,17 @@ ssh -i efs-lab-key.pem ec2-user@&lt;your-public-ip&gt;</code></pre>
                 <p class="diagram-caption"><em>Figure: 📸 EFS Network tab showing both mount targets with Status:
                     Available</em></p>
               </div>
+  </div>
+</details>
 
-            </section>
 
-            <section>
-              <h3 id="task3">💻 Task 3 — Connect to Your EC2 Instance</h3>
-              <p>
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="task3">💻 Task 3 — Connect to Your EC2 Instance</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">The EFS mount command uses the <span
                     class="exam-highlight-term">DNS name</span> of the file system, not an IP address — EFS DNS resolves
                   to the correct mount target for your AZ automatically.</span>
@@ -642,11 +663,17 @@ ssh -i labsuser.pem ec2-user@&lt;EC2PublicIP&gt;</code></pre>
               <div class="success-box">✅ EC2 Instance Connect takes 10 seconds vs 5 minutes of PuTTY setup. If you
                 already
                 connected for Task 0, you can reuse that session or open a fresh one.</div>
-            </section>
+  </div>
+</details>
 
-            <section>
-              <h3 id="task4">🔌 Task 4 — Mount the EFS File System</h3>
-              <h4>Step 1 — Create the mount directory</h4>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="task4">🔌 Task 4 — Mount the EFS File System</h3>
+  </summary>
+  <div class="section-content">
+    <h4>Step 1 — Create the mount directory</h4>
               <pre><code>sudo mkdir efs</code></pre>
               <div class="info-box">💡 <strong>What is a mount point?</strong> In Linux, storage doesn't appear as drive
                 letters. It attaches to directories. After mounting EFS to <code>efs/</code>, anything you write inside
@@ -698,12 +725,17 @@ ssh -i labsuser.pem ec2-user@&lt;EC2PublicIP&gt;</code></pre>
                 <p class="diagram-caption"><em>Figure: 📸 df -hT output showing EFS mounted with type nfs4 and 8.0E
                     size</em></p>
               </div>
+  </div>
+</details>
 
-            </section>
 
-            <section>
-              <h3 id="task5">📊 Task 5 — Test Performance with fio</h3>
-              <p>
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="task5">📊 Task 5 — Test Performance with fio</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">fio measures EFS throughput in MiB/s — in <span
                     class="exam-highlight-term">Bursting mode</span>, throughput scales with the amount of data stored
                   in the file system.</span>
@@ -744,12 +776,17 @@ ssh -i labsuser.pem ec2-user@&lt;EC2PublicIP&gt;</code></pre>
                 <p class="diagram-caption"><em>Figure: 📸 fio benchmark running live showing KB/s throughput and ETA
                     countdown</em></p>
               </div>
+  </div>
+</details>
 
-            </section>
 
-            <section>
-              <h3 id="task6">📈 Task 6 — Monitor with CloudWatch</h3>
-              <p>
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="task6">📈 Task 6 — Monitor with CloudWatch</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">CloudWatch metrics for EFS include <span
                     class="exam-highlight-term">PermittedThroughput</span>, DataWriteIOBytes, and DataReadIOBytes — use
                   these to verify actual vs allowed throughput in the exam.</span>
@@ -814,8 +851,9 @@ ssh -i labsuser.pem ec2-user@&lt;EC2PublicIP&gt;</code></pre>
                 <p class="diagram-caption"><em>Figure: 📸 CloudWatch DataWriteIOBytes spike during fio then sharp drop
                     showing burst credit exhaustion</em></p>
               </div>
+  </div>
+</details>
 
-            </section>
 
         </details>
 
@@ -831,9 +869,13 @@ ssh -i labsuser.pem ec2-user@&lt;EC2PublicIP&gt;</code></pre>
               be completed inside the restricted AWS Academy / Vocareum lab environment. Use the Personal Account Setup
               section above to get started.</p>
 
-            <section>
-              <h3 id="ext1">🔑 Ext. Task 1 — Fix File System Permissions</h3>
-              <p>
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext1">🔑 Ext. Task 1 — Fix File System Permissions</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">The EFS root directory is owned by <span
                     class="exam-highlight-term">root</span> — applications must either run as root or use EFS Access
                   Points to enforce a custom UID/GID.</span>
@@ -858,11 +900,17 @@ ls -la efs/</code></pre>
                 fresh EFS mount. In production you would create subdirectories with appropriate ownership immediately
                 after
                 setup, per application requirements.</div>
-            </section>
+  </div>
+</details>
 
-            <section>
-              <h3 id="ext2">🐧 Ext. Task 2 — Explore File System with Linux Tools</h3>
-              <p>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext2">🐧 Ext. Task 2 — Explore File System with Linux Tools</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">df -hT shows mount type <span
                     class="exam-highlight-term">nfs4</span> for EFS mounts — this confirms the NFSv4.1 protocol is in
                   use and the file system is correctly mounted.</span>
@@ -929,11 +977,17 @@ cat /proc/mounts | grep efs</code></pre>
                   </tr>
                 </tbody>
               </table>
-            </section>
+  </div>
+</details>
 
-            <section>
-              <h3 id="ext3">📝 Ext. Task 3 — Create Files and Directories</h3>
-              <p>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext3">📝 Ext. Task 3 — Create Files and Directories</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">EFS behaves exactly like a local <span
                     class="exam-highlight-term">POSIX filesystem</span> for directory operations — mkdir, touch, chmod,
                   and chown all work without EFS-specific commands.</span>
@@ -957,11 +1011,17 @@ du -sh efs/</code></pre>
                 application rewriting needed. If an app can write to a file path, it can use EFS without any code
                 changes.
                 This is why EFS works for legacy applications where S3 (which needs API calls) would not.</div>
-            </section>
+  </div>
+</details>
 
-            <section>
-              <h3 id="ext4">🖥️ Ext. Task 4 — Launch a Second EC2 Instance</h3>
-              <p>This is the defining demonstration of EFS — two completely separate servers sharing the same files.</p>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext4">🖥️ Ext. Task 4 — Launch a Second EC2 Instance</h3>
+  </summary>
+  <div class="section-content">
+    <p>This is the defining demonstration of EFS — two completely separate servers sharing the same files.</p>
               <ol>
                 <li>EC2 → Instances → <strong>Launch instances</strong>.</li>
                 <li>Configure:<ul>
@@ -993,11 +1053,17 @@ ls -R /efs/
                   Files
                   written by one appear instantly on the other — no sync, no copy, no delay. This is the fundamental
                   difference between EFS (shared) and EBS (exclusive).</span></div>
-            </section>
+  </div>
+</details>
 
-            <section>
-              <h3 id="ext5">🔄 Ext. Task 5 — Cross-Instance File Updates</h3>
-              <p>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext5">🔄 Ext. Task 5 — Cross-Instance File Updates</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">Files written by one EC2 instance to EFS are immediately visible
                   to all other instances mounting the same file system — EFS provides <span
                     class="exam-highlight-term">strong consistency</span>.</span>
@@ -1026,12 +1092,17 @@ cat /efs/shared.txt</code></pre>
                 <p class="diagram-caption"><em>Figure: 📸 Two EC2 terminals side by side — Instance 1 writes to EFS,
                     Instance 2 reads it immediately</em></p>
               </div>
+  </div>
+</details>
 
-            </section>
 
-            <section>
-              <h3 id="ext6">🔁 Ext. Task 6 — Configure Automatic Mount After Reboot</h3>
-              <p>
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext6">🔁 Ext. Task 6 — Configure Automatic Mount After Reboot</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">The <span class="exam-highlight-term">_netdev</span> mount option
                   in /etc/fstab tells Linux to wait for network availability before mounting — required for EFS to
                   persist across reboots.</span>
@@ -1062,12 +1133,17 @@ df -hT | grep efs</code></pre>
                 <p class="diagram-caption"><em>Figure: 📸 /etc/fstab showing EFS entry with _netdev option for automatic
                     mount after reboot</em></p>
               </div>
+  </div>
+</details>
 
-            </section>
 
-            <section>
-              <h3 id="ext7">🔄 Ext. Task 7 — Test Mount Persistence</h3>
-              <p>
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext7">🔄 Ext. Task 7 — Test Mount Persistence</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">EFS mounts survive instance stop-start cycles if configured in
                   /etc/fstab with the <span class="exam-highlight-term">_netdev</span> option — the file system
                   reconnects automatically on boot.</span>
@@ -1088,11 +1164,17 @@ ls efs/project/</code></pre>
                 ID is correct, and _netdev is present. Run <code>sudo mount -a</code> to manually apply and see any
                 error
                 messages.</div>
-            </section>
+  </div>
+</details>
 
-            <section>
-              <h3 id="ext8">🖥️ Ext. Task 8 — Explore EFS Console Features</h3>
-              <p>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext8">🖥️ Ext. Task 8 — Explore EFS Console Features</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">The EFS Network tab shows the <span
                     class="exam-highlight-term">mount target ENI</span>, its private IP, and security group — this is
                   where you verify network-level access configuration.</span>
@@ -1151,11 +1233,17 @@ ls efs/project/</code></pre>
                 and fall of your burst credits. You should see it drop sharply during your fio test and slowly rise when
                 you
                 weren't doing I/O.</div>
-            </section>
+  </div>
+</details>
 
-            <section>
-              <h3 id="ext9">🔎 Ext. Task 9 — Investigate File System Activity</h3>
-              <p>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext9">🔎 Ext. Task 9 — Investigate File System Activity</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence"><span class="exam-highlight-term">EFS Intelligent Tiering</span>
                   automatically moves files to EFS-IA after the configured inactivity period — no application changes
                   required.</span>
@@ -1193,11 +1281,17 @@ ss -tn | grep 2049</code></pre>
                 operation counts and retransmission counts. High retransmissions in production indicate network
                 instability
                 between EC2 and the mount target — a sign to investigate VPC routing or security groups.</div>
-            </section>
+  </div>
+</details>
 
-            <section>
-              <h3 id="ext10">🔌 Ext. Task 10 — Try the EFS Helper Mount Method</h3>
-              <p>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext10">🔌 Ext. Task 10 — Try the EFS Helper Mount Method</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">The NFS helper mount command (<span
                     class="exam-highlight-term">amazon-efs-utils</span>) adds TLS encryption in transit and automatic
                   reconnection — the standard NFS mount does not.</span>
@@ -1261,11 +1355,17 @@ sudo df -hT</code></pre>
                 top. For production workloads, the EFS helper is recommended — it handles TLS automatically and is the
                 basis
                 for IAM-authenticated access via Access Points.</div>
-            </section>
+  </div>
+</details>
 
-            <section>
-              <h3 id="ext11">☁️ Ext. Task 11 — Manage EFS Entirely from the AWS CLI</h3>
-              <p>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext11">☁️ Ext. Task 11 — Manage EFS Entirely from the AWS CLI</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">IAM authorization for EFS requires both a <span
                     class="exam-highlight-term">resource-based policy</span> on the file system AND aws:SecureTransport
                   enforcement — used for fine-grained per-client access control.</span>
@@ -1342,10 +1442,16 @@ aws efs delete-file-system --file-system-id fs-YYYYYYYY</code></pre>
                 into
                 a script, check into Git, or run in a CI/CD pipeline. This is how production infrastructure is managed.
               </div>
-            </section>
-            <section>
-              <h3 id="ext12">🔍 Ext. Task 12 — Use tcpdump to Watch NFS Traffic Live</h3>
-              <p>
+  </div>
+</details>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext12">🔍 Ext. Task 12 — Use tcpdump to Watch NFS Traffic Live</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">NFS traffic runs on <span class="exam-highlight-term">TCP port
                     2049</span> — tcpdump on the EC2 instance will show NFS packets going to the mount target ENI IP on
                   port 2049.</span>
@@ -1411,10 +1517,16 @@ sudo tcpdump -r /tmp/nfs-capture.pcap -n | head -30</code></pre>
                 stunnel. If you captured with the EFS helper active you would see encrypted TLS packets instead of
                 readable
                 NFS protocol text.</div>
-            </section>
-            <section>
-              <h3 id="ext13">🔒 Ext. Task 13 — Test File Locking on EFS (POSIX Compliance)</h3>
-              <p>
+  </div>
+</details>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext13">🔒 Ext. Task 13 — Test File Locking on EFS (POSIX Compliance)</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">File locking on EFS uses the NFS advisory lock protocol — EFS
                   supports both <span class="exam-highlight-term">flock()</span> and <span
                     class="exam-highlight-term">fcntl()</span> POSIX locks across multiple instances.</span>
@@ -1458,10 +1570,16 @@ ls -la /efs/shared-dir/umask-test.txt
                 files. This is exactly why applications running on local disk can move to EFS with zero code changes. S3
                 is
                 not POSIX-compliant — it has no permissions, locking, or file metadata concepts.</div>
-            </section>
-            <section>
-              <h3 id="ext14">🔬 Ext. Task 14 — Trace System Calls with strace</h3>
-              <p>
+  </div>
+</details>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext14">🔬 Ext. Task 14 — Trace System Calls with strace</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">strace output for EFS operations shows open(), read(), write(),
                   and close() system calls — identical to local disk syscalls, confirming <span
                     class="exam-highlight-term">POSIX compliance</span>.</span>
@@ -1475,7 +1593,7 @@ ls -la /efs/shared-dir/umask-test.txt
                 strace is the tool. It shows you the conversation between your application and the Linux kernel, making
                 the
                 invisible visible.</div>
-              <h4>Install strace</h3>
+              <h4>Install strace</h4>
               <pre><code>sudo yum install -y strace</code></pre>
               <h4>Trace a write to EFS</h4>
               <pre><code># -e trace=file = show only file-related syscalls
@@ -1537,10 +1655,16 @@ strace -e trace=write -T bash -c "echo test > /efs/network.txt" 2>&amp;1 | grep 
                 how
                 EFS
                 achieves zero-code-change compatibility — the OS handles all translation invisibly.</div>
-            </section>
-            <section>
-              <h3 id="ext15">📊 Ext. Task 15 — Structured Performance Benchmarking</h3>
-              <p>
+  </div>
+</details>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext15">📊 Ext. Task 15 — Structured Performance Benchmarking</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence"><span class="exam-highlight-term">EFS replication</span> creates a
                   read-only replica in another AWS Region — the RPO is typically under <span
                     class="exam-highlight-term">1 minute</span>, making it suitable for disaster recovery.</span>
@@ -1617,10 +1741,16 @@ strace -e trace=write -T bash -c "echo test > /efs/network.txt" 2>&amp;1 | grep 
               <div class="info-box">💡 Clean up benchmark files when done — they cost money on EFS:
                 <code>sudo rm /efs/bench-*.img</code>
               </div>
-            </section>
-            <section>
-              <h3 id="ext16">🧱 Ext. Task 16 — Simulate and Debug NFS Connectivity Failures</h3>
-              <p>
+  </div>
+</details>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext16">🧱 Ext. Task 16 — Simulate and Debug NFS Connectivity Failures</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">Removing the EFSClient SG from the mount target SG inbound rules
                   immediately breaks all NFS connections — existing mounts stall or <span
                     class="exam-highlight-term">timeout</span> without an explicit error.
@@ -1688,10 +1818,16 @@ for i in $(seq 1 50); do echo "line $i" >> /efs/stress-test.txt; done</code></pr
                   <li>NFS daemons running? → <code>sudo systemctl status nfs</code></li>
                 </ol>Work through this list top to bottom — it covers 95% of real NFS incidents.
               </div>
-            </section>
-            <section>
-              <h3 id="ext17">🔄 Ext. Task 17 — Migrate Data onto EFS with rsync</h3>
-              <p>
+  </div>
+</details>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext17">🔄 Ext. Task 17 — Migrate Data onto EFS with rsync</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">EFS throughput modes: Bursting scales with storage size; <span
                     class="exam-highlight-term">Provisioned</span> sets a fixed throughput regardless of storage; <span
                     class="exam-highlight-term">Elastic</span> automatically scales to workload demand.</span>
@@ -1752,10 +1888,16 @@ rsync -avh --dry-run /tmp/app-data/ /efs/app-data/</code></pre>
                 few
                 GB)
                 or when you are already on EC2, rsync is simpler and free.</div>
-            </section>
-            <section>
-              <h3 id="ext18">🔑 Ext. Task 18 — Create and Use an EFS Access Point</h3>
-              <p>
+  </div>
+</details>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext18">🔑 Ext. Task 18 — Create and Use an EFS Access Point</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">An <span class="exam-highlight-term">EFS Access Point</span>
                   enforces a specific POSIX user (UID/GID) and a root directory — the client sees only that
                   subdirectory, not the full EFS root.</span>
@@ -1822,10 +1964,16 @@ aws efs delete-access-point --access-point-id fsap-XXXXXXXXX</code></pre>
                 definition volume. Each app sees its own isolated file system root and ownership is enforced at the
                 storage
                 layer.</div>
-            </section>
-            <section>
-              <h3 id="ext19">🐛 Ext. Task 19 — Systematic Debugging Workflow</h3>
-              <p>
+  </div>
+</details>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext19">🐛 Ext. Task 19 — Systematic Debugging Workflow</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">EFS encryption at rest uses <span class="exam-highlight-term">AWS
                     KMS</span> — you choose the KMS key at creation time and cannot change it afterward without creating
                   a new file system.</span>
@@ -1915,10 +2063,16 @@ cat /proc/mounts | grep efs</code></pre>
                 It is a systematic elimination process — verify the mount exists, verify it is the right mount, verify
                 writes
                 go to it, verify the network is healthy. Each step either confirms or eliminates a hypothesis.</div>
-            </section>
-            <section>
-              <h3 id="ext20">🌍 Ext. Task 20 — Real-World Pattern: Atomic Config File Propagation</h3>
-              <p>
+  </div>
+</details>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext20">🌍 Ext. Task 20 — Real-World Pattern: Atomic Config File Propagation</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">EFS mount targets in multiple AZs provide <span
                     class="exam-highlight-term">high availability</span> — if one AZ fails, instances in other AZs
                   continue mounting from their local mount target.</span>
@@ -1991,10 +2145,16 @@ echo "Atomic update to v3.0 complete"</code></pre>
                 Any time you need config to propagate to a fleet instantly without restart, EFS plus atomic rename is
                 the
                 pattern.</div>
-            </section>
-            <section>
-              <h3 id="ext21">⚡ Ext. Task 21 — inotify: React to File Changes in Real Time</h3>
-              <p>
+  </div>
+</details>
+
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext21">⚡ Ext. Task 21 — inotify: React to File Changes in Real Time</h3>
+  </summary>
+  <div class="section-content">
+    <p>
                 <span class="exam-highlight-sentence">EFS cross-region replication is <span
                     class="exam-highlight-term">asynchronous</span> — the replica is read-only and becomes writable only
                   after a failover operation that breaks the replication link.</span>
@@ -2046,12 +2206,16 @@ ls /efs/processed/</code></pre>
                 reliable cross-instance event delivery, use SQS to signal file arrival instead of relying on inotify
                 across
                 NFS.</div>
-            </section>
-            <section>
-              <h3 id="ext22">💰 Ext. Task 22 — EFS Cost Optimisation: Lifecycle Management</h3>
+  </div>
+</details>
 
-
-              <div class="highlight-box">⚡ <strong>Real-world context:</strong> EFS Standard storage costs
+            
+<details class="collapsible-section">
+  <summary>
+    <h3 id="ext22">💰 Ext. Task 22 — EFS Cost Optimisation: Lifecycle Management</h3>
+  </summary>
+  <div class="section-content">
+    <div class="highlight-box">⚡ <strong>Real-world context:</strong> EFS Standard storage costs
                 ~$0.30/GB/month.
                 EFS Infrequent Access (IA) costs ~$0.025/GB/month — 8× cheaper. Lifecycle Management automatically moves
                 files
@@ -2119,7 +2283,8 @@ aws efs describe-lifecycle-configuration \
                 not
                 been idle for 30 days — but in production this is where you track cost savings.</p>
               <h4>Enable Intelligent Tiering (moves back when accessed)</h4>
-              <pre><code>aws efs put-lifecycle-configuration
+              <pre><code>aws efs put-lifecycle-configuration \
+  --file-system-id fs-XXXXXXXX \
   --lifecycle-policies TransitionToIA=AFTER_30_DAYS,TransitionToPrimaryStorageClass=AFTER_1_ACCESS</code></pre>
               <div class="success-box">✅ <strong>Production recommendation:</strong> Enable Lifecycle Management on all
                 EFS
@@ -2135,7 +2300,9 @@ aws efs describe-lifecycle-configuration \
                   still
                   has
                   the same durability and availability as Standard — only the latency and cost differ.</span></div>
-            </section>
+  </div>
+</details>
+
           </div>
         </details>
         <details class="collapsible-section">
@@ -2464,7 +2631,6 @@ sudo mount -t efs fs-12345678:/ /efs</code></pre>
                 <p class="diagram-caption"><em>Figure: 📸 Server 2 terminal showing cat of file created by Server 1
                     confirming shared storage</em></p>
               </div>
-          </div>
           <p>Now write from Server 2 and verify on Server 1:</p>
           <pre><code># On Server 2
 echo "Reply from Server 2" >> /efs/shared.txt
@@ -2472,6 +2638,7 @@ echo "Reply from Server 2" >> /efs/shared.txt
 # On Server 1 (in another terminal tab)
 cat /efs/shared.txt
 # Both lines visible instantly</code></pre>
+              </div>
           </section>
 
           <section>

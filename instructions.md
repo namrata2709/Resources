@@ -610,7 +610,7 @@ Lab Overview (collapsible — placed AFTER Background / Theory)
 What You Will Accomplish (collapsible — placed AFTER Lab Overview)
 
 Prerequisites (collapsible — optional, only if explicitly requested)
-Personal Account Setup (collapsible — optional, only if explicitly requested)
+Personal Account Setup (collapsible — optional, only if explicitly requested — must always be placed inside the Original Guided Lab collapsible, before the first task)
 
 [Lab Tasks — user defines what these are]
   Each task is its own collapsible <details class="collapsible-section"> with h3 heading inside <summary>
@@ -699,6 +699,8 @@ Labs include theory but keep it focused:
 - ❌ No long standalone theory walls inside tasks — theory belongs in Background
 - ❌ No non-collapsible Lab Overview or What You Will Accomplish — both are collapsible and placed after Background
 ❌ No h3 or id attributes on headings inside tasks, extended tasks, or personal setup sections
+❌ No bare h3 headings inside collapsible h2 sections — all h3 must be wrapped in <details><summary>
+❌ Personal Account Setup placed outside the Original Guided Lab collapsible
 ---
 
 ## Screenshot Guide Format (All Notes — Always Required)
@@ -1171,7 +1173,8 @@ CRITICAL RULES:
 - [ ] Extended Lab only if explicitly requested with a specific focus
 - [ ] Hands-On Projects only if explicitly requested
 - [ ] Personal Account Setup only if explicitly requested
-
+- [ ] Personal Account Setup is inside the Original Guided Lab collapsible, before the first task
+- [ ] All h3 headings inside collapsible h2 sections are themselves collapsible <details> with h3 in <summary>
 ---
 
 ## Writing Guidelines
