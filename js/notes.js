@@ -1,10 +1,10 @@
 /**
- * Advanced Notes Manager (Final)
- * - Auto inject tag filter
- * - Search (title, category, tags, date)
- * - Filter (category, difficulty, tags)
- * - Clickable tags
+ * Complete Notes Manager (Full + Advanced)
+ * - Tag system (search + filter + modal)
+ * - Images gallery support
+ * - Full file handling (html, pdf, doc, link)
  * - Related notes
+ * - Clean UI (no tags on tiles)
  */
 
 (function () {
@@ -14,6 +14,10 @@
     let filteredData = [];
     let categories = new Set();
     let tagsSet = new Set();
+
+    // ----------------------------
+    // INIT
+    // ----------------------------
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
@@ -28,7 +32,7 @@
     }
 
     // ----------------------------
-    // INJECT TAG FILTER
+    // TAG FILTER INJECTION
     // ----------------------------
 
     function injectTagFilter() {
@@ -70,10 +74,7 @@
 
             notesData.forEach(note => {
                 if (note.category) categories.add(note.category);
-
-                if (note.tags) {
-                    note.tags.forEach(tag => tagsSet.add(tag));
-                }
+                if (note.tags) note.tags.forEach(tag => tagsSet.add(tag));
             });
 
             populateCategoryFilter();
@@ -161,7 +162,7 @@
     }
 
     // ----------------------------
-    // RENDER
+    // RENDER (CLEAN TILE)
     // ----------------------------
 
     function renderNotes() {
@@ -172,27 +173,21 @@
             return;
         }
 
-        container.innerHTML = filteredData.map(note => {
+        container.innerHTML = filteredData.map(note => `
+            <div class="note-folder" onclick='openFolder(${JSON.stringify(note).replace(/'/g, "&#39;")})'>
+                <div class="folder-icon">${getCategoryIcon(note.category)}</div>
 
+                <div class="folder-content">
+                    <h3>${note.title}</h3>
 
-
-            return `
-                <div class="note-folder" onclick='openFolder(${JSON.stringify(note).replace(/'/g, "&#39;")})'>
-                    <div class="folder-icon">${getCategoryIcon(note.category)}</div>
-
-                    <div class="folder-content">
-                        <h3>${note.title}</h3>
-
-                        <div class="note-meta">
-                            <span>${note.category || 'General'}</span>
-                            ${getDifficultyBadge(note.difficulty)}
-                            <span>📅 ${formatDate(note.date)}</span>
-                        </div>
-
+                    <div class="note-meta">
+                        <span>${note.category || 'General'}</span>
+                        ${getDifficultyBadge(note.difficulty)}
+                        <span>📅 ${formatDate(note.date)}</span>
                     </div>
                 </div>
-            `;
-        }).join('');
+            </div>
+        `).join('');
     }
 
     // ----------------------------
@@ -215,31 +210,52 @@
     }
 
     // ----------------------------
-    // MODAL
+    // MODAL (FULL FEATURES)
     // ----------------------------
 
     function openFolder(note) {
         document.getElementById('modalTitle').textContent = note.title;
-        let tagsHTML = '';
 
+        // TAGS
+        let tagsHTML = '';
         if (note.tags && note.tags.length > 0) {
             tagsHTML = `
-    <div class="modal-tags">
-        <span class="tags-label">Tags:</span>
-        ${note.tags.map(tag => `
-            <span class="tag-chip" onclick="filterByTag('${tag}')">${tag}</span>
-        `).join('')}
-    </div>
-`;
+                <div class="modal-tags">
+                    <span class="tags-label">Tags:</span>
+                    ${note.tags.map(tag => `
+                        <span class="tag-chip" onclick="filterByTag('${tag}')">${tag}</span>
+                    `).join('')}
+                </div>
+            `;
         }
+
         let html = tagsHTML + '<div class="files-list">';
 
+        // IMAGES
+        if (note.hasImages && note.images && note.images.length > 0) {
+            html += `
+                <div class="file-item" onclick="openGallery('${note.folder}')">
+                    <span class="file-icon">🖼️</span>
+                    <div class="file-info">
+                        <span class="file-name">Images Gallery (${note.images.length})</span>
+                        <span class="file-type">View all images</span>
+                    </div>
+                    <span class="file-arrow">→</span>
+                </div>
+            `;
+        }
+
+        // FILES
         if (note.files) {
             note.files.forEach(file => {
                 html += `
                     <div class="file-item" onclick="openFile('${note.folder}','${file.file}','${file.type}')">
-                        <span>${file.icon}</span>
-                        <span>${file.name}</span>
+                        <span class="file-icon">${file.icon}</span>
+                        <div class="file-info">
+                            <span class="file-name">${file.name}</span>
+                            <span class="file-type">${getFileTypeLabel(file.type)}</span>
+                        </div>
+                        <span class="file-arrow">→</span>
                     </div>
                 `;
             });
@@ -247,8 +263,8 @@
 
         html += '</div>';
 
+        // RELATED
         const related = getRelatedNotes(note);
-
         if (related.length > 0) {
             html += `<h3 style="margin-top:20px;">Related Notes</h3>`;
             html += related.map(r => `
@@ -271,6 +287,46 @@
             const modal = document.getElementById('folderModal');
             if (event.target === modal) closeModal();
         };
+    }
+
+    // ----------------------------
+    // FILE + GALLERY HANDLING
+    // ----------------------------
+
+    function openGallery(folder) {
+        window.open(`data/notes/images.html?folder=${folder}`, '_self');
+    }
+
+    function openFile(folder, filename, type) {
+
+        if (type === 'link') {
+            window.open(filename, '_blank');
+            return;
+        }
+
+        const filepath = `data/notes/${folder}/${filename}`;
+
+        if (type === 'html') {
+            window.open(filepath, '_self');
+        } else if (type === 'pdf' || type === 'txt') {
+            window.open(filepath, '_blank');
+        } else if (type === 'doc') {
+            const link = document.createElement('a');
+            link.href = filepath;
+            link.download = filename;
+            link.click();
+        }
+    }
+
+    function getFileTypeLabel(type) {
+        const labels = {
+            html: 'HTML Document',
+            pdf: 'PDF Document',
+            txt: 'Text File',
+            doc: 'Word Document',
+            link: 'External Link'
+        };
+        return labels[type] || 'File';
     }
 
     // ----------------------------
@@ -315,21 +371,16 @@
         return map[difficulty] ? `<span>${map[difficulty]}</span>` : '';
     }
 
-    function openFile(folder, file, type) {
-        const path = `data/notes/${folder}/${file}`;
+    // ----------------------------
+    // GLOBAL EXPORT
+    // ----------------------------
 
-        if (type === 'html') {
-            window.open(path, '_self');
-        } else {
-            window.open(path, '_blank');
-        }
-    }
-
-    // expose globally
     window.filterNotes = filterNotes;
     window.sortNotes = sortNotes;
     window.openFolder = openFolder;
     window.closeModal = closeModal;
     window.filterByTag = filterByTag;
+    window.openFile = openFile;
+    window.openGallery = openGallery;
 
 })();
