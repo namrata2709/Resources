@@ -174,9 +174,7 @@
 
         container.innerHTML = filteredData.map(note => {
 
-            const tagsHTML = (note.tags || [])
-                .map(tag => `<span class="tag clickable" onclick="filterByTag('${tag}')">${tag}</span>`)
-                .join('');
+
 
             return `
                 <div class="note-folder" onclick='openFolder(${JSON.stringify(note).replace(/'/g, "&#39;")})'>
@@ -191,7 +189,6 @@
                             <span>📅 ${formatDate(note.date)}</span>
                         </div>
 
-                        <div class="note-tags">${tagsHTML}</div>
                     </div>
                 </div>
             `;
@@ -223,8 +220,19 @@
 
     function openFolder(note) {
         document.getElementById('modalTitle').textContent = note.title;
+        let tagsHTML = '';
 
-        let html = '<div class="files-list">';
+        if (note.tags && note.tags.length > 0) {
+            tagsHTML = `
+    <div class="modal-tags">
+        <span class="tags-label">Tags:</span>
+        ${note.tags.map(tag => `
+            <span class="tag-chip" onclick="filterByTag('${tag}')">${tag}</span>
+        `).join('')}
+    </div>
+`;
+        }
+        let html = tagsHTML + '<div class="files-list">';
 
         if (note.files) {
             note.files.forEach(file => {
