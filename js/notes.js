@@ -1,18 +1,20 @@
 /**
- * Notes Manager (Topic-Based)
- * Handles loading, filtering, sorting, and rendering of topic-based notes
+ * Advanced Notes Manager (Final)
+ * - Auto inject tag filter
+ * - Search (title, category, tags, date)
+ * - Filter (category, difficulty, tags)
+ * - Clickable tags
+ * - Related notes
  */
 
 (function () {
     'use strict';
 
-    // Global variables
     let notesData = [];
     let filteredData = [];
-    let currentFolder = null;
     let categories = new Set();
+    let tagsSet = new Set();
 
-    // Initialize when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
@@ -20,295 +22,306 @@
     }
 
     function init() {
+        injectTagFilter();
         loadNotes();
         setupModalClickOutside();
     }
 
-    // Load notes from JSON
+    // ----------------------------
+    // INJECT TAG FILTER
+    // ----------------------------
+
+    function injectTagFilter() {
+        const filterControls = document.querySelector('.filter-controls');
+        if (!filterControls) return;
+
+        if (document.getElementById('tagFilter')) return;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'filter-group';
+
+        wrapper.innerHTML = `
+            <label for="tagFilter">Filter by Tag:</label>
+            <select id="tagFilter" onchange="filterNotes()">
+                <option value="">All Tags</option>
+            </select>
+        `;
+
+        const firstGroup = filterControls.querySelector('.filter-group');
+        if (firstGroup) {
+            filterControls.insertBefore(wrapper, firstGroup.nextSibling);
+        } else {
+            filterControls.appendChild(wrapper);
+        }
+    }
+
+    // ----------------------------
+    // LOAD DATA
+    // ----------------------------
+
     async function loadNotes() {
         try {
             const response = await fetch('data/notes-list.json');
             if (!response.ok) throw new Error('Failed to load JSON');
+
             const data = await response.json();
             notesData = data.notes;
             filteredData = [...notesData];
 
-            // Extract unique categories
             notesData.forEach(note => {
-                if (note.category) {
-                    categories.add(note.category);
+                if (note.category) categories.add(note.category);
+
+                if (note.tags) {
+                    note.tags.forEach(tag => tagsSet.add(tag));
                 }
             });
 
-            // Populate category filter
             populateCategoryFilter();
+            populateTagFilter();
 
             sortNotes();
+
         } catch (error) {
-            console.error('Error loading notes:', error);
-            document.getElementById('notesContainer').innerHTML = `
-                <div class="error">
-                    <h2>Error Loading Notes</h2>
-                    <p>Could not load data/notes-list.json. Please ensure the file exists.</p>
-                    <p style="font-size: 0.9em; margin-top: 1rem;">For local development, run: <code style="background: rgba(0,0,0,0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">python -m http.server 8000</code></p>
-                </div>
-            `;
+            console.error(error);
+            document.getElementById('notesContainer').innerHTML =
+                `<div class="error">Error loading notes.</div>`;
         }
     }
 
-    // Populate category filter dropdown
+    // ----------------------------
+    // FILTER DROPDOWNS
+    // ----------------------------
+
     function populateCategoryFilter() {
-        const categoryFilter = document.getElementById('categoryFilter');
-        const sortedCategories = Array.from(categories).sort();
+        const el = document.getElementById('categoryFilter');
+        if (!el) return;
 
-        sortedCategories.forEach(category => {
+        Array.from(categories).sort().forEach(cat => {
             const option = document.createElement('option');
-            option.value = category;
-            option.textContent = category;
-            //categoryFilter.appendChild(option);
-            console.log(categoryFilter);
-
+            option.value = cat;
+            option.textContent = cat;
+            el.appendChild(option);
         });
-
     }
 
-    // Sort notes
+    function populateTagFilter() {
+        const el = document.getElementById('tagFilter');
+        if (!el) return;
+
+        Array.from(tagsSet).sort().forEach(tag => {
+            const option = document.createElement('option');
+            option.value = tag;
+            option.textContent = tag;
+            el.appendChild(option);
+        });
+    }
+
+    // ----------------------------
+    // FILTER + SEARCH
+    // ----------------------------
+
+    function filterNotes() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const category = document.getElementById('categoryFilter')?.value;
+        const difficulty = document.getElementById('difficultyFilter')?.value;
+        const tag = document.getElementById('tagFilter')?.value;
+
+        filteredData = notesData.filter(note => {
+
+            const matchesSearch =
+                note.title.toLowerCase().includes(search) ||
+                (note.category || '').toLowerCase().includes(search) ||
+                (note.tags || []).join(' ').toLowerCase().includes(search) ||
+                note.date.includes(search);
+
+            const matchesCategory = !category || note.category === category;
+            const matchesDifficulty = !difficulty || note.difficulty === difficulty;
+            const matchesTag = !tag || (note.tags || []).includes(tag);
+
+            return matchesSearch && matchesCategory && matchesDifficulty && matchesTag;
+        });
+
+        sortNotes();
+    }
+
     function sortNotes() {
         const sortValue = document.getElementById('sortSelect').value;
 
         filteredData.sort((a, b) => {
             switch (sortValue) {
-                case 'date-desc':
-                    return new Date(b.date) - new Date(a.date);
-                case 'date-asc':
-                    return new Date(a.date) - new Date(b.date);
-                case 'title-asc':
-                    return a.title.localeCompare(b.title);
-                case 'title-desc':
-                    return b.title.localeCompare(a.title);
-                case 'category':
-                    return (a.category || '').localeCompare(b.category || '');
-                default:
-                    return 0;
+                case 'date-desc': return new Date(b.date) - new Date(a.date);
+                case 'date-asc': return new Date(a.date) - new Date(b.date);
+                case 'title-asc': return a.title.localeCompare(b.title);
+                case 'title-desc': return b.title.localeCompare(a.title);
+                default: return 0;
             }
         });
 
         renderNotes();
     }
 
-    // Filter notes
-    function filterNotes() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const categoryFilter = document.getElementById('categoryFilter').value;
-        const difficultyFilter = document.getElementById('difficultyFilter').value;
+    // ----------------------------
+    // RENDER
+    // ----------------------------
 
-        filteredData = notesData.filter(note => {
-            const matchesSearch = note.title.toLowerCase().includes(searchTerm) ||
-                (note.category || '').toLowerCase().includes(searchTerm) ||
-                note.date.includes(searchTerm);
-            const matchesCategory = !categoryFilter || note.category === categoryFilter;
-            const matchesDifficulty = !difficultyFilter || note.difficulty === difficultyFilter;
-
-            return matchesSearch && matchesCategory && matchesDifficulty;
-        });
-
-        sortNotes();
-    }
-
-    // Get difficulty badge HTML
-    function getDifficultyBadge(difficulty) {
-        const badges = {
-            'Beginner': '<span class="difficulty-badge beginner">🟢 Beginner</span>',
-            'Intermediate': '<span class="difficulty-badge intermediate">🟡 Intermediate</span>',
-            'Advanced': '<span class="difficulty-badge advanced">🔴 Advanced</span>'
-        };
-        return badges[difficulty] || '';
-    }
-
-    // Render notes as folder cards
     function renderNotes() {
         const container = document.getElementById('notesContainer');
 
         if (filteredData.length === 0) {
-            container.innerHTML = '<div class="loading">No notes found matching your criteria.</div>';
+            container.innerHTML = `<div class="loading">No notes found</div>`;
             return;
         }
 
         container.innerHTML = filteredData.map(note => {
-            const icon = getCategoryIcon(note.category);
-            const formattedDate = formatDate(note.date);
-            const fileCount = note.files ? note.files.length : 0;
-            const difficultyBadge = getDifficultyBadge(note.difficulty);
+
+            const tagsHTML = (note.tags || [])
+                .map(tag => `<span class="tag clickable" onclick="filterByTag('${tag}')">${tag}</span>`)
+                .join('');
 
             return `
                 <div class="note-folder" onclick='openFolder(${JSON.stringify(note).replace(/'/g, "&#39;")})'>
-                    <div class="folder-icon">${icon}</div>
+                    <div class="folder-icon">${getCategoryIcon(note.category)}</div>
+
                     <div class="folder-content">
                         <h3>${note.title}</h3>
+
                         <div class="note-meta">
-                            <span class="note-category">${note.category || 'General'}</span>
-                            ${difficultyBadge}
-                            <span class="note-date">📅 ${formattedDate}</span>
-                            <span class="note-files">📝 ${fileCount} files</span>
+                            <span>${note.category || 'General'}</span>
+                            ${getDifficultyBadge(note.difficulty)}
+                            <span>📅 ${formatDate(note.date)}</span>
                         </div>
+
+                        <div class="note-tags">${tagsHTML}</div>
                     </div>
                 </div>
             `;
         }).join('');
     }
 
-    // Get category icon
-    function getCategoryIcon(category) {
-        const icons = {
-            'Compute': '⚙️',
-            'Storage': '💾',
-            'Database': '🗄️',
-            'Networking': '🌐',
-            'Security': '🔒',
-            'Monitoring': '📊',
-            'Management': '🛠️',
-            'Fundamentals': '📚',
-            'General': '📂'
-        };
-        return icons[category] || '📂';
+    // ----------------------------
+    // RELATED NOTES
+    // ----------------------------
+
+    function getRelatedNotes(currentNote) {
+        if (!currentNote.tags) return [];
+
+        return notesData
+            .filter(n => n.folder !== currentNote.folder)
+            .map(n => {
+                const overlap = (n.tags || []).filter(t => currentNote.tags.includes(t)).length;
+                return { note: n, score: overlap };
+            })
+            .filter(x => x.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 5)
+            .map(x => x.note);
     }
 
-    // Format date for display
-    function formatDate(dateStr) {
-        const date = new Date(dateStr);
-        const options = { year: 'numeric', month: 'short', day: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
-    }
+    // ----------------------------
+    // MODAL
+    // ----------------------------
 
-    // Open folder modal to show files
     function openFolder(note) {
-        currentFolder = note;
-        document.getElementById('modalTitle').textContent = `${getCategoryIcon(note.category)} ${note.title}`;
+        document.getElementById('modalTitle').textContent = note.title;
 
-        const modalBody = document.getElementById('modalBody');
+        let html = '<div class="files-list">';
 
-        if (!note.files || note.files.length === 0) {
-            modalBody.innerHTML = '<p class="note-description">No files in this folder yet.</p>';
-        } else {
-            let filesHTML = '<div class="files-list">';
-
-            // Add images gallery link first if images exist
-            if (note.hasImages && note.images && note.images.length > 0) {
-                filesHTML += `
-                    <div class="file-item" data-action="gallery" data-folder="${note.folder}">
-                        <span class="file-icon">🖼️</span>
-                        <div class="file-info">
-                            <span class="file-name">Images Gallery (${note.images.length})</span>
-                            <span class="file-type">View all images</span>
-                        </div>
-                        <span class="file-arrow">→</span>
-                    </div>
-                `;
-            }
-
-            // Add other files
-            note.files.forEach((file, index) => {
-                filesHTML += `
-                    <div class="file-item" data-action="file" data-index="${index}">
-                        <span class="file-icon">${file.icon}</span>
-                        <div class="file-info">
-                            <span class="file-name">${file.name}</span>
-                            <span class="file-type">${getFileTypeLabel(file.type)}</span>
-                        </div>
-                        <span class="file-arrow">→</span>
+        if (note.files) {
+            note.files.forEach(file => {
+                html += `
+                    <div class="file-item" onclick="openFile('${note.folder}','${file.file}','${file.type}')">
+                        <span>${file.icon}</span>
+                        <span>${file.name}</span>
                     </div>
                 `;
             });
-
-            filesHTML += '</div>';
-            modalBody.innerHTML = filesHTML;
-
-            // Add click handlers to file items
-            attachFileClickHandlers(note);
         }
 
+        html += '</div>';
+
+        const related = getRelatedNotes(note);
+
+        if (related.length > 0) {
+            html += `<h3 style="margin-top:20px;">Related Notes</h3>`;
+            html += related.map(r => `
+                <div class="related-item" onclick='openFolder(${JSON.stringify(r).replace(/'/g, "&#39;")})'>
+                    ${r.title}
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('modalBody').innerHTML = html;
         document.getElementById('folderModal').classList.add('active');
     }
 
-    // Attach click handlers to file items
-    function attachFileClickHandlers(note) {
-        const fileItems = document.querySelectorAll('.file-item');
-
-        fileItems.forEach(item => {
-            item.addEventListener('click', function () {
-                const action = this.getAttribute('data-action');
-
-                if (action === 'gallery') {
-                    const folder = this.getAttribute('data-folder');
-                    openGallery(folder);
-                } else if (action === 'file') {
-                    const index = parseInt(this.getAttribute('data-index'));
-                    const file = note.files[index];
-                    openFile(note.folder, file.file, file.type);
-                }
-            });
-        });
-    }
-
-    // Close modal
     function closeModal() {
         document.getElementById('folderModal').classList.remove('active');
     }
 
-    // Get file type label
-    function getFileTypeLabel(type) {
-        const labels = {
-            'html': 'HTML Document',
-            'pdf': 'PDF Document',
-            'txt': 'Text File',
-            'doc': 'Word Document',
-            'link': 'External Link'
-        };
-        return labels[type] || 'File';
-    }
-
-    // Open gallery with folder parameter
-    function openGallery(folder) {
-        window.open(`data/notes/images.html?folder=${folder}`, '_self');
-    }
-
-    // Open file (navigate or download)
-    function openFile(folder, filename, type) {
-        // Special handling for external links
-        if (type === 'link') {
-            window.open(filename, '_blank');
-            return;
-        }
-
-        // For all other file types, construct the filepath
-        const filepath = `data/notes/${folder}/${filename}`;
-
-        if (type === 'html') {
-            window.open(filepath, '_self');
-        } else if (type === 'pdf' || type === 'txt') {
-            window.open(filepath, '_blank');
-        } else if (type === 'doc') {
-            const link = document.createElement('a');
-            link.href = filepath;
-            link.download = filename;
-            link.click();
-        }
-    }
-
-    // Close modal when clicking outside
     function setupModalClickOutside() {
         window.onclick = function (event) {
             const modal = document.getElementById('folderModal');
-            if (event.target === modal) {
-                closeModal();
-            }
+            if (event.target === modal) closeModal();
         };
     }
 
-    // Expose functions to global scope for HTML event handlers
+    // ----------------------------
+    // HELPERS
+    // ----------------------------
+
+    function filterByTag(tag) {
+        const el = document.getElementById('tagFilter');
+        if (el) el.value = tag;
+        filterNotes();
+    }
+
+    function getCategoryIcon(category) {
+        const icons = {
+            Compute: '⚙️',
+            Storage: '💾',
+            Database: '🗄️',
+            Networking: '🌐',
+            Security: '🔒',
+            Monitoring: '📊',
+            Management: '🛠️',
+            Fundamentals: '📚'
+        };
+        return icons[category] || '📂';
+    }
+
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
+    function getDifficultyBadge(difficulty) {
+        const map = {
+            Beginner: '🟢 Beginner',
+            Intermediate: '🟡 Intermediate',
+            Advanced: '🔴 Advanced'
+        };
+        return map[difficulty] ? `<span>${map[difficulty]}</span>` : '';
+    }
+
+    function openFile(folder, file, type) {
+        const path = `data/notes/${folder}/${file}`;
+
+        if (type === 'html') {
+            window.open(path, '_self');
+        } else {
+            window.open(path, '_blank');
+        }
+    }
+
+    // expose globally
     window.filterNotes = filterNotes;
     window.sortNotes = sortNotes;
     window.openFolder = openFolder;
     window.closeModal = closeModal;
-    window.openGallery = openGallery;
+    window.filterByTag = filterByTag;
+
 })();
