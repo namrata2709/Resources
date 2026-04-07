@@ -1,4 +1,4 @@
-<!D OCTYPE html>
+<!DOCTYPE html>
   <html lang="en">
 
   <head>
@@ -2315,8 +2315,9 @@ aws efs describe-lifecycle-configuration \
             <p class="warning-inline-note">⚠️ <strong>Requires your own AWS account.</strong> This project creates a
               VPC, EC2 instances, EFS file system, ALB, and Auto Scaling Group from scratch. Estimated cost: $1–$3 for a
               2–3 hour session.</p>
-            <section>
-              <h3 id="project-overview">🎯 Project Overview</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="project-overview">🎯 Project Overview</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">The project demonstrates the core EFS value proposition: shared
                   storage for a horizontally scalable fleet — all web servers serve the same files without sync.</span>
               </p>
@@ -2376,10 +2377,12 @@ aws efs describe-lifecycle-configuration \
                 megabytes stored). ALB = ~$0.02–0.03/hr. Running for 5–10 hours typically costs under $1–$2 total.
                 <strong>Always delete resources after the lab.</strong>
               </div>
-            </section>
+            </div>
+            </details>
 
-            <section>
-              <h3 id="project-part1">🔒 Project Part 1 — Create Security Groups</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="project-part1">🔒 Project Part 1 — Create Security Groups</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">The security group chain for EFS: EFSClient SG on EC2 → Mount
                   Target SG allows inbound <span class="exam-highlight-term">2049</span> from EFSClient SG — never open
                   port 2049 to 0.0.0.0/0.</span></p>
@@ -2466,10 +2469,12 @@ aws efs describe-lifecycle-configuration \
                 EFS-EC2-SG. Any EC2 instance in EFS-EC2-SG automatically gets EFS access — even brand-new instances
                 launched
                 by Auto Scaling at 3am.</div>
-            </section>
+            </div>
+            </details>
 
-            <section>
-              <h3 id="project-part2">📁 Project Part 2 — Create Amazon EFS</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="project-part2">📁 Project Part 2 — Create Amazon EFS</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">The EFS DNS name format is
                   <code>fs-id.efs.region.amazonaws.com</code> — it resolves to the mount target IP in the same AZ as the
                   requesting EC2 instance.</span></p>
@@ -2496,10 +2501,12 @@ aws efs describe-lifecycle-configuration \
               <p>Once created, go to your file system → click <strong>Attach</strong> → copy the EFS DNS name (e.g.,
                 <code>fs-12345678.efs.us-east-1.amazonaws.com</code>). You'll use this in Parts 4 and 9.
               </p>
-            </section>
+            </div>
+            </details>
 
-            <section>
-              <h3 id="project-part3">🖥️ Project Part 3 — Launch First EC2 Instance (Server 1)</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="project-part3">🖥️ Project Part 3 — Launch First EC2 Instance (Server 1)</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">Mount the EFS file system on all instances using the same DNS
                   name — each instance gets routed to its AZ-local mount target automatically.</span></p>
               <div class="diagram-container"><img src="images/screenshot-19-mount-on-server1.png" loading="lazy"
@@ -2521,10 +2528,12 @@ aws efs describe-lifecycle-configuration \
                 <li>Click <strong>Launch instance</strong>.</li>
                 <li>Wait for Status: <strong>Running</strong> and Status checks: <strong>2/2 passed</strong>.</li>
               </ol>
-            </section>
+            </div>
+            </details>
 
-            <section>
-              <h3 id="project-part4">🔌 Project Part 4 — Connect and Install</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="project-part4">🔌 Project Part 4 — Connect and Install</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">Verify the EFS mount with <span class="exam-highlight-term">df
                     -hT</span> — look for the nfs4 type entry with approximately 8.0E size, confirming the file system
                   is correctly mounted.</span></p>
@@ -2534,10 +2543,12 @@ aws efs describe-lifecycle-configuration \
               <pre><code>sudo yum install -y amazon-efs-utils</code></pre>
               <div class="error-box">❌ Wait at least 3 minutes after install before mounting. NFS daemons need time to
                 initialize. If you get NFS errors, <code>sudo reboot</code> and reconnect.</div>
-            </section>
+            </div>
+            </details>
 
-            <section>
-              <h3 id="project-part5">🗂️ Project Part 5 — Mount EFS on Server 1</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="project-part5">🗂️ Project Part 5 — Mount EFS on Server 1</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">The mount directory must exist before mounting — create it with
                   <span class="exam-highlight-term">mkdir -p</span> and ensure the path matches the entry in the mount
                   command.</span></p>
@@ -2555,10 +2566,12 @@ aws efs describe-lifecycle-configuration \
               <pre><code>df -h</code></pre>
               <p>Expected output includes an EFS line with <code>8.0E</code> size. Fix permissions:</p>
               <pre><code>sudo chown ec2-user:ec2-user /efs</code></pre>
-            </section>
+            </div>
+            </details>
 
-            <section>
-              <h3 id="project-part6">📝 Project Part 6 — Create the Shared File</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="project-part6">📝 Project Part 6 — Create the Shared File</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">Files written to the EFS mount point are stored on the shared
                   file system — they are not local to the instance and persist after the instance stops.</span></p>
               <p>Create a file inside EFS — this file will be visible from every server that mounts the same EFS:</p>
@@ -2570,10 +2583,12 @@ cat shared.txt</code></pre>
               <div class="highlight-box">⚡ This is the key insight: EFS is independent of any individual EC2 instance.
                 Files
                 survive instance terminations, replacements, and scale-in events.</div>
-            </section>
+            </div>
+            </details>
 
-            <section>
-              <h3 id="project-part7">🖥️ Project Part 7 — Launch Second EC2 Instance (Server 2)</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="project-part7">🖥️ Project Part 7 — Launch Second EC2 Instance (Server 2)</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">Any instance mounting the same EFS can read files written by any
                   other instance — this is the key behavior that enables <span
                     class="exam-highlight-term">stateless</span> web server fleets.</span></p>
@@ -2588,10 +2603,12 @@ cat shared.txt</code></pre>
                 </li>
                 <li>Launch and wait for Running state.</li>
               </ol>
-            </section>
+            </div>
+            </details>
 
-            <section>
-              <h3 id="project-part8">🔌 Project Part 8 — Mount EFS on Server 2</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="project-part8">🔌 Project Part 8 — Mount EFS on Server 2</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">Testing cross-instance file visibility requires both instances to
                   be mounted to the same EFS simultaneously — verify with <span class="exam-highlight-term">mount | grep
                     nfs4</span> on each.</span></p>
@@ -2600,10 +2617,12 @@ cat shared.txt</code></pre>
 # Wait 3 minutes
 sudo mkdir /efs
 sudo mount -t efs fs-12345678:/ /efs</code></pre>
-            </section>
+            </div>
+            </details>
 
-            <section>
-              <h3 id="project-part9">✅ Project Part 9 — Verify Shared Storage</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="project-part9">✅ Project Part 9 — Verify Shared Storage</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">The shared index.html on EFS means all web servers serve
                   identical content without any file sync — adding a new server requires only mounting EFS.</span></p>
               <div class="diagram-container"><img src="images/screenshot-21-apache-serving-efs-content.png"
@@ -2639,10 +2658,12 @@ echo "Reply from Server 2" >> /efs/shared.txt
 cat /efs/shared.txt
 # Both lines visible instantly</code></pre>
               </div>
-          </section>
+          </div>
+            </details>
 
-          <section>
-            <h3 id="project-part10">🌐 Project Part 10 — Add Web Server (Apache)</h3>
+          <details class="collapsible-section">
+            <summary><h3 id="project-part10">🌐 Project Part 10 — Add Web Server (Apache)</h3></summary>
+              <div class="section-content">
             <p><span class="exam-highlight-sentence">Apache on EC2 serves files from <span
                   class="exam-highlight-term">/var/www/html</span> — mounting EFS at that path makes all servers share
                 the same web root automatically.</span></p>
@@ -2676,10 +2697,12 @@ sudo systemctl enable httpd</code></pre>
               servers serve the same content from shared storage. Uploads processed by one server are immediately
               accessible
               through all others.</div>
-          </section>
+          </div>
+            </details>
 
-          <section>
-            <h3 id="project-part11">📈 Project Part 11 — Understand Auto Scaling with EFS</h3>
+          <details class="collapsible-section">
+            <summary><h3 id="project-part11">📈 Project Part 11 — Understand Auto Scaling with EFS</h3></summary>
+              <div class="section-content">
             <p><span class="exam-highlight-sentence">A third server added to the fleet gains access to all existing
                 content immediately on mount — no data copy, no sync job, no deployment pipeline.</span></p>
             <p>Now imagine Auto Scaling launches a third server at 2pm when traffic spikes. This is what happens
@@ -2711,10 +2734,12 @@ ln -s /efs/index.html /var/www/html/index.html</code></pre>
               because storage (EFS) is shared and persistent. Adding or removing servers has zero impact on data
               consistency
               — every server always sees the same files.</div>
-          </section>
+          </div>
+            </details>
 
-          <section>
-            <h3 id="project-cleanup">🗑️ Project Cleanup — Always Delete Resources</h3>
+          <details class="collapsible-section">
+            <summary><h3 id="project-cleanup">🗑️ Project Cleanup — Always Delete Resources</h3></summary>
+              <div class="section-content">
             <p><span class="exam-highlight-sentence">Always unmount EFS before deleting mount targets — deleting mount
                 targets while instances are mounted causes <span class="exam-highlight-term">stale NFS handles</span>
                 and kernel errors.</span></p>
@@ -2756,10 +2781,12 @@ ln -s /efs/index.html /var/www/html/index.html</code></pre>
                 </tr>
               </tbody>
             </table>
-          </section>
+          </div>
+            </details>
 
-          <section>
-            <h3 id="project-what-you-learned">🎓 What You Learned from This Project</h3>
+          <details class="collapsible-section">
+            <summary><h3 id="project-what-you-learned">🎓 What You Learned from This Project</h3></summary>
+              <div class="section-content">
             <p><span class="exam-highlight-sentence">EFS enables horizontal scaling of stateful applications — the file
                 system scales storage automatically and serves all instances from a single namespace.</span></p>
             <ul>
@@ -2777,7 +2804,8 @@ ln -s /efs/index.html /var/www/html/index.html</code></pre>
                 When
                 one instance needs fast local block I/O → EBS. When you need global object access via API → S3.</li>
             </ul>
-          </section>
+          </div>
+            </details>
 
         </details>
 
@@ -2788,8 +2816,9 @@ ln -s /efs/index.html /var/www/html/index.html</code></pre>
             <h2 id="reference-sections">📚 REFERENCE SECTIONS</h2>
           </summary>
           <div class="section-content">
-            <section>
-              <h3 id="break-fix">🔧 Guided Failure Exercise — Break and Fix EFS</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="break-fix">🔧 Guided Failure Exercise — Break and Fix EFS</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">The most common EFS connectivity break is a missing or wrong
                   security group rule — always check the mount target SG inbound rules first when NFS <span
                     class="exam-highlight-term">times out</span>.</span></p>
@@ -2855,10 +2884,12 @@ touch efs/newfile.txt</code></pre>
                   <li>Always get mount commands from EFS → Attach, never from memory</li>
                 </ul>
               </div>
-            </section>
+            </div>
+            </details>
 
-            <section>
-              <h3 id="troubleshooting">🔍 Troubleshooting Reference</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="troubleshooting">🔍 Troubleshooting Reference</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">EFS mount failures follow a predictable pattern: wrong DNS →
                   connection refused; wrong SG → connection timeout; wrong mount options → <span
                     class="exam-highlight-term">mount error 13</span> (permission denied).</span></p>
@@ -2984,10 +3015,12 @@ touch efs/newfile.txt</code></pre>
                   </tr>
                 </tbody>
               </table>
-            </section>
+            </div>
+            </details>
 
-            <section>
-              <h3 id="noisy-neighbor">🔊 The Noisy Neighbor Problem</h3>
+            <details class="collapsible-section">
+              <summary><h3 id="noisy-neighbor">🔊 The Noisy Neighbor Problem</h3></summary>
+              <div class="section-content">
               <p><span class="exam-highlight-sentence">EFS Bursting throughput is shared across the file system — a
                   noisy neighbor is another process or instance exhausting the <span class="exam-highlight-term">burst
                     credits</span>, causing throttling for all other clients.</span></p>
@@ -3021,7 +3054,8 @@ touch efs/newfile.txt</code></pre>
                 throughput drops to baseline (50 MiB/s per TiB of storage). Credits replenish at 1 MiB/s per TiB of
                 storage
                 — so a small lab file system takes overnight to fully replenish.</div>
-            </section>
+            </div>
+            </details>
           </div>
         </details>
 
