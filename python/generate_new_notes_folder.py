@@ -44,6 +44,18 @@ def create_structure():
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write("{}")
 
+        # ✅ NEW: markdown folder
+        markdown_path = os.path.join(base_path, "markdown")
+        os.makedirs(markdown_path, exist_ok=True)
+
+        # Markdown files
+        md_files = ["screenshot.md", "image.md"]
+
+        for file_name in md_files:
+            file_path = os.path.join(markdown_path, file_name)
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write("# " + file_name.replace(".md", "").capitalize() + "\n")
+
         print(f"\n✅ Created successfully at: {os.path.abspath(base_path)}")
 
     except Exception as e:

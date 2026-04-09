@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Master AWS Auto Scaling Group health checks and scaling policies — EC2 health checks, ELB health checks, simple scaling, step scaling, and load balancer integration explained with diagrams.">
+    <meta name="keywords"
+        content="AWS, Auto Scaling Group, EC2 health checks, ELB health checks, simple scaling, step scaling, CloudWatch alarms, cloud, certification">
+    <meta property="og:title" content="Auto Scaling Policies &amp; Health Checks - AWS Training">
+    <meta property="og:description"
+        content="Master AWS Auto Scaling Group health checks and scaling policies — EC2 health checks, ELB health checks, simple scaling, step scaling, and load balancer integration explained with diagrams.">
+    <meta property="og:type" content="article">
+    <meta property="og:url"
+        content="https://namrata2709.github.io/Resources/data/notes/auto-scaling-policies/auto-scaling-policies-complete.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/auto-scaling-policies/images/asg-health-check-overview.png">
+    <link rel="canonical"
+        href="https://namrata2709.github.io/Resources/data/notes/auto-scaling-policies/auto-scaling-policies-complete.html">
+    <title>Auto Scaling Policies &amp; Health Checks - Complete Notes - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+    <script src="../../../js/theme.js"></script>
+</head>
+
+<body class="complete-notes">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Auto Scaling Policies & Health Checks","description":"Master AWS Auto Scaling Group health checks and scaling policies — EC2 health checks, ELB health checks, simple scaling, step scaling, and load balancer integration explained with diagrams.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-11-13","dateModified":"2025-11-13","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/auto-scaling-policies/auto-scaling-policies-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/auto-scaling-policies/images/asg-health-check-overview.png","articleSection":"AWS Training","keywords":["AWS","Auto Scaling Group","EC2 Health Checks","ELB Health Checks","Simple Scaling","Step Scaling","CloudWatch"],"educationalLevel":"Beginner to Intermediate"}</script>
+    <div class="note-container">
+        <div class="note-header">
+            <h1>Auto Scaling Policies &amp; Health Checks</h1>
+            <p class="note-date">📅 November 13, 2025</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> November 13, 2025</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="note-content">
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="introduction">🚀 Introduction</h2>
+                </summary>
+                <div class="section-content">
+                    <p>You've already learned how to create an Auto Scaling Group and how Load Balancers distribute
+                        traffic across your EC2 instances. But here's a question — <em>how does AWS know when an
+                            instance has gone bad and needs to be replaced?</em> And once it knows, <em>how does it
+                            decide how many new instances to spin up?</em></p>
+                    <p>That's exactly what today's session answers. We're going deep into two core capabilities of Auto
+                        Scaling Groups: <strong>Health Checks</strong> (how ASG detects sick instances) and
+                        <strong>Scaling Policies</strong> (how ASG decides to scale up or down).</p>
+                    <div class="diagram-container"><img src="images/asg-health-check-overview.png" decoding="async"
+                            alt="Overview diagram showing Auto Scaling Group in the centre with EC2 health checks on the left and Elastic Load Balancer health checks on the right, both feeding into the ASG decision engine, which then either keeps, replaces, or terminates instances">
+                        <p class="diagram-caption"><em>Figure 1: How health checks and scaling policies work together
+                                inside an Auto Scaling Group</em></p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Key Idea:</strong> Auto Scaling Groups are not just about launching instances —
+                            they are about keeping the right number of <em>healthy</em> instances running at all times.
+                            Health checks and scaling policies are what make that possible.</p>
+                    </div>
+                    <h3 id="what-you-will-learn">What You Will Learn</h3>
+                    <ul>
+                        <li>How ASG uses EC2 health checks to detect failed instances</li>
+                        <li>How Elastic Load Balancer health checks give ASG smarter detection</li>
+                        <li>The difference between Simple Scaling and Step Scaling</li>
+                        <li>When to use each scaling policy in real production environments</li>
+                        <li>How CloudWatch alarms trigger scaling actions</li>
+                        <li>Best practices for health check grace periods</li>
+                    </ul>
+                    <div class="info-box">
+                        <p>💡 <strong>Prerequisites:</strong> This session builds on Auto Scaling Groups (ASG), Launch
+                            Templates, and Elastic Load Balancers (ELB). If you're unclear on any of these, review those
+                            sessions first before continuing here.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="health-checks">🏥 Health Checks — How ASG Detects Sick Instances</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Imagine you have a fleet of 10 EC2 instances running your application behind a Load Balancer.
+                        What if instance #4 crashes? Or what if it's technically running but your web application on it
+                        is broken? AWS needs a way to detect this automatically — and that's what <strong>health
+                            checks</strong> do.</p>
+                    <p>Think of health checks like a doctor visiting each instance periodically. The doctor asks "are
+                        you alive and doing your job?" If the answer is no, the Auto Scaling Group fires that instance
+                        and hires a replacement.</p>
+                    <div class="diagram-container"><img src="images/asg-health-check-types.png" decoding="async"
+                            alt="Side-by-side comparison showing EC2 health checks on the left detecting system-level failures and ELB health checks on the right detecting application-level failures, with arrows showing how both report to the ASG replacement engine">
+                        <p class="diagram-caption"><em>Figure 2: Two types of health checks — system-level (EC2) and
+                                application-level (ELB)</em></p>
+                    </div>
+                    <h3 id="ec2-health-checks">EC2 Health Checks — Always On</h3>
+                    <p>The first type of health check is built into every Auto Scaling Group — you cannot turn it off.
+                        <span class="exam-highlight-sentence">EC2 health checks monitor the <span
+                                class="exam-highlight-term">system status</span> and <span
+                                class="exam-highlight-term">instance status</span> of each EC2 instance in the
+                            group.</span></p>
+                    <p>These checks happen at the <strong>hypervisor and infrastructure level</strong>. They detect
+                        problems like:</p>
+                    <ul>
+                        <li>The physical host machine has failed (hardware issue)</li>
+                        <li>The network card has lost connectivity</li>
+                        <li>The instance is stuck in a reboot loop</li>
+                        <li>The system has run out of memory and crashed entirely</li>
+                    </ul>
+                    <div class="info-box">
+                        <p>💡 <strong>Analogy:</strong> EC2 health checks are like checking whether a person has a
+                            heartbeat. They only tell you if the person is alive at a basic biological level — not
+                            whether they're doing their job properly.</p>
+                    </div>
+                    <p>When an EC2 health check fails, the ASG marks the instance as <code>Unhealthy</code>, terminates
+                        it, and launches a replacement automatically.</p>
+                    <p><span class="exam-highlight-sentence">EC2 health checks check the status of the <span
+                                class="exam-highlight-term">EC2 instance itself</span> — not whether your application
+                            inside it is working.</span> This is the key limitation of EC2-only health checks.</p>
+                    <h3 id="elb-health-checks">ELB Health Checks — Recommended</h3>
+                    <p>The second type is the <strong>Elastic Load Balancing health check</strong>, and it's
+                        significantly smarter. <span class="exam-highlight-sentence">When ELB health checks are enabled,
+                            the Load Balancer periodically sends a request to a specific <span
+                                class="exam-highlight-term">health check endpoint</span> (like <code>/health</code>) on
+                            each instance and checks for a valid HTTP response.</span></p>
+                    <div class="diagram-container"><img src="images/elb-health-check-flow.png" loading="lazy"
+                            decoding="async"
+                            alt="Flowchart showing the ELB sending HTTP GET requests to /health on each EC2 instance, receiving either HTTP 200 OK (healthy) or no response or error (unhealthy), then reporting unhealthy instances to the ASG which terminates and replaces them">
+                        <p class="diagram-caption"><em>Figure 3: ELB health check flow — from request to ASG
+                                replacement</em></p>
+                    </div>
+                    <p>This means the Load Balancer is checking:</p>
+                    <ul>
+                        <li>Is the application actually responding to requests?</li>
+                        <li>Is it returning the correct HTTP status code (usually 200)?</li>
+                        <li>Is the response within the acceptable time window?</li>
+                    </ul>
+                    <p><span class="exam-highlight-sentence">An instance can pass EC2 health checks but fail ELB health
+                            checks — this happens when the EC2 instance is running fine but the <span
+                                class="exam-highlight-term">application inside it has crashed</span> or is
+                            misbehaving.</span> This is why ELB health checks are strongly recommended for production
+                        environments.</p>
+                    <div class="provided-image"><img src="images/screenshot-health-checks-console.png" loading="lazy"
+                            decoding="async"
+                            alt="AWS Console screenshot showing Health Checks section with EC2 health checks marked as Always enabled and the checkbox for Turn on Elastic Load Balancing health checks checked with the Recommended badge visible">
+                        <div class="image-note">
+                            <p><strong>📸 From Session:</strong> The AWS Console showing EC2 health checks as always
+                                enabled and the option to turn on ELB health checks (recommended)</p>
+                        </div>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ When ELB health checks are enabled, AWS shows a warning: <em>"EC2 Auto Scaling will start
+                                to detect and act on health checks performed by Elastic Load Balancing. To avoid
+                                unexpected terminations, first verify the settings of these health checks in the Load
+                                Balancer console."</em></p>
+                        <p>This is important — before enabling this, make sure your Load Balancer target group health
+                            check is configured correctly. Otherwise, ASG might start terminating healthy instances if
+                            the health check endpoint doesn't exist.</p>
+                    </div>
+                    <h3 id="health-check-grace-period">Health Check Grace Period</h3>
+                    <p>Here's an important gotcha — when ASG launches a new instance, that instance needs time to boot
+                        up, install software, and start serving traffic. If health checks fire during this startup
+                        window, the instance will fail the check and get immediately terminated — even though it was
+                        perfectly fine and just wasn't ready yet.</p>
+                    <p><span class="exam-highlight-sentence">The <span class="exam-highlight-term">health check grace
+                                period</span> is the amount of time (in seconds) that ASG waits after launching a new
+                            instance before it starts running health checks on it.</span></p>
+                    <div class="info-box">
+                        <p>📚 According to AWS documentation, the default grace period is <span
+                                class="exam-highlight-term">300 seconds (5 minutes)</span>. If your instances take
+                            longer to boot (e.g., they run a large startup script), you should increase this value
+                            accordingly.</p>
+                        <p><strong>📚 Source:</strong> <a
+                                href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/health-check-grace-period.html"
+                                target="_blank" rel="noopener noreferrer">AWS Auto Scaling Health Check Grace Period
+                                Docs</a></p>
+                    </div>
+                    <div class="success-box">
+                        <p>✅ <strong>Best Practice:</strong> Set the grace period to at least 60 seconds more than your
+                            typical instance startup time. If your app takes 3 minutes to start, set grace period to 240
+                            seconds (4 minutes).</p>
+                    </div>
+                    <h3 id="health-check-comparison">EC2 vs ELB Health Checks — Quick Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>EC2 Health Checks</th>
+                                <th>ELB Health Checks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Always enabled?</td>
+                                <td>✅ Yes — cannot disable</td>
+                                <td>❌ Optional (but recommended)</td>
+                            </tr>
+                            <tr>
+                                <td>What it checks</td>
+                                <td>Instance status (infrastructure)</td>
+                                <td>Application response (HTTP)</td>
+                            </tr>
+                            <tr>
+                                <td>Detects app crashes?</td>
+                                <td>❌ No</td>
+                                <td>✅ Yes</td>
+                            </tr>
+                            <tr>
+                                <td>Detects hardware failure?</td>
+                                <td>✅ Yes</td>
+                                <td>✅ Yes (via no response)</td>
+                            </tr>
+                            <tr>
+                                <td>Recommended for production?</td>
+                                <td>Not alone</td>
+                                <td>✅ Strongly yes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="cloudwatch-alarms-and-scaling">⏰ CloudWatch Alarms — The Trigger for Scaling</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Before we talk about scaling policies, you need to understand the engine that drives them:
+                        <strong>Amazon CloudWatch Alarms</strong>.</p>
+                    <p>Think of CloudWatch as a security camera that's always watching your metrics. You tell it: "If
+                        CPU goes above 70% for 5 minutes, alert me." When that alarm fires, it can trigger an Auto
+                        Scaling action — like "add 2 more instances."</p>
+                    <div class="diagram-container"><img src="images/cloudwatch-alarm-scaling-flow.png" loading="lazy"
+                            decoding="async"
+                            alt="End-to-end flow diagram: EC2 instances send CPU metrics to CloudWatch every minute, CloudWatch evaluates the alarm threshold, if threshold breached the alarm state changes to ALARM, which triggers the Auto Scaling Group scaling policy to add or remove instances">
+                        <p class="diagram-caption"><em>Figure 4: How CloudWatch alarms connect to Auto Scaling Group
+                                scaling actions</em></p>
+                    </div>
+                    <p><span class="exam-highlight-sentence">Both <span class="exam-highlight-term">Simple
+                                Scaling</span> and <span class="exam-highlight-term">Step Scaling</span> policies are
+                            triggered by <span class="exam-highlight-term">CloudWatch Alarms</span>.</span> The alarm
+                        watches a metric (like CPU utilization, network traffic, or a custom metric) and fires when it
+                        crosses a threshold you define.</p>
+                    <h3 id="cloudwatch-alarm-states">CloudWatch Alarm States</h3>
+                    <p>A CloudWatch alarm is always in one of three states:</p>
+                    <ul>
+                        <li><strong>OK:</strong> The metric is within the defined threshold — no action needed.</li>
+                        <li><strong>ALARM:</strong> The metric has breached the threshold — triggers the scaling action.
+                        </li>
+                        <li><strong>INSUFFICIENT_DATA:</strong> Not enough data points yet to evaluate the alarm (common
+                            right after creation).</li>
+                    </ul>
+                    <div class="info-box">
+                        <p>💡 <strong>Example:</strong> You create a CloudWatch alarm: "If average CPU utilization &gt;
+                            70% for 2 consecutive 5-minute periods, go to ALARM state." When your instances get busy and
+                            CPU hits 80% for 10 minutes, the alarm fires and tells the ASG to scale out.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="scaling-policies">📈 Scaling Policies — Simple vs Step Scaling</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Now that you understand health checks and CloudWatch alarms, let's talk about the most important
+                        question: when an alarm fires, <em>exactly how many instances does ASG add or remove?</em></p>
+                    <p>The answer depends on the <strong>Scaling Policy</strong> you configure. AWS offers several
+                        types, but the two you need to understand thoroughly for both production use and exams are
+                        <strong>Simple Scaling</strong> and <strong>Step Scaling</strong>.</p>
+                    <div class="provided-image"><img src="images/screenshot-simple-vs-step-comparison.png"
+                            loading="lazy" decoding="async"
+                            alt="Comparison table from session showing Simple Scaling vs Step Scaling with rows for Scaling Type (Fixed number vs Variable step-based), Uses CloudWatch Alarms (Yes for both), Granularity (Basic vs Fine control), and Use Case (Demos simple workloads vs Real production scaling)">
+                        <div class="image-note">
+                            <p><strong>📸 From Session:</strong> Professor's comparison table — Simple Scaling vs Step
+                                Scaling</p>
+                        </div>
+                    </div>
+                    <h3 id="simple-scaling">Simple Scaling — The Basics</h3>
+                    <p>Simple scaling is exactly what it sounds like — simple. <span
+                            class="exam-highlight-sentence">With <span class="exam-highlight-term">Simple
+                                Scaling</span>, when a CloudWatch alarm fires, the ASG adds or removes a <span
+                                class="exam-highlight-term">fixed number</span> of instances, regardless of how bad the
+                            alarm condition is.</span></p>
+                    <p>For example: "When CPU &gt; 70%, add <strong>2</strong> instances." It doesn't matter if CPU is
+                        71% or 99% — you always get exactly 2 more instances.</p>
+                    <div class="info-box">
+                        <p>💡 <strong>Analogy:</strong> Simple scaling is like a thermostat that only has one setting —
+                            "too hot? Open one window." Whether it's 1 degree too hot or 20 degrees too hot, you open
+                            exactly one window. It's better than nothing, but not very smart.</p>
+                    </div>
+                    <p><span class="exam-highlight-sentence">After a Simple Scaling action executes, there is a <span
+                                class="exam-highlight-term">cooldown period</span> during which no further scaling
+                            actions occur, even if the alarm is still firing.</span> The default cooldown is <span
+                            class="exam-highlight-term">300 seconds</span>.</p>
+                    <div class="diagram-container"><img src="images/simple-scaling-flow.png" loading="lazy"
+                            decoding="async"
+                            alt="Timeline diagram showing CPU rising above 70 percent threshold at T=0, CloudWatch alarm fires at T=5min, Simple Scaling adds exactly 2 instances, cooldown of 300 seconds begins during which alarm is ignored, then at T=10min monitoring resumes">
+                        <p class="diagram-caption"><em>Figure 5: Simple Scaling — fixed response with cooldown
+                                period</em></p>
+                    </div>
+                    <p><strong>When to use Simple Scaling:</strong></p>
+                    <ul>
+                        <li>Learning environments, demos, and proof-of-concept setups</li>
+                        <li>Very predictable, uniform workloads where load spikes are always similar in size</li>
+                        <li>When you want the simplest possible configuration to get started</li>
+                    </ul>
+                    <p><strong>Limitations of Simple Scaling:</strong></p>
+                    <ul>
+                        <li>Cannot respond proportionally to the severity of the alarm</li>
+                        <li>Cooldown period means it can't react quickly to rapidly escalating load</li>
+                        <li>In a real production burst, it may always be slightly under-provisioned</li>
+                    </ul>
+                    <h3 id="step-scaling">Step Scaling — Smarter Responses</h3>
+                    <p>Step Scaling solves the core problem of Simple Scaling. <span
+                            class="exam-highlight-sentence">With <span class="exam-highlight-term">Step Scaling</span>,
+                            you define multiple <span class="exam-highlight-term">step adjustments</span> — each step
+                            triggers a different scaling amount based on how much the metric has exceeded the
+                            threshold.</span></p>
+                    <p>Here's a real example:</p>
+                    <ul>
+                        <li>CPU between 60%–70%: Add <strong>1</strong> instance (mild load)</li>
+                        <li>CPU between 70%–85%: Add <strong>2</strong> instances (moderate load)</li>
+                        <li>CPU above 85%: Add <strong>4</strong> instances (heavy load)</li>
+                    </ul>
+                    <div class="diagram-container"><img src="images/step-scaling-steps-diagram.png" loading="lazy"
+                            decoding="async"
+                            alt="Step chart diagram showing CPU percentage on the X axis and number of instances added on the Y axis, with three distinct steps: 1 instance added for 60-70 percent, 2 instances for 70-85 percent, and 4 instances for over 85 percent, with color coding green yellow red for mild moderate severe">
+                        <p class="diagram-caption"><em>Figure 6: Step Scaling — proportional response based on metric
+                                severity</em></p>
+                    </div>
+                    <p><span class="exam-highlight-sentence">Step Scaling does <span
+                                class="exam-highlight-term">not</span> have a cooldown period — instead it uses an <span
+                                class="exam-highlight-term">instance warmup</span> period, allowing it to respond to
+                            rapidly changing load conditions much faster than Simple Scaling.</span></p>
+                    <div class="info-box">
+                        <p>💡 <strong>Analogy:</strong> Step Scaling is like a smart air conditioner. If the room is
+                            slightly warm (1°C over), it runs at low power. If the room is very hot (10°C over), it
+                            blasts at maximum. The response matches the severity of the problem.</p>
+                    </div>
+                    <p><strong>When to use Step Scaling:</strong></p>
+                    <ul>
+                        <li>Production environments with variable traffic patterns</li>
+                        <li>Applications where load can spike sharply (e-commerce during a sale, news sites during
+                            breaking events)</li>
+                        <li>Any scenario where you need fine-grained, proportional scaling responses</li>
+                    </ul>
+                    <h3 id="simple-vs-step-comparison">Simple vs Step — Full Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Simple Scaling</th>
+                                <th>Step Scaling</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Scaling Type</td>
+                                <td>Fixed number</td>
+                                <td>Variable (step-based)</td>
+                            </tr>
+                            <tr>
+                                <td>Uses CloudWatch Alarms</td>
+                                <td>✅ Yes</td>
+                                <td>✅ Yes</td>
+                            </tr>
+                            <tr>
+                                <td>Granularity</td>
+                                <td>Basic</td>
+                                <td>Fine control</td>
+                            </tr>
+                            <tr>
+                                <td>Cooldown period</td>
+                                <td>✅ Yes (300s default)</td>
+                                <td>❌ No (uses warmup instead)</td>
+                            </tr>
+                            <tr>
+                                <td>Responds to severity?</td>
+                                <td>❌ No — always same amount</td>
+                                <td>✅ Yes — scales more when worse</td>
+                            </tr>
+                            <tr>
+                                <td>Use Case</td>
+                                <td>Demos, simple workloads</td>
+                                <td>Real production scaling</td>
+                            </tr>
+                            <tr>
+                                <td>Configuration complexity</td>
+                                <td>Low</td>
+                                <td>Medium</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="success-box">
+                        <p>✅ <strong>Exam Tip:</strong> If a scenario asks "which scaling policy responds proportionally
+                            to the severity of the alarm?" — the answer is always <strong>Step Scaling</strong>. If it
+                            asks "which has a cooldown period?" — the answer is <strong>Simple Scaling</strong>.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="other-scaling-policies">🔄 Other Scaling Policy Types</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Beyond Simple and Step Scaling, AWS offers three more scaling policy types. These are important
+                        to know for exams and for designing production systems.</p>
+                    <div class="diagram-container"><img src="images/all-scaling-policies-overview.png" loading="lazy"
+                            decoding="async"
+                            alt="Overview diagram showing five scaling policy types arranged in two rows: top row shows Simple Scaling and Step Scaling side by side as reactive policies, bottom row shows Target Tracking Scaling, Scheduled Scaling, and Predictive Scaling as the three additional policy types, with brief descriptions under each">
+                        <p class="diagram-caption"><em>Figure 7: All five Auto Scaling policy types and when to use
+                                each</em></p>
+                    </div>
+                    <h3 id="target-tracking-scaling">Target Tracking Scaling — The Smartest</h3>
+                    <p><span class="exam-highlight-sentence"><span class="exam-highlight-term">Target Tracking
+                                Scaling</span> automatically adjusts the number of instances to keep a specific metric
+                            at a target value you define.</span></p>
+                    <p>Example: "Keep average CPU at 50%." AWS figures out how many instances are needed to achieve this
+                        — you don't define the scaling amounts at all. It's like cruise control for your infrastructure.
+                    </p>
+                    <div class="info-box">
+                        <p>💡 This is the most recommended policy for most production use cases. AWS manages the
+                            scale-out and scale-in logic automatically, reducing configuration complexity while
+                            providing excellent responsiveness.</p>
+                    </div>
+                    <h3 id="scheduled-scaling">Scheduled Scaling — Plan Ahead</h3>
+                    <p><span class="exam-highlight-sentence"><span class="exam-highlight-term">Scheduled Scaling</span>
+                            adjusts the minimum and maximum instance count at specific <span
+                                class="exam-highlight-term">scheduled times</span> — like a recurring calendar entry for
+                            your infrastructure.</span></p>
+                    <p>Example: "Every Monday–Friday at 8 AM, increase to 10 instances. At 8 PM, scale back to 2
+                        instances." This is perfect for predictable business-hours traffic patterns.</p>
+                    <h3 id="predictive-scaling">Predictive Scaling — Machine Learning</h3>
+                    <p><span class="exam-highlight-sentence"><span class="exam-highlight-term">Predictive Scaling</span>
+                            uses machine learning to analyze historical traffic patterns and proactively provision
+                            instances <span class="exam-highlight-term">before</span> demand actually arrives.</span>
+                    </p>
+                    <p>Example: If your application gets a traffic spike every Friday evening at 6 PM, Predictive
+                        Scaling recognizes this pattern and starts spinning up extra instances at 5:30 PM — before the
+                        spike hits. You're always ahead of demand, never playing catch-up.</p>
+                    <div class="success-box">
+                        <p>✅ <strong>Quick Decision Guide:</strong><br>Use <strong>Target Tracking</strong> as your
+                            default for most production systems.<br>Add <strong>Scheduled Scaling</strong> for
+                            predictable time-based patterns.<br>Add <strong>Predictive Scaling</strong> when you have at
+                            least 2 weeks of traffic history and recurring patterns.<br>Use <strong>Step
+                                Scaling</strong> when you need very specific, customized responses.<br>Use
+                            <strong>Simple Scaling</strong> only for demos and testing.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="scaling-policy-decision-tree">🗺️ Which Scaling Policy Should You Use?</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Choosing the right scaling policy comes down to understanding your traffic pattern and how much
+                        control you want. Use this decision tree as your guide:</p>
+                    <div class="diagram-container"><img src="images/scaling-policy-decision-tree.png" loading="lazy"
+                            decoding="async"
+                            alt="Decision tree flowchart starting with Is your traffic pattern predictable branching YES to Do you know exact times which leads to Scheduled Scaling or NO leads to Predictive Scaling, and branching NO to Do you want auto-managed target which leads to Target Tracking Scaling or Do you need proportional response which leads to Step Scaling otherwise Simple Scaling">
+                        <p class="diagram-caption"><em>Figure 8: Decision tree for choosing the right Auto Scaling
+                                policy</em></p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Scenario</th>
+                                <th>Best Policy</th>
+                                <th>Why</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Traffic spikes unpredictably</td>
+                                <td>Target Tracking</td>
+                                <td>Automatically adjusts — no manual tuning</td>
+                            </tr>
+                            <tr>
+                                <td>Office hours traffic pattern</td>
+                                <td>Scheduled Scaling</td>
+                                <td>You know exactly when load will come</td>
+                            </tr>
+                            <tr>
+                                <td>Daily peaks at same time</td>
+                                <td>Predictive Scaling</td>
+                                <td>ML learns and provisions ahead of time</td>
+                            </tr>
+                            <tr>
+                                <td>Need proportional response to severity</td>
+                                <td>Step Scaling</td>
+                                <td>Scale more when load is worse</td>
+                            </tr>
+                            <tr>
+                                <td>Learning, demo, or lab setup</td>
+                                <td>Simple Scaling</td>
+                                <td>Easiest to understand and configure</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="load-balancer-integration">⚖️ Load Balancer Integration with ASG</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Auto Scaling Groups and Load Balancers are designed to work together. Without this integration,
+                        you'd have to manually register every new instance with the Load Balancer every time ASG
+                        launches one — which defeats the whole purpose of automation.</p>
+                    <div class="diagram-container"><img src="images/asg-elb-integration.png" loading="lazy"
+                            decoding="async"
+                            alt="Architecture diagram showing Internet users sending requests to an Application Load Balancer which distributes to a Target Group containing 3 EC2 instances managed by an Auto Scaling Group, with arrows showing ASG automatically registering new instances with the Target Group and deregistering terminated ones">
+                        <p class="diagram-caption"><em>Figure 9: How ASG integrates with Application Load Balancer
+                                through Target Groups</em></p>
+                    </div>
+                    <p><span class="exam-highlight-sentence">When you attach a Load Balancer to an Auto Scaling Group,
+                            ASG <span class="exam-highlight-term">automatically registers</span> newly launched
+                            instances with the Load Balancer's Target Group, and <span
+                                class="exam-highlight-term">deregisters</span> instances before terminating them.</span>
+                    </p>
+                    <h3 id="connection-draining">Connection Draining (Deregistration Delay)</h3>
+                    <p>What happens to users who are already connected to an instance when ASG decides to terminate it?
+                        This is where <strong>Connection Draining</strong> (also called Deregistration Delay) becomes
+                        important.</p>
+                    <p><span class="exam-highlight-sentence"><span class="exam-highlight-term">Connection
+                                Draining</span> allows in-flight requests to complete before the instance is removed
+                            from the Target Group. The Load Balancer stops sending new requests to the draining instance
+                            but allows existing connections to finish within a configurable timeout.</span></p>
+                    <div class="info-box">
+                        <p>📚 According to AWS documentation, the default deregistration delay is <span
+                                class="exam-highlight-term">300 seconds</span>. You can configure it from <span
+                                class="exam-highlight-term">0 to 3600 seconds</span>. Setting it to 0 immediately cuts
+                            all connections (not recommended for most apps).</p>
+                        <p><strong>📚 Source:</strong> <a
+                                href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html"
+                                target="_blank" rel="noopener noreferrer">AWS ELB Target Groups Docs</a></p>
+                    </div>
+                    <h3 id="path-based-routing">Path-Based Routing — Microservices Use Case</h3>
+                    <p>One of the most powerful features of Application Load Balancers is <strong>path-based
+                            routing</strong>. This allows a single Load Balancer to route requests to different Target
+                        Groups based on the URL path.</p>
+                    <div class="diagram-container"><img src="images/path-based-routing-diagram.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing a single Application Load Balancer receiving requests for amazon.com/orders and amazon.com/purchase, with a listener rule routing /orders to Target Group 1 containing Orders EC2 instances and /purchase to Target Group 2 containing Purchase EC2 instances, each group managed by its own Auto Scaling Group">
+                        <p class="diagram-caption"><em>Figure 10: Path-based routing — one Load Balancer routing to
+                                multiple microservice Target Groups</em></p>
+                    </div>
+                    <p>This is the backbone of <strong>microservices architecture</strong>. Think about Amazon.com
+                        itself:</p>
+                    <ul>
+                        <li><code>amazon.com/orders</code> → routed to the Orders service instances (their own ASG)</li>
+                        <li><code>amazon.com/purchase</code> → routed to the Purchase service instances (their own ASG)
+                        </li>
+                        <li><code>amazon.com/cart</code> → routed to the Shopping Cart service instances (their own ASG)
+                        </li>
+                    </ul>
+                    <p><span class="exam-highlight-sentence">With path-based routing, a single <span
+                                class="exam-highlight-term">Application Load Balancer</span> can front multiple
+                            independent microservices, each with their own <span class="exam-highlight-term">Target
+                                Group</span> and <span class="exam-highlight-term">Auto Scaling Group</span>.</span></p>
+                    <div class="info-box">
+                        <p>💡 Each microservice can scale independently. If orders traffic spikes but cart traffic is
+                            low, only the Orders ASG scales out — the Cart instances remain at their current count. This
+                            is much more cost-efficient than scaling everything together.</p>
+                    </div>
+                    <div class="success-box">
+                        <p>✅ <strong>Exam Tip:</strong> If a question mentions routing different URL paths to different
+                            backends — the answer is Application Load Balancer with path-based routing. Host-based
+                            routing (different domains → different backends) is a related concept.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="instance-lifecycle-in-asg">🔄 Instance Lifecycle in an Auto Scaling Group</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Understanding the full lifecycle of an EC2 instance inside an ASG is essential for both
+                        production troubleshooting and exam success.</p>
+                    <div class="diagram-container"><img src="images/asg-instance-lifecycle.png" loading="lazy"
+                            decoding="async"
+                            alt="State transition diagram showing an EC2 instance lifecycle inside an ASG: Pending state shown in orange when ASG decides to launch, then InService state in blue when healthy and receiving traffic, then Terminating state in red when marked for removal, then Terminated state in grey as final state, with arrows showing health check failure leading from InService back to Terminating">
+                        <p class="diagram-caption"><em>Figure 11: Auto Scaling Group instance lifecycle — all states and
+                                transitions</em></p>
+                    </div>
+                    <h3 id="lifecycle-states">Key Lifecycle States</h3>
+                    <ul>
+                        <li><strong>Pending:</strong> Instance is being launched. Health check grace period starts here.
+                            No traffic yet.</li>
+                        <li><strong>Pending:Wait:</strong> Lifecycle hook is paused here (if configured) — allows custom
+                            startup scripts to run before instance joins the group.</li>
+                        <li><strong>InService:</strong> Instance is healthy and receiving traffic from the Load
+                            Balancer.</li>
+                        <li><strong>Terminating:</strong> Instance is being terminated (either by scaling in, health
+                            check failure, or manual action).</li>
+                        <li><strong>Terminating:Wait:</strong> Lifecycle hook pause before final termination — allows
+                            cleanup tasks (draining DB connections, saving state).</li>
+                        <li><strong>Terminated:</strong> Instance is completely gone.</li>
+                    </ul>
+                    <p><span class="exam-highlight-sentence">Instances in the <span
+                                class="exam-highlight-term">Pending</span> state are protected from health checks during
+                            the <span class="exam-highlight-term">health check grace period</span> to allow adequate
+                            startup time.</span></p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="termination-policies">🎯 Termination Policies — Who Gets Terminated First?</h2>
+                </summary>
+                <div class="section-content">
+                    <p>When ASG needs to scale <em>in</em> (remove instances), it needs to decide which instance to
+                        terminate. This is controlled by <strong>Termination Policies</strong>.</p>
+                    <div class="diagram-container"><img src="images/termination-policy-diagram.png" loading="lazy"
+                            decoding="async"
+                            alt="Decision flowchart showing the default termination policy logic: first select the Availability Zone with the most instances, then within that AZ select the instance with the oldest Launch Template or Configuration, then if still tied select the instance closest to the next billing hour and terminate it">
+                        <p class="diagram-caption"><em>Figure 12: Default termination policy decision flow</em></p>
+                    </div>
+                    <p><span class="exam-highlight-sentence">The <span class="exam-highlight-term">Default Termination
+                                Policy</span> first identifies the Availability Zone with the most instances, then
+                            selects the instance running on the <span class="exam-highlight-term">oldest launch template
+                                or configuration</span>.</span></p>
+                    <p>AWS provides several built-in termination policies:</p>
+                    <ul>
+                        <li><strong>Default:</strong> Balances AZs, then picks oldest launch template</li>
+                        <li><strong>OldestInstance:</strong> Always terminates the oldest instance by launch time</li>
+                        <li><strong>NewestInstance:</strong> Terminates the newest instance (useful for testing)</li>
+                        <li><strong>OldestLaunchTemplate:</strong> Terminates instances using the oldest Launch Template
+                            version</li>
+                        <li><strong>ClosestToNextInstanceHour:</strong> Terminates the instance closest to the end of
+                            its billing hour (saves money)</li>
+                        <li><strong>AllocationStrategy:</strong> Works with mixed instances to optimize cost/capacity
+                        </li>
+                    </ul>
+                    <div class="info-box">
+                        <p>📚 According to AWS documentation, you can combine multiple termination policies in a
+                            priority list. AWS evaluates them in order until only one instance remains eligible, then
+                            terminates that one.</p>
+                        <p><strong>📚 Source:</strong> <a
+                                href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-termination-policies.html"
+                                target="_blank" rel="noopener noreferrer">AWS Termination Policies Docs</a></p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="asg-best-practices">✅ Auto Scaling Best Practices</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="success-box">
+                        <p>✅ <strong>Always enable ELB health checks</strong> in production — EC2-only health checks
+                            will miss application crashes.</p>
+                    </div>
+                    <div class="success-box">
+                        <p>✅ <strong>Set the grace period appropriately</strong> — if your app takes 3 minutes to boot,
+                            set grace period to at least 240 seconds.</p>
+                    </div>
+                    <div class="success-box">
+                        <p>✅ <strong>Use Step Scaling or Target Tracking</strong> in production — Simple Scaling is for
+                            demos only.</p>
+                    </div>
+                    <div class="success-box">
+                        <p>✅ <strong>Define min, desired, and max carefully</strong> — minimum ensures baseline
+                            availability, maximum prevents runaway costs.</p>
+                    </div>
+                    <div class="success-box">
+                        <p>✅ <strong>Use Connection Draining</strong> to prevent dropped requests when instances are
+                            terminated.</p>
+                    </div>
+                    <div class="success-box">
+                        <p>✅ <strong>Spread instances across multiple AZs</strong> — ASG does this automatically if you
+                            configure multiple subnets in different AZs.</p>
+                    </div>
+                    <div class="error-box">
+                        <p>❌ <strong>Don't set max too low</strong> — if max is the same as desired, ASG can never scale
+                            out during spikes.</p>
+                    </div>
+                    <div class="error-box">
+                        <p>❌ <strong>Don't ignore CloudWatch alarms</strong> — if you don't configure scaling policies,
+                            alarms are created but nothing happens.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="overall-summary">📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <ul>
+                        <li><strong>EC2 Health Checks:</strong> Always enabled, detect infrastructure-level failures
+                            (hardware, network, OS crash).</li>
+                        <li><strong>ELB Health Checks:</strong> Optional but strongly recommended — detect
+                            application-level failures by probing a health endpoint.</li>
+                        <li><strong>Health Check Grace Period:</strong> Protects new instances from premature
+                            termination during startup; default is 300 seconds.</li>
+                        <li><strong>Simple Scaling:</strong> Fixed response (add N instances) triggered by a CloudWatch
+                            alarm; has a cooldown period; best for demos.</li>
+                        <li><strong>Step Scaling:</strong> Variable response based on alarm severity (more instances
+                            when load is worse); uses instance warmup, not cooldown; best for production.</li>
+                        <li><strong>Target Tracking:</strong> Most automated — you set a target metric value and AWS
+                            manages the instance count to hit it.</li>
+                        <li><strong>Scheduled Scaling:</strong> Time-based scaling for predictable traffic patterns like
+                            office hours.</li>
+                        <li><strong>Predictive Scaling:</strong> Uses ML to forecast demand and provision instances
+                            ahead of spikes.</li>
+                        <li><strong>Path-Based Routing:</strong> One ALB routes different URL paths to different target
+                            groups (microservices pattern).</li>
+                        <li><strong>Connection Draining:</strong> Allows in-flight requests to complete before an
+                            instance is removed; default timeout is 300 seconds.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="glossary">📖 Glossary</h2>
+                </summary>
+                <div class="section-content">
+                    <div id="glossaryContainer" data-glossary-source="json/glossary.json"></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="interview-questions">🎤 Interview Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <p class="interview-intro">📚 Test your understanding with these questions.</p>
+                    <div class="interview-progress">
+                        <p id="interviewProgress">Progress: 0/25 (0%)</p>
+                    </div>
+                    <div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn"
+                            id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1
+                            / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn"
+                            id="nextInterviewBtn">Next →</button></div>
+                    <div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json">
+                    </div>
+                    <div class="quiz-reset-container"><button onclick="resetInterviewProgress()"
+                            class="quiz-reset-btn">🔄 Reset Progress</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="multiple-choice-questions">📝 Multiple Choice Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="quiz-header-info">
+                        <p>📝 Test your knowledge with immediate feedback.</p>
+                    </div>
+                    <div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn"
+                            id="prevBtn">← Previous</button>
+                        <div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span
+                                class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button
+                            onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button>
+                    </div>
+                    <div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div>
+                    <div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊
+                            View Summary</button>
+                        <div class="quiz-reset-container"><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄
+                                Reset All</button></div>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="hands-on-projects">💼 Hands-On Projects</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites</h4>
+                        <ul>
+                            <li>✅ AWS account with free tier or credits</li>
+                            <li>✅ Knowledge: EC2, Auto Scaling Groups (ASG), Launch Templates, Application Load Balancer
+                                (ALB)</li>
+                            <li>✅ An existing ASG and ALB from previous sessions (or create fresh ones)</li>
+                        </ul>
+                    </div>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-1-enable-elb-health-checks">Project 1: Enable ELB Health Checks on an
+                                Existing ASG</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Configure your Auto Scaling Group to use Elastic Load
+                                    Balancer health checks instead of EC2-only health checks.</p>
+                                <p><strong>⏱️ Time:</strong> 15–20 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier eligible (if using existing resources from prior
+                                    sessions)</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Open the AWS Console and navigate to <code>EC2</code> →
+                                        <code>Auto Scaling Groups</code>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-navigate-asg.png"
+                                            loading="lazy" decoding="async"
+                                            alt="AWS Console with EC2 service open and Auto Scaling Groups option highlighted in the left navigation panel under Auto Scaling section">
+                                        <p class="diagram-caption"><em>Figure P1-1: 📸 Navigate to Auto Scaling Groups
+                                                in EC2 Console</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Select your existing Auto Scaling Group from the list and click on its name to
+                                        open the details page.</p>
+                                </li>
+                                <li>
+                                    <p>Click the <code>Details</code> tab, then scroll down to the <strong>Health
+                                            checks</strong> section. Click <code>Edit</code>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-asg-health-checks-edit.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG details page showing the Health checks section with EC2 Always enabled label and the Edit button highlighted at the top right of the section">
+                                        <p class="diagram-caption"><em>Figure P1-2: 📸 Health Checks section in ASG
+                                                Details tab with Edit button</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>In the Health Checks edit panel, check the box for <strong>Turn on Elastic Load
+                                            Balancing health checks</strong>. You should see the Recommended badge next
+                                        to it.</p>
+                                </li>
+                                <li>
+                                    <p>Read the blue info notice that appears: <em>"EC2 Auto Scaling will start to
+                                            detect and act on health checks performed by Elastic Load Balancing..."</em>
+                                        Before saving, open the <strong>Load Balancer console</strong> link in a new tab
+                                        and verify your target group health check is configured correctly (protocol,
+                                        path, port, thresholds).</p>
+                                </li>
+                                <li>
+                                    <p>Set the <strong>Health check grace period</strong> to <code>180</code> seconds
+                                        (or higher if your application takes longer to start).</p>
+                                </li>
+                                <li>
+                                    <p>Click <code>Update</code> to save the changes.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-asg-health-check-saved.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG Health checks section after saving showing ELB listed alongside EC2 in the health check types column and the grace period updated to 180 seconds">
+                                        <p class="diagram-caption"><em>Figure P1-3: 📸 Updated Health Checks section
+                                                showing both EC2 and ELB checks enabled</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p><strong>Verification:</strong> Go to <code>EC2</code> →
+                                        <code>Target Groups</code>, select your target group, and open the
+                                        <code>Targets</code> tab. Wait 1–2 minutes and confirm all instances show
+                                        <code>healthy</code> status. If any show <code>unhealthy</code>, check that your
+                                        health check path (e.g., <code>/</code> or <code>/health</code>) is returning
+                                        HTTP 200.</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-2-create-step-scaling-policy">Project 2: Create a Step Scaling Policy</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Create a Step Scaling policy that adds 1, 2, or 4
+                                    instances depending on how high CPU utilization rises.</p>
+                                <p><strong>⏱️ Time:</strong> 20–30 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier eligible. Note: If you actually trigger scaling
+                                    and run extra instances, standard EC2 charges apply.</p>
+                            </div>
+                            <div class="error-box">
+                                <p>💰 <strong>Cost Note:</strong> When you test Step Scaling by pushing CPU high, ASG
+                                    may launch additional EC2 instances. Each extra instance incurs EC2 charges. Always
+                                    remember to clean up by manually setting Desired Capacity back to your baseline
+                                    after testing.</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>In the AWS Console, go to <code>EC2</code> → <code>Auto Scaling Groups</code> and
+                                        select your ASG.</p>
+                                </li>
+                                <li>
+                                    <p>Click the <code>Automatic scaling</code> tab, then click
+                                        <code>Create dynamic scaling policy</code>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-create-scaling-policy.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG Automatic scaling tab with the Create dynamic scaling policy button highlighted and the current policies list empty or showing existing policies">
+                                        <p class="diagram-caption"><em>Figure P2-1: 📸 Automatic scaling tab — Create
+                                                dynamic scaling policy button</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>For <strong>Policy type</strong>, select <code>Step scaling</code>.</p>
+                                </li>
+                                <li>
+                                    <p>For <strong>Policy name</strong>, enter <code>ScaleOut-StepPolicy-CPU</code>.</p>
+                                </li>
+                                <li>
+                                    <p>For <strong>CloudWatch alarm</strong>, click
+                                        <code>Create a CloudWatch alarm</code>. This opens CloudWatch in a new tab.
+                                        Create an alarm with these settings:</p>
+                                    <ul>
+                                        <li>Metric: EC2 → Per-Instance Metrics → CPUUtilization</li>
+                                        <li>Statistic: Average</li>
+                                        <li>Period: 5 minutes</li>
+                                        <li>Threshold: Greater than 60%</li>
+                                        <li>Name: <code>HighCPU-ASG-Alarm</code></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <p>Return to the ASG scaling policy tab and select your newly created alarm.</p>
+                                </li>
+                                <li>
+                                    <p>Under <strong>Add capacity</strong>, create step adjustments:</p>
+                                    <ul>
+                                        <li>When 60 ≤ CPUUtilization &lt; 70: Add 1 instance</li>
+                                        <li>When 70 ≤ CPUUtilization &lt; 85: Add 2 instances</li>
+                                        <li>When CPUUtilization ≥ 85: Add 4 instances</li>
+                                    </ul>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-step-adjustments-config.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Step scaling policy creation form showing three step adjustment rows with their lower and upper bounds filled in and the corresponding instance count to add for each step range">
+                                        <p class="diagram-caption"><em>Figure P2-2: 📸 Step adjustments configured with
+                                                three steps for mild moderate and severe CPU load</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Set <strong>Instance warmup</strong> to <code>120</code> seconds.</p>
+                                </li>
+                                <li>
+                                    <p>Click <code>Create</code> to save the policy.</p>
+                                </li>
+                                <li>
+                                    <p><strong>Verification:</strong> The policy should now appear in the
+                                        <code>Automatic scaling</code> tab. To test it, you can SSH into one of your
+                                        instances and run <code>stress --cpu 2 --timeout 600</code> (install with
+                                        <code>sudo yum install stress -y</code> or
+                                        <code>sudo apt install stress -y</code>) to push CPU above the threshold and
+                                        watch ASG respond.</p>
+                                </li>
+                            </ol>
+                            <h4>Cleanup Steps</h4>
+                            <ol>
+                                <li>Set the ASG <strong>Desired Capacity</strong> back to your baseline (e.g., 1 or 2
+                                    instances).</li>
+                                <li>Wait for extra instances to terminate and confirm in the <code>Instances</code> tab.
+                                </li>
+                                <li>Optionally delete the <code>HighCPU-ASG-Alarm</code> CloudWatch alarm and the Step
+                                    Scaling policy to keep your account clean.</li>
+                            </ol>
+                        </div>
+                    </details>
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites for All Projects</h4>
+                        <ul>
+                            <li>✅ AWS account with Free Tier or credits</li>
+                            <li>✅ Completed Projects 1 &amp; 2 from the main notes file</li>
+                            <li>✅ An existing ASG (min=1, desired=2, max=6) with a Launch Template using Amazon Linux 2
+                                and nginx installed via User Data</li>
+                            <li>✅ An existing ALB attached to the ASG, with Target Group health check on path
+                                <code>/</code></li>
+                            <li>✅ Basic SSH access to EC2 instances (key pair configured)</li>
+                            <li>✅ The <code>stress</code> tool: install with <code>sudo yum install stress -y</code> on
+                                Amazon Linux 2</li>
+                        </ul>
+                    </div>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-3-multi-step-scaling-stress-test">Project 3: Multi-Step Scaling + Live
+                                Stress Testing</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Configure a 3-step scaling policy and watch it respond
+                                    to gradual vs sudden load — observing different instance counts added at different
+                                    CPU severities.</p>
+                                <p><strong>⏱️ Time:</strong> 45–60 minutes</p>
+                                <p><strong>💰 Cost:</strong> EC2 charges apply when extra instances launch. Use Free
+                                    Tier or credits. Clean up after.</p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>⚡ <strong>What you will prove to yourself:</strong> That Step Scaling doesn't just
+                                    "add instances" — it adds <em>the right number</em> based on how bad things are.
+                                    You'll run two tests: one gradual, one sudden — and see different outcomes.</p>
+                            </div>
+                            <h4>Part A — Configure the 3-Step Scaling Policy</h4>
+                            <ol>
+                                <li>
+                                    <p>Go to <code>EC2</code> → <code>Auto Scaling Groups</code> → select your ASG →
+                                        <code>Automatic scaling</code> tab → click
+                                        <code>Create dynamic scaling policy</code>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p3-automatic-scaling-tab.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG Automatic scaling tab open with Create dynamic scaling policy button visible and currently no policies listed in the Dynamic scaling policies section">
+                                        <p class="diagram-caption"><em>Figure P3-1: 📸 Automatic scaling tab — ready to
+                                                create a new policy</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Select policy type <code>Step scaling</code>. Name it
+                                        <code>Step-ScaleOut-CPU</code>.</p>
+                                </li>
+                                <li>
+                                    <p>Click <code>Create a CloudWatch alarm</code>. In CloudWatch, create alarm:</p>
+                                    <ul>
+                                        <li>Metric: <code>EC2 → Per-Instance Metrics → CPUUtilization</code></li>
+                                        <li>Statistic: <code>Average</code>, Period: <code>1 minute</code></li>
+                                        <li>Condition: <strong>Greater than 60%</strong></li>
+                                        <li>Name: <code>ASG-CPU-HighAlarm</code></li>
+                                    </ul>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p3-cloudwatch-alarm-create.png" loading="lazy"
+                                            decoding="async"
+                                            alt="CloudWatch Create Alarm page showing EC2 CPUUtilization metric selected with statistic set to Average and threshold condition set to Greater than 60 percent">
+                                        <p class="diagram-caption"><em>Figure P3-2: 📸 CloudWatch alarm creation —
+                                                CPUUtilization &gt; 60% condition</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Back in the scaling policy, select the <code>ASG-CPU-HighAlarm</code> alarm. Now
+                                        add step adjustments:</p>
+                                    <ul>
+                                        <li>60 ≤ CPU &lt; 70 → Add <code>1</code> instance</li>
+                                        <li>70 ≤ CPU &lt; 85 → Add <code>2</code> instances</li>
+                                        <li>CPU ≥ 85 → Add <code>4</code> instances</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <p>Set Instance warmup to <code>90</code> seconds. Click <code>Create</code>.</p>
+                                </li>
+                                <li>
+                                    <p>Now create the <strong>scale-in policy</strong>. Create another dynamic policy:
+                                    </p>
+                                    <ul>
+                                        <li>Policy type: <code>Step scaling</code>, name: <code>Step-ScaleIn-CPU</code>
+                                        </li>
+                                        <li>Create alarm: CPUUtilization <strong>less than 30%</strong> for 2
+                                            consecutive periods, name: <code>ASG-CPU-LowAlarm</code></li>
+                                        <li>Step adjustment: Remove <code>1</code> instance when CPU &lt; 30%</li>
+                                    </ul>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p3-scalein-policy-created.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG Automatic scaling tab showing two policies listed: Step-ScaleOut-CPU and Step-ScaleIn-CPU both in Enabled state with their associated CloudWatch alarm names visible">
+                                        <p class="diagram-caption"><em>Figure P3-3: 📸 Both scale-out and scale-in step
+                                                policies now created and enabled</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part B — Test 1: Gradual Load</h4>
+                            <ol>
+                                <li>
+                                    <p>SSH into one of your EC2 instances. Run a moderate stress load:</p>
+                                    <pre><code>stress --cpu 1 --timeout 300</code></pre>
+                                </li>
+                                <li>
+                                    <p>Open CloudWatch → Alarms. Watch <code>ASG-CPU-HighAlarm</code>. It should hit
+                                        ALARM within 1–2 minutes at the 60–70% CPU step.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-p3-alarm-state-alarm.png"
+                                            loading="lazy" decoding="async"
+                                            alt="CloudWatch Alarms list showing ASG-CPU-HighAlarm in red ALARM state with the current CPU metric value shown in the alarm details panel on the right">
+                                        <p class="diagram-caption"><em>Figure P3-4: 📸 CloudWatch alarm transitions to
+                                                ALARM state — scaling triggered</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Go to ASG → <code>Activity</code> tab. You should see a new activity entry:
+                                        <strong>"Launching a new EC2 instance"</strong> with the reason "Step
+                                        adjustment: +1 instance."</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p3-asg-activity-launch.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG Activity tab showing a new activity entry with status Successful and description Launching a new EC2 instance due to step scaling policy firing for the CPU high alarm">
+                                        <p class="diagram-caption"><em>Figure P3-5: 📸 ASG Activity log — Step 1 of
+                                                scaling policy fired, +1 instance launched</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Let the <code>stress</code> command finish. CPU drops. Watch
+                                        <code>ASG-CPU-LowAlarm</code> go to ALARM. ASG removes 1 instance. Observe
+                                        scale-in in Activity tab.</p>
+                                </li>
+                            </ol>
+                            <h4>Part C — Test 2: Sudden Heavy Spike</h4>
+                            <ol>
+                                <li>
+                                    <p>SSH into your instance and run a heavy load that pushes CPU above 85%:</p>
+                                    <pre><code>stress --cpu 4 --timeout 300</code></pre>
+                                </li>
+                                <li>
+                                    <p>Watch CloudWatch. CPU should exceed 85%. Observe that the <strong>Step 3
+                                            adjustment fires — ASG tries to add 4 instances</strong> (capped at your ASG
+                                        max).</p>
+                                </li>
+                                <li>
+                                    <p>Compare the Activity tab with Test 1. Notice the difference: same alarm,
+                                        different step triggered, different number of instances launched.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-p3-step3-4instances.png"
+                                            loading="lazy" decoding="async"
+                                            alt="ASG Activity tab after heavy stress test showing a launch event for multiple instances simultaneously with step adjustment note showing plus 4 instances added due to CPU exceeding 85 percent threshold">
+                                        <p class="diagram-caption"><em>Figure P3-6: 📸 Step 3 fired — 4 instances
+                                                launched for severe CPU spike above 85%</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Cleanup</h4>
+                            <ol>
+                                <li>Set ASG Desired Capacity back to <code>2</code>. Wait for scale-in to complete.</li>
+                                <li>Delete <code>Step-ScaleOut-CPU</code> and <code>Step-ScaleIn-CPU</code> policies.
+                                </li>
+                                <li>Delete <code>ASG-CPU-HighAlarm</code> and <code>ASG-CPU-LowAlarm</code> from
+                                    CloudWatch.</li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>What just clicked:</strong> You saw with your own eyes that Step Scaling
+                                    fires different steps for different severities. One alarm, three outcomes. That's
+                                    the core power of Step Scaling over Simple Scaling.</p>
+                            </div>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-4-target-tracking">Project 4: Target Tracking — Let AWS Decide</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Replace manual step policies with Target Tracking. Set
+                                    a CPU target of 50% and let AWS manage instance count automatically. Experience how
+                                    much simpler — and smarter — this is for production.</p>
+                                <p><strong>⏱️ Time:</strong> 30–40 minutes</p>
+                                <p><strong>💰 Cost:</strong> EC2 charges when extra instances launch. Clean up after.
+                                </p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>⚡ <strong>The shift in mindset:</strong> With Step Scaling, you decide <em>how
+                                        many</em> instances to add. With Target Tracking, you tell AWS <em>what you
+                                        want</em> (keep CPU at 50%) and AWS figures out the how. You move from driver to
+                                    navigator.</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>First, go to ASG → <code>Automatic scaling</code> tab. <strong>Delete any
+                                            existing step policies</strong> from Project 3 (if still present) so they
+                                        don't conflict.</p>
+                                </li>
+                                <li>
+                                    <p>Click <code>Create dynamic scaling policy</code>. Select policy type:
+                                        <code>Target tracking scaling</code>.</p>
+                                </li>
+                                <li>
+                                    <p>Configure the policy:</p>
+                                    <ul>
+                                        <li>Policy name: <code>Target-CPU-50</code></li>
+                                        <li>Metric type: <code>Average CPU utilization</code></li>
+                                        <li>Target value: <code>50</code></li>
+                                        <li>Instance warmup: <code>120</code> seconds</li>
+                                        <li>Leave "Disable scale-in" <strong>unchecked</strong> — we want both scale-out
+                                            and scale-in</li>
+                                    </ul>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p4-target-tracking-form.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Create dynamic scaling policy form with Target tracking scaling selected, metric type set to Average CPU utilization, target value entered as 50, and instance warmup set to 120 seconds">
+                                        <p class="diagram-caption"><em>Figure P4-1: 📸 Target Tracking policy
+                                                configuration — CPU target 50%</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Click <code>Create</code>. AWS automatically creates two CloudWatch alarms for
+                                        you — one for scale-out and one for scale-in. Go to CloudWatch → Alarms and
+                                        verify you can see them (they will be named with a <code>TargetTracking</code>
+                                        prefix).</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p4-auto-alarms-created.png" loading="lazy"
+                                            decoding="async"
+                                            alt="CloudWatch Alarms list showing two automatically created Target Tracking alarms with names prefixed with TargetTracking-Target-CPU-50, one for AlarmHigh and one for AlarmLow in OK state">
+                                        <p class="diagram-caption"><em>Figure P4-2: 📸 Two CloudWatch alarms
+                                                auto-created by Target Tracking — you didn't create these manually</em>
+                                        </p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>SSH into your instance. Run a moderate stress test:</p>
+                                    <pre><code>stress --cpu 2 --timeout 600</code></pre>
+                                </li>
+                                <li>
+                                    <p>Watch the ASG Instances tab every 2–3 minutes. You should see instance count rise
+                                        as AWS tries to bring average CPU down to 50%.</p>
+                                </li>
+                                <li>
+                                    <p>Once stress ends, watch instances terminate as CPU drops below the target. AWS
+                                        handles scale-in automatically.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p4-instances-auto-adjusted.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG Instances tab showing instance count changing over time with some instances in InService state and one instance in Terminating state as Target Tracking policy adjusts to bring CPU back to 50 percent target">
+                                        <p class="diagram-caption"><em>Figure P4-3: 📸 ASG self-adjusting — Target
+                                                Tracking adding and removing instances to hit the 50% target</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>What just clicked:</strong> You defined a <em>goal</em>, not a rule. AWS
+                                    watched the metric, calculated how many instances are needed, and acted — without
+                                    you configuring a single step adjustment. This is how most real production teams
+                                    configure scaling.</p>
+                            </div>
+                            <h4>Cleanup</h4>
+                            <ol>
+                                <li>Go to ASG → Automatic scaling. Delete the <code>Target-CPU-50</code> policy.</li>
+                                <li>The two CloudWatch alarms it created will be auto-deleted when you delete the
+                                    policy.</li>
+                                <li>Set Desired Capacity back to <code>2</code> if needed.</li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-5-chaos-engineering">Project 5: Chaos Engineering — Break Things on Purpose
+                            </h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Intentionally misconfigure your ASG to produce
+                                    failures. Observe what breaks, why it breaks, then fix each issue methodically. This
+                                    builds real debugging instinct.</p>
+                                <p><strong>⏱️ Time:</strong> 60–90 minutes</p>
+                                <p><strong>💰 Cost:</strong> Minimal — only 2 instances running. Possible replace cycles
+                                    may briefly add a 3rd. Clean up after.</p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>⚡ <strong>Why this matters:</strong> Engineers who only build happy-path systems
+                                    panic in production. Engineers who have <em>intentionally broken things</em> and
+                                    fixed them — stay calm. That's what this project builds.</p>
+                            </div>
+                            <div class="diagram-container"><img src="images/chaos-testing-overview.png" loading="lazy"
+                                    decoding="async"
+                                    alt="Overview diagram showing three chaos scenarios: wrong health check path on the left causing all instances to show unhealthy, slow startup with short grace period in the middle causing instance replace loops, and removed grace period on the right causing premature termination of booting instances">
+                                <p class="diagram-caption"><em>Figure P5-1: The three chaos scenarios you will
+                                        deliberately create and then fix</em></p>
+                            </div>
+                            <h4>Chaos Scenario 1 — Wrong Health Check Path</h4>
+                            <p><strong>What you'll break:</strong> Point the Load Balancer health check at a path that
+                                doesn't exist. All instances will fail the ELB check. ASG will start terminating them —
+                                even though they're perfectly fine.</p>
+                            <ol>
+                                <li>
+                                    <p>Go to <code>EC2</code> → <code>Target Groups</code> → select your Target Group →
+                                        <code>Health checks</code> tab → click <code>Edit</code>.</p>
+                                </li>
+                                <li>
+                                    <p>Change the Health check path from <code>/</code> to
+                                        <code>/this-does-not-exist</code>. Save.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-p5-wrong-health-path.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Target Group Health checks edit panel showing Health check path field changed from forward slash to /this-does-not-exist with Save changes button visible">
+                                        <p class="diagram-caption"><em>Figure P5-2: 📸 Deliberately setting a wrong
+                                                health check path — breaking the ELB health check</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Wait 2–3 minutes. Go to Target Group → <code>Targets</code> tab. You will see
+                                        instances change from <code>healthy</code> to <code>unhealthy</code>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-p5-targets-unhealthy.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Target Group Targets tab showing two EC2 instances both with health status unhealthy shown in red with the reason displaying Request timed out or 404 Not Found for the health check path">
+                                        <p class="diagram-caption"><em>Figure P5-3: 📸 All instances marked unhealthy —
+                                                ELB returning non-200 for /this-does-not-exist</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Watch ASG Activity tab. It begins terminating and replacing instances — which
+                                        also fail and get replaced again. This is an <strong>infinite replace
+                                            loop</strong>.</p>
+                                </li>
+                                <li>
+                                    <p><strong>Fix:</strong> Go back to Target Group → Health checks → Edit → change
+                                        path back to <code>/</code>. Save. Wait for instances to show
+                                        <code>healthy</code> again.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p5-targets-healthy-again.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Target Group Targets tab after fix showing EC2 instances with health status healthy in green confirming the correct health check path has been restored">
+                                        <p class="diagram-caption"><em>Figure P5-4: 📸 Health status restored to healthy
+                                                after correcting the health check path</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Chaos Scenario 2 — Slow-Start App + Short Grace Period</h4>
+                            <p><strong>What you'll break:</strong> Make your app take 3 minutes to start, but keep the
+                                grace period at 30 seconds. New instances will be killed before they're ready.</p>
+                            <ol>
+                                <li>
+                                    <p>Update your Launch Template. Add a User Data startup delay — edit the existing
+                                        User Data and append:</p>
+                                    <pre><code>#!/bin/bash
+# Existing commands above...
+sleep 180   # Simulate 3-minute slow startup
+systemctl start nginx</code></pre>
+                                    <p>Save as a new Launch Template version. Update the ASG to use the new version.</p>
+                                </li>
+                                <li>
+                                    <p>Set the ASG health check grace period to <code>30</code> seconds: ASG → Details →
+                                        Health checks → Edit → set grace period to <code>30</code>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-p5-grace-period-30.png"
+                                            loading="lazy" decoding="async"
+                                            alt="ASG Health checks edit panel showing Health check grace period field set to 30 seconds with a note that this is shorter than typical application startup time">
+                                        <p class="diagram-caption"><em>Figure P5-5: 📸 Grace period deliberately set to
+                                                30 seconds — too short for the slow-start app</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Terminate one instance manually so ASG launches a new one from the updated Launch
+                                        Template. Watch what happens:</p>
+                                    <ul>
+                                        <li>New instance launches (Pending state)</li>
+                                        <li>After 30 seconds, health checks run — but nginx hasn't started yet (still
+                                            sleeping)</li>
+                                        <li>ELB health check fails → instance marked Unhealthy → terminated</li>
+                                        <li>New replacement launched — same thing happens again</li>
+                                    </ul>
+                                    <div class="diagram-container"><img src="images/screenshot-p5-replace-loop.png"
+                                            loading="lazy" decoding="async"
+                                            alt="ASG Activity tab showing multiple rapid launch and terminate events for the same instance within a few minutes, indicating an instance replace loop caused by health checks firing before the application is ready">
+                                        <p class="diagram-caption"><em>Figure P5-6: 📸 Replace loop in action —
+                                                instances launched and killed repeatedly</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p><strong>Fix:</strong> Set grace period to <code>240</code> seconds (longer than
+                                        the 180s sleep). Revert Launch Template User Data to remove the sleep. Update
+                                        ASG to the clean Launch Template version. Scale-in and re-launch to verify.</p>
+                                </li>
+                            </ol>
+                            <h4>Chaos Scenario 3 — Kill the App Process Mid-Traffic</h4>
+                            <p><strong>What you'll break:</strong> Manually stop nginx while traffic is flowing. Watch
+                                ELB detect it and ASG react.</p>
+                            <ol>
+                                <li>
+                                    <p>Make sure ELB health checks are enabled on your ASG (from Project 1).</p>
+                                </li>
+                                <li>
+                                    <p>SSH into one of your instances. Stop nginx:</p>
+                                    <pre><code>sudo systemctl stop nginx</code></pre>
+                                </li>
+                                <li>
+                                    <p>Watch the Target Group → Targets tab. Within 30–60 seconds, that instance will
+                                        show <code>unhealthy</code>.</p>
+                                </li>
+                                <li>
+                                    <p>Watch ASG Activity tab. It will terminate the unhealthy instance and launch a
+                                        replacement. The replacement will boot with nginx running (from User Data) and
+                                        join the Target Group healthy.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p5-nginx-killed-replaced.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG Activity tab showing termination of an instance due to health check failure after nginx was stopped, followed immediately by a new launch event for a replacement instance entering Pending state">
+                                        <p class="diagram-caption"><em>Figure P5-7: 📸 ASG auto-replaces the instance
+                                                where nginx was stopped — self-healing in action</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>What just clicked:</strong> You stopped thinking "happy path." You now know
+                                    what wrong health check paths, short grace periods, and killed processes look like —
+                                    and more importantly, how to fix each one. That's real debugging skill.</p>
+                            </div>
+                            <h4>Cleanup</h4>
+                            <ol>
+                                <li>Restore grace period to <code>180</code> seconds.</li>
+                                <li>Restore health check path to <code>/</code>.</li>
+                                <li>Revert Launch Template to the clean version (no sleep in User Data).</li>
+                                <li>Set Desired Capacity to <code>2</code> and verify both instances are healthy.</li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-6-microservices-two-asg-one-alb">Project 6: Microservices — Two ASGs Behind
+                                One ALB</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Build a real microservices-style architecture: one
+                                    ALB, two Target Groups, two ASGs. Route <code>/orders</code> to ASG-1 and
+                                    <code>/users</code> to ASG-2. Stress only the orders service and watch it scale
+                                    independently while users stays stable.</p>
+                                <p><strong>⏱️ Time:</strong> 60–90 minutes</p>
+                                <p><strong>💰 Cost:</strong> Two ASGs + one ALB. EC2 charges for instances. Clean up
+                                    after — this is the most expensive project in the list.</p>
+                            </div>
+                            <div class="error-box">
+                                <p>💰 <strong>Cost Note:</strong> This project runs two ASGs each with 2 instances (4
+                                    EC2 instances total) plus one ALB. Even on Free Tier, this can consume credits
+                                    faster than other projects. Keep the runtime short — 1 hour maximum — and clean up
+                                    immediately after.</p>
+                            </div>
+                            <div class="diagram-container"><img src="images/microservices-two-asg-architecture.png"
+                                    loading="lazy" decoding="async"
+                                    alt="Architecture diagram showing internet users sending requests to one Application Load Balancer, which routes /orders path to Target Group 1 backed by ASG-Orders with 2 EC2 instances, and /users path to Target Group 2 backed by ASG-Users with 2 EC2 instances, each group scaling independently">
+                                <p class="diagram-caption"><em>Figure P6-1: Target architecture — one ALB, two Target
+                                        Groups, two independent ASGs</em></p>
+                            </div>
+                            <h4>Part A — Create the Two Launch Templates</h4>
+                            <ol>
+                                <li>
+                                    <p>Go to <code>EC2</code> → <code>Launch Templates</code> →
+                                        <code>Create launch template</code>.</p>
+                                    <p><strong>Launch Template 1 — Orders Service:</strong></p>
+                                    <ul>
+                                        <li>Name: <code>LT-Orders-Service</code></li>
+                                        <li>AMI: Amazon Linux 2</li>
+                                        <li>Instance type: <code>t2.micro</code></li>
+                                        <li>Security Group: allows HTTP (port 80) and SSH (port 22)</li>
+                                        <li>User Data:</li>
+                                    </ul>
+                                    <pre><code>#!/bin/bash
+yum update -y
+yum install -y nginx
+echo "&lt;h1&gt;ORDERS SERVICE — Instance: $(hostname)&lt;/h1&gt;" &gt; /usr/share/nginx/html/index.html
+mkdir -p /usr/share/nginx/html/orders
+echo "&lt;h1&gt;Orders API — $(hostname)&lt;/h1&gt;" &gt; /usr/share/nginx/html/orders/index.html
+systemctl enable nginx
+systemctl start nginx</code></pre>
+                                </li>
+                                <li>
+                                    <p><strong>Launch Template 2 — Users Service:</strong> Repeat the same process with
+                                        name <code>LT-Users-Service</code>. Change User Data to:</p>
+                                    <pre><code>#!/bin/bash
+yum update -y
+yum install -y nginx
+echo "&lt;h1&gt;USERS SERVICE — Instance: $(hostname)&lt;/h1&gt;" &gt; /usr/share/nginx/html/index.html
+mkdir -p /usr/share/nginx/html/users
+echo "&lt;h1&gt;Users API — $(hostname)&lt;/h1&gt;" &gt; /usr/share/nginx/html/users/index.html
+systemctl enable nginx
+systemctl start nginx</code></pre>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p6-two-launch-templates.png" loading="lazy"
+                                            decoding="async"
+                                            alt="EC2 Launch Templates list showing two templates: LT-Orders-Service and LT-Users-Service both created and visible with their version numbers and creation dates">
+                                        <p class="diagram-caption"><em>Figure P6-2: 📸 Both Launch Templates created —
+                                                one per microservice</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part B — Create Two Target Groups</h4>
+                            <ol>
+                                <li>
+                                    <p>Go to <code>EC2</code> → <code>Target Groups</code> →
+                                        <code>Create target group</code>.</p>
+                                    <p><strong>Target Group 1:</strong></p>
+                                    <ul>
+                                        <li>Name: <code>TG-Orders</code></li>
+                                        <li>Target type: <code>Instances</code></li>
+                                        <li>Protocol: HTTP, Port: 80</li>
+                                        <li>Health check path: <code>/orders/</code></li>
+                                        <li>Healthy threshold: 2, Unhealthy threshold: 2, Interval: 10s</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <p><strong>Target Group 2:</strong> Same settings with name <code>TG-Users</code>
+                                        and health check path <code>/users/</code>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-p6-two-target-groups.png"
+                                            loading="lazy" decoding="async"
+                                            alt="EC2 Target Groups list showing TG-Orders and TG-Users both with zero registered targets initially and Protocol HTTP Port 80 with their respective health check paths visible">
+                                        <p class="diagram-caption"><em>Figure P6-3: 📸 Both Target Groups created with
+                                                correct health check paths per service</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part C — Create the Two ASGs</h4>
+                            <ol>
+                                <li>
+                                    <p>Go to <code>EC2</code> → <code>Auto Scaling Groups</code> →
+                                        <code>Create Auto Scaling group</code>.</p>
+                                    <p><strong>ASG 1 — Orders:</strong></p>
+                                    <ul>
+                                        <li>Name: <code>ASG-Orders</code></li>
+                                        <li>Launch Template: <code>LT-Orders-Service</code></li>
+                                        <li>VPC + 2 Availability Zones (use existing subnets)</li>
+                                        <li>Attach to Load Balancer: select existing ALB → select <code>TG-Orders</code>
+                                        </li>
+                                        <li>Health checks: enable ELB health checks, grace period 120s</li>
+                                        <li>Min: 1, Desired: 2, Max: 5</li>
+                                        <li>Add Target Tracking policy: <code>Target-Orders-CPU</code>, CPU target: 60%
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <p><strong>ASG 2 — Users:</strong> Repeat with name <code>ASG-Users</code>, Launch
+                                        Template <code>LT-Users-Service</code>, Target Group <code>TG-Users</code>, same
+                                        capacity settings and Target Tracking at 60% CPU.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-p6-two-asgs-created.png"
+                                            loading="lazy" decoding="async"
+                                            alt="EC2 Auto Scaling Groups list showing ASG-Orders and ASG-Users both with desired capacity 2 and status showing instances in service with their associated Load Balancer and Target Group columns filled in">
+                                        <p class="diagram-caption"><em>Figure P6-4: 📸 Both ASGs running with 2
+                                                instances each — 4 total EC2 instances</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part D — Configure Path-Based Routing on the ALB</h4>
+                            <ol>
+                                <li>
+                                    <p>Go to <code>EC2</code> → <code>Load Balancers</code> → select your ALB →
+                                        <code>Listeners</code> tab → click on the HTTP:80 listener →
+                                        <code>View/edit rules</code>.</p>
+                                </li>
+                                <li>
+                                    <p>Add two rules <strong>above</strong> the default rule:</p>
+                                    <ul>
+                                        <li><strong>Rule 1:</strong> IF Path is <code>/orders*</code> → THEN Forward to
+                                            <code>TG-Orders</code></li>
+                                        <li><strong>Rule 2:</strong> IF Path is <code>/users*</code> → THEN Forward to
+                                            <code>TG-Users</code></li>
+                                    </ul>
+                                    <div class="diagram-container"><img src="images/screenshot-p6-alb-routing-rules.png"
+                                            loading="lazy" decoding="async"
+                                            alt="ALB Listener rules editor showing three rules in order: Rule 1 with path condition /orders asterisk forwarding to TG-Orders, Rule 2 with path condition /users asterisk forwarding to TG-Users, and the default rule forwarding to the original target group">
+                                        <p class="diagram-caption"><em>Figure P6-5: 📸 ALB listener rules — path-based
+                                                routing configured for two microservices</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Save the rules. Open a browser and test:</p>
+                                    <ul>
+                                        <li><code>http://[ALB-DNS]/orders/</code> — should show "ORDERS SERVICE"</li>
+                                        <li><code>http://[ALB-DNS]/users/</code> — should show "USERS SERVICE"</li>
+                                    </ul>
+                                    <div class="diagram-container"><img src="images/screenshot-p6-routing-verified.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Browser showing two tabs side by side: left tab displaying the /orders/ URL with ORDERS SERVICE heading and hostname, right tab showing /users/ URL with USERS SERVICE heading and a different hostname confirming path-based routing is working">
+                                        <p class="diagram-caption"><em>Figure P6-6: 📸 Path-based routing working —
+                                                /orders and /users routing to separate service instances</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part E — Stress One Service, Watch the Other Stay Stable</h4>
+                            <ol>
+                                <li>
+                                    <p>SSH into one of your <code>ASG-Orders</code> instances. Run heavy CPU stress:</p>
+                                    <pre><code>stress --cpu 4 --timeout 600</code></pre>
+                                </li>
+                                <li>
+                                    <p>Watch ASG-Orders scale out (new instances launching). Watch ASG-Users — it should
+                                        stay at 2 instances.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p6-independent-scaling.png" loading="lazy"
+                                            decoding="async"
+                                            alt="EC2 Auto Scaling Groups list showing ASG-Orders with desired capacity changed to 4 or 5 instances (scaling out) while ASG-Users shows desired capacity still at 2 instances unchanged, demonstrating independent scaling">
+                                        <p class="diagram-caption"><em>Figure P6-7: 📸 Independent scaling — Orders
+                                                service scales out while Users service stays stable</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>What just clicked:</strong> You built what real companies run. One Load
+                                    Balancer. Multiple independent services. Each one scaling based on its own load.
+                                    This is the architecture behind every major web platform.</p>
+                            </div>
+                            <h4>Cleanup (Do This Carefully — In Order)</h4>
+                            <ol>
+                                <li>Delete <code>ASG-Orders</code> and <code>ASG-Users</code> (this terminates all their
+                                    instances).</li>
+                                <li>Delete <code>TG-Orders</code> and <code>TG-Users</code> Target Groups.</li>
+                                <li>Remove the path-based routing rules from the ALB listener (revert to default rule
+                                    only).</li>
+                                <li>Delete <code>LT-Orders-Service</code> and <code>LT-Users-Service</code> Launch
+                                    Templates.</li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-7-cost-optimization">Project 7: Cost Optimization — Min/Max/Cooldown Tuning
+                            </h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Start with a poorly configured ASG (too aggressive
+                                    scaling, wrong cooldown, bloated max) and tune it step by step to minimize
+                                    unnecessary instance launches while maintaining performance. Learn to think like
+                                    someone paying the AWS bill.</p>
+                                <p><strong>⏱️ Time:</strong> 45–60 minutes</p>
+                                <p><strong>💰 Cost:</strong> Minimal — 2–4 instances. Clean up after.</p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>⚡ <strong>The mindset shift:</strong> Every unnecessary instance launch costs money.
+                                    A max of 20 instances when your app never needs more than 5 is a misconfiguration.
+                                    Proper tuning saves real dollars.</p>
+                            </div>
+                            <h4>Part A — Observe a Poorly Tuned ASG</h4>
+                            <ol>
+                                <li>
+                                    <p>Configure your ASG with deliberately bad settings:</p>
+                                    <ul>
+                                        <li>Min: <code>1</code>, Desired: <code>1</code>, Max: <code>20</code> (way too
+                                            high)</li>
+                                        <li>Create a Simple Scaling policy: CPU &gt; 50% → Add <code>3</code> instances,
+                                            Cooldown: <code>60</code> seconds (too short)</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <p>Run stress for 5 minutes, let it naturally end, then run again. Watch what
+                                        happens:</p>
+                                    <ul>
+                                        <li>Short cooldown → alarm refires quickly → more instances added rapidly</li>
+                                        <li>Max of 20 means uncapped growth</li>
+                                        <li>After stress ends, scale-in is slow — instances linger</li>
+                                    </ul>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p7-overscaling-activity.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG Activity tab showing many rapid launch events over a short time period with instances being launched in quick succession due to the 60-second cooldown being too short, resulting in over-provisioning">
+                                        <p class="diagram-caption"><em>Figure P7-1: 📸 Over-scaling in action — too many
+                                                instances launched due to short cooldown and high max</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part B — Tune the Configuration</h4>
+                            <ol>
+                                <li>
+                                    <p>Apply proper settings based on your stress test observations:</p>
+                                    <ul>
+                                        <li>Change Max from <code>20</code> to <code>6</code> (realistic for your app's
+                                            peak load)</li>
+                                        <li>Change scaling policy: CPU &gt; 60% → Add <code>1</code> instance, Cooldown:
+                                            <code>300</code> seconds</li>
+                                        <li>Add a scale-in policy: CPU &lt; 30% → Remove <code>1</code> instance,
+                                            Cooldown: <code>300</code> seconds</li>
+                                    </ul>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p7-tuned-asg-capacity.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG Details tab showing updated capacity settings with minimum 1, desired 2, maximum 6 and the edit button visible confirming the tightened max capacity setting">
+                                        <p class="diagram-caption"><em>Figure P7-2: 📸 Tuned ASG — maximum capacity
+                                                reduced from 20 to 6</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Run the same stress test again. Compare:</p>
+                                    <ul>
+                                        <li>Fewer instances launched at each trigger</li>
+                                        <li>Cooldown prevents over-scaling during brief spikes</li>
+                                        <li>Instances scale back in when load drops</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                            <h4>Part C — Check CloudWatch Cost Signals</h4>
+                            <ol>
+                                <li>
+                                    <p>Go to <code>CloudWatch</code> → <code>Metrics</code> → <code>Auto Scaling</code>
+                                        → select your ASG → view <code>GroupInServiceInstances</code> metric.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p7-groupinservice-metric.png" loading="lazy"
+                                            decoding="async"
+                                            alt="CloudWatch metrics graph showing GroupInServiceInstances metric for the ASG over the last hour with the instance count line showing peaks during stress tests and valleys during idle periods, demonstrating the scaling behavior over time">
+                                        <p class="diagram-caption"><em>Figure P7-3: 📸 CloudWatch
+                                                GroupInServiceInstances metric — visualizing scaling over time</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Compare the graph from the badly-tuned test (many spikes, slow scale-in) vs the
+                                        well-tuned test (controlled spikes, faster recovery).</p>
+                                </li>
+                                <li>
+                                    <p>Use the <a href="https://calculator.aws/pricing/2/en_US/" target="_blank"
+                                            rel="noopener noreferrer">AWS Pricing Calculator</a> to estimate how much
+                                        extra the overscaling would have cost per month.</p>
+                                </li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>What just clicked:</strong> You started thinking about the bill. Min, Max,
+                                    Cooldown, and threshold values aren't just technical settings — they're cost
+                                    controls. Proper tuning means your system is both reliable and economical.</p>
+                            </div>
+                            <h4>Cleanup</h4>
+                            <ol>
+                                <li>Delete the Simple Scaling policies.</li>
+                                <li>Set ASG back to Min: 1, Desired: 2, Max: 6 with a Target Tracking policy at 50%.
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-8-flash-sale-system">Project 8: Flash Sale System — Production Simulation
+                            </h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Build and test a complete production-grade
+                                    auto-scaling system simulating a flash sale scenario where traffic jumps from 100 to
+                                    10,000 users in minutes. This is a job-interview-level project.</p>
+                                <p><strong>⏱️ Time:</strong> 90–120 minutes</p>
+                                <p><strong>💰 Cost:</strong> Multiple EC2 instances + ALB. Use credits. Clean up
+                                    immediately after testing.</p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>⚡ <strong>The final boss:</strong> This isn't a tutorial. This is a system design
+                                    challenge you build, test, break, and defend. After this project, you can answer:
+                                    "Why did scaling fail? Why did users see errors? How do we fix it?" — which is
+                                    exactly what interviewers ask.</p>
+                            </div>
+                            <div class="diagram-container"><img src="images/flash-sale-architecture.png" loading="lazy"
+                                    decoding="async"
+                                    alt="Complete flash sale system architecture showing internet users hitting an Application Load Balancer with connection draining enabled, forwarding to a Target Group managed by an Auto Scaling Group that has Target Tracking as baseline policy and Step Scaling for spike handling, with CloudWatch monitoring CPU and request count metrics and Scheduled Scaling pre-warming instances before the event starts">
+                                <p class="diagram-caption"><em>Figure P8-1: Flash Sale system — complete architecture
+                                        with all layers</em></p>
+                            </div>
+                            <h4>Part A — Build the Foundation (ALB + ASG + Health Checks)</h4>
+                            <ol>
+                                <li>
+                                    <p>Create a Launch Template <code>LT-FlashSale</code> with User Data that installs
+                                        nginx and creates a simple HTML page showing hostname and timestamp:</p>
+                                    <pre><code>#!/bin/bash
+yum update -y
+yum install -y nginx
+cat &gt; /usr/share/nginx/html/index.html &lt;&lt; 'EOF'
+&lt;html&gt;&lt;body&gt;
+&lt;h1&gt;Flash Sale System&lt;/h1&gt;
+&lt;p&gt;Instance: &lt;?php echo gethostname(); ?&gt;&lt;/p&gt;
+&lt;p&gt;Time: &lt;?php echo date('Y-m-d H:i:s'); ?&gt;&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;
+EOF
+# Health check endpoint
+mkdir -p /usr/share/nginx/html/health
+echo "OK" &gt; /usr/share/nginx/html/health/index.html
+systemctl enable nginx
+systemctl start nginx</code></pre>
+                                </li>
+                                <li>
+                                    <p>Create ASG <code>ASG-FlashSale</code>: Min=2, Desired=2, Max=10, attach existing
+                                        ALB, enable ELB health checks, grace period=120s, Target Group health check
+                                        path=<code>/health/</code>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p8-asg-flashsale-created.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG details page for ASG-FlashSale showing Min 2 Desired 2 Max 10 with ELB health checks enabled grace period 120 seconds and the attached Load Balancer and Target Group names visible">
+                                        <p class="diagram-caption"><em>Figure P8-2: 📸 ASG-FlashSale configured with
+                                                proper health check settings and capacity bounds</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part B — Layer the Scaling Policies</h4>
+                            <ol>
+                                <li>
+                                    <p><strong>Layer 1 — Target Tracking (baseline):</strong> Create a Target Tracking
+                                        policy named <code>TT-CPU-50</code> with CPU target 50%. This handles normal
+                                        day-to-day traffic.</p>
+                                </li>
+                                <li>
+                                    <p><strong>Layer 2 — Step Scaling (spike response):</strong> Create a Step Scaling
+                                        policy named <code>Step-CPU-Spike</code> on a new alarm
+                                        <code>FlashSale-HighCPU</code> (CPU &gt; 80%):</p>
+                                    <ul>
+                                        <li>80–90% → Add 3 instances</li>
+                                        <li>90%+ → Add 6 instances</li>
+                                    </ul>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p8-two-policies-active.png" loading="lazy"
+                                            decoding="async"
+                                            alt="ASG Automatic scaling tab showing two active policies: TT-CPU-50 of type Target tracking and Step-CPU-Spike of type Step scaling both listed as enabled with their associated CloudWatch alarm names">
+                                        <p class="diagram-caption"><em>Figure P8-3: 📸 Two scaling policies active
+                                                simultaneously — Target Tracking as baseline, Step Scaling for
+                                                spikes</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p><strong>Layer 3 — Scheduled Scaling (pre-warm):</strong> Create a scheduled
+                                        action to pre-warm capacity before the "event" starts:</p>
+                                    <ul>
+                                        <li>Name: <code>PreWarm-FlashSale</code></li>
+                                        <li>Set Min/Max/Desired to: 4/10/4 (run 4 instances before the flash sale)</li>
+                                        <li>Schedule: set it 10 minutes from now (for testing purposes)</li>
+                                    </ul>
+                                    <div class="diagram-container"><img src="images/screenshot-p8-scheduled-action.png"
+                                            loading="lazy" decoding="async"
+                                            alt="ASG Scheduled actions tab showing PreWarm-FlashSale action with the scheduled date and time, minimum 4 maximum 10 desired 4 configuration and a status of Active">
+                                        <p class="diagram-caption"><em>Figure P8-4: 📸 Scheduled pre-warm action —
+                                                capacity jumps to 4 at the configured time before the sale</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part C — Configure Connection Draining</h4>
+                            <ol>
+                                <li>
+                                    <p>Go to <code>EC2</code> → <code>Target Groups</code> → select your Target Group →
+                                        <code>Attributes</code> tab → click <code>Edit</code>.</p>
+                                </li>
+                                <li>
+                                    <p>Set <strong>Deregistration delay</strong> to <code>120</code> seconds. This
+                                        ensures in-flight requests complete before scale-in removes instances.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p8-connection-draining.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Target Group Attributes edit panel showing Deregistration delay field set to 120 seconds with a description explaining this allows in-flight requests to complete before instance is deregistered">
+                                        <p class="diagram-caption"><em>Figure P8-5: 📸 Connection draining set to 120
+                                                seconds — protecting active user sessions</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part D — Set Up a CloudWatch Dashboard</h4>
+                            <ol>
+                                <li>
+                                    <p>Go to <code>CloudWatch</code> → <code>Dashboards</code> →
+                                        <code>Create dashboard</code>. Name it <code>FlashSale-Monitor</code>.</p>
+                                </li>
+                                <li>
+                                    <p>Add four widgets:</p>
+                                    <ul>
+                                        <li><strong>Widget 1:</strong> Line chart — <code>CPUUtilization</code> (average
+                                            across all ASG instances)</li>
+                                        <li><strong>Widget 2:</strong> Number — <code>GroupInServiceInstances</code>
+                                            (current running count)</li>
+                                        <li><strong>Widget 3:</strong> Line chart — <code>RequestCountPerTarget</code>
+                                            from ALB (requests hitting each instance)</li>
+                                        <li><strong>Widget 4:</strong> Alarm status — <code>FlashSale-HighCPU</code>
+                                            alarm state</li>
+                                    </ul>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p8-cloudwatch-dashboard.png" loading="lazy"
+                                            decoding="async"
+                                            alt="CloudWatch dashboard named FlashSale-Monitor showing four widgets: CPU utilization line chart, in-service instances number currently showing 2, request count per target line chart, and alarm status widget showing the FlashSale-HighCPU alarm in OK state">
+                                        <p class="diagram-caption"><em>Figure P8-6: 📸 CloudWatch monitoring dashboard —
+                                                all key metrics visible in one place</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part E — Flash Sale Simulation</h4>
+                            <ol>
+                                <li>
+                                    <p>Wait for the Scheduled Action to fire. Watch instance count jump to 4 on your
+                                        dashboard.</p>
+                                </li>
+                                <li>
+                                    <p>SSH into two instances simultaneously. On each, run:</p>
+                                    <pre><code>stress --cpu 4 --timeout 300</code></pre>
+                                </li>
+                                <li>
+                                    <p>Watch your dashboard:</p>
+                                    <ul>
+                                        <li>CPU climbs above 80% → Step Scaling fires → 3 more instances launch</li>
+                                        <li>CPU stays above 90%? → 6 instances requested (capped at Max=10)</li>
+                                        <li>Dashboard shows RequestCountPerTarget dropping per instance as new capacity
+                                            absorbs load</li>
+                                    </ul>
+                                    <div class="diagram-container"><img src="images/screenshot-p8-scaling-in-action.png"
+                                            loading="lazy" decoding="async"
+                                            alt="CloudWatch dashboard during stress test showing CPU utilization at 92 percent in the line chart, GroupInServiceInstances number widget showing 8 instances currently in service, RequestCountPerTarget dropping as new instances absorb load, and FlashSale-HighCPU alarm showing in ALARM state">
+                                        <p class="diagram-caption"><em>Figure P8-7: 📸 Flash sale simulation at peak — 8
+                                                instances running, CPU alarm in ALARM state</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Let stress end. Watch CPU drop, instances scale in over 5–10 minutes. Verify
+                                        connection draining works — check ALB access logs if available, confirm no
+                                        502/503 errors during scale-in.</p>
+                                </li>
+                            </ol>
+                            <h4>Part F — Failure Scenario: Instance Dies During Traffic</h4>
+                            <ol>
+                                <li>
+                                    <p>While system is at normal load, SSH into one instance and stop nginx:</p>
+                                    <pre><code>sudo systemctl stop nginx</code></pre>
+                                </li>
+                                <li>
+                                    <p>Watch Target Group → Targets. That instance goes unhealthy. ASG replaces it.
+                                        Connection draining allows active requests to complete before the switch.</p>
+                                </li>
+                                <li>
+                                    <p>Confirm your dashboard shows instance count dips then recovers — and that CPU and
+                                        request metrics stay stable throughout the replacement.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-p8-instance-replaced-dashboard.png" loading="lazy"
+                                            decoding="async"
+                                            alt="CloudWatch dashboard showing a brief dip in GroupInServiceInstances from 4 to 3 instances followed by recovery back to 4 as ASG replaces the instance where nginx was stopped, while CPU and request count metrics remain relatively stable throughout">
+                                        <p class="diagram-caption"><em>Figure P8-8: 📸 Instance replacement with no user
+                                                impact — dashboard shows brief dip and recovery</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>What just clicked:</strong> You can now answer interview questions from
+                                    personal experience, not memorization:</p>
+                                <ul>
+                                    <li>"Why did scaling fail?" — Bad grace period, wrong health check path, wrong
+                                        policy type</li>
+                                    <li>"Why did users see errors?" — No connection draining, too-short deregistration
+                                        delay</li>
+                                    <li>"How would you design a flash sale system?" — You just built one. Walk them
+                                        through it.</li>
+                                </ul>
+                            </div>
+                            <h4>Cleanup (Critical — In Order)</h4>
+                            <ol>
+                                <li>Delete <code>ASG-FlashSale</code> (terminates all instances).</li>
+                                <li>Delete Target Group (after ASG is deleted).</li>
+                                <li>Delete the ALB if it was created for this project only.</li>
+                                <li>Delete the CloudWatch dashboard <code>FlashSale-Monitor</code>.</li>
+                                <li>Delete <code>FlashSale-HighCPU</code> alarm from CloudWatch.</li>
+                                <li>Delete <code>LT-FlashSale</code> Launch Template.</li>
+                                <li>Verify EC2 instances list is empty (no surprise running instances).</li>
+                            </ol>
+                        </div>
+                    </details>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="learning-checklist">☑️ Learning Checklist</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="checklist-progress">
+                        <p>Progress: <span id="checklistProgress">0/15</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                    <div id="checklistContainer" data-checklist-source="json/checklist.json"></div>
+                    <div class="quiz-reset-container"><button onclick="resetChecklist()" class="quiz-reset-btn">🔄 Reset
+                            Checklist</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="reflection-questions">🤔 Reflection Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="question-block">
+                        <h4>1. Your application crashes silently — the EC2 instance keeps running but returns HTTP 503
+                            errors. Which health check type detects this, and which misses it?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about what EC2 health checks actually check (system level) vs what ELB health
+                                    checks check (application response level).</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>2. You set a grace period of 60 seconds, but your application takes 3 minutes to start. What
+                            will happen and how do you fix it?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Consider what happens when health checks run before the instance is ready. What is
+                                    the consequence, and what is the correct grace period value?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>3. Your e-commerce site gets a sudden traffic spike during a flash sale. CPU goes from 30%
+                            to 95% in 2 minutes. Would you use Simple Scaling or Step Scaling? Why?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about which policy can respond proportionally to the severity of the spike.
+                                    Also consider the cooldown period problem with Simple Scaling.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>4. You have a news website that gets predictable traffic spikes every weekday morning at 7
+                            AM when commuters check news. Which scaling policy would you choose?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>When do you know exactly when the load will arrive? What scaling policy is designed
+                                    for this exact scenario?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>5. Describe how path-based routing enables microservices. Give a concrete example with two
+                            different services.</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about a large application broken into services. How does a single ALB route
+                                    different URL paths to the right backend? What does each backend have independently
+                                    (hint: Target Group, ASG)?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>6. A user is in the middle of uploading a large file when ASG decides to scale in and
+                            terminate their instance. What feature prevents this from becoming a broken experience?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about the Load Balancer feature that allows in-flight requests to complete
+                                    before termination.</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="links-references">🔗 Links &amp; References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3 id="official-aws-docs">📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-simple-step.html"
+                                        target="_blank" rel="noopener noreferrer">Simple and Step Scaling Docs</a></td>
+                                <td>Official guide to Simple and Step Scaling policies</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/health-check-grace-period.html"
+                                        target="_blank" rel="noopener noreferrer">Health Check Grace Period</a></td>
+                                <td>Configuring the health check grace period</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-health-checks.html"
+                                        target="_blank" rel="noopener noreferrer">ASG Health Checks</a></td>
+                                <td>EC2 and ELB health check configuration</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-termination-policies.html"
+                                        target="_blank" rel="noopener noreferrer">Termination Policies</a></td>
+                                <td>How ASG chooses which instance to terminate</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html"
+                                        target="_blank" rel="noopener noreferrer">ALB Listener Rules</a></td>
+                                <td>Path-based and host-based routing rules</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="recommended-reading">🎓 Recommended Reading</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/blogs/compute/scaling-your-applications-with-amazon-ec2-auto-scaling/"
+                                        target="_blank" rel="noopener noreferrer">AWS Compute Blog: Auto Scaling</a>
+                                </td>
+                                <td>Practical guide to scaling strategies</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/use-automation-to-react-to-changes-in-demand.html"
+                                        target="_blank" rel="noopener noreferrer">Well-Architected: Reliability
+                                        Pillar</a></td>
+                                <td>Best practices for demand-driven automation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="additional-resources">🔧 Additional Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://calculator.aws/pricing/2/en_US/" target="_blank"
+                                        rel="noopener noreferrer">AWS Pricing Calculator</a></td>
+                                <td>Estimate costs for EC2 instances in your ASG</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html"
+                                        target="_blank" rel="noopener noreferrer">CloudWatch Alarms Docs</a></td>
+                                <td>Creating and configuring CloudWatch alarms</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">Auto Scaling</span><span
+                class="tag">EC2</span><span class="tag">Load Balancer</span><span class="tag">CloudWatch</span><span
+                class="tag">Health Checks</span><span class="tag">Scaling Policies</span></div>
+    </div>
+    <script defer src="../../../js/notes-page.js"></script>
+</body>
+
+</html>
