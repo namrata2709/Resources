@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Complete beginner-friendly notes on EC2 AMI (Amazon Machine Images) — what they are, how they work, custom AMIs, copying across regions, and career guidance from Session Nov 11.">
+    <meta name="keywords" content="AWS, EC2, AMI, Amazon Machine Image, cloud, certification">
+    <meta property="og:title" content="EC2 AMI & Career Guidance - AWS Training">
+    <meta property="og:description"
+        content="Complete beginner-friendly notes on EC2 AMI (Amazon Machine Images) — what they are, how they work, custom AMIs, copying across regions, and career guidance from Session Nov 11.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://namrata2709.github.io/Resources/data/notes/ec2-ami/ec2-ami-complete.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/ec2-ami/images/ec2-ami-overview.png">
+    <link rel="canonical" href="https://namrata2709.github.io/Resources/data/notes/ec2-ami/ec2-ami-complete.html">
+    <title>EC2 AMI - Complete Notes - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+    <script src="../../../js/theme.js"></script>
+</head>
+
+<body class="complete-notes">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"EC2 AMI (Amazon Machine Images)","description":"Complete beginner-friendly notes on EC2 AMI — what they are, how they work, custom AMIs, copying across regions, and career guidance from Session Nov 11.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-11-11","dateModified":"2025-11-11","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/ec2-ami/ec2-ami-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/ec2-ami/images/ec2-ami-overview.png","articleSection":"AWS Training","keywords":["AWS","EC2","AMI","Amazon Machine Image"],"educationalLevel":"Beginner to Intermediate"}</script>
+    <div class="note-container">
+        <div class="note-header">
+            <h1>EC2 AMI (Amazon Machine Images)</h1>
+            <p class="note-date">📅 November 11, 2025</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> November 11, 2025</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="note-content">
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="introduction">🌟 Introduction</h2>
+                </summary>
+                <div class="section-content">
+                    <p>If EC2 is a virtual server in the cloud, then an AMI is the <em>blueprint</em> for that server —
+                        a saved snapshot of everything your server needs to run: the operating system, installed
+                        software, configuration settings, and even your files. Think of it as a <strong>master
+                            copy</strong> you can use to stamp out identical servers instantly, wherever you need them.
+                    </p>
+                    <div class="diagram-container"><img src="images/ec2-ami-overview.png" decoding="async"
+                            alt="Overview diagram showing an EC2 instance with its components being saved as an AMI blueprint, which is then used to launch multiple identical EC2 instances across regions">
+                        <p class="diagram-caption"><em>Figure 1: EC2 AMI — the blueprint that lets you replicate servers
+                                instantly</em></p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Key idea:</strong> An AMI is your server's "save game" — capture everything once,
+                            reuse it anywhere, anytime.</p>
+                    </div>
+                    <h3 id="what-you-will-learn">What You Will Learn</h3>
+                    <ul>
+                        <li>What an AMI is and why it exists</li>
+                        <li>The difference between AWS-provided AMIs and your own custom AMIs</li>
+                        <li>How EBS snapshots relate to AMIs</li>
+                        <li>How to create a custom AMI from a running EC2 instance</li>
+                        <li>How to copy an AMI to a different AWS region</li>
+                        <li>Hands-on projects: from cloning a server all the way to versioned AMIs, disaster recovery,
+                            multi-region deployment, and a golden AMI pipeline</li>
+                    </ul>
+                </div>
+            </details>
+
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="what-is-an-ami">🖼️ What Is an AMI (Amazon Machine Image)?</h2>
+                </summary>
+                <div class="section-content">
+                    <p>An <strong>AMI (Amazon Machine Image)</strong> is a template that contains everything needed to
+                        launch an EC2 instance. You can think of it as a complete "system image" or a <em>server
+                            blueprint</em>.</p>
+                    <div class="diagram-container"><img src="images/ec2-ami-components.png" decoding="async"
+                            alt="Diagram showing the three components inside an AMI: OS layer at the bottom, software and application layer in the middle, and configuration settings at the top, all packaged inside an AMI container">
+                        <p class="diagram-caption"><em>Figure 2: What an AMI contains — OS, software, and configuration
+                                packaged together</em></p>
+                    </div>
+                    <p><span class="exam-highlight-sentence">An AMI contains the operating system, application software,
+                            and configuration settings needed to launch an EC2 instance.</span> When you launch an EC2
+                        instance, you must always select an AMI — it is a required parameter.</p>
+                    <h3 id="ami-analogy">The Blueprint Analogy</h3>
+                    <p>Imagine a hotel chain. Every time they open a new hotel, they do not design the rooms from
+                        scratch — they follow a <em>standard room blueprint</em>: same furniture layout, same fixtures,
+                        same amenities. An AMI is exactly like that blueprint. You design your server once, save it as
+                        an AMI, and use it to "open" identical servers wherever you need them.</p>
+                    <div class="info-box">
+                        <p>💡 Another way to think of it: AMI is to EC2 what a <strong>cookie cutter</strong> is to
+                            cookies. The cutter (AMI) defines the shape; the cookies (instances) are what you bake.</p>
+                    </div>
+                    <h3 id="what-an-ami-contains">What an AMI Contains</h3>
+                    <ul>
+                        <li><strong>Operating System:</strong> e.g., Amazon Linux 2, Ubuntu 22.04, Windows Server 2022
+                        </li>
+                        <li><strong>Installed Software:</strong> e.g., Apache HTTP server, Node.js, Python packages,
+                            databases</li>
+                        <li><strong>Configuration Settings:</strong> e.g., environment variables, system configs, file
+                            structure</li>
+                        <li><strong>One or more EBS Snapshots:</strong> The actual storage data (disk contents) that
+                            back the AMI</li>
+                    </ul>
+                    <p><span class="exam-highlight-sentence">An AMI is backed by one or more <span
+                                class="exam-highlight-term">EBS snapshots</span> — backups of the root volume and any
+                            additional volumes attached to the instance.</span></p>
+                    <h3 id="ami-scope">AMI Scope — Region-Specific</h3>
+                    <p><span class="exam-highlight-sentence">AMIs are <span
+                                class="exam-highlight-term">region-specific</span> — an AMI created in one AWS region is
+                            not automatically available in another region.</span> If you need to use the same AMI in a
+                        different region, you must explicitly copy it there using the <strong>Copy AMI</strong> action.
+                    </p>
+                    <div class="info-box">
+                        <p>📚 <strong>Source:</strong> <a
+                                href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"
+                                rel="noopener noreferrer">AWS EC2 AMI Docs</a></p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="types-of-amis">📦 Types of AMIs</h2>
+                </summary>
+                <div class="section-content">
+                    <p>When you launch an EC2 instance in the AWS Console, you are presented with an AMI selection
+                        screen. There are three main sources of AMIs:</p>
+                    <div class="diagram-container"><img src="images/ec2-ami-types.png" loading="lazy" decoding="async"
+                            alt="Diagram showing three AMI sources side by side: Quick Start AMIs on the left in blue (AWS-provided), My AMIs in the center in orange (user-created), and AWS Marketplace AMIs on the right in green (third-party), with arrows pointing down to EC2 instances being launched from each">
+                        <p class="diagram-caption"><em>Figure 3: The three AMI sources — Quick Start (AWS), My AMIs
+                                (custom), and Marketplace (third-party)</em></p>
+                    </div>
+                    <h3 id="quick-start-amis">1. Quick Start AMIs (AWS-Provided)</h3>
+                    <p>These are AMIs maintained and published by AWS itself. They contain a clean operating system
+                        installation with no additional software. Examples:</p>
+                    <ul>
+                        <li>Amazon Linux 2023</li>
+                        <li>Ubuntu Server 22.04 LTS</li>
+                        <li>Windows Server 2022 Base</li>
+                        <li>Red Hat Enterprise Linux 9</li>
+                    </ul>
+                    <p><span class="exam-highlight-sentence">Quick Start AMIs are maintained by AWS and always contain
+                            the <span class="exam-highlight-term">latest security patches</span> at the time of
+                            launch.</span></p>
+                    <h3 id="my-amis">2. My AMIs (Custom / Your Own)</h3>
+                    <p>These are AMIs you have created yourself — either from a running EC2 instance (as demonstrated in
+                        this session) or imported from your own environment. The trainer referred to these as
+                        <strong>"Custom AMIs"</strong> or <strong>"My AMI"</strong>.
+                    </p>
+                    <p>Use My AMIs when you want to pre-install software so every new instance starts ready to work — no
+                        manual setup needed after launch.</p>
+                    <h3 id="aws-marketplace-amis">3. AWS Marketplace AMIs</h3>
+                    <p>These are AMIs published by third-party vendors on the AWS Marketplace. They often come
+                        pre-installed with commercial software (e.g., a hardened security appliance, a pre-configured
+                        database, a licensed application). Many are free; some have an additional hourly cost on top of
+                        the EC2 instance price.</p>
+                    <div class="info-box">
+                        <p>💡 <strong>Tip for Interviews:</strong> Be ready to explain the difference between Quick
+                            Start AMIs (AWS-managed, clean OS) and My AMIs (custom, pre-configured by you). This is a
+                            common interview question.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="ebs-and-ami-relationship">💽 EBS Snapshots and AMIs — How They Are Related</h2>
+                </summary>
+                <div class="section-content">
+                    <p>To understand AMIs fully, you need to understand their relationship with <strong>EBS (Elastic
+                            Block Store)</strong>. EBS is the hard disk of your EC2 instance — it is the persistent
+                        storage where the OS, software, and files actually live.</p>
+                    <div class="diagram-container"><img src="images/ebs-ami-relationship.png" loading="lazy"
+                            decoding="async"
+                            alt="Architecture diagram showing an EC2 instance connected to an 8GB EBS root volume, with a 'Create Image' action producing both an AMI (containing metadata and OS config) and an EBS Snapshot (containing the actual disk data, 1.6GB), with bidirectional arrows showing their relationship">
+                        <p class="diagram-caption"><em>Figure 4: When you create an AMI, AWS also creates an EBS
+                                Snapshot — the actual backup of your disk</em></p>
+                    </div>
+                    <p>The trainer made this relationship very clear in the session:</p>
+                    <ul>
+                        <li><strong>EBS Volume:</strong> The actual attached hard disk of your EC2 instance — e.g., 8 GB
+                            storage. This is where everything lives while the instance is running.</li>
+                        <li><strong>EBS Snapshot:</strong> A point-in-time backup of that EBS volume. <span
+                                class="exam-highlight-sentence">An EBS snapshot is a backup of your hard disk — it
+                                captures the actual contents of your EBS volume at the moment you take the
+                                snapshot.</span></li>
+                        <li><strong>AMI:</strong> A higher-level template that <em>references</em> the EBS snapshot and
+                            adds launch configuration (instance type recommendations, architecture, block device
+                            mappings). <span class="exam-highlight-sentence">When you create a custom AMI from an EC2
+                                instance, AWS automatically creates an <span class="exam-highlight-term">EBS
+                                    snapshot</span> of the root volume in the background.</span></li>
+                    </ul>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Session Example:</strong> The trainer's instance had an <strong>8 GB EBS
+                                volume</strong> attached. When they created a custom AMI, AWS took an EBS snapshot —
+                            which came out to only <strong>1.6 GB</strong> because the snapshot only captures the
+                            <em>used</em> portion of the disk, not the entire allocated size.
+                        </p>
+                    </div>
+                    <p>The trainer summarized it perfectly: <em>"EBS is your hard disk. The snapshot is the backup of
+                            your hard disk. The AMI is the backup of your entire server configuration — and it uses the
+                            snapshot as its storage."</em></p>
+                    <div class="info-box">
+                        <p>📚 <strong>Source:</strong> <a
+                                href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSSnapshots.html"
+                                target="_blank" rel="noopener noreferrer">AWS EBS Snapshots Docs</a></p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="creating-custom-ami">🛠️ Creating a Custom AMI — Step by Step</h2>
+                </summary>
+                <div class="section-content">
+                    <p>The trainer demonstrated creating a custom AMI live in the AWS Console. Here is the complete
+                        process, from a running EC2 instance to a reusable AMI.</p>
+                    <div class="diagram-container"><img src="images/custom-ami-creation-flow.png" loading="lazy"
+                            decoding="async"
+                            alt="Process flow diagram showing 5 steps: Step 1 - Running EC2 instance with installed software; Step 2 - Actions menu, Create Image option selected; Step 3 - AMI created in pending state; Step 4 - EBS Snapshot created automatically; Step 5 - AMI status changes to available, ready to use">
+                        <p class="diagram-caption"><em>Figure 5: The custom AMI creation process — from running instance
+                                to reusable blueprint</em></p>
+                    </div>
+                    <h3 id="when-to-create-custom-ami">When Do You Need a Custom AMI?</h3>
+                    <p>You need a custom AMI when you want to <strong>replicate a configured server</strong> — not just
+                        a blank OS. The classic scenario the trainer described:</p>
+                    <blockquote>
+                        <p>"I need to create more EC2 instances, but with the same software configuration as this one.
+                            Which AMI do I use?"</p>
+                    </blockquote>
+                    <p>The answer: your <strong>Custom AMI (My AMI)</strong>. Instead of launching a blank server and
+                        re-installing Apache, PHP, your application, and all your settings from scratch, you just pick
+                        your custom AMI and everything is already there.</p>
+                    <h3 id="steps-to-create-ami">Steps to Create a Custom AMI</h3>
+                    <ol>
+                        <li>
+                            <p>Go to <strong>EC2 → Instances</strong> in the AWS Console. Select the running instance
+                                you want to capture.</p>
+                        </li>
+                        <li>
+                            <p>Click <strong>Actions → Image and Templates → Create Image</strong>.</p>
+                        </li>
+                        <li>
+                            <p>Fill in the <strong>Image name</strong> (e.g., "my-webserver-ami") and an optional
+                                description. You can also adjust the storage configuration if needed — or leave it as
+                                is.</p>
+                        </li>
+                        <li>
+                            <p>Click <strong>Create Image</strong>. AWS will now create the AMI. The instance continues
+                                running during this process (no reboot needed for most cases, though AWS may reboot it
+                                to ensure a consistent state unless you disable that option).</p>
+                        </li>
+                        <li>
+                            <p>Go to <strong>EC2 → AMIs</strong> in the left menu. You will see your new AMI with a
+                                status of <span class="exam-highlight-term">pending</span>. Wait for it to change to
+                                <span class="exam-highlight-term">available</span> — this means it is ready to use.
+                            </p>
+                        </li>
+                        <li>
+                            <p>Go to <strong>EC2 → Snapshots</strong> to confirm the EBS snapshot was also created
+                                automatically in the background.</p>
+                        </li>
+                    </ol>
+                    <div class="success-box">
+                        <p>✅ <strong>Verification:</strong> Under AMIs, your new image should show <strong>Status:
+                                available</strong>. Under Snapshots, you should see a corresponding snapshot — this is
+                            the actual disk backup that powers your AMI.</p>
+                    </div>
+                    <h3 id="launching-from-custom-ami">Launching an EC2 Instance from Your Custom AMI</h3>
+                    <ol>
+                        <li>
+                            <p>Go to <strong>EC2 → Instances → Launch Instances</strong>.</p>
+                        </li>
+                        <li>
+                            <p>In the AMI selection step, instead of choosing <strong>Quick Start</strong>, click
+                                <strong>My AMIs</strong>.
+                            </p>
+                        </li>
+                        <li>
+                            <p>Select your custom AMI from the list.</p>
+                        </li>
+                        <li>
+                            <p>Complete the rest of the launch wizard as normal — choose instance type, network
+                                settings, key pair, security group, etc.</p>
+                        </li>
+                        <li>
+                            <p>Launch the instance. Once it starts, connect to it — you will find all your original
+                                software already installed and configured.</p>
+                        </li>
+                    </ol>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Session Demo Result:</strong> The trainer launched a new EC2 instance from their
+                            custom AMI, copied the public IP, opened it in a browser, and the web page (Apache + file
+                            system) was already running — with zero manual setup after launch.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="copying-ami-across-regions">🌍 Copying an AMI Across AWS Regions</h2>
+                </summary>
+                <div class="section-content">
+                    <p>This was one of the key practical demonstrations of the session. The trainer explained a common
+                        real-world scenario:</p>
+                    <blockquote>
+                        <p>"A team member says: Sai, can you please create the same server in North Virginia? Will the
+                            AMI be available there?"</p>
+                    </blockquote>
+                    <p><span class="exam-highlight-sentence">An AMI created in one region is <span
+                                class="exam-highlight-term">NOT available</span> in another region by default — you must
+                            explicitly copy it to the target region.</span></p>
+                    <div class="diagram-container"><img src="images/ami-copy-region.png" loading="lazy" decoding="async"
+                            alt="Architecture diagram showing Mumbai region on the left with an EC2 instance and a custom AMI, connected by a 'Copy AMI' action arrow pointing right to North Virginia region on the right, where a copy of the AMI appears in pending state and can then be used to launch a new EC2 instance">
+                        <p class="diagram-caption"><em>Figure 6: Copying an AMI from Mumbai to North Virginia — enabling
+                                multi-region deployment</em></p>
+                    </div>
+                    <h3 id="steps-to-copy-ami">Steps to Copy an AMI to Another Region</h3>
+                    <ol>
+                        <li>
+                            <p>Go to <strong>EC2 → AMIs</strong>. Select your custom AMI.</p>
+                        </li>
+                        <li>
+                            <p>Click <strong>Actions → Copy AMI</strong>.</p>
+                        </li>
+                        <li>
+                            <p>In the dialog, select the <strong>Destination Region</strong> — e.g.,
+                                <code>us-east-1</code> (US East / North Virginia).
+                            </p>
+                        </li>
+                        <li>
+                            <p>Optionally, add a new name or description for the copied AMI. Click <strong>Copy
+                                    AMI</strong>.</p>
+                        </li>
+                        <li>
+                            <p>Switch your AWS Console to the destination region (North Virginia). Go to <strong>EC2 →
+                                    AMIs</strong>. You will see your AMI appearing there with a status of <span
+                                    class="exam-highlight-term">pending</span>.</p>
+                        </li>
+                        <li>
+                            <p>Once the status changes to <strong>available</strong>, you can launch EC2 instances from
+                                it in the new region — under <strong>My AMIs</strong>.</p>
+                        </li>
+                    </ol>
+                    <div class="info-box">
+                        <p>💡 <strong>Why This Matters:</strong> Imagine you have built a fully configured web
+                            application server in Mumbai and you need to expand to serve users in the US. Instead of
+                            manually setting up a server from scratch in North Virginia, you just copy the AMI and
+                            launch an identical server. This is how real-world multi-region deployments work.</p>
+                    </div>
+                    <h3 id="deleting-an-ami">Deleting an AMI</h3>
+                    <p>If you no longer need an AMI, you can remove it through a two-step process:</p>
+                    <ol>
+                        <li>Go to <strong>EC2 → AMIs</strong>, select the AMI, and click <strong>Actions → Deregister
+                                AMI</strong>. This removes the AMI template itself.</li>
+                        <li>Go to <strong>EC2 → Snapshots</strong>, find the corresponding snapshot, and click
+                            <strong>Delete Snapshot</strong>. This removes the actual stored data.
+                        </li>
+                    </ol>
+                    <div class="error-box">
+                        <p>❌ <strong>Common Mistake:</strong> Deregistering an AMI does NOT automatically delete the
+                            underlying EBS snapshot. You must delete the snapshot separately to stop incurring storage
+                            charges.</p>
+                    </div>
+                    <div class="info-box">
+                        <p>📚 <strong>Source:</strong> <a
+                                href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/CopyingAMIs.html"
+                                target="_blank" rel="noopener noreferrer">AWS Copy AMI Docs</a></p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="ami-use-cases">🚀 Why AMIs Matter — Real-World Use Cases</h2>
+                </summary>
+                <div class="section-content">
+                    <p>AMIs are one of the most practically useful features of EC2. Here are the real-world scenarios
+                        where they shine:</p>
+                    <div class="diagram-container"><img src="images/ami-use-cases.png" loading="lazy" decoding="async"
+                            alt="Four-quadrant diagram showing AMI use cases: top-left is scaling (one AMI launching many identical instances), top-right is disaster recovery (AMI as backup to restore from), bottom-left is multi-region deployment (copying AMI to serve global users), bottom-right is golden image management (version-controlled base images for the team)">
+                        <p class="diagram-caption"><em>Figure 7: Four key real-world use cases for custom AMIs</em></p>
+                    </div>
+                    <h3 id="use-case-1-scaling">1. Auto Scaling (Launch Identical Servers Fast)</h3>
+                    <p>When traffic spikes, you need more servers — fast. If those servers need Apache, Node.js, your
+                        application code, and 30 minutes of setup each, you cannot scale in time. With a custom AMI
+                        containing all of that pre-installed, a new server can be launched and ready in under 2 minutes.
+                    </p>
+                    <h3 id="use-case-2-disaster-recovery">2. Disaster Recovery</h3>
+                    <p>If your production server crashes or gets corrupted, a custom AMI lets you rebuild it from a
+                        known-good state in minutes. <span class="exam-highlight-sentence">Creating regular AMIs of your
+                            production servers is a key <span class="exam-highlight-term">disaster recovery</span> best
+                            practice.</span></p>
+                    <h3 id="use-case-3-multi-region">3. Multi-Region Deployment</h3>
+                    <p>As demonstrated in class — copy your AMI to another region and launch there. Users in the US or
+                        Europe can be served from servers close to them, reducing latency.</p>
+                    <h3 id="use-case-4-golden-image">4. Golden Image Management</h3>
+                    <p>Large teams maintain a "golden AMI" — a standard, approved, hardened base image. All team members
+                        launch servers from this image, ensuring consistency across development, testing, and production
+                        environments. <span class="exam-highlight-sentence">A <span class="exam-highlight-term">golden
+                                AMI</span> is a standardized, pre-approved AMI that enforces consistent configuration
+                            across all environments.</span></p>
+                    <h3 id="use-case-5-cost-optimization">5. Cost Optimization via Spot Fleet (Mentioned, Coming Soon)
+                    </h3>
+                    <p>The trainer briefly touched on <strong>Spot Fleet</strong> — a feature that lets you define a set
+                        of instance type preferences (T2, T3, M5, etc.) and AWS automatically selects the cheapest
+                        available option to launch from. You provide an AMI and a fleet configuration; AWS handles the
+                        rest. This topic will be covered in more depth in a future session.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="upcoming-topics">🔭 Upcoming Topics — DNS &amp; Route 53</h2>
+                </summary>
+                <div class="section-content">
+                    <p>A student asked an excellent question at the end of the session: <em>"How do I give my server a
+                            custom DNS name like www.mywebsite.com instead of using an IP address?"</em></p>
+                    <p>The trainer confirmed this is the next major topic to be covered: <strong>DNS (Domain Name
+                            System)</strong> and <strong>Amazon Route 53</strong>.</p>
+                    <div class="info-box">
+                        <p>⚠️ <strong>Future Topic — will cover in detail in a coming session.</strong> The following
+                            are preview concepts only:</p>
+                    </div>
+                    <h3 id="dns-preview">What Is DNS? (Brief Preview)</h3>
+                    <p>DNS is the internet's phone book. When you type <code>www.google.com</code> into a browser, your
+                        computer does not know where Google's server is — it asks a DNS system to translate that
+                        human-readable name into an IP address (like <code>142.250.80.46</code>). Without DNS, you would
+                        need to memorize IP addresses for every website.</p>
+                    <h3 id="route-53-preview">Amazon Route 53 (Brief Preview)</h3>
+                    <p><span class="exam-highlight-sentence">Amazon Route 53 is AWS's <span
+                                class="exam-highlight-term">managed DNS service</span> — it translates domain names into
+                            IP addresses and routes user requests to the correct AWS resources.</span></p>
+                    <p>The trainer mentioned that the full DNS session will cover:</p>
+                    <ul>
+                        <li>How the DNS resolution chain works (root name servers → TLD servers → authoritative name
+                            servers)</li>
+                        <li>DNS record types (A, CNAME, MX, etc.)</li>
+                        <li>How to map a domain (from GoDaddy, Hostinger, or Route 53 itself) to your EC2 instance</li>
+                        <li>Alternative DNS providers: Cloudflare, GoDaddy, Hostinger</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="exam-tips">🎓 Exam Tips — AMI</h2>
+                </summary>
+                <div class="section-content">
+                    <ul>
+                        <li><span class="exam-highlight-sentence">AMIs are <span
+                                    class="exam-highlight-term">region-specific</span> — they must be copied to be used
+                                in another region.</span></li>
+                        <li><span class="exam-highlight-sentence">When you create a custom AMI, AWS automatically
+                                creates an <span class="exam-highlight-term">EBS snapshot</span> of the root
+                                volume.</span></li>
+                        <li><span class="exam-highlight-sentence">Deregistering an AMI does <span
+                                    class="exam-highlight-term">NOT</span> delete the EBS snapshot — you must delete it
+                                separately.</span></li>
+                        <li><span class="exam-highlight-sentence">AMI IDs are unique — the same OS on two different AMIs
+                                will have <span class="exam-highlight-term">different AMI IDs</span> across
+                                regions.</span></li>
+                        <li>To share an AMI with another AWS account, you can modify the AMI's permissions to make it
+                            private-shared or public.</li>
+                        <li><span class="exam-highlight-sentence">An AMI must have a status of <span
+                                    class="exam-highlight-term">available</span> before it can be used to launch
+                                instances.</span></li>
+                        <li>AMIs support both <strong>HVM (Hardware Virtual Machine)</strong> and <strong>PV
+                                (Paravirtual)</strong> virtualization types — modern instances use HVM.</li>
+                        <li>You are charged for EBS snapshot storage used by your AMIs. There are no charges for the AMI
+                            registration itself.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="overall-summary">📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <ul>
+                        <li><strong>AMI Definition:</strong> An AMI is a template containing OS, software, and
+                            configuration — the blueprint for launching EC2 instances.</li>
+                        <li><strong>Three AMI Sources:</strong> Quick Start (AWS-provided), My AMIs (custom), and AWS
+                            Marketplace (third-party vendors).</li>
+                        <li><strong>EBS Relationship:</strong> Every AMI is backed by EBS snapshots — when you create a
+                            custom AMI, a snapshot is automatically taken of the root volume.</li>
+                        <li><strong>Custom AMI Creation:</strong> Actions → Create Image on any running EC2 instance.
+                            Status goes pending → available.</li>
+                        <li><strong>Region Scope:</strong> AMIs are region-specific. Use Actions → Copy AMI to copy to
+                            another region.</li>
+                        <li><strong>Deletion:</strong> Deregister AMI first, then separately delete the EBS snapshot.
+                        </li>
+                        <li><strong>Use Cases:</strong> Auto scaling, disaster recovery, multi-region deployment, golden
+                            image management.</li>
+                        <li><strong>Career Advice:</strong> Evaluate job offers carefully — check for PF structure,
+                            salary slips, clear compensation, and company stability.</li>
+                        <li><strong>Placements:</strong> RMC team is actively working — Tipic meeting held, current
+                            batch expected to see opportunities around week 10.</li>
+                        <li><strong>Coming Next:</strong> DNS and Amazon Route 53 — how to map domain names to your EC2
+                            servers.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="glossary">📖 Glossary</h2>
+                </summary>
+                <div class="section-content">
+                    <div id="glossaryContainer" data-glossary-source="json/glossary.json"></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="interview-questions">🎤 Interview Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <p class="interview-intro">📚 Test your understanding with these questions.</p>
+                    <div class="interview-progress">
+                        <p id="interviewProgress">Progress: 0/25 (0%)</p>
+                    </div>
+                    <div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn"
+                            id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1
+                            / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn"
+                            id="nextInterviewBtn">Next →</button></div>
+                    <div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json">
+                    </div>
+                    <div class="quiz-reset-container"><button onclick="resetInterviewProgress()"
+                            class="quiz-reset-btn">🔄 Reset Progress</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="multiple-choice-questions">📝 Multiple Choice Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="quiz-header-info">
+                        <p>📝 Test your knowledge with immediate feedback.</p>
+                    </div>
+                    <div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn"
+                            id="prevBtn">← Previous</button>
+                        <div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span
+                                class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button
+                            onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button>
+                    </div>
+                    <div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div>
+                    <div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊
+                            View Summary</button>
+                        <div class="quiz-reset-container"><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄
+                                Reset All</button></div>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="hands-on-projects">💼 Hands-On Projects</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites</h4>
+                        <ul>
+                            <li>✅ AWS account (free tier)</li>
+                            <li>✅ Knowledge: EC2 basics, launching instances, security groups, key pairs (covered in
+                                previous sessions)</li>
+                            <li>✅ An EC2 instance already running with some software installed (e.g., Apache HTTP server
+                                from Session 10)</li>
+                        </ul>
+                    </div>
+
+                    <!-- PROJECT 1 — unchanged -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-1-create-custom-ami">Project 1: Create a Custom AMI and Launch a Clone
+                                Instance</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Create a custom AMI from a running EC2 instance with
+                                    Apache installed, then launch a new instance from it and verify the software is
+                                    pre-installed.</p>
+                                <p><strong>⏱️ Time:</strong> 20–30 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier eligible (t2.micro / t3.micro instances)</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Log in to the <strong>AWS Console</strong> and navigate to
+                                        <code>EC2 → Instances</code>. Confirm your base instance (with Apache installed)
+                                        is in <strong>Running</strong> state.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-base-instance-running.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of the EC2 Instances list showing a running instance with Apache installed, with the Instance State column showing 'Running' in green">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Confirm instance is running
+                                                before creating AMI</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Select the instance. Click <strong>Actions → Image and Templates → Create
+                                            Image</strong>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-actions-create-image.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the EC2 Actions dropdown menu open, showing the 'Image and Templates' submenu expanded with 'Create Image' option highlighted">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Actions → Image and
+                                                Templates → Create Image menu path</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>In the Create Image dialog, enter a name such as <code>my-apache-ami</code>.
+                                        Leave storage settings as default. Click <strong>Create Image</strong>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-create-image-dialog.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the Create Image dialog box with the Image name field filled in as 'my-apache-ami', the No Reboot checkbox visible, and the Create Image button at the bottom">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: The Create Image dialog —
+                                                enter name and click Create Image</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Navigate to <code>EC2 → AMIs</code> in the left sidebar. You will see your new
+                                        AMI with status <strong>pending</strong>. Wait for it to change to
+                                        <strong>available</strong> (usually 1–5 minutes).</p>
+                                    <div class="diagram-container"><img src="images/screenshot-ami-available.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the AMIs list showing 'my-apache-ami' with Status column showing 'available' in green, with the AMI ID and creation date visible">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: AMI status showing
+                                                'available' — ready to use</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Navigate to <code>EC2 → Snapshots</code>. Confirm a snapshot was automatically
+                                        created. Note its size — it should be smaller than the total EBS volume size.
+                                    </p>
+                                </li>
+                                <li>
+                                    <p>Go to <strong>Launch Instances</strong>. In the AMI selection, click <strong>My
+                                            AMIs</strong>. Select <code>my-apache-ami</code>. Choose
+                                        <strong>t2.micro</strong>. Use your existing key pair and security group (with
+                                        port 80 and 22 open). Launch the instance.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-my-ami-selection.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the EC2 launch wizard AMI selection screen with the 'My AMIs' tab selected and 'my-apache-ami' visible in the list">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: My AMIs tab — select your
+                                                custom AMI for launch</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Once the new instance reaches <strong>Running</strong> state, copy its
+                                        <strong>Public IPv4 address</strong> and open it in a browser with
+                                        <code>http://&lt;public-ip&gt;</code>. You should see the Apache default page —
+                                        confirming the software was pre-installed from the AMI.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-apache-cloned-instance.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of a browser showing the Apache HTTP Server default page loaded from the public IP of the newly launched EC2 instance that was created from the custom AMI">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Apache page loading from
+                                                cloned instance — AMI worked correctly</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>Verification:</strong> Apache runs on the new instance without any manual
+                                    installation. This confirms your custom AMI correctly captured the software
+                                    configuration.</p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>⚠️ <strong>Cleanup:</strong> Terminate both EC2 instances when done. Deregister the
+                                    AMI (EC2 → AMIs → Actions → Deregister AMI) and delete the EBS snapshot (EC2 →
+                                    Snapshots → Delete Snapshot) to avoid ongoing storage charges.</p>
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- PROJECT 2 — unchanged -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-2-copy-ami-across-regions">Project 2: Copy Your Custom AMI to Another Region
+                            </h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Copy the custom AMI created in Project 1 from the
+                                    Mumbai region to US East (N. Virginia) and launch an instance from it there.</p>
+                                <p><strong>⏱️ Time:</strong> 15–20 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier eligible for the instance; small EBS snapshot
+                                    storage cost (&lt;$0.01 for a brief test)</p>
+                            </div>
+                            <div class="error-box">
+                                <p>💰 <strong>Cost Note:</strong> Copying an AMI creates a new EBS snapshot in the
+                                    destination region. EBS snapshot storage costs approximately $0.05/GB/month. Delete
+                                    the snapshot when done to avoid charges.</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Go to <code>EC2 → AMIs</code> in your <strong>source region</strong> (Mumbai /
+                                        ap-south-1). Select <code>my-apache-ami</code>.</p>
+                                </li>
+                                <li>
+                                    <p>Click <strong>Actions → Copy AMI</strong>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-copy-ami-action.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the AMIs list with the Actions dropdown open and 'Copy AMI' option highlighted in the menu">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Actions → Copy AMI option
+                                                in the AMI actions menu</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>In the Copy AMI dialog, set <strong>Destination Region</strong> to
+                                        <code>us-east-1</code> (US East - N. Virginia). Optionally rename it. Click
+                                        <strong>Copy AMI</strong>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-copy-ami-dialog.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the Copy AMI dialog showing the Source region as ap-south-1 (Mumbai) and the Destination region dropdown set to us-east-1 (US East - N. Virginia)">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Copy AMI dialog — set
+                                                destination region to US East N. Virginia</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Switch your AWS Console region to <strong>US East (N. Virginia)</strong>.
+                                        Navigate to <code>EC2 → AMIs</code>. You will see the copied AMI with status
+                                        <strong>pending</strong> — wait for it to become <strong>available</strong>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-copied-ami-virginia.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the AMIs list in the US East N. Virginia region showing the copied AMI with name 'my-apache-ami' and status 'available'">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Copied AMI now available in
+                                                N. Virginia region</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Launch a new EC2 instance in N. Virginia using this AMI (My AMIs tab). Verify
+                                        Apache loads from the new instance's public IP.</p>
+                                </li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>Verification:</strong> Apache should load from the N. Virginia instance —
+                                    proving the AMI was correctly copied and the software configuration is identical.
+                                </p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>⚠️ <strong>Cleanup:</strong> Terminate the N. Virginia EC2 instance. Deregister the
+                                    AMI in N. Virginia. Delete the EBS snapshot in N. Virginia. Optionally, also clean
+                                    up the original Mumbai AMI and snapshot from Project 1.</p>
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- PROJECT 3 — NEW: Versioned AMIs -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-3-versioned-amis">Project 3: Versioned AMIs — Build and Compare v1 / v2 / v3
+                            </h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Create three progressively richer AMIs — Apache only,
+                                    Apache + Node.js, and Apache + Node.js + a custom app page. Launch one instance from
+                                    each and compare them side by side. Think and act like a dev team maintaining
+                                    software versions.</p>
+                                <p><strong>⏱️ Time:</strong> 45–60 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier eligible. Run all three instances briefly, then
+                                    terminate.</p>
+                            </div>
+                            <p>Real teams never overwrite AMIs — they maintain versions. If <code>v3</code> breaks in
+                                production, you roll back to <code>v2</code> in minutes. This project teaches that
+                                discipline from day one.</p>
+                            <h4>Part A — Create v1: Apache Only</h4>
+                            <ol>
+                                <li>
+                                    <p>Launch a fresh EC2 instance from a <strong>Quick Start AMI</strong> (Amazon Linux
+                                        2023). SSH into it and run:</p>
+                                    <pre><code>sudo yum update -y
+sudo yum install httpd -y
+sudo systemctl start httpd
+sudo systemctl enable httpd
+echo "&lt;h1&gt;Server v1 — Apache Only&lt;/h1&gt;" | sudo tee /var/www/html/index.html</code></pre>
+                                    <div class="diagram-container"><img src="images/screenshot-v1-apache-running.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of a browser showing the custom HTML page 'Server v1 — Apache Only' loaded from the EC2 instance's public IP address">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: v1 Apache page loading in
+                                                browser — confirm before creating AMI</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Confirm Apache serves the page, then create an AMI. Name it exactly:
+                                        <code>webserver-v1</code>. Wait for status <strong>available</strong>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-v1-ami-available.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the AMIs list showing 'webserver-v1' with Status 'available' in green">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: webserver-v1 AMI
+                                                available</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part B — Create v2: Apache + Node.js</h4>
+                            <ol>
+                                <li>
+                                    <p>On the same running instance (do <strong>not</strong> launch a new one — build on
+                                        top of v1's state), install Node.js:</p>
+                                    <pre><code>curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+sudo yum install nodejs -y
+node --version
+echo "&lt;h1&gt;Server v2 — Apache + Node.js $(node --version)&lt;/h1&gt;" | sudo tee /var/www/html/index.html</code></pre>
+                                </li>
+                                <li>
+                                    <p>Create another AMI from this same instance. Name it: <code>webserver-v2</code>.
+                                        Wait for <strong>available</strong>.</p>
+                                </li>
+                            </ol>
+                            <h4>Part C — Create v3: Full App</h4>
+                            <ol>
+                                <li>
+                                    <p>Still on the same instance, create a small Node.js app file and update the page:
+                                    </p>
+                                    <pre><code>mkdir -p /home/ec2-user/myapp
+cat &gt; /home/ec2-user/myapp/app.js &lt;&lt; 'EOF'
+const http = require('http');
+const server = http.createServer((req, res) =&gt; {
+  res.end('Hello from Node.js App on Port 3000!');
+});
+server.listen(3000, () =&gt; console.log('App running on port 3000'));
+EOF
+echo "&lt;h1&gt;Server v3 — Apache + Node.js + App&lt;/h1&gt;&lt;p&gt;Node app on port 3000&lt;/p&gt;" | sudo tee /var/www/html/index.html</code></pre>
+                                </li>
+                                <li>
+                                    <p>Create AMI. Name it: <code>webserver-v3</code>. Wait for
+                                        <strong>available</strong>.</p>
+                                </li>
+                            </ol>
+                            <h4>Part D — Launch and Compare All Three</h4>
+                            <ol>
+                                <li>
+                                    <p>Launch one instance each from <code>webserver-v1</code>,
+                                        <code>webserver-v2</code>, and <code>webserver-v3</code> (three separate
+                                        launches, My AMIs tab each time). Use the same security group and key pair.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-three-ami-instances.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the EC2 Instances list showing three running instances named from webserver-v1, webserver-v2, and webserver-v3 AMIs, each with a different public IP address">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Three instances running —
+                                                one from each versioned AMI</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Open all three public IPs in your browser. Each should show its version-specific
+                                        page — proving the AMIs captured different software states independently.</p>
+                                </li>
+                                <li>
+                                    <p>SSH into the <code>v3</code> instance. Confirm Node.js is installed with
+                                        <code>node --version</code>. SSH into the <code>v1</code> instance — run
+                                        <code>node --version</code>. It will return <strong>command not found</strong>.
+                                        This proves AMI isolation.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-v1-no-node.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of SSH terminal on the v1 instance showing the command 'node --version' returning 'command not found', confirming v1 AMI did not capture Node.js">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: v1 instance — Node.js not
+                                                present, confirming AMI version isolation</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>Key Insight:</strong> Each AMI is a frozen snapshot of that exact moment.
+                                    Changes made after creating an AMI do not affect earlier versions — and earlier AMIs
+                                    do not include later software. This is version control for servers.</p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>⚠️ <strong>Cleanup:</strong> Terminate all three instances. You can keep the three
+                                    AMIs for reference, or deregister them and delete snapshots to avoid charges.</p>
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- PROJECT 4 — NEW: Crash & Recover -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-4-crash-and-recover">Project 4: Crash &amp; Recover — AMI as Disaster
+                                Recovery</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Simulate a server failure by terminating a running
+                                    instance, then recover it from an AMI in under 5 minutes. Understand the critical
+                                    distinction: AMI captures system state, but dynamic data must be stored externally.
+                                </p>
+                                <p><strong>⏱️ Time:</strong> 30–40 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier eligible</p>
+                            </div>
+                            <p>This is one of the most interview-relevant projects in this list. When an interviewer
+                                asks "how would you handle an EC2 instance failure?" — you need to be able to walk
+                                through exactly this scenario.</p>
+                            <h4>Part A — Set Up a "Production" Server</h4>
+                            <ol>
+                                <li>
+                                    <p>Launch an EC2 instance from <code>webserver-v2</code> (Project 3's AMI) or your
+                                        <code>my-apache-ami</code>. Name it <code>production-server</code>.</p>
+                                </li>
+                                <li>
+                                    <p>SSH in and add some "runtime data" to simulate the server being in active use:
+                                    </p>
+                                    <pre><code># Simulate some log files and runtime content
+sudo mkdir -p /var/app/logs
+echo "App started at $(date)" | sudo tee /var/app/logs/app.log
+echo "User session: user123 logged in" | sudo tee -a /var/app/logs/app.log
+echo "&lt;h1&gt;Production Server&lt;/h1&gt;&lt;p&gt;All systems running&lt;/p&gt;" | sudo tee /var/www/html/index.html</code></pre>
+                                </li>
+                                <li>
+                                    <p>Confirm the page loads and check your log file exists. Note the instance's
+                                        <strong>public IP</strong> and <strong>instance ID</strong>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-production-server-running.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of a browser showing the 'Production Server — All systems running' page with the instance public IP in the browser address bar">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Production server running
+                                                and serving traffic</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Part B — Simulate the Crash</h4>
+                            <ol>
+                                <li>
+                                    <p>Go to <code>EC2 → Instances</code>. Select <code>production-server</code>. Click
+                                        <strong>Instance State → Terminate instance</strong>. Confirm termination.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-terminate-production.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the EC2 Instances list showing the production-server instance with State showing 'terminated' or the termination confirmation dialog open">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Terminating the production
+                                                server — simulating a crash</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Try opening the old IP in your browser. It will time out — the server is gone.
+                                    </p>
+                                </li>
+                            </ol>
+                            <h4>Part C — Recover from AMI</h4>
+                            <ol>
+                                <li>
+                                    <p>Go to <strong>Launch Instances</strong>. Under <strong>My AMIs</strong>, select
+                                        the AMI you used for <code>production-server</code>. Use the same instance type,
+                                        key pair, and security group. Name the new instance
+                                        <code>production-server-recovered</code>. Launch it.</p>
+                                </li>
+                                <li>
+                                    <p>Once running, open the new public IP in your browser. Apache loads — the system
+                                        is recovered.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-recovered-server.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of a browser showing the Apache server page loaded from the recovered EC2 instance's new public IP address, confirming the server was successfully restored from the AMI">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Recovered server serving
+                                                traffic from the new instance — AMI recovery worked</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>SSH into the recovered instance. Check for your log file:</p>
+                                    <pre><code>cat /var/app/logs/app.log</code></pre>
+                                    <p>The log file is <strong>gone</strong>. The AMI captured the system software and
+                                        config — but the runtime data you wrote after the AMI was created was not
+                                        included. This is expected and important.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-missing-logs.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of SSH terminal showing the command 'cat /var/app/logs/app.log' returning 'No such file or directory', demonstrating that post-AMI runtime data is not preserved">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Log file missing after
+                                                recovery — AMI only captures state at creation time</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <div class="error-box">
+                                <p>❌ <strong>Critical Lesson:</strong> An AMI captures the system at the moment it was
+                                    created — not live runtime data. Files written after the AMI was made are lost on
+                                    termination. This is why production architectures separate <strong>system state
+                                        (AMI)</strong> from <strong>data state (EBS volumes or S3)</strong>.</p>
+                            </div>
+                            <div class="success-box">
+                                <p>✅ <strong>Real-World Pattern:</strong> In production, application logs go to
+                                    <strong>Amazon CloudWatch Logs</strong>, user data goes to <strong>S3 or
+                                        RDS</strong>, and the EC2 instance itself is treated as disposable. The AMI just
+                                    provides the system template — it is never the data store.</p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>⚠️ <strong>Cleanup:</strong> Terminate <code>production-server-recovered</code>. The
+                                    original instance was already terminated in the simulation.</p>
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- PROJECT 5 — NEW: AMI Stamp Test (identical behavior proof) -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-5-stamp-test">Project 5: The Stamp Test — Prove AMI Creates Truly Identical
+                                Instances</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Launch 3 instances from the same AMI. Manually modify
+                                    one of them. Then stop and restart all three — confirming that AMI behavior is
+                                    identical at launch, and that changes on one instance do not affect others.</p>
+                                <p><strong>⏱️ Time:</strong> 30–40 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier. Three t2.micro instances for ~30 minutes = well
+                                    within limits.</p>
+                            </div>
+                            <p>This project answers a question many beginners have: <em>"If I change something on one
+                                    instance, does it affect others launched from the same AMI?"</em> The answer is no —
+                                and this project makes you feel that, not just read it.</p>
+                            <ol>
+                                <li>
+                                    <p>Launch <strong>3 instances</strong> from the same AMI (use
+                                        <code>my-apache-ami</code> or <code>webserver-v2</code>). Name them:
+                                        <code>stamp-1</code>, <code>stamp-2</code>, <code>stamp-3</code>. Same key pair,
+                                        same security group.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-three-stamp-instances.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of the EC2 Instances list showing three running instances named stamp-1, stamp-2, and stamp-3, all launched from the same AMI, each with different public IP addresses">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: Three identical instances
+                                                launched from the same AMI</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Open all three public IPs in the browser. All three should show the <strong>same
+                                            Apache page</strong> — proving identical starting state.</p>
+                                </li>
+                                <li>
+                                    <p>SSH into <code>stamp-2</code> only. Change its page content:</p>
+                                    <pre><code>echo "&lt;h1&gt;I am stamp-2 — I was modified!&lt;/h1&gt;" | sudo tee /var/www/html/index.html</code></pre>
+                                </li>
+                                <li>
+                                    <p>Now open all three IPs again. <code>stamp-1</code> and <code>stamp-3</code> still
+                                        show the original AMI page. <code>stamp-2</code> shows the modified page. This
+                                        proves instances are independent after launch — modifying one has zero effect on
+                                        others.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-stamp2-modified.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of two browser tabs side by side — stamp-1 showing the original Apache AMI page, and stamp-2 showing the modified 'I am stamp-2 — I was modified!' page">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: stamp-1 unchanged, stamp-2
+                                                modified — instances are independent</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p><strong>Stop all three instances</strong> (not terminate — stop). Wait for status
+                                        <strong>Stopped</strong>.</p>
+                                </li>
+                                <li>
+                                    <p><strong>Start all three instances</strong>. Get their new public IPs (stop/start
+                                        changes the public IP). Open them in the browser.</p>
+                                    <ul>
+                                        <li><code>stamp-1</code>: still shows the original AMI page ✅</li>
+                                        <li><code>stamp-2</code>: still shows the modified page ✅ (changes persist
+                                            through stop/start — EBS root volume is persistent)</li>
+                                        <li><code>stamp-3</code>: still shows the original AMI page ✅</li>
+                                    </ul>
+                                    <div class="diagram-container"><img src="images/screenshot-stamp-after-restart.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the EC2 Instances list showing all three stamp instances back in Running state after stop and start, with new public IP addresses assigned">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: All three instances running
+                                                again after stop/start — note new public IPs</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>Two things confirmed in one project:</strong><br>1. AMI creates truly
+                                    identical, independent instances — changes on one do not affect others.<br>2.
+                                    Changes <em>within</em> a running instance persist through stop/start (EBS is
+                                    persistent storage).</p>
+                            </div>
+                            <div class="info-box">
+                                <p>💡 <strong>Exam Tip:</strong> Stop/Start changes the <strong>public IP</strong> of an
+                                    instance. The <strong>private IP</strong> and <strong>EBS volume data</strong> are
+                                    preserved. To keep a fixed public IP, use an <strong>Elastic IP</strong>.</p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>⚠️ <strong>Cleanup:</strong> Terminate all three stamp instances.</p>
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- PROJECT 6 — NEW: Golden AMI Pipeline -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-6-golden-ami-pipeline">Project 6: Golden AMI Pipeline — Base → Web →
+                                Production</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Build a layered AMI structure: a base hardened OS
+                                    image, a web-tier image built on top of it, and a production-tagged AMI derived from
+                                    the web tier. Document what each layer adds. This is how real engineering teams
+                                    manage server standardization.</p>
+                                <p><strong>⏱️ Time:</strong> 60–90 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier eligible. You only need one running instance at a
+                                    time throughout this project.</p>
+                            </div>
+                            <p>In real companies, a "golden AMI" is a controlled, versioned base image that the entire
+                                team builds from. Nobody starts from a raw OS — they start from the golden AMI. This
+                                project teaches you to think in layers.</p>
+                            <div class="diagram-container"><img src="images/golden-ami-pipeline.png" loading="lazy"
+                                    decoding="async"
+                                    alt="Diagram showing three layered AMI boxes stacked vertically with downward arrows: base-ami at top (OS plus security patches plus monitoring agent), web-ami in the middle (Apache plus Node.js), and production-ami at the bottom (application code plus env config), with labels showing what each layer adds">
+                                <p class="diagram-caption"><em>Figure: The Golden AMI Pipeline — each layer builds on
+                                        the previous one</em></p>
+                            </div>
+                            <h4>Layer 1 — Base AMI (OS + Hardening)</h4>
+                            <ol>
+                                <li>
+                                    <p>Launch a fresh EC2 instance from <strong>Amazon Linux 2023 Quick Start
+                                            AMI</strong>. SSH in and run the following to simulate OS hardening:</p>
+                                    <pre><code># Apply all OS updates (security patches)
+sudo yum update -y
+
+# Install the AWS Systems Manager agent (standard in all golden AMIs)
+sudo yum install -y amazon-ssm-agent
+sudo systemctl enable amazon-ssm-agent
+sudo systemctl start amazon-ssm-agent
+
+# Install CloudWatch agent (for monitoring — standard in enterprise)
+sudo yum install -y amazon-cloudwatch-agent
+
+# Harden: disable root SSH login
+sudo sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+sudo systemctl restart sshd
+
+echo "Base hardening complete at $(date)"</code></pre>
+                                </li>
+                                <li>
+                                    <p>Create AMI. Name it: <code>base-ami-v1</code>. Tag it: Key = <code>Layer</code>,
+                                        Value = <code>base</code>. Wait for <strong>available</strong>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-base-ami-created.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the AMIs list showing 'base-ami-v1' with Status 'available' and the Tags column showing Layer: base">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: base-ami-v1 available with
+                                                Layer tag applied</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Layer 2 — Web AMI (Apache + Node.js on top of Base)</h4>
+                            <ol>
+                                <li>
+                                    <p>Do <strong>not</strong> launch a new instance from scratch. Stay on the same
+                                        instance (or launch from <code>base-ami-v1</code> if you stopped it). Install
+                                        the web layer on top:</p>
+                                    <pre><code>sudo yum install httpd -y
+sudo systemctl start httpd
+sudo systemctl enable httpd
+
+curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+sudo yum install nodejs -y
+
+echo "&lt;h1&gt;Golden Web Server&lt;/h1&gt;&lt;p&gt;Built from base-ami-v1&lt;/p&gt;" | sudo tee /var/www/html/index.html
+echo "Web layer installed at $(date)"</code></pre>
+                                </li>
+                                <li>
+                                    <p>Create AMI. Name it: <code>web-ami-v1</code>. Tag it: Key = <code>Layer</code>,
+                                        Value = <code>web</code>, plus Key = <code>ParentAMI</code>, Value =
+                                        <code>base-ami-v1</code>. Wait for <strong>available</strong>.</p>
+                                </li>
+                            </ol>
+                            <h4>Layer 3 — Production AMI (App Code on top of Web)</h4>
+                            <ol>
+                                <li>
+                                    <p>On the same instance, add the application layer:</p>
+                                    <pre><code>sudo mkdir -p /var/www/app
+sudo chown ec2-user:ec2-user /var/www/app
+
+cat &gt; /var/www/app/server.js &lt;&lt; 'EOF'
+const http = require('http');
+const os = require('os');
+const server = http.createServer((req, res) =&gt; {
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.end(`&lt;h1&gt;Production App&lt;/h1&gt;&lt;p&gt;Hostname: ${os.hostname()}&lt;/p&gt;&lt;p&gt;Built from web-ami-v1&lt;/p&gt;`);
+});
+server.listen(3000, () =&gt; console.log('Production app running on port 3000'));
+EOF
+
+# Update Apache page to reflect production status
+echo "&lt;h1&gt;Production Server&lt;/h1&gt;&lt;p&gt;Golden AMI Pipeline — Layer 3&lt;/p&gt;" | sudo tee /var/www/html/index.html
+echo "Production layer installed at $(date)"</code></pre>
+                                </li>
+                                <li>
+                                    <p>Create AMI. Name it: <code>production-ami-v1</code>. Tag it: Key =
+                                        <code>Layer</code>, Value = <code>production</code>, Key =
+                                        <code>ParentAMI</code>, Value = <code>web-ami-v1</code>, Key =
+                                        <code>Status</code>, Value = <code>approved</code>. Wait for
+                                        <strong>available</strong>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-all-three-golden-amis.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of the AMIs list showing all three golden AMIs: base-ami-v1, web-ami-v1, and production-ami-v1, all with Status 'available' and their respective tags visible">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: All three golden AMI layers
+                                                available and tagged</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Verify the Pipeline</h4>
+                            <ol>
+                                <li>
+                                    <p>Launch one instance from <code>production-ami-v1</code>. SSH in. Run
+                                        <code>node --version</code> — it exists (inherited from web layer). Run
+                                        <code>systemctl status amazon-ssm-agent</code> — it is running (inherited from
+                                        base layer). This confirms all three layers are present.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-production-ami-instance-verify.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of SSH terminal on the production-ami instance showing node --version returning v18.x and systemctl status amazon-ssm-agent showing active running, confirming all inherited layers are present">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: production-ami instance —
+                                                all inherited layers confirmed (SSM agent + Node.js both present)</em>
+                                        </p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>What You Built:</strong> A three-layer golden AMI pipeline — the same
+                                    pattern used by engineering teams at large companies to standardize all their
+                                    servers. Base provides security. Web provides runtime. Production provides the app.
+                                    Each layer is independently versioned and tagged.</p>
+                            </div>
+                            <div class="info-box">
+                                <p>💡 <strong>Real-World Extension:</strong> In production companies, this pipeline is
+                                    automated using <strong>EC2 Image Builder</strong> — an AWS service that builds,
+                                    tests, and distributes golden AMIs on a schedule. You would define each layer as a
+                                    component recipe and Image Builder handles the rest.</p>
+                            </div>
+                            <div class="highlight-box">
+                                <p>⚠️ <strong>Cleanup:</strong> Terminate the launched instance. You may keep the three
+                                    AMIs for reference or deregister them and delete their snapshots.</p>
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- PROJECT 7 — NEW: AMI via AWS CLI -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-7-ami-cli">Project 7: Automate AMI Creation with AWS CLI</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Move beyond clicking in the console. Use AWS CLI
+                                    commands to create an AMI, check its status, and launch a new instance from it — all
+                                    from the terminal. This is how real DevOps engineers work.</p>
+                                <p><strong>⏱️ Time:</strong> 30–45 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier eligible</p>
+                            </div>
+                            <p>Nobody at a real company sits clicking "Create Image" in the console every time. AMI
+                                creation is automated — triggered by deployment pipelines, cron jobs, or scripts. This
+                                project is your first step into that world.</p>
+                            <h4>Prerequisites</h4>
+                            <ul>
+                                <li>AWS CLI installed and configured (<code>aws configure</code> with your access key,
+                                    secret key, and region set to <code>ap-south-1</code>)</li>
+                                <li>A running EC2 instance with Apache installed (use any from earlier projects)</li>
+                                <li>The instance's <strong>Instance ID</strong> (format:
+                                    <code>i-0abc1234def56789</code>) — copy it from the console</li>
+                            </ul>
+                            <h4>Step 1 — Create an AMI via CLI</h4>
+                            <ol>
+                                <li>
+                                    <p>Run the following command, replacing <code>YOUR_INSTANCE_ID</code> with your
+                                        actual instance ID:</p>
+                                    <pre><code>aws ec2 create-image \
+  --instance-id YOUR_INSTANCE_ID \
+  --name "cli-created-ami-$(date +%Y%m%d)" \
+  --description "AMI created via AWS CLI on $(date)" \
+  --no-reboot \
+  --region ap-south-1</code></pre>
+                                    <p>This returns a JSON response containing the new <code>ImageId</code>. Copy it —
+                                        you will use it in the next steps.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-cli-create-image-output.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of a terminal showing the aws ec2 create-image command output, displaying a JSON response with the ImageId field containing the new AMI ID like ami-0abc123456">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: CLI output showing the new
+                                                AMI ID after running create-image</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Step 2 — Poll AMI Status Until Available</h4>
+                            <ol>
+                                <li>
+                                    <p>Replace <code>YOUR_AMI_ID</code> with the ID from Step 1:</p>
+                                    <pre><code>aws ec2 describe-images \
+  --image-ids YOUR_AMI_ID \
+  --query 'Images[0].State' \
+  --output text \
+  --region ap-south-1</code></pre>
+                                    <p>Run this every 30 seconds. It returns <code>pending</code> while creating, then
+                                        <code>available</code> when ready. Or use the built-in waiter:</p>
+                                    <pre><code>aws ec2 wait image-available --image-ids YOUR_AMI_ID --region ap-south-1
+echo "AMI is now available!"</code></pre>
+                                    <div class="diagram-container"><img src="images/screenshot-cli-ami-available.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of a terminal showing the aws ec2 describe-images command returning 'available' for the AMI state, confirming the CLI-created AMI is ready">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: CLI confirm AMI state is
+                                                'available'</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>Step 3 — Launch an Instance from the CLI-Created AMI</h4>
+                            <ol>
+                                <li>
+                                    <p>First, get your security group ID and subnet ID from the console, then run
+                                        (replace all placeholder values):</p>
+                                    <pre><code>aws ec2 run-instances \
+  --image-id YOUR_AMI_ID \
+  --instance-type t2.micro \
+  --key-name YOUR_KEY_PAIR_NAME \
+  --security-group-ids YOUR_SG_ID \
+  --subnet-id YOUR_SUBNET_ID \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=cli-launched-instance}]' \
+  --region ap-south-1</code></pre>
+                                    <p>This returns detailed JSON. Look for <code>InstanceId</code> in the output to
+                                        track your new instance.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-cli-run-instances-output.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of a terminal showing the aws ec2 run-instances command JSON output with the InstanceId, ImageId, and InstanceType fields visible">
+                                        <p class="diagram-caption"><em>Figure 📸 Screenshot: CLI output from
+                                                run-instances — note the InstanceId in the response</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Check instance status via CLI:</p>
+                                    <pre><code>aws ec2 describe-instances \
+  --instance-ids YOUR_NEW_INSTANCE_ID \
+  --query 'Reservations[0].Instances[0].State.Name' \
+  --output text \
+  --region ap-south-1</code></pre>
+                                </li>
+                                <li>
+                                    <p>Once running, go to the console to get the public IP, or query it via CLI:</p>
+                                    <pre><code>aws ec2 describe-instances \
+  --instance-ids YOUR_NEW_INSTANCE_ID \
+  --query 'Reservations[0].Instances[0].PublicIpAddress' \
+  --output text \
+  --region ap-south-1</code></pre>
+                                    <p>Open the IP in your browser — Apache should load, confirming the CLI-created AMI
+                                        works exactly like a console-created one.</p>
+                                </li>
+                            </ol>
+                            <h4>Step 4 — CLI Cleanup</h4>
+                            <ol>
+                                <li>
+                                    <p>Terminate the instance:</p>
+                                    <pre><code>aws ec2 terminate-instances --instance-ids YOUR_NEW_INSTANCE_ID --region ap-south-1</code></pre>
+                                </li>
+                                <li>
+                                    <p>Get the snapshot ID backing your AMI:</p>
+                                    <pre><code>aws ec2 describe-images \
+  --image-ids YOUR_AMI_ID \
+  --query 'Images[0].BlockDeviceMappings[0].Ebs.SnapshotId' \
+  --output text \
+  --region ap-south-1</code></pre>
+                                </li>
+                                <li>
+                                    <p>Deregister the AMI:</p>
+                                    <pre><code>aws ec2 deregister-image --image-id YOUR_AMI_ID --region ap-south-1</code></pre>
+                                </li>
+                                <li>
+                                    <p>Delete the snapshot:</p>
+                                    <pre><code>aws ec2 delete-snapshot --snapshot-id YOUR_SNAPSHOT_ID --region ap-south-1</code></pre>
+                                </li>
+                            </ol>
+                            <div class="success-box">
+                                <p>✅ <strong>What You Proved:</strong> Every action you have done in the console —
+                                    create AMI, wait for available, launch instance, clean up — can be scripted. This is
+                                    the foundation of infrastructure automation. The next step from here is wrapping
+                                    these commands in a shell script or a Terraform configuration.</p>
+                            </div>
+                            <div class="info-box">
+                                <p>💡 <strong>What Real Companies Do:</strong> A CI/CD pipeline (e.g., GitHub Actions or
+                                    Jenkins) runs these exact CLI commands automatically after every successful build —
+                                    creating a fresh AMI with the latest code baked in, then updating Auto Scaling
+                                    Groups to use the new AMI. You do not need to click anything.</p>
+                            </div>
+                        </div>
+                    </details>
+
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="learning-checklist">☑️ Learning Checklist</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="checklist-progress">
+                        <p>Progress: <span id="checklistProgress">0/15</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                    <div id="checklistContainer" data-checklist-source="json/checklist.json"></div>
+                    <div class="quiz-reset-container"><button onclick="resetChecklist()" class="quiz-reset-btn">🔄 Reset
+                            Checklist</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="reflection-questions">🤔 Reflection Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="question-block">
+                        <h4>1. You have a running EC2 instance with Node.js and your application code installed. Your
+                            manager asks you to set up 5 identical servers quickly. What is the most efficient AWS
+                            approach?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about how to avoid repeating the same setup process 5 times. What feature
+                                    allows you to capture and reuse a configured server?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>2. A student deregisters an AMI and assumes they have freed up all storage. Are they
+                            correct? What did they miss?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Remember the two-part relationship between AMIs and the storage that backs them.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>3. Your Mumbai-region server is performing well. Your company wants to serve users in
+                            Europe. What are the steps to replicate your server there?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>You cannot directly move an AMI. What action in the AMI console lets you bring it to
+                                    a new region?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>4. In Project 4, after recovering from an AMI, the log file was missing. Why? And what is
+                            the correct architectural pattern to prevent data loss?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about the difference between system state (what the AMI captures) and data
+                                    state (what changes at runtime). Where should dynamic data live?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>5. What is the difference between an EBS Volume, an EBS Snapshot, and an AMI? Explain using
+                            an analogy.</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think of a computer hard drive, a backup of that drive, and a complete system restore
+                                    image — all three are different things.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>6. In Project 5 (Stamp Test), you modified stamp-2 and confirmed stamp-1 and stamp-3 were
+                            unaffected. Now — if you create a new AMI from stamp-2 and launch stamp-4, what will stamp-4
+                            look like?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Remember what an AMI captures — the current state of the instance at the moment you
+                                    create the image.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>7. You need to choose between baking your application code into an AMI (golden AMI style)
+                            vs. always installing it at boot via a User Data script. What are the trade-offs?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about launch speed, flexibility, and what happens when your app code changes
+                                    frequently.</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="links-references">🔗 Links &amp; References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3 id="official-aws-docs">📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html"
+                                        target="_blank" rel="noopener noreferrer">Amazon Machine Images (AMIs)</a></td>
+                                <td>Official AMI documentation — concepts, types, and lifecycle</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/CopyingAMIs.html"
+                                        target="_blank" rel="noopener noreferrer">Copy an AMI</a></td>
+                                <td>Step-by-step guide to copying AMIs across regions and accounts</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSSnapshots.html"
+                                        target="_blank" rel="noopener noreferrer">Amazon EBS Snapshots</a></td>
+                                <td>EBS snapshot concepts, creation, and management</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/deregister-ami.html"
+                                        target="_blank" rel="noopener noreferrer">Deregister an AMI</a></td>
+                                <td>How to properly remove an AMI and its associated snapshot</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="recommended-reading">🎓 Recommended Reading</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/ec2/pricing/" target="_blank"
+                                        rel="noopener noreferrer">EC2 Pricing</a></td>
+                                <td>Understand on-demand, reserved, and spot pricing — relevant for AMI-launched
+                                    instances</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/ebs/pricing/" target="_blank"
+                                        rel="noopener noreferrer">EBS Pricing</a></td>
+                                <td>EBS snapshot storage costs — important for managing AMI costs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="additional-resources">🔧 Additional Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/marketplace" target="_blank"
+                                        rel="noopener noreferrer">AWS Marketplace</a></td>
+                                <td>Browse Marketplace AMIs from third-party vendors</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://calculator.aws/pricing/2/home" target="_blank"
+                                        rel="noopener noreferrer">AWS Pricing Calculator</a></td>
+                                <td>Estimate costs for EC2 instances and EBS storage</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">EC2</span><span class="tag">AMI</span><span
+                class="tag">EBS</span><span class="tag">Cloud</span><span class="tag">Career</span></div>
+    </div>
+    <script defer src="../../../js/notes-page.js"></script>
+</body>
+
+</html>

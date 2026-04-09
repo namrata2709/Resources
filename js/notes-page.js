@@ -27,13 +27,34 @@
 
     function injectStaticElements() {
         injectStaticMeta();
+        injectFaviconAndManifest();
         injectBreadcrumb();
         injectBreadcrumbSchema();
         injectThemeToggle();
         injectFooter();
         injectGoogleAnalytics();
         loadConditionalScripts();
+        
         console.log('✅ All static elements injected');
+    }
+    function injectFaviconAndManifest() {
+        const base = '../../../images/favicon_io/';
+
+        // favicon
+        ['32x32', '16x16'].forEach(size => {
+            const link = document.createElement('link');
+            link.rel = 'icon';
+            link.type = 'image/png';
+            link.sizes = size;
+            link.href = `${base}favicon-${size}.png`;
+            document.head.appendChild(link);
+        });
+
+        // manifest
+        const manifest = document.createElement('link');
+        manifest.rel = 'manifest';
+        manifest.href = `${base}site.webmanifest`;
+        document.head.appendChild(manifest);
     }
 
     function injectStaticMeta() {
@@ -190,7 +211,7 @@
             '../../../js/notes-reader.js',        // defines window.showNotification
             '../../../js/notes-print.js',         // needs window.showNotification at click-time
             '../../../js/notes-fab.js',           // needs cycleExamMode, openPrintModal,
-                                                  //   exportExamHighlights, showNotification — all at click-time
+            //   exportExamHighlights, showNotification — all at click-time
             '../../../js/notes-touch.js',
             '../../../js/notes-search.js'
         ];

@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Complete beginner-friendly AWS S3 notes covering buckets, objects, storage classes, versioning, and object lock with practical examples and exam tips.">
+    <meta name="keywords"
+        content="AWS, S3, Simple Storage Service, cloud, certification, storage classes, versioning, object lock">
+    <meta property="og:title" content="S3 Fundamentals - AWS Training">
+    <meta property="og:description"
+        content="Complete beginner-friendly AWS S3 notes covering buckets, objects, storage classes, versioning, and object lock with practical examples and exam tips.">
+    <meta property="og:type" content="article">
+    <meta property="og:url"
+        content="https://namrata2709.github.io/Resources/data/notes/s3-fundamentals/s3-fundamentals-complete.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/s3-fundamentals/images/s3-overview-architecture.png">
+    <link rel="canonical"
+        href="https://namrata2709.github.io/Resources/data/notes/s3-fundamentals/s3-fundamentals-complete.html">
+    <title>S3 Fundamentals - Complete Notes - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+    <script src="../../../js/theme.js"></script>
+</head>
+
+<body class="complete-notes">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"S3 Fundamentals","description":"Complete beginner-friendly AWS S3 notes covering buckets, objects, storage classes, versioning, and object lock with practical examples and exam tips.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-11-21","dateModified":"2025-11-21","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/s3-fundamentals/s3-fundamentals-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/s3-fundamentals/images/s3-overview-architecture.png","articleSection":"AWS Training","keywords":["AWS","S3","Simple Storage Service","storage classes","versioning","object lock"],"educationalLevel":"Beginner to Intermediate"}</script>
+    <div class="note-container">
+        <div class="note-header">
+            <h1>S3 Fundamentals</h1>
+            <p class="note-date">📅 November 21, 2025</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> November 21, 2025</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="note-content">
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="introduction">🌟 Introduction</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Think about this: where do you store your files on your computer? In folders, right? Now imagine
+                        a storage system so big that it can hold millions of files, accessible from anywhere in the
+                        world, never loses your data, and automatically handles all the hardware so you never have to
+                        worry about disk space running out. That is exactly what AWS S3 is.</p>
+                    <div class="diagram-container"><img src="images/s3-overview-architecture.png" decoding="async"
+                            alt="AWS S3 high-level overview showing a user uploading objects into S3 buckets stored across multiple availability zones within an AWS region, with public internet access via URLs">
+                        <p class="diagram-caption"><em>Figure 1: S3 high-level architecture — objects stored in buckets,
+                                distributed across availability zones</em></p>
+                    </div>
+                    <p><span class="exam-highlight-sentence">Amazon S3, or <span class="exam-highlight-term">Simple
+                                Storage Service</span>, is a fully managed, scalable object storage service provided by
+                            AWS.</span> Unlike EBS (block storage attached to EC2) or EFS (file system storage over a
+                        network), S3 stores data as objects inside containers called buckets. You do not need to manage
+                        any servers, disks, or hardware — AWS handles everything for you.</p>
+                    <p>In this session, we covered three foundational S3 topics: how buckets and objects work, the
+                        different storage classes you can choose from, and how versioning protects your data from
+                        accidental changes or deletions. These are among the most exam-heavy topics in all of AWS, so
+                        understanding them deeply matters both for certification and for real-world cloud work.</p>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Why S3 matters:</strong> Nearly every AWS architecture uses S3 — for storing
+                            application files, hosting static websites, backing up databases, delivering content
+                            globally, and archiving years of historical data. It is the backbone of cloud storage.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="what-is-s3">☁️ What is S3?</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Before diving into the details, let us understand what kind of storage S3 is and how it differs
+                        from the other storage systems you have already learned about.</p>
+                    <div class="diagram-container"><img src="images/s3-vs-ebs-efs-comparison.png" loading="lazy"
+                            decoding="async"
+                            alt="Side-by-side comparison diagram of AWS storage types: EBS block storage attached to EC2, EFS network file system, and S3 object storage accessible from anywhere via URL, showing key differences in access method and use case">
+                        <p class="diagram-caption"><em>Figure 2: Three AWS storage types compared — EBS, EFS, and
+                                S3</em></p>
+                    </div>
+                    <h3 id="storage-types-recap">Storage Types Recap</h3>
+                    <p>You have already seen two types of AWS storage:</p>
+                    <ul>
+                        <li><strong>EBS (Elastic Block Store):</strong> Block storage attached directly to an EC2
+                            instance. Like a hard drive plugged into your computer — only that one computer can use it.
+                        </li>
+                        <li><strong>EFS (Elastic File System):</strong> Network-based file system storage that multiple
+                            EC2 instances can share — like a shared drive on a company network.</li>
+                        <li><strong>S3 (Simple Storage Service):</strong> Object storage — files are stored as
+                            independent objects with a unique URL. Any application, user, or service can access them
+                            from anywhere over the internet (with the right permissions).</li>
+                    </ul>
+                    <h3 id="s3-key-characteristics">Key Characteristics of S3</h3>
+                    <p><span class="exam-highlight-sentence">S3 is a <span class="exam-highlight-term">fully
+                                managed</span> service, meaning AWS handles all underlying infrastructure — no servers
+                            to provision, no disks to manage.</span></p>
+                    <p><span class="exam-highlight-sentence">S3 provides <span class="exam-highlight-term">11 nines of
+                                durability</span> (99.999999999%), meaning even if you store data and come back after
+                            100 years, your data will still be there.</span> This is not just marketing — AWS achieves
+                        this by automatically replicating your objects across multiple physical locations.</p>
+                    <p>S3 is also virtually unlimited in capacity. You can store as many objects as you want — from a
+                        single file to billions of files — without ever needing to request more space.</p>
+                    <div class="info-box">
+                        <p>💡 <strong>Durability vs Availability:</strong> Durability means your data will not be lost.
+                            Availability means you can access it when you need it. S3 Standard offers both — 11 nines
+                            durability and 99.99% availability. According to AWS documentation, this durability is
+                            achieved by redundantly storing data across multiple devices and multiple facilities.</p>
+                        <p><strong>📚 Source:</strong><a
+                                href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/DataDurability.html"
+                                target="_blank" rel="noopener noreferrer">AWS S3 Data Durability Docs</a></p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="buckets-and-objects">🪣 Buckets and Objects</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Everything in S3 starts with two concepts: <strong>buckets</strong> and <strong>objects</strong>.
+                        Think of it like this — if S3 is a filing cabinet, then a bucket is a drawer in that cabinet,
+                        and objects are the individual files inside that drawer.</p>
+                    <div class="diagram-container"><img src="images/s3-bucket-object-structure.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing S3 hierarchy: AWS Account contains multiple S3 Buckets (e.g. my-company-logs, my-app-images), each bucket contains multiple objects (files) with keys, sizes, and metadata, with an arrow showing the object URL structure ending in bucket-name.s3.region.amazonaws.com/key-name">
+                        <p class="diagram-caption"><em>Figure 3: S3 bucket and object hierarchy — buckets contain
+                                objects, each object has a unique URL</em></p>
+                    </div>
+                    <h3 id="what-is-a-bucket">What is a Bucket?</h3>
+                    <p>A bucket is the top-level container for storing objects in S3. You create a bucket in a specific
+                        AWS region, and all objects inside that bucket are stored within that region.</p>
+                    <p><span class="exam-highlight-sentence">S3 <span class="exam-highlight-term">bucket names must be
+                                globally unique</span> across all AWS accounts worldwide — no two buckets anywhere on
+                            AWS can share the same name.</span> This is because the bucket name becomes part of the
+                        object's URL, which must be globally resolvable.</p>
+                    <p><span class="exam-highlight-sentence">A bucket is <span
+                                class="exam-highlight-term">region-specific</span> — when you create a bucket, you
+                            choose one AWS region where the data physically lives, and S3 stores your objects
+                            there.</span></p>
+                    <div class="success-box">
+                        <p>✅ <strong>Bucket naming rules:</strong> 3–63 characters, lowercase letters, numbers, and
+                            hyphens only. Cannot start or end with a hyphen. Must not look like an IP address (e.g.,
+                            192.168.1.1 is not allowed).</p>
+                    </div>
+                    <h3 id="what-is-an-object">What is an Object?</h3>
+                    <p>An object is any file you store in S3 — an image, a video, a text document, a ZIP archive, a
+                        database backup, anything. Each object consists of the actual data (the file content) plus
+                        metadata (information about the file — who owns it, when it was created, its size, its storage
+                        class, etc.).</p>
+                    <p>Every object has a <strong>key</strong>, which is simply the name of the object (including any
+                        folder-like path). The key is what uniquely identifies the object within a bucket.</p>
+                    <h3 id="object-url-structure">Object URL Structure</h3>
+                    <p>Every object in S3 automatically gets a unique URL that follows this pattern:</p>
+                    <pre><code>https://[bucket-name].s3.[region].amazonaws.com/[key-name]</code></pre>
+                    <p>For example, if your bucket is called <code>saiguda966</code> in the <code>ap-south-1</code>
+                        region and you uploaded a file called <code>tctprice.txt</code>, the URL would be:</p>
+                    <pre><code>https://saiguda966.s3.ap-south-1.amazonaws.com/tctprice.txt</code></pre>
+                    <p>This URL is how S3 knows exactly which account, which bucket, and which file you are requesting.
+                        By default, this URL returns "Access Denied" because objects are private. You must explicitly
+                        grant permissions to make them publicly accessible.</p>
+                    <div class="diagram-container"><img src="images/s3-object-url-breakdown.png" loading="lazy"
+                            decoding="async"
+                            alt="Annotated diagram breaking down an S3 object URL into four labeled parts: HTTPS protocol, bucket name (globally unique), region name (ap-south-1), and key name (file path), with color-coded arrows pointing to each segment of the URL string">
+                        <p class="diagram-caption"><em>Figure 4: Anatomy of an S3 object URL — each segment has a
+                                specific meaning</em></p>
+                    </div>
+                    <h3 id="upload-limits">Upload Limits — Important Exam Facts</h3>
+                    <p>S3 has specific size limits that come up frequently in exams and interviews.</p>
+                    <p><span class="exam-highlight-sentence">The <span class="exam-highlight-term">maximum object
+                                size</span> in S3 is <span class="exam-highlight-term">5 TB</span> (5 terabytes) — this
+                            is the largest single file S3 can store.</span></p>
+                    <p><span class="exam-highlight-sentence">The <span class="exam-highlight-term">maximum single PUT
+                                upload</span> size is <span class="exam-highlight-term">5 GB</span> — you cannot upload
+                            a file larger than 5 GB in a single upload operation.</span></p>
+                    <p><span class="exam-highlight-sentence">For objects <span class="exam-highlight-term">larger than 5
+                                GB</span>, you must use <span class="exam-highlight-term">Multipart Upload</span> — S3
+                            does not allow a single PUT for files above this size.</span> In practice, AWS recommends
+                        using Multipart Upload for any file larger than 100 MB for better performance.</p>
+                    <div class="diagram-container"><img src="images/s3-multipart-upload-flow.png" loading="lazy"
+                            decoding="async"
+                            alt="Process flow diagram showing multipart upload: a 10GB file is split into 5 parts of 2GB each, each part is uploaded in parallel to S3, then S3 reassembles all parts into a single complete object, with arrows showing the parallel upload paths and final merge step">
+                        <p class="diagram-caption"><em>Figure 5: Multipart upload process — large files are split,
+                                uploaded in parallel, and reassembled</em></p>
+                    </div>
+                    <h3 id="how-multipart-upload-works">How Multipart Upload Works</h3>
+                    <p>Imagine you have a 10 GB file. You cannot upload it directly to S3 in one go (5 GB limit).
+                        Multipart Upload solves this:</p>
+                    <ol>
+                        <li>S3 automatically (or you manually) splits the large file into smaller chunks.</li>
+                        <li>Each chunk is uploaded independently and in parallel — this makes uploads much faster.</li>
+                        <li>Once all parts arrive, S3 reassembles them into the original complete file.</li>
+                        <li>If one part fails, only that part needs to be retried — not the entire file.</li>
+                    </ol>
+                    <div class="info-box">
+                        <p>💡 <strong>Console vs CLI upload limits:</strong> Through the AWS Console, the practical
+                            limit for a single upload session is around 160 GB — above that you must use the AWS CLI or
+                            SDK. For files over 5 GB, multipart upload happens automatically regardless of the method
+                            you use.</p>
+                        <p><strong>📚 Source:</strong><a
+                                href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html"
+                                target="_blank" rel="noopener noreferrer">AWS S3 Multipart Upload Docs</a></p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Quick Reference — S3 Size Limits:</strong></p>
+                        <ul>
+                            <li>Max object size: <strong>5 TB</strong></li>
+                            <li>Max single PUT upload: <strong>5 GB</strong></li>
+                            <li>Multipart required for: files <strong>&gt; 5 GB</strong></li>
+                            <li>Multipart recommended for: files <strong>&gt; 100 MB</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="s3-storage-classes">📦 S3 Storage Classes</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Here is a question: Would you pay the same rent for a luxury penthouse and a storage unit in a
+                        warehouse? Of course not — the penthouse gives you instant access and premium comfort, while the
+                        warehouse is slow to access but much cheaper. S3 storage classes work the same way.</p>
+                    <p>Not all data needs the same performance. Some files you open every day. Others you back up once a
+                        month. And some are ancient archives you might look at once a year for auditing. <span
+                            class="exam-highlight-sentence"><span class="exam-highlight-term">S3 storage classes</span>
+                            allow you to choose how quickly you can access data, how durable it is, and how much you pay
+                            — based on how frequently you need it.</span></p>
+                    <div class="diagram-container"><img src="images/s3-storage-classes-overview.png" loading="lazy"
+                            decoding="async"
+                            alt="Visual ladder diagram of all S3 storage classes arranged from top (most expensive, fastest access) to bottom (cheapest, slowest access): S3 Standard at top, then Standard-IA and One Zone-IA, then Intelligent-Tiering in the middle, then Glacier Instant, Glacier Flexible, and Glacier Deep Archive at the bottom, with cost and speed indicators on each side">
+                        <p class="diagram-caption"><em>Figure 6: S3 storage classes arranged by access speed and cost —
+                                faster access costs more</em></p>
+                    </div>
+                    <h3 id="what-storage-class-decides">What Does a Storage Class Decide?</h3>
+                    <p>When you upload an object to S3, you choose a storage class for it. That choice determines:</p>
+                    <ul>
+                        <li><strong>Cost:</strong> How much AWS charges you per GB per month to store the object.</li>
+                        <li><strong>Access speed:</strong> Whether you get the data in milliseconds or have to wait
+                            minutes or hours.</li>
+                        <li><strong>Availability zones:</strong> Whether the object is spread across multiple AZs
+                            (fault-tolerant) or stored in just one AZ (cheaper, but less resilient).</li>
+                        <li><strong>Retrieval cost:</strong> Whether there is an extra charge each time you download or
+                            access the data.</li>
+                        <li><strong>Minimum storage duration:</strong> Some classes charge you for a minimum number of
+                            days even if you delete the object earlier.</li>
+                        <li><strong>Minimum billable object size:</strong> Some classes charge a minimum size per object
+                            even if your file is smaller.</li>
+                    </ul>
+                    <div class="diagram-container"><img src="images/s3-storage-class-decision-tree.png" loading="lazy"
+                            decoding="async"
+                            alt="Decision tree flowchart for selecting an S3 storage class, starting with 'How often do you access this data?' branching into: Frequently (daily) leads to S3 Standard; Infrequently (monthly) branches into Multiple AZs needed (Standard-IA) or Single AZ OK (One Zone-IA); Rarely (archive) branches into Milliseconds retrieval (Glacier Instant), Minutes to hours (Glacier Flexible), or Hours acceptable (Deep Archive); Unknown access pattern leads to Intelligent-Tiering">
+                        <p class="diagram-caption"><em>Figure 7: Decision tree for choosing the right S3 storage class
+                                based on access patterns</em></p>
+                    </div>
+                    <h3 id="s3-standard">S3 Standard — For Frequent Access</h3>
+                    <p>This is the default storage class. If you do not choose anything specific, S3 uses Standard.</p>
+                    <p><span class="exam-highlight-sentence">S3 Standard is designed for <span
+                                class="exam-highlight-term">frequently accessed data</span>, offering millisecond access
+                            with objects stored across a <span class="exam-highlight-term">minimum of 3 Availability
+                                Zones</span>.</span></p>
+                    <ul>
+                        <li><strong>Use case:</strong> Active websites, mobile applications, gaming data, content
+                            distribution — anything your users touch daily.</li>
+                        <li><strong>Durability:</strong> 99.999999999% (11 nines)</li>
+                        <li><strong>Availability:</strong> 99.99%</li>
+                        <li><strong>Retrieval fee:</strong> None</li>
+                        <li><strong>Minimum storage duration:</strong> None</li>
+                        <li><strong>Cost:</strong> Highest per GB — you pay for premium performance</li>
+                    </ul>
+                    <h3 id="s3-standard-ia">S3 Standard-IA — For Infrequent Access (Multi-AZ)</h3>
+                    <p>IA stands for Infrequent Access. Think of this as the backup drive you pull out once a month.</p>
+                    <p><span class="exam-highlight-sentence">S3 Standard-IA is designed for data accessed <span
+                                class="exam-highlight-term">infrequently but requiring millisecond retrieval</span> when
+                            needed, stored across multiple Availability Zones.</span></p>
+                    <ul>
+                        <li><strong>Use case:</strong> Disaster recovery backups, monthly reports, older log files you
+                            rarely query.</li>
+                        <li><strong>Durability:</strong> 99.999999999% (11 nines)</li>
+                        <li><strong>Availability:</strong> 99.9%</li>
+                        <li><strong>Retrieval fee:</strong> Yes — you pay per GB retrieved</li>
+                        <li><strong>Minimum storage duration:</strong> 30 days</li>
+                        <li><span class="exam-highlight-sentence">Minimum billable object size: <span
+                                    class="exam-highlight-term">128 KB</span> — even if you store a 10 KB file, you are
+                                billed for 128 KB.</span></li>
+                    </ul>
+                    <h3 id="s3-one-zone-ia">S3 One Zone-IA — For Infrequent Access (Single AZ)</h3>
+                    <p>Same as Standard-IA, but S3 only stores the object in <em>one</em> Availability Zone instead of
+                        three. This makes it cheaper — but if that AZ goes down, your data is temporarily (or
+                        permanently, in a disaster) unavailable.</p>
+                    <p><span class="exam-highlight-sentence">S3 One Zone-IA stores data in a <span
+                                class="exam-highlight-term">single Availability Zone</span>, making it <span
+                                class="exam-highlight-term">20% cheaper</span> than Standard-IA but with lower
+                            resilience.</span></p>
+                    <ul>
+                        <li><strong>Use case:</strong> Secondary backups, data that can be recreated if lost (e.g.,
+                            thumbnail images generated from originals).</li>
+                        <li><strong>Retrieval fee:</strong> Yes</li>
+                        <li><strong>Minimum storage duration:</strong> 30 days</li>
+                        <li><strong>Minimum billable object size:</strong> 128 KB</li>
+                    </ul>
+                    <div class="error-box">
+                        <p>❌ <strong>Do not use One Zone-IA for primary backups or data that cannot be
+                                recreated.</strong> If the single AZ experiences a failure, you could lose that data
+                            permanently. Use Standard-IA or Standard for critical, irreplaceable data.</p>
+                    </div>
+                    <h3 id="glacier-storage-classes">Glacier Storage Classes — For Archive Data</h3>
+                    <p>Glacier classes are designed for cold storage — data you almost never touch. Think of your
+                        10-year-old bank statements you are legally required to keep, or medical records from 2015. You
+                        need to keep them, but you almost never open them.</p>
+                    <div class="diagram-container"><img src="images/s3-glacier-retrieval-comparison.png" loading="lazy"
+                            decoding="async"
+                            alt="Side-by-side comparison of three Glacier storage classes: Glacier Instant showing millisecond retrieval with a lightning bolt icon, Glacier Flexible showing minutes-to-hours retrieval with a clock icon, and Deep Archive showing hours retrieval with an hourglass icon, each with approximate cost decreasing from left to right">
+                        <p class="diagram-caption"><em>Figure 8: Three Glacier classes compared by retrieval speed and
+                                cost</em></p>
+                    </div>
+                    <p><strong>Glacier Instant Retrieval:</strong></p>
+                    <p><span class="exam-highlight-sentence">Glacier Instant Retrieval provides <span
+                                class="exam-highlight-term">millisecond access</span> for archive data accessed <span
+                                class="exam-highlight-term">once per quarter</span>, with a minimum storage duration of
+                            <span class="exam-highlight-term">90 days</span>.</span></p>
+                    <ul>
+                        <li><strong>Use case:</strong> Medical images, news media archives accessed occasionally but
+                            urgently when needed.</li>
+                        <li><strong>Retrieval fee:</strong> Yes</li>
+                    </ul>
+                    <p><strong>Glacier Flexible Retrieval (formerly Glacier):</strong></p>
+                    <p><span class="exam-highlight-sentence">Glacier Flexible Retrieval offers retrieval times of <span
+                                class="exam-highlight-term">minutes to hours</span> (1–12 hours standard, or expedited
+                            1–5 minutes at higher cost), with a minimum duration of <span class="exam-highlight-term">90
+                                days</span>.</span></p>
+                    <ul>
+                        <li><strong>Use case:</strong> Backup and disaster recovery data where retrieval SLAs are
+                            flexible. Like asking a bank for your 2020 statement — they will get back to you in a few
+                            hours.</li>
+                        <li><strong>Retrieval fee:</strong> Yes</li>
+                    </ul>
+                    <p><strong>S3 Glacier Deep Archive:</strong></p>
+                    <p><span class="exam-highlight-sentence">S3 Glacier Deep Archive is the <span
+                                class="exam-highlight-term">lowest-cost</span> S3 storage class, designed for data
+                            retained for <span class="exam-highlight-term">7–10 years</span>, with retrieval times of up
+                            to <span class="exam-highlight-term">12 hours</span> (standard) or 48 hours (bulk).</span>
+                    </p>
+                    <ul>
+                        <li><strong>Use case:</strong> Regulatory compliance archives, financial records, healthcare
+                            data required by law to be retained long-term.</li>
+                        <li><strong>Minimum storage duration:</strong> 180 days</li>
+                        <li><strong>Retrieval fee:</strong> Yes</li>
+                    </ul>
+                    <h3 id="s3-intelligent-tiering">S3 Intelligent-Tiering — Let AWS Decide</h3>
+                    <p>Not sure which storage class fits your data? That is exactly what Intelligent-Tiering is for. It
+                        monitors how often each object is accessed and automatically moves it to the most cost-efficient
+                        tier.</p>
+                    <p><span class="exam-highlight-sentence">S3 Intelligent-Tiering <span
+                                class="exam-highlight-term">automatically moves objects</span> between access tiers
+                            based on changing access patterns, with <span class="exam-highlight-term">no retrieval
+                                fees</span> and a small monthly <span class="exam-highlight-term">monitoring and
+                                automation fee</span> per object.</span></p>
+                    <ul>
+                        <li><strong>Tiers inside Intelligent-Tiering:</strong> Frequent Access → Infrequent Access
+                            (after 30 days of no access) → Archive Instant Access (after 90 days) → Archive Access
+                            (optional, after 90–180 days) → Deep Archive Access (optional, after 180+ days)</li>
+                        <li><strong>Use case:</strong> Data lakes, user-generated content, unpredictable workloads where
+                            access patterns change.</li>
+                        <li><strong>Minimum storage duration:</strong> 30 days</li>
+                    </ul>
+                    <div class="info-box">
+                        <p>💡 <strong>Train analogy from class:</strong> Think of S3 storage classes like train
+                            compartments. First AC is expensive but ultra-comfortable and fast (S3 Standard). General
+                            class is cheap but slow (Glacier Deep Archive). You choose based on your actual need — not
+                            on what is fanciest. Why pay First AC prices for a 30-minute local ride?</p>
+                    </div>
+                    <div class="diagram-container"><img src="images/s3-storage-classes-comparison-table.png"
+                            loading="lazy" decoding="async"
+                            alt="Detailed comparison table diagram of all S3 storage classes showing columns for: Storage Class name, Designed For, Number of AZs, Retrieval Fee, Min Storage Duration, Min Billable Size, and Approximate Cost, with rows for Standard, Standard-IA, One Zone-IA, Intelligent-Tiering, Glacier Instant, Glacier Flexible, and Deep Archive, color-coded by access tier">
+                        <p class="diagram-caption"><em>Figure 9: Complete S3 storage class comparison table — all key
+                                attributes at a glance</em></p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="s3-versioning">🔄 S3 Versioning</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Here is a common real-world problem: You upload a file to S3, then someone edits it and uploads a
+                        new version with the same name. The old version is gone. Or worse — someone accidentally deletes
+                        the file entirely. How do you get it back? This is exactly what versioning solves.</p>
+                    <div class="diagram-container"><img src="images/s3-versioning-overview.png" loading="lazy"
+                            decoding="async"
+                            alt="Timeline diagram showing S3 versioning behavior: Version 1 of tctprice.txt uploaded at 9am, Version 2 uploaded at 11am (Version 1 preserved), Version 3 uploaded at 3pm (both previous versions preserved), with arrows showing how all versions coexist in the bucket and Version 3 is marked as 'Latest'">
+                        <p class="diagram-caption"><em>Figure 10: S3 versioning keeps all versions of an object — each
+                                upload creates a new version, not a replacement</em></p>
+                    </div>
+                    <h3 id="what-is-versioning">What is Versioning?</h3>
+                    <p><span class="exam-highlight-sentence">S3 Versioning is a feature that keeps <span
+                                class="exam-highlight-term">multiple versions</span> of the same object in a bucket,
+                            allowing you to retrieve, restore, or delete specific versions at any time.</span></p>
+                    <p>Without versioning enabled, uploading a file with the same key (name) as an existing object
+                        simply overwrites it. The old version is gone forever. With versioning enabled, S3 preserves
+                        every version — each upload creates a new version with a unique Version ID, and all previous
+                        versions remain accessible.</p>
+                    <h3 id="enabling-versioning">Enabling Versioning</h3>
+                    <p>Versioning is disabled by default. You enable it at the bucket level:</p>
+                    <ol>
+                        <li>Go to your S3 bucket in the AWS Console.</li>
+                        <li>Click the <code>Properties</code> tab.</li>
+                        <li>Find <strong>Bucket Versioning</strong> and click <code>Edit</code>.</li>
+                        <li>Select <code>Enable</code> and click <code>Save changes</code>.</li>
+                    </ol>
+                    <div class="info-box">
+                        <p>💡 <strong>Important:</strong> Once you enable versioning on a bucket, you cannot fully
+                            disable it — you can only <em>suspend</em> it. Suspended versioning stops creating new
+                            versions but keeps all existing versions intact. According to AWS documentation,
+                            versioning-enabled buckets can also be used with MFA Delete for additional protection.</p>
+                        <p><strong>📚 Source:</strong><a
+                                href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html"
+                                target="_blank" rel="noopener noreferrer">AWS S3 Versioning Docs</a></p>
+                    </div>
+                    <h3 id="how-versions-work">How Versions Work</h3>
+                    <p>Let us walk through a practical example (the same one demonstrated in class):</p>
+                    <ol>
+                        <li>You create a file <code>tctprice.txt</code> with "On-demand pricing: $0.0071/hour"</li>
+                        <li>You upload it to S3. S3 stores it as Version 1. No version ID yet (versioning was not
+                            enabled).</li>
+                        <li>You enable versioning on the bucket.</li>
+                        <li>You edit the file: "On-demand pricing: $0.005/hour" and upload it again with the same name.
+                        </li>
+                        <li>S3 now has two versions — the old one is preserved, and the new one is marked as "Latest".
+                        </li>
+                        <li>You add another line and upload again — now three versions exist simultaneously.</li>
+                    </ol>
+                    <p>On the main S3 page you see only the latest version. To see all versions, click
+                        <code>Show versions</code> in the console — each version appears with its unique Version ID and
+                        timestamp.</p>
+                    <div class="diagram-container"><img src="images/s3-versioning-console-view.png" loading="lazy"
+                            decoding="async"
+                            alt="Annotated screenshot mockup of S3 console showing versioning tab with three versions of tctprice.txt listed: oldest at bottom with version ID abc123, middle version with ID def456, and latest (current) version at top marked with 'Latest' badge, with the Show Versions toggle highlighted and each version's timestamp visible">
+                        <p class="diagram-caption"><em>Figure 11: S3 versioning console — all versions listed with
+                                unique IDs, latest marked at top</em></p>
+                    </div>
+                    <h3 id="versioning-and-deletion">Versioning and Deletion — Delete Markers</h3>
+                    <p>Versioning handles deletions in a clever way that protects you from accidental loss.</p>
+                    <p><span class="exam-highlight-sentence">When you delete an object from a versioning-enabled bucket,
+                            S3 does <span class="exam-highlight-term">not permanently delete</span> it — instead, it
+                            inserts a <span class="exam-highlight-term">delete marker</span>, which hides the object
+                            from the main view.</span></p>
+                    <div class="diagram-container"><img src="images/s3-delete-marker-flow.png" loading="lazy"
+                            decoding="async"
+                            alt="Step-by-step flow diagram showing delete marker behavior: Step 1 shows object visible in main S3 view, Step 2 shows user deleting the object which places a Delete Marker on top of the version stack, Step 3 shows object disappears from main view but versions tab shows the Delete Marker, Step 4 shows user selecting and deleting the Delete Marker to restore the object to the main view">
+                        <p class="diagram-caption"><em>Figure 12: Delete marker flow — deletion hides the object,
+                                removing the marker restores it</em></p>
+                    </div>
+                    <p>Here is how the full delete and restore process works:</p>
+                    <ol>
+                        <li><strong>User deletes the file</strong> from the main S3 page → S3 places a Delete Marker on
+                            the object. The file disappears from the main view.</li>
+                        <li><strong>Switch to "Show versions"</strong> in the console → You can see the Delete Marker
+                            and all previous versions underneath it.</li>
+                        <li><strong>To restore the file</strong>, select the Delete Marker and delete <em>it</em>. This
+                            removes the marker, and the object reappears in the main view — fully restored.</li>
+                        <li><strong>To permanently delete</strong> a specific version, go to the versions view, select
+                            that version directly, and permanently delete it. Once a specific version is permanently
+                            deleted, it cannot be recovered.</li>
+                    </ol>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Key insight:</strong> Deleting from the main page = safe (only adds a delete
+                            marker). Deleting from the versions page (selecting a specific version or marker) =
+                            permanent. This is a favourite exam scenario question — always think about which view you
+                            are deleting from.</p>
+                    </div>
+                    <h3 id="versioning-use-cases">Why Use Versioning?</h3>
+                    <ul>
+                        <li><strong>Accidental overwrite protection:</strong> Someone uploads wrong data with the same
+                            filename — retrieve the previous version.</li>
+                        <li><strong>Accidental deletion protection:</strong> Someone deletes a critical file — remove
+                            the delete marker to restore it instantly.</li>
+                        <li><strong>Audit trail:</strong> Keep a history of all changes to important documents or
+                            configuration files.</li>
+                        <li><strong>Compliance:</strong> Some regulations require organizations to maintain historical
+                            versions of records.</li>
+                    </ul>
+                    <div class="success-box">
+                        <p>✅ <strong>Best practice:</strong> Enable versioning on any bucket that stores important or
+                            irreplaceable data. Combine it with S3 Lifecycle Policies (future topic) to automatically
+                            move or expire old versions so storage costs stay manageable.</p>
+                    </div>
+                    <h3 id="versioning-cost-impact">Cost Impact of Versioning</h3>
+                    <p>Every version of an object takes up storage and is billed accordingly. If you upload a 1 GB file
+                        10 times with the same name, you are storing 10 GB total (each version is preserved). Use
+                        lifecycle policies to expire old versions after a set number of days — this controls costs while
+                        still keeping recent history.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="s3-object-lock">🔒 S3 Object Lock (Introduction)</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Object Lock was introduced at the very end of this session. It will be covered in full in the
+                        next session — this section provides complete coverage so you have everything you need to
+                        understand it.</p>
+                    <h3 id="what-is-object-lock">What is Object Lock?</h3>
+                    <p><span class="exam-highlight-sentence">S3 Object Lock allows you to store objects using a <span
+                                class="exam-highlight-term">write-once-read-many (WORM)</span> model, preventing objects
+                            from being deleted or overwritten for a fixed amount of time or indefinitely.</span></p>
+                    <p>Think of Object Lock like a sealed vault. Once you put a document inside and lock it, nobody —
+                        not even an administrator — can modify or delete it until the lock period expires. This is
+                        critical for regulatory compliance where data integrity must be guaranteed.</p>
+                    <div class="diagram-container"><img src="images/s3-object-lock-worm-model.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing S3 Object Lock WORM model: a file is uploaded and locked with a retention period of 7 years shown as a padlock icon, attempts to delete or overwrite show an X with 'Access Denied' error, timeline bar at bottom shows current date and unlock date 7 years later, with compliance and governance mode labels">
+                        <p class="diagram-caption"><em>Figure 13: S3 Object Lock WORM model — locked objects cannot be
+                                modified or deleted during retention period</em></p>
+                    </div>
+                    <h3 id="object-lock-modes">Object Lock Modes</h3>
+                    <p>Object Lock has two retention modes:</p>
+                    <p><strong>Compliance Mode:</strong></p>
+                    <p><span class="exam-highlight-sentence">In <span class="exam-highlight-term">Compliance
+                                mode</span>, no user — including the AWS root account — can delete or alter the object
+                            until the retention period expires.</span> This is the strictest mode, used when regulations
+                        demand absolute immutability.</p>
+                    <p><strong>Governance Mode:</strong></p>
+                    <p><span class="exam-highlight-sentence">In <span class="exam-highlight-term">Governance
+                                mode</span>, most users cannot delete or alter objects, but users with special <span
+                                class="exam-highlight-term">s3:BypassGovernanceRetention</span> permissions can override
+                            the lock.</span> This gives flexibility for administrative corrections while still
+                        protecting data from accidental changes.</p>
+                    <h3 id="legal-hold">Legal Hold</h3>
+                    <p><span class="exam-highlight-sentence">A <span class="exam-highlight-term">Legal Hold</span>
+                            prevents an object from being deleted or overwritten without a retention period — it stays
+                            locked until the legal hold is explicitly removed by a user with
+                            <code>s3:PutObjectLegalHold</code> permission.</span></p>
+                    <p>Legal Hold is used when an organization is under litigation and must preserve specific records
+                        until the case is resolved — regardless of when a set retention period might otherwise expire.
+                    </p>
+                    <h3 id="object-lock-requirements">Object Lock Requirements</h3>
+                    <ul>
+                        <li>Object Lock must be enabled at bucket creation — you cannot enable it on an existing bucket
+                            after it is created.</li>
+                        <li>Versioning is automatically enabled and cannot be disabled on Object Lock buckets.</li>
+                        <li>Object Lock applies at the <em>object version</em> level — a specific version of an object
+                            is what gets locked.</li>
+                    </ul>
+                    <div class="info-box">
+                        <p>💡 <strong>Real-world use cases for Object Lock:</strong> Financial institutions storing
+                            trade records (SEC Rule 17a-4), healthcare organizations retaining patient records (HIPAA),
+                            media companies archiving original content, and any organization subject to GDPR or similar
+                            data retention regulations.</p>
+                        <p><strong>📚 Source:</strong><a
+                                href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html"
+                                target="_blank" rel="noopener noreferrer">AWS S3 Object Lock Docs</a></p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="exam-tips">🎓 Exam Tips</h2>
+                </summary>
+                <div class="section-content">
+                    <ul>
+                        <li><strong>Storage class with NO retrieval fee:</strong> S3 Standard and S3
+                            Intelligent-Tiering. All Glacier and IA classes have retrieval fees.</li>
+                        <li><strong>Single AZ storage class:</strong> Only S3 One Zone-IA. All other classes use
+                            multiple AZs (or let you choose for Intelligent-Tiering archive tiers).</li>
+                        <li><strong>5 TB vs 5 GB:</strong> Max object size = 5 TB. Max single PUT upload = 5 GB. Above 5
+                            GB = must use Multipart Upload. This distinction appears in exam questions frequently.</li>
+                        <li><strong>Delete marker behaviour:</strong> Deleting from main view = adds delete marker
+                            (recoverable). Deleting a specific version from the versions view = permanent.</li>
+                        <li><strong>Versioning once enabled:</strong> Can only be suspended, not fully disabled. All
+                            existing versions are preserved on suspension.</li>
+                        <li><strong>Compliance vs Governance mode:</strong> Compliance = absolute lock (even root cannot
+                            delete). Governance = most users locked but bypass permission exists.</li>
+                        <li><strong>Intelligent-Tiering monitoring fee:</strong> The only class that charges a
+                            per-object monitoring fee. No retrieval fee though.</li>
+                        <li><strong>Minimum 128 KB billing:</strong> Applies to Standard-IA and One Zone-IA. A 10 KB
+                            file stored in Standard-IA is still billed as 128 KB.</li>
+                        <li><strong>Minimum storage durations:</strong> Standard-IA and One Zone-IA = 30 days. Glacier
+                            Instant and Flexible = 90 days. Deep Archive = 180 days.</li>
+                        <li><strong>11 nines durability:</strong> Applies to all S3 storage classes EXCEPT One Zone-IA
+                            (which still has 11 nines durability but lower availability because it is in one AZ).</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="overall-summary">📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <ul>
+                        <li><strong>S3 is object storage:</strong> Files (objects) are stored in buckets — unlike EBS
+                            (block) or EFS (file system). It is fully managed, serverless, and virtually unlimited.</li>
+                        <li><strong>Bucket names are globally unique:</strong> Because the bucket name is part of every
+                            object's URL, no two buckets anywhere on AWS can share a name.</li>
+                        <li><strong>Upload limits matter:</strong> Max object size = 5 TB. Max single PUT = 5 GB. Files
+                            above 5 GB require Multipart Upload, which splits the file into parallel chunks and
+                            reassembles them.</li>
+                        <li><strong>11 nines durability:</strong> S3 guarantees 99.999999999% data durability — your
+                            data is replicated across multiple AZs and facilities automatically.</li>
+                        <li><strong>Storage classes optimize cost:</strong> Choose Standard for frequent access,
+                            Standard-IA or One Zone-IA for infrequent, Glacier classes for archive, and
+                            Intelligent-Tiering when access patterns are unpredictable.</li>
+                        <li><strong>Retrieval fees exist on IA and Glacier classes:</strong> Only Standard and
+                            Intelligent-Tiering have no retrieval fee. Every other class charges you to get data back
+                            out.</li>
+                        <li><strong>Versioning preserves history:</strong> With versioning enabled, every upload of the
+                            same key name creates a new version — old versions are kept. This allows rollback to any
+                            point in time.</li>
+                        <li><strong>Delete markers protect from accidental loss:</strong> Deleting from the main view
+                            only adds a delete marker. To truly restore the object, delete the marker. To permanently
+                            remove a version, delete it from the versions view directly.</li>
+                        <li><strong>Object Lock enforces WORM:</strong> Objects cannot be overwritten or deleted during
+                            a retention period. Compliance mode is absolute (even root is blocked). Governance mode
+                            allows bypass for privileged users.</li>
+                        <li><strong>Legal Hold adds flexibility:</strong> Blocks deletion without a fixed time period —
+                            stays active until explicitly removed by authorized users.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="glossary">📖 Glossary</h2>
+                </summary>
+                <div class="section-content">
+                    <div id="glossaryContainer" data-glossary-source="json/glossary.json"></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="interview-questions">🎤 Interview Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <p class="interview-intro">📚 Test your understanding with these questions.</p>
+                    <div class="interview-progress">
+                        <p id="interviewProgress">Progress: 0/25 (0%)</p>
+                    </div>
+                    <div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn"
+                            id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1
+                            / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn"
+                            id="nextInterviewBtn">Next →</button></div>
+                    <div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json">
+                    </div>
+                    <div class="quiz-reset-container"><button onclick="resetInterviewProgress()"
+                            class="quiz-reset-btn">🔄 Reset Progress</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="multiple-choice-questions">📝 Multiple Choice Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="quiz-header-info">
+                        <p>📝 Test your knowledge with immediate feedback.</p>
+                    </div>
+                    <div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn"
+                            id="prevBtn">← Previous</button>
+                        <div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span
+                                class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button
+                            onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button>
+                    </div>
+                    <div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div>
+                    <div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊
+                            View Summary</button>
+                        <div class="quiz-reset-container"><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄
+                                Reset All</button></div>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="hands-on-projects">💼 Hands-On Projects</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites</h4>
+                        <ul>
+                            <li>✅ AWS account with console access</li>
+                            <li>✅ Knowledge: AWS Console basics, EC2 fundamentals (covered in previous sessions)</li>
+                            <li>✅ A sample text file or image on your local machine for uploading</li>
+                            <li>✅ For Projects 5–6: Python 3 installed locally + <code>pip install boto3</code></li>
+                            <li>✅ AWS CLI configured (<code>aws configure</code>) with your Access Key and Secret Key
+                            </li>
+                        </ul>
+                    </div>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-1-create-bucket-upload-objects">Project 1: Create a Bucket and Upload
+                                Objects</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Create an S3 bucket, upload objects with different
+                                    storage classes, and explore object properties and URLs.</p>
+                                <p><strong>⏱️ Time:</strong> 20–30 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier (5 GB S3 Standard storage free per month)</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Sign in to the AWS Console and navigate to <strong>S3</strong> using the search
+                                        bar.</p>
+                                </li>
+                                <li>
+                                    <p>Click <code>Create bucket</code>. Enter a globally unique bucket name (e.g.,
+                                        <code>yourname-awstraining-2025</code>). Select your preferred region (e.g.,
+                                        <code>ap-south-1</code>). Leave all other settings as default. Click
+                                        <code>Create bucket</code>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-create-bucket.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of AWS S3 Create Bucket page showing the bucket name field filled with a unique name, region selector set to ap-south-1, and the Create bucket button at the bottom highlighted">
+                                        <p class="diagram-caption"><em>Figure 14: 📸 Create bucket page — bucket name
+                                                and region selection</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Click your newly created bucket to open it. Click <code>Upload</code>. Click
+                                        <code>Add files</code> and select a file from your computer (e.g., a text file).
+                                        Under <strong>Properties</strong>, scroll down to see the default storage class
+                                        (<code>Standard</code>). Click <code>Upload</code>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-upload-file.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of S3 Upload page showing a file selected in the files list, the Properties section expanded showing Standard storage class selected, and the Upload button at the bottom">
+                                        <p class="diagram-caption"><em>Figure 15: 📸 S3 upload page — file selected with
+                                                Standard storage class visible</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>After the upload succeeds, click the uploaded object. Scroll down to see the
+                                        <strong>Object URL</strong>. Copy and paste the URL into a browser — you should
+                                        see <strong>Access Denied</strong>. This confirms the default private setting.
+                                    </p>
+                                    <div class="diagram-container"><img src="images/screenshot-object-properties.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of S3 object detail page showing object properties including Owner, Region, Last modified, Size, Key (file name), storage class, and the Object URL field with a copy button next to it">
+                                        <p class="diagram-caption"><em>Figure 16: 📸 S3 object properties page — note
+                                                the Object URL and storage class</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Upload a second object. This time, before clicking Upload, scroll to
+                                        <strong>Storage class</strong> under Properties and change it to
+                                        <code>S3 Standard-IA</code>. Upload the file and compare the two objects'
+                                        storage classes in the bucket view.</p>
+                                </li>
+                            </ol>
+                            <h4>Verification</h4>
+                            <p>You should see two objects in your bucket with different storage class labels — one
+                                Standard, one Standard-IA. Both should return "Access Denied" when their URLs are opened
+                                in a browser.</p>
+                            <h4>Cleanup</h4>
+                            <ol>
+                                <li>Select all objects in the bucket and click <code>Delete</code>. Type
+                                    <code>permanently delete</code> to confirm.</li>
+                                <li>Return to the S3 bucket list. Select the bucket and click <code>Delete</code>. Type
+                                    the bucket name to confirm deletion.</li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-2-versioning-and-delete-markers">Project 2: Enable Versioning and Practice
+                                Delete Markers</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Enable versioning on a bucket, upload multiple
+                                    versions of the same file, practice deletion and restoration using delete markers.
+                                </p>
+                                <p><strong>⏱️ Time:</strong> 30–40 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier (note: each version counts as a separate object
+                                    for billing)</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Create a new bucket (or use the one from Project 1 if not deleted). Go to the
+                                        bucket's <code>Properties</code> tab. Scroll to <strong>Bucket
+                                            Versioning</strong> and click <code>Edit</code>. Select <code>Enable</code>
+                                        and click <code>Save changes</code>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-enable-versioning.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of S3 bucket Properties tab with Bucket Versioning section visible, showing the Edit button, the Enable radio button selected, and Save changes button, with the current status shown as Enabled after saving">
+                                        <p class="diagram-caption"><em>Figure 17: 📸 Enabling bucket versioning from the
+                                                Properties tab</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Create a text file on your computer named <code>pricing.txt</code>. Add the text:
+                                        <code>T3 Micro On-Demand: $0.0071/hour</code>. Save it. Upload this file to your
+                                        bucket.</p>
+                                </li>
+                                <li>
+                                    <p>Edit the same file on your computer — change the price to
+                                        <code>$0.005/hour</code>. Save it with the <strong>same filename</strong>
+                                        (<code>pricing.txt</code>). Upload it again to the same bucket. You have now
+                                        created Version 2.</p>
+                                </li>
+                                <li>
+                                    <p>In the bucket, click <code>Show versions</code> (toggle at the top right of the
+                                        objects list). You should see two entries for <code>pricing.txt</code> — each
+                                        with a different Version ID and timestamp. The latest is marked.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-show-versions.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of S3 bucket view with Show versions toggle enabled, displaying two versions of pricing.txt: the older version with an older timestamp and version ID abcd1234, and the latest version with a newer timestamp and version ID efgh5678, with the Latest badge on the newer entry">
+                                        <p class="diagram-caption"><em>Figure 18: 📸 Show versions toggle reveals all
+                                                versions with unique Version IDs</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Toggle back to the main view (hide versions). Select <code>pricing.txt</code> and
+                                        click <code>Delete</code>. Type <code>delete</code> to confirm. The file
+                                        disappears from the main view.</p>
+                                </li>
+                                <li>
+                                    <p>Click <code>Show versions</code> again. You will see a <strong>Delete
+                                            Marker</strong> listed at the top — this is the "deletion" S3 recorded. Your
+                                        original versions are still there underneath.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-delete-marker.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of S3 versions view showing three entries for pricing.txt: a Delete Marker at the top with a red DM badge and no size, Version 2 below it, and Version 1 at the bottom, demonstrating that deletion only adds a marker and does not remove actual versions">
+                                        <p class="diagram-caption"><em>Figure 19: 📸 Delete marker appears at top of
+                                                versions list — actual data is still present below</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>To <strong>restore the file</strong>: In the versions view, select the Delete
+                                        Marker only. Click <code>Delete</code>. Type <code>permanently delete</code> in
+                                        the confirmation box. Confirm. Toggle back to main view —
+                                        <code>pricing.txt</code> is restored.</p>
+                                </li>
+                            </ol>
+                            <h4>Verification</h4>
+                            <p>After removing the delete marker, <code>pricing.txt</code> should reappear in the main
+                                bucket view showing the most recent version's content. Both historical versions should
+                                still be visible in the versions view.</p>
+                            <h4>Cleanup</h4>
+                            <div class="error-box">
+                                <p>💰 <strong>Cost Note:</strong> Every version stored in S3 is billed as a separate
+                                    object. Delete all versions to avoid ongoing charges.</p>
+                            </div>
+                            <ol>
+                                <li>Click <code>Show versions</code>. Select ALL versions of every object (including all
+                                    historical versions and any delete markers).</li>
+                                <li>Click <code>Delete</code>. Type <code>permanently delete</code> to confirm. All
+                                    versions are now gone.</li>
+                                <li>Return to the bucket list. Select and delete the bucket itself.</li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-3-static-website">Project 3: Host a Static Website on S3</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Host a real static HTML website directly from an S3
+                                    bucket — no servers, no EC2, no cost beyond storage.</p>
+                                <p><strong>⏱️ Time:</strong> 30–45 minutes</p>
+                                <p><strong>💰 Cost:</strong> Essentially free — a few KB of storage and minimal data
+                                    transfer</p>
+                            </div>
+                            <p>S3 can serve HTML files directly to browsers over HTTP. This is how many landing pages,
+                                documentation sites, and error pages are hosted at near-zero cost. No web server
+                                software needed — S3 acts as the server.</p>
+                            <div class="diagram-container"><img src="images/s3-static-website-architecture.png"
+                                    loading="lazy" decoding="async"
+                                    alt="Architecture diagram showing a user's browser sending an HTTP request to an S3 bucket configured as a static website host, with the S3 bucket returning index.html directly to the browser, and a custom error.html returned for 404 errors, with public read policy applied to the bucket">
+                                <p class="diagram-caption"><em>Figure 1: S3 static website hosting — bucket acts as web
+                                        server, serving HTML directly to browsers</em></p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Create a new S3 bucket named <code>yourname-static-site-2025</code> (replace
+                                        <em>yourname</em> with something unique). Choose any region. Leave all defaults
+                                        for now — you will configure website hosting separately.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-static-site-bucket-created.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of the newly created S3 bucket in the bucket list showing the bucket name yourname-static-site-2025 with ap-south-1 region and creation date visible">
+                                        <p class="diagram-caption"><em>Figure 2: 📸 New static site bucket visible in
+                                                the S3 bucket list</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Create two files on your local machine:</p>
+                                    <p><strong>index.html</strong></p>
+                                    <pre><code>&lt;!DOCTYPE html&gt; &lt;html&gt; &lt;head&gt;&lt;title&gt;My AWS S3 Site&lt;/title&gt;&lt;/head&gt; &lt;body&gt; &lt;h1&gt;🚀 Hello from Amazon S3!&lt;/h1&gt; &lt;p&gt;This page is hosted entirely on S3 — no server required.&lt;/p&gt; &lt;p&gt;Storage class: Standard | Region: ap-south-1&lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</code></pre>
+                                    <p><strong>error.html</strong></p>
+                                    <pre><code>&lt;!DOCTYPE html&gt; &lt;html&gt; &lt;head&gt;&lt;title&gt;Page Not Found&lt;/title&gt;&lt;/head&gt; &lt;body&gt; &lt;h1&gt;404 — Page Not Found&lt;/h1&gt; &lt;p&gt;Sorry, the page you requested does not exist.&lt;/p&gt; &lt;a href="index.html"&gt;Go back home&lt;/a&gt; &lt;/body&gt; &lt;/html&gt;</code></pre>
+                                </li>
+                                <li>
+                                    <p>Upload both files to your bucket. In the S3 console, open the bucket, click
+                                        <code>Upload</code>, add both files, and click <code>Upload</code>. Keep storage
+                                        class as Standard.</p>
+                                </li>
+                                <li>
+                                    <p>Go to the bucket's <code>Properties</code> tab. Scroll to <strong>Static website
+                                            hosting</strong>. Click <code>Edit</code>. Select <code>Enable</code>. Set
+                                        <strong>Index document</strong> to <code>index.html</code>. Set <strong>Error
+                                            document</strong> to <code>error.html</code>. Click
+                                        <code>Save changes</code>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-static-hosting-enabled.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of S3 bucket Properties tab showing Static website hosting section set to Enabled, with Index document field showing index.html, Error document showing error.html, and the bucket website endpoint URL displayed below">
+                                        <p class="diagram-caption"><em>Figure 3: 📸 Static website hosting enabled —
+                                                note the website endpoint URL at the bottom of the section</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Copy the <strong>Bucket website endpoint</strong> URL (shown at the bottom of the
+                                        static hosting section). Open it in a browser — you will see <strong>403
+                                            Forbidden</strong>. This is expected because the bucket is still private.
+                                    </p>
+                                </li>
+                                <li>
+                                    <p>Now make the bucket publicly readable. Go to the <code>Permissions</code> tab.
+                                        Click <code>Edit</code> on <strong>Block Public Access</strong>. Uncheck all
+                                        four boxes. Click <code>Save changes</code>. Type <code>confirm</code> in the
+                                        confirmation box.</p>
+                                    <div class="error-box">
+                                        <p>💰 <strong>Cost Note:</strong> Making a bucket public allows anyone on the
+                                            internet to access your files and incur data transfer charges. For this
+                                            training bucket with a tiny HTML file, the cost is negligible (fractions of
+                                            a cent). Never make buckets containing sensitive data public.</p>
+                                    </div>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-block-public-access-off.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of S3 bucket Permissions tab showing the Block Public Access settings edit page with all four checkboxes unchecked, and the Save changes button visible at the bottom with the warning message about making objects public">
+                                        <p class="diagram-caption"><em>Figure 4: 📸 Block Public Access disabled — all
+                                                four checkboxes must be unchecked to allow public access</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Now add a <strong>Bucket Policy</strong> to allow public read access to all
+                                        objects. Still in the <code>Permissions</code> tab, scroll to <strong>Bucket
+                                            policy</strong>. Click <code>Edit</code>. Paste this policy (replace
+                                        <code>yourname-static-site-2025</code> with your actual bucket name):</p>
+                                    <pre><code>{ "Version": "2012-10-17", "Statement": [ { "Sid": "PublicReadGetObject", "Effect": "Allow", "Principal": "*", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::yourname-static-site-2025/*" } ] }</code></pre>
+                                    <p>Click <code>Save changes</code>.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-bucket-policy-saved.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of S3 Permissions tab showing the Bucket policy section with the JSON public read policy entered in the text editor, and the Save changes button highlighted, with a warning banner showing that the bucket is now publicly accessible">
+                                        <p class="diagram-caption"><em>Figure 5: 📸 Bucket policy saved — the policy
+                                                grants s3:GetObject to all principals (*)</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Return to the <code>Properties</code> tab and copy the bucket website endpoint
+                                        again. Open it in your browser. You should now see your <strong>Hello from
+                                            Amazon S3!</strong> page.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-website-live.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of a browser showing the static website live at the S3 bucket website endpoint URL, displaying the h1 heading 'Hello from Amazon S3!' and the paragraph text below it, with the S3 website endpoint URL visible in the browser address bar">
+                                        <p class="diagram-caption"><em>Figure 6: 📸 Static website live in browser —
+                                                served directly from S3 with no server</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Test the error page: Add a random path to the URL (e.g.,
+                                        <code>http://...amazonaws.com/doesnotexist</code>) and press Enter. You should
+                                        see your custom <strong>404 — Page Not Found</strong> page.</p>
+                                </li>
+                            </ol>
+                            <h4>What you just built</h4>
+                            <p>A live website with zero server infrastructure. The same technique powers AWS
+                                documentation, many startup landing pages, and error pages for large web applications.
+                                The next natural step (taught later in the course) is adding CloudFront in front of this
+                                bucket for HTTPS, caching, and global delivery.</p>
+                            <h4>Cleanup</h4>
+                            <div class="error-box">
+                                <p>💰 <strong>Cost Note:</strong> A public bucket with tiny HTML files costs nearly
+                                    nothing, but it is good practice to clean up after every project.</p>
+                            </div>
+                            <ol>
+                                <li>Go to the bucket. Select all objects and click <code>Delete</code>. Type
+                                    <code>permanently delete</code> to confirm.</li>
+                                <li>Return to the bucket list. Select the bucket and click <code>Delete</code>. Type the
+                                    bucket name to confirm deletion.</li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-4-lifecycle-policies">Project 4: Smart Storage with Lifecycle Policies</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Create a lifecycle policy that automatically moves
+                                    objects from Standard → Standard-IA → Glacier as they age, simulating real cost
+                                    optimization used in production systems.</p>
+                                <p><strong>⏱️ Time:</strong> 25–35 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier — lifecycle rules themselves have no cost.
+                                    Storage transitions take effect after the configured number of days.</p>
+                            </div>
+                            <p>In production, no one manually moves files between storage classes. You set a rule once
+                                and S3 handles it forever. This is how companies save thousands of dollars monthly on
+                                storage — by automatically moving ageing data to cheaper tiers.</p>
+                            <div class="diagram-container"><img src="images/s3-lifecycle-policy-flow.png" loading="lazy"
+                                    decoding="async"
+                                    alt="Timeline diagram showing a file moving through S3 storage classes automatically via lifecycle rules: Standard from Day 0, transitions to Standard-IA on Day 30 automatically, then to Glacier Flexible Retrieval on Day 90 automatically, then permanently deleted on Day 365, with cost labels showing decreasing cost at each stage and arrows labeled with the lifecycle rule transitions">
+                                <p class="diagram-caption"><em>Figure 7: S3 lifecycle policy — files automatically
+                                        transition between storage classes based on age</em></p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Create a new bucket called <code>yourname-lifecycle-demo-2025</code>. Leave all
+                                        settings as default. Do NOT enable versioning for this project.</p>
+                                </li>
+                                <li>
+                                    <p>Upload five sample files to the bucket. You can use any small files from your
+                                        computer — text files, images, anything. The content does not matter; you are
+                                        learning lifecycle rule behavior.</p>
+                                </li>
+                                <li>
+                                    <p>In the bucket, go to the <code>Management</code> tab. Click
+                                        <code>Create lifecycle rule</code>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-lifecycle-management-tab.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of S3 bucket Management tab showing the Lifecycle rules section with the Create lifecycle rule button highlighted and an empty rules list below it">
+                                        <p class="diagram-caption"><em>Figure 8: 📸 Management tab — Lifecycle rules
+                                                section with Create lifecycle rule button</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Configure the rule:</p>
+                                    <ul>
+                                        <li><strong>Rule name:</strong><code>auto-archive-rule</code></li>
+                                        <li><strong>Filter type:</strong> Apply to all objects in the bucket (leave
+                                            prefix empty)</li>
+                                        <li><strong>Rule actions:</strong> Check
+                                            <code>Transition current versions of objects between storage classes</code>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <p>Add three transitions in order:</p>
+                                    <ul>
+                                        <li>Transition 1: Storage class = <code>Standard-IA</code>, Days after creation
+                                            = <code>30</code></li>
+                                        <li>Transition 2: Storage class = <code>Glacier Flexible Retrieval</code>, Days
+                                            after creation = <code>90</code></li>
+                                    </ul>
+                                    <p>Then also check <code>Expire current versions of objects</code> and set Days =
+                                        <code>365</code> to auto-delete after one year.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-lifecycle-rule-configured.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of the S3 lifecycle rule configuration page showing the rule name auto-archive-rule, filter set to all objects, and three transition actions configured: Standard-IA at 30 days, Glacier Flexible at 90 days, and Expire at 365 days, with the Create rule button visible at the bottom">
+                                        <p class="diagram-caption"><em>Figure 9: 📸 Lifecycle rule with three
+                                                transitions configured — Standard-IA at 30 days, Glacier at 90, expire
+                                                at 365</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Click <code>Create rule</code>. The rule is now active. S3 will evaluate all
+                                        objects nightly and transition any that have passed the age threshold.</p>
+                                </li>
+                                <li>
+                                    <p>Return to the <code>Management</code> tab and confirm your rule appears in the
+                                        list with status <code>Enabled</code>.</p>
+                                </li>
+                            </ol>
+                            <h4>What you just built</h4>
+                            <p>A fully automated storage cost optimizer. In a real system, this rule would automatically
+                                save money as data ages — paying Standard prices only for fresh data, IA prices for
+                                monthly-accessed data, and Glacier prices for old archives. Many companies combine this
+                                with versioning to also expire old versions on a separate rule.</p>
+                            <div class="success-box">
+                                <p>✅ <strong>Production tip:</strong> Use separate lifecycle rules for current versions
+                                    and non-current versions. Example: keep current versions in Standard for 30 days,
+                                    then move to IA. Expire non-current (old) versions after 7 days to control
+                                    versioning storage costs.</p>
+                            </div>
+                            <h4>Cleanup</h4>
+                            <ol>
+                                <li>In the Management tab, select the lifecycle rule and click <code>Delete</code>.
+                                    Confirm deletion.</li>
+                                <li>Select and permanently delete all objects in the bucket.</li>
+                                <li>Delete the bucket.</li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-5-presigned-urls">Project 5: Secure File Sharing with Pre-Signed URLs</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Generate time-limited pre-signed URLs using the AWS
+                                    CLI and Python (boto3) that allow temporary access to private S3 objects without
+                                    making them public.</p>
+                                <p><strong>⏱️ Time:</strong> 30–40 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free — S3 standard storage, no data transfer charges for
+                                    tiny test files</p>
+                            </div>
+                            <p>Pre-signed URLs are how real applications handle secure file sharing. When a user wants
+                                to download their invoice from an app, the backend generates a URL that expires in 15
+                                minutes — not a permanent public link, just a temporary one. The file stays private.
+                                This is production-level S3 usage.</p>
+                            <div class="diagram-container"><img src="images/s3-presigned-url-flow.png" loading="lazy"
+                                    decoding="async"
+                                    alt="Sequence diagram showing the pre-signed URL flow: User clicks Download in the app, the App Backend calls S3 SDK to generate a presigned URL with 15 minute expiry, S3 returns the signed URL to the backend, backend sends URL to user's browser, browser uses the URL to download directly from S3 without needing AWS credentials, with a timeout clock showing the URL expires after 15 minutes">
+                                <p class="diagram-caption"><em>Figure 10: Pre-signed URL flow — backend generates a
+                                        temporary URL, user downloads directly from S3</em></p>
+                            </div>
+                            <h4>Part A — Using the AWS CLI</h4>
+                            <ol>
+                                <li>
+                                    <p>Make sure the AWS CLI is installed and configured (<code>aws configure</code>
+                                        with your access key, secret, and default region). Then create a private bucket:
+                                    </p>
+                                    <pre><code>aws s3 mb s3://yourname-presigned-demo-2025 --region ap-south-1</code></pre>
+                                </li>
+                                <li>
+                                    <p>Create a test file and upload it to the private bucket:</p>
+                                    <pre><code>echo "This is a confidential invoice - Invoice #2025-001" &gt; invoice.txt aws s3 cp invoice.txt s3://yourname-presigned-demo-2025/invoices/invoice.txt</code></pre>
+                                </li>
+                                <li>
+                                    <p>Verify the file is private — try opening its object URL in a browser. You should
+                                        see <strong>Access Denied</strong>.</p>
+                                </li>
+                                <li>
+                                    <p>Generate a pre-signed URL that expires in 5 minutes (300 seconds):</p>
+                                    <pre><code>aws s3 presign s3://yourname-presigned-demo-2025/invoices/invoice.txt \ --expires-in 300</code></pre>
+                                    <p>The command prints a very long URL with a signature embedded in it. Copy the full
+                                        URL.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-presigned-url-generated.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of a terminal window showing the aws s3 presign command and the resulting long presigned URL output with query parameters including X-Amz-Algorithm, X-Amz-Credential, X-Amz-Date, X-Amz-Expires showing 300, X-Amz-SignedHeaders, and X-Amz-Signature visible in the URL string">
+                                        <p class="diagram-caption"><em>Figure 11: 📸 Pre-signed URL generated by AWS CLI
+                                                — note X-Amz-Expires=300 (5 minutes)</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Paste the pre-signed URL into your browser. The file downloads successfully — no
+                                        AWS credentials needed by the browser. Wait 5 minutes and try the same URL again
+                                        — you should now see <strong>Access Denied</strong> because the link has
+                                        expired.</p>
+                                </li>
+                            </ol>
+                            <h4>Part B — Using Python (boto3)</h4>
+                            <ol>
+                                <li>
+                                    <p>Create a Python file called <code>generate_presigned.py</code> and paste this
+                                        code:</p>
+                                    <pre><code>import boto3 from botocore.exceptions import ClientError def generate_presigned_url(bucket_name, object_key, expiry_seconds=900): """ Generate a pre-signed URL to download a private S3 object. Default expiry: 900 seconds (15 minutes) """ s3_client = boto3.client('s3', region_name='ap-south-1') try: url = s3_client.generate_presigned_url( 'get_object', Params={ 'Bucket': bucket_name, 'Key': object_key }, ExpiresIn=expiry_seconds ) print(f"\n✅ Pre-signed URL generated successfully!") print(f"Expires in: {expiry_seconds} seconds ({expiry_seconds // 60} minutes)") print(f"\nURL:\n{url}\n") return url except ClientError as e: print(f"❌ Error generating URL: {e}") return None # --- Run it --- BUCKET = 'yourname-presigned-demo-2025' # Replace with your bucket name KEY = 'invoices/invoice.txt' EXPIRY = 900 # 15 minutes generate_presigned_url(BUCKET, KEY, EXPIRY)</code></pre>
+                                </li>
+                                <li>
+                                    <p>Install boto3 if not already installed:</p>
+                                    <pre><code>pip install boto3</code></pre>
+                                </li>
+                                <li>
+                                    <p>Run the script:</p>
+                                    <pre><code>python generate_presigned.py</code></pre>
+                                    <p>Copy the output URL and test it in your browser — the file should download.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-presigned-python-output.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of a terminal showing the output of the Python boto3 presigned URL script: a success message saying Pre-signed URL generated successfully, the expiry time of 900 seconds (15 minutes), and the long presigned URL printed below it">
+                                        <p class="diagram-caption"><em>Figure 12: 📸 Python boto3 output — pre-signed
+                                                URL generated with 15 minute expiry</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Now generate an <strong>upload</strong> pre-signed URL (so someone can upload to
+                                        your private bucket without AWS credentials). Add this function to your script:
+                                    </p>
+                                    <pre><code>def generate_presigned_upload_url(bucket_name, object_key, expiry_seconds=300): """ Generate a pre-signed URL to allow upload to a private S3 bucket. The uploader needs no AWS credentials. """ s3_client = boto3.client('s3', region_name='ap-south-1') try: url = s3_client.generate_presigned_url( 'put_object', Params={ 'Bucket': bucket_name, 'Key': object_key, 'ContentType': 'text/plain' }, ExpiresIn=expiry_seconds ) print(f"\n✅ Upload pre-signed URL generated!") print(f"Upload to key: {object_key}") print(f"Expires in: {expiry_seconds} seconds") print(f"\nURL:\n{url}\n") print("Use this curl command to test upload:") print(f'curl -X PUT -H "Content-Type: text/plain" --data "test upload content" "{url}"') return url except ClientError as e: print(f"❌ Error: {e}") return None generate_presigned_upload_url(BUCKET, 'uploads/test-upload.txt')</code></pre>
+                                </li>
+                                <li>
+                                    <p>Run the script and use the printed <code>curl</code> command to test the upload
+                                        pre-signed URL. Then check your S3 bucket — you should see the uploaded file.
+                                    </p>
+                                </li>
+                            </ol>
+                            <h4>What you just built</h4>
+                            <p>The core of any file-sharing feature in production apps. Every time a user clicks
+                                "Download" in a real application — on a bank statement, a medical report, a shared
+                                document — the backend runs code like this to generate a temporary URL. The file stays
+                                private in S3. The URL works just once, for a short time, for that specific user.</p>
+                            <h4>Cleanup</h4>
+                            <ol>
+                                <li>
+                                    <p>Delete all objects from the bucket:</p>
+                                    <pre><code>aws s3 rm s3://yourname-presigned-demo-2025 --recursive</code></pre>
+                                </li>
+                                <li>
+                                    <p>Delete the bucket:</p>
+                                    <pre><code>aws s3 rb s3://yourname-presigned-demo-2025</code></pre>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-6-sdk-file-upload-api">Project 6: File Upload API Using Python SDK (boto3)
+                            </h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Build a Python script that uploads files to S3 with
+                                    validation (file size and type checks), assigns unique keys using UUID, and stores
+                                    metadata — simulating a real backend file upload service.</p>
+                                <p><strong>⏱️ Time:</strong> 40–60 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier — standard S3 storage for small test files</p>
+                            </div>
+                            <p>This is Level 5 of the skill ladder: S3 becomes part of an application. In real apps
+                                (Instagram, Dropbox, any file-sharing tool), files are never uploaded through the
+                                console — a backend service handles it, validates the file, generates a unique key, and
+                                stores metadata alongside the upload.</p>
+                            <div class="diagram-container"><img src="images/s3-sdk-upload-architecture.png"
+                                    loading="lazy" decoding="async"
+                                    alt="Architecture diagram showing the file upload flow: User selects a file, the Python backend script validates file size (must be under 10 MB) and file type (only image or PDF allowed), generates a UUID-based unique key, uploads the file to the S3 bucket using boto3, stores metadata as S3 object tags, and returns the object URL to the user, with error paths shown for validation failures">
+                                <p class="diagram-caption"><em>Figure 13: SDK upload architecture — backend validates,
+                                        assigns UUID key, uploads to S3, stores metadata</em></p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Create a private bucket called <code>yourname-upload-service-2025</code>. No
+                                        versioning needed for this project.</p>
+                                </li>
+                                <li>
+                                    <p>Create a Python file called <code>s3_uploader.py</code>. This is a complete
+                                        upload service with validation:</p>
+                                    <pre><code>import boto3 import uuid import os from datetime import datetime from botocore.exceptions import ClientError # --- Configuration --- BUCKET_NAME = 'yourname-upload-service-2025' # Replace with your bucket name REGION = 'ap-south-1' MAX_FILE_SIZE_MB = 10 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.pdf', '.txt', '.docx'} s3_client = boto3.client('s3', region_name=REGION) def validate_file(file_path): """Check file size and extension before uploading.""" if not os.path.exists(file_path): return False, f"File not found: {file_path}" file_size_bytes = os.path.getsize(file_path) file_size_mb = file_size_bytes / (1024 * 1024) if file_size_mb > MAX_FILE_SIZE_MB: return False, f"File too large: {file_size_mb:.2f} MB (max {MAX_FILE_SIZE_MB} MB)" _, extension = os.path.splitext(file_path) if extension.lower() not in ALLOWED_EXTENSIONS: return False, f"File type not allowed: {extension}. Allowed: {ALLOWED_EXTENSIONS}" return True, "Valid" def generate_unique_key(file_path, folder='uploads'): """ Create a unique S3 key using UUID. Format: uploads/2025-11-21/uuid-filename.ext """ _, extension = os.path.splitext(file_path) filename = os.path.basename(file_path) unique_id = str(uuid.uuid4())[:8] # short UUID prefix date_prefix = datetime.now().strftime('%Y-%m-%d') unique_key = f"{folder}/{date_prefix}/{unique_id}-{filename}" return unique_key def upload_file(file_path): """Main upload function with validation, unique key, and metadata tagging.""" print(f"\n📂 Uploading: {file_path}") # Step 1: Validate is_valid, message = validate_file(file_path) if not is_valid: print(f"❌ Validation failed: {message}") return None file_size_bytes = os.path.getsize(file_path) _, extension = os.path.splitext(file_path) # Step 2: Generate unique key s3_key = generate_unique_key(file_path) print(f"🔑 S3 Key: {s3_key}") # Step 3: Upload with metadata tags try: s3_client.upload_file( file_path, BUCKET_NAME, s3_key, ExtraArgs={ 'Tagging': ( f"uploader=python-sdk&" f"original_filename={os.path.basename(file_path)}&" f"upload_date={datetime.now().strftime('%Y-%m-%d')}&" f"file_type={extension.lstrip('.')}" ), 'StorageClass': 'STANDARD' } ) # Build the object URL object_url = f"https://{BUCKET_NAME}.s3.{REGION}.amazonaws.com/{s3_key}" print(f"✅ Upload successful!") print(f"📦 Size: {file_size_bytes / 1024:.1f} KB") print(f"🔗 URL: {object_url}") print(f"🏷️ Tags: original_filename, upload_date, file_type stored as S3 tags") return object_url except ClientError as e: print(f"❌ Upload failed: {e}") return None def list_uploaded_files(): """List all files in the uploads folder with their metadata.""" print(f"\n📋 Files in s3://{BUCKET_NAME}/uploads/") print("-" * 60) try: response = s3_client.list_objects_v2( Bucket=BUCKET_NAME, Prefix='uploads/' ) objects = response.get('Contents', []) if not objects: print("No files found.") return for obj in objects: print(f" Key: {obj['Key']}") print(f" Size: {obj['Size'] / 1024:.1f} KB") print(f" Date: {obj['LastModified'].strftime('%Y-%m-%d %H:%M')}") print() except ClientError as e: print(f"❌ Error listing files: {e}") # --- Run the uploader --- if __name__ == '__main__': # Create test files test_files = [] # Valid text file with open('test_invoice.txt', 'w') as f: f.write("Invoice #2025-001\nAmount: $500\nDate: 2025-11-21") test_files.append('test_invoice.txt') # Try an invalid extension (will be rejected) with open('test_script.sh', 'w') as f: f.write("#!/bin/bash\necho hello") test_files.append('test_script.sh') print("=" * 60) print("S3 Upload Service — boto3 Demo") print("=" * 60) # Upload each file for file_path in test_files: upload_file(file_path) # List what was uploaded list_uploaded_files() # Clean up local test files for f in test_files: os.remove(f) print("\n🧹 Local test files cleaned up.")</code></pre>
+                                </li>
+                                <li>
+                                    <p>Run the script:</p>
+                                    <pre><code>python s3_uploader.py</code></pre>
+                                    <p>You should see the text file upload succeed and the shell script rejected by
+                                        validation.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-sdk-upload-output.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of terminal showing the output of s3_uploader.py: first file test_invoice.txt passes validation, shows a UUID-based S3 key, and displays the success message with object URL. Second file test_script.sh shows Validation failed with extension not allowed message. Then the list_uploaded_files section shows the successfully uploaded file with its key, size, and date.">
+                                        <p class="diagram-caption"><em>Figure 14: 📸 SDK upload script output — text
+                                                file succeeds, .sh file rejected by validation</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Go to the AWS S3 console, open your bucket, and find the uploaded file under
+                                        <code>uploads/YYYY-MM-DD/</code>. Click on the object. Click the
+                                        <code>Tags</code> tab to see the metadata tags stored alongside the file.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-s3-object-tags.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of the S3 object detail page showing the Tags tab selected, with four tags displayed in a table: uploader with value python-sdk, original_filename with the original file name, upload_date with today's date, and file_type with value txt">
+                                        <p class="diagram-caption"><em>Figure 15: 📸 S3 object tags — metadata stored
+                                                alongside the uploaded file, visible in the console</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                            <h4>What you just built</h4>
+                            <p>The core of any file upload feature in production software. The pattern here — validate →
+                                generate unique key → upload with metadata → return URL — is used in virtually every
+                                SaaS application that handles user files. Add a database to store the URL and key, add
+                                user authentication, and you have the storage layer of a full product.</p>
+                            <h4>Cleanup</h4>
+                            <ol>
+                                <li>
+                                    <p>Delete all objects:</p>
+                                    <pre><code>aws s3 rm s3://yourname-upload-service-2025 --recursive</code></pre>
+                                </li>
+                                <li>
+                                    <p>Delete the bucket:</p>
+                                    <pre><code>aws s3 rb s3://yourname-upload-service-2025</code></pre>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-7-compliance-vault">Project 7 (Challenge): Secure Compliance Document Vault
+                            </h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Build a document vault where legal documents are
+                                    locked for a retention period using S3 Object Lock — no deletion or modification
+                                    possible, even by admins.</p>
+                                <p><strong>⏱️ Time:</strong> 45–60 minutes</p>
+                                <p><strong>💰 Cost:</strong> Free tier storage. Object Lock has no additional charge
+                                    beyond storage.</p>
+                            </div>
+                            <div class="error-box">
+                                <p>💰 <strong>Cost Note:</strong> Object Lock must be enabled at bucket creation. You
+                                    cannot delete a bucket that still has locked objects — you must wait for the
+                                    retention period to expire. Use short retention periods (1–2 days) for testing to
+                                    avoid getting stuck.</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Create a new bucket called <code>yourname-vault-2025</code>. During creation —
+                                        <strong>at the bucket creation screen only</strong> — expand <strong>Advanced
+                                            settings</strong> and enable <strong>Object Lock</strong>. This also enables
+                                        versioning automatically. You cannot add Object Lock to an existing bucket.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-object-lock-bucket-creation.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of the S3 Create Bucket page with the Advanced settings section expanded, showing the Object Lock Enable checkbox selected and a warning message explaining that enabling Object Lock also enables versioning and that it cannot be disabled later">
+                                        <p class="diagram-caption"><em>Figure 16: 📸 Object Lock enabled during bucket
+                                                creation — this is the only time it can be set</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Upload a test document — create a file called
+                                        <code>legal-contract-2025.txt</code> with any content.</p>
+                                    <pre><code>echo "LEGAL CONTRACT - Document ID: LC-2025-001 - Do not delete or modify" &gt; legal-contract-2025.txt aws s3 cp legal-contract-2025.txt s3://yourname-vault-2025/contracts/legal-contract-2025.txt</code></pre>
+                                </li>
+                                <li>
+                                    <p>Apply a Governance retention lock to this specific object for 2 days (for testing
+                                        — in production you would use years):</p>
+                                    <pre><code>aws s3api put-object-retention \ --bucket yourname-vault-2025 \ --key contracts/legal-contract-2025.txt \ --retention '{"Mode":"GOVERNANCE","RetainUntilDate":"2025-11-23T00:00:00Z"}'</code></pre>
+                                    <p>Replace the date with 2 days from today's date in the same format.</p>
+                                </li>
+                                <li>
+                                    <p>Try to delete the locked object — this should fail:</p>
+                                    <pre><code>aws s3 rm s3://yourname-vault-2025/contracts/legal-contract-2025.txt</code></pre>
+                                    <p>You should see an error: <em>An error occurred (AccessDenied)...</em> — the lock
+                                        prevented deletion.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-object-lock-delete-denied.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of terminal showing the aws s3 rm command failing with an AccessDenied error message indicating that the object is protected by an Object Lock retention policy and cannot be deleted until the retain until date">
+                                        <p class="diagram-caption"><em>Figure 17: 📸 Deletion blocked by Object Lock —
+                                                AccessDenied error confirms the lock is active</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>View the lock details on the object in the S3 console: open the bucket, find the
+                                        object, click on it, and scroll to the <strong>Object Lock</strong> section in
+                                        the Properties tab. You should see the retention mode and retain-until date.</p>
+                                </li>
+                                <li>
+                                    <p>Apply a Legal Hold as well (simulating litigation hold):</p>
+                                    <pre><code>aws s3api put-object-legal-hold \ --bucket yourname-vault-2025 \ --key contracts/legal-contract-2025.txt \ --legal-hold Status=ON</code></pre>
+                                </li>
+                                <li>
+                                    <p>Remove the Legal Hold (simulating case resolution) and then wait for the
+                                        retention period to expire before cleanup:</p>
+                                    <pre><code>aws s3api put-object-legal-hold \ --bucket yourname-vault-2025 \ --key contracts/legal-contract-2025.txt \ --legal-hold Status=OFF</code></pre>
+                                </li>
+                            </ol>
+                            <h4>Cleanup</h4>
+                            <p>Wait until the 2-day retention period expires. Then delete all object versions (Object
+                                Lock buckets have versioning — you must delete all versions, not just the current
+                                object), then delete the bucket. If the retention has not expired, you cannot delete the
+                                objects — this is by design.</p>
+                        </div>
+                    </details>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="learning-checklist">☑️ Learning Checklist</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="checklist-progress">
+                        <p>Progress: <span id="checklistProgress">0/15</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                    <div id="checklistContainer" data-checklist-source="json/checklist.json"></div>
+                    <div class="quiz-reset-container"><button onclick="resetChecklist()" class="quiz-reset-btn">🔄 Reset
+                            Checklist</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="reflection-questions">🤔 Reflection Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="question-block">
+                        <h4>1. A company stores 10 million user-uploaded images. Users access recent uploads daily but
+                            rarely view images older than 6 months. What storage strategy would you design?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about combining storage classes with lifecycle policies. What class fits daily
+                                    access? What class fits 6-month-old data? What about data that is 2+ years old?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>2. A developer accidentally deleted a critical configuration file from an S3 bucket that had
+                            versioning enabled. How do you recover it? What if versioning was not enabled?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>With versioning: think about what "deleting" actually does in S3 when versioning is
+                                    on. Without versioning: think about whether any recovery is possible at all.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>3. You are designing storage for a bank that must retain transaction records for exactly 7
+                            years and ensure no one — not even administrators — can modify or delete them. Which S3
+                            feature do you use and which mode?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about which S3 feature is specifically designed to prevent deletion and
+                                    overwriting. Between Compliance and Governance mode, which one blocks even the root
+                                    user?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>4. A startup says: "We do not know yet how often our users will access each file — access
+                            patterns are totally unpredictable." Which storage class do you recommend and why?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>One storage class is specifically designed for unpredictable or unknown access
+                                    patterns. It monitors usage and moves objects automatically.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>5. Your team uploads a 50 GB video file to S3 using the AWS Console and gets an error. What
+                            is the issue and how do you fix it?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Recall the console upload limits. What happens when a file exceeds 5 GB? What method
+                                    do you need to use, and what does it do internally?</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="links-references">🔗 Links &amp; References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3 id="official-aws-docs">📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html"
+                                        target="_blank" rel="noopener noreferrer">S3 User Guide</a></td>
+                                <td>Complete official S3 documentation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html"
+                                        target="_blank" rel="noopener noreferrer">S3 Storage Classes</a></td>
+                                <td>All storage class types with detailed specs</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html"
+                                        target="_blank" rel="noopener noreferrer">S3 Versioning</a></td>
+                                <td>Versioning setup and behaviour documentation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html"
+                                        target="_blank" rel="noopener noreferrer">S3 Object Lock</a></td>
+                                <td>WORM model, retention modes, and legal hold</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html"
+                                        target="_blank" rel="noopener noreferrer">Multipart Upload</a></td>
+                                <td>How to upload large objects using multipart</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="recommended-reading">🎓 Recommended Reading</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/s3/pricing/" target="_blank"
+                                        rel="noopener noreferrer">S3 Pricing Page</a></td>
+                                <td>Current pricing for all storage classes and data transfer</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/s3/faqs/" target="_blank"
+                                        rel="noopener noreferrer">S3 FAQs</a></td>
+                                <td>Frequently asked questions — great for exam prep</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/blogs/aws/amazon-s3-intelligent-tiering/"
+                                        target="_blank" rel="noopener noreferrer">S3 Intelligent-Tiering Blog</a></td>
+                                <td>AWS blog explaining Intelligent-Tiering in depth</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="additional-resources">🔧 Additional Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://calculator.aws/pricing/2/home" target="_blank"
+                                        rel="noopener noreferrer">AWS Pricing Calculator</a></td>
+                                <td>Estimate S3 costs across storage classes</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-transition-general-considerations.html"
+                                        target="_blank" rel="noopener noreferrer">S3 Lifecycle Transitions</a></td>
+                                <td>Rules for moving objects between storage classes automatically</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">S3</span><span class="tag">Storage
+                Classes</span><span class="tag">Versioning</span><span class="tag">Object Lock</span><span
+                class="tag">Cloud Storage</span><span class="tag">Static
+                Website</span><span class="tag">Lifecycle Policies</span><span class="tag">Pre-Signed URLs</span><span
+                class="tag">boto3</span></div>
+    </div>
+    <script defer src="../../../js/notes-page.js"></script>
+</body>
+
+</html>

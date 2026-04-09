@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Complete notes on Application Load Balancer path-based routing, Auto Scaling Groups, and ALB vs NLB differences. Covers microservices routing, scaling strategies, and OSI layer comparison.">
+    <meta name="keywords"
+        content="AWS, Application Load Balancer, Auto Scaling Groups, Network Load Balancer, cloud, certification">
+    <meta property="og:title" content="ALB Routing & Auto Scaling - AWS Training">
+    <meta property="og:description"
+        content="Complete notes on Application Load Balancer path-based routing, Auto Scaling Groups, and ALB vs NLB differences.">
+    <meta property="og:type" content="article">
+    <meta property="og:url"
+        content="https://namrata2709.github.io/Resources/data/notes/alb-routing-asg/alb-routing-asg-complete.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/alb-routing-asg/images/alb-path-routing-overview.png">
+    <link rel="canonical"
+        href="https://namrata2709.github.io/Resources/data/notes/alb-routing-asg/alb-routing-asg-complete.html">
+    <title>ALB Routing & Auto Scaling - Complete Notes - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+    <script src="../../../js/theme.js"></script>
+</head>
+
+<body class="complete-notes">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Application Load Balancer Path-Based Routing & Auto Scaling Groups","description":"Complete notes on Application Load Balancer path-based routing, Auto Scaling Groups, and ALB vs NLB differences.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-11-17","dateModified":"2025-11-17","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/alb-routing-asg/alb-routing-asg-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/alb-routing-asg/images/alb-path-routing-overview.png","articleSection":"AWS Training","keywords":["AWS","Application Load Balancer","Auto Scaling Groups","Network Load Balancer"],"educationalLevel":"Beginner to Intermediate"}</script>
+    <div class="note-container">
+        <div class="note-header">
+            <h1>Application Load Balancer: Path-Based Routing & Auto Scaling</h1>
+            <p class="note-date">📅 November 17, 2025</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> November 17, 2025</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="note-content">
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="introduction">🌐 Introduction</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Imagine you run a busy shopping website. When a customer visits
+                        <code>yourstore.com/products</code>, they need to see the product catalog. When they go to
+                        <code>/cart</code>, they need the shopping cart. And when they check out, they hit
+                        <code>/orders</code>. Behind the scenes, these are three completely separate applications
+                        running on different servers — but to the customer, it feels like one seamless website.</p>
+                    <p>This is exactly what the <strong>Application Load Balancer (ALB)</strong> does. It acts like an
+                        incredibly smart traffic cop standing at the front door of your cloud architecture, reading each
+                        incoming request and directing it to exactly the right backend service — all based on the URL
+                        path.</p>
+                    <div class="diagram-container"><img src="images/alb-path-routing-overview.png" decoding="async"
+                            alt="Overview diagram showing users making requests to ALB which intelligently routes /products to the products EC2 service, /cart to the cart EC2 service, and /orders to the orders EC2 service">
+                        <p class="diagram-caption"><em>Figure 1: ALB as a traffic cop routing requests to the correct
+                                microservice based on URL path</em></p>
+                    </div>
+                    <p>In this session, we covered three interconnected topics that together form the backbone of a
+                        scalable, production-grade AWS architecture:</p>
+                    <ul>
+                        <li><strong>Path-based routing</strong> — how ALB reads URL paths and routes traffic to the
+                            right service</li>
+                        <li><strong>Auto Scaling Groups (ASG)</strong> — how AWS automatically adds or removes EC2
+                            instances as traffic changes</li>
+                        <li><strong>ALB vs NLB</strong> — the key differences between Application and Network Load
+                            Balancers and when to use each</li>
+                    </ul>
+                    <div class="info-box">
+                        <p>💡 <strong>Why this matters:</strong> These three concepts work together. You use ALB for
+                            intelligent routing, ASG to keep each service right-sized under load, and understanding ALB
+                            vs NLB helps you pick the correct tool for every use case. Together, they are the foundation
+                            of the microservices architecture model used by companies like Netflix, Airbnb, and Amazon
+                            itself.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="what-is-a-load-balancer">⚖️ What is a Load Balancer?</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Before diving into path-based routing, let's make sure the foundation is solid. A <strong>load
+                            balancer</strong> is a service that sits in front of your application and distributes
+                        incoming network traffic across multiple backend servers (called <strong>target
+                            groups</strong>).</p>
+                    <p>Think of a load balancer like the front desk at a large hospital. Patients (requests) arrive, and
+                        the receptionist (load balancer) decides which doctor (server) is available and best suited to
+                        handle each patient. Without this system, all patients would flood into one room — chaos. With
+                        it, every room stays manageable.</p>
+                    <div class="diagram-container"><img src="images/load-balancer-concept.png" decoding="async"
+                            alt="Diagram showing multiple users sending requests to a single load balancer which distributes the requests evenly across three EC2 instances in a target group">
+                        <p class="diagram-caption"><em>Figure 2: A load balancer distributes traffic across multiple EC2
+                                instances to prevent overload</em></p>
+                    </div>
+                    <p><span class="exam-highlight-sentence">A load balancer improves application availability, fault
+                            tolerance, and scalability by distributing traffic across multiple healthy targets.</span>
+                    </p>
+                    <p>AWS offers three types of load balancers under the <strong>Elastic Load Balancing (ELB)</strong>
+                        family:</p>
+                    <ul>
+                        <li><strong>Application Load Balancer (ALB)</strong> — Layer 7, HTTP/HTTPS, path-based routing
+                        </li>
+                        <li><strong>Network Load Balancer (NLB)</strong> — Layer 4, TCP/UDP, ultra-low latency</li>
+                        <li><strong>Gateway Load Balancer (GWLB)</strong> — Layer 3, used for third-party appliances
+                            like firewalls</li>
+                    </ul>
+                    <div class="info-box">
+                        <p>📚 In this session, the focus was on ALB and NLB. Gateway Load Balancer will be covered in a
+                            later session on network security appliances.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="path-based-routing-with-alb">🛣️ Path-Based Routing with ALB</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Path-based routing is one of the most powerful features of the Application Load Balancer. It
+                        allows a single ALB to serve as the entry point for an entire microservices application,
+                        directing each request to a completely different backend service based solely on the URL path.
+                    </p>
+                    <h3 id="the-microservices-problem">The Microservices Problem</h3>
+                    <p>In a traditional monolithic application, everything runs in one big codebase on one server. When
+                        traffic spikes, you can only scale everything at once — wasteful and expensive. Modern
+                        applications are built as <strong>microservices</strong>: small, independent applications where
+                        the products service, cart service, and orders service are completely separate.</p>
+                    <p>But if they're separate, how does a user's browser know which server to call? They can't send
+                        three different requests to three different IP addresses. They expect one address:
+                        <code>yourstore.com</code>. The ALB solves this.</p>
+                    <div class="diagram-container"><img src="images/alb-microservices-architecture.png" decoding="async"
+                            alt="Detailed architecture diagram showing internet users hitting a single ALB DNS endpoint, with three listener rules routing /products to Target Group 1 with EC2 products instances, /cart to Target Group 2 with EC2 cart instances, and /orders to Target Group 3 with EC2 orders instances">
+                        <p class="diagram-caption"><em>Figure 3: ALB path-based routing architecture for a microservices
+                                application</em></p>
+                    </div>
+                    <h3 id="how-path-based-routing-works">How Path-Based Routing Works</h3>
+                    <p>Here is what happens step by step when a user visits <code>yourstore.com/products</code>:</p>
+                    <ol>
+                        <li>The user's request reaches the ALB's DNS endpoint (e.g.,
+                            <code>my-alb-1234567890.us-east-1.elb.amazonaws.com</code>)</li>
+                        <li>The ALB inspects the HTTP request — specifically the URL path: <code>/products</code></li>
+                        <li>It matches the path against its configured <strong>listener rules</strong></li>
+                        <li>The matching rule forwards the request to the <strong>Products Target Group</strong></li>
+                        <li>The target group contains one or more EC2 instances running the Products application</li>
+                        <li>The response travels back through the ALB to the user</li>
+                    </ol>
+                    <p>The user never knows they were talking to three different backend applications. They just see
+                        <code>yourstore.com</code>.</p>
+                    <h3 id="listener-rules-explained">Listener Rules Explained</h3>
+                    <p><span class="exam-highlight-sentence">A <strong>listener</strong> is a process that checks for
+                            incoming connection requests, configured with a protocol (HTTP/HTTPS) and a port (typically
+                            80 or 443).</span></p>
+                    <p>Each listener has one or more <strong>rules</strong>. A rule has two parts:</p>
+                    <ul>
+                        <li><strong>Condition:</strong> A condition to match (e.g., path is <code>/products*</code>)
+                        </li>
+                        <li><strong>Action:</strong> What to do when the condition matches (e.g., forward to target
+                            group)</li>
+                    </ul>
+                    <p>Rules are evaluated in <strong>priority order</strong>. <span
+                            class="exam-highlight-sentence">Every listener must have a <strong>default rule</strong>
+                            that handles any request that doesn't match any other rule — this is the fallback
+                            action.</span></p>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Path pattern matching examples:</strong></p>
+                        <ul>
+                            <li><code>/products</code> — matches exactly <code>/products</code> only</li>
+                            <li><code>/products*</code> — matches <code>/products</code>, <code>/products/123</code>,
+                                <code>/products/sale</code></li>
+                            <li><code>*.jpg</code> — matches any path ending in <code>.jpg</code> (used for static file
+                                serving)</li>
+                        </ul>
+                    </div>
+                    <h3 id="target-groups">Target Groups</h3>
+                    <p>A <strong>target group</strong> is a logical grouping of backend resources that receive traffic
+                        from a load balancer rule. Each target group has its own:</p>
+                    <ul>
+                        <li><strong>Target type:</strong> EC2 instances, IP addresses, or Lambda functions</li>
+                        <li><strong>Health check configuration:</strong> Which path to ping and what response code
+                            counts as healthy</li>
+                        <li><strong>Protocol and port:</strong> How the ALB communicates with the targets</li>
+                    </ul>
+                    <p><span class="exam-highlight-sentence">A target group with no healthy targets will cause the ALB
+                            to return a <span class="exam-highlight-term">503 Service Unavailable</span> error to the
+                            client.</span></p>
+                    <div class="diagram-container"><img src="images/alb-target-groups.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing three separate target groups: Target Group 1 contains two Products EC2 instances, Target Group 2 contains two Cart EC2 instances, Target Group 3 contains two Orders EC2 instances. Each group has a health check path shown">
+                        <p class="diagram-caption"><em>Figure 4: Three separate target groups, each containing EC2
+                                instances for a different microservice</em></p>
+                    </div>
+                    <h3 id="health-checks">Health Checks</h3>
+                    <p>The ALB continuously monitors the health of each target in a target group by sending HTTP
+                        requests to a configured path (e.g., <code>/health</code>) at regular intervals. If a target
+                        fails to respond within the threshold, it is marked as <strong>unhealthy</strong> and removed
+                        from rotation automatically.</p>
+                    <p><span class="exam-highlight-sentence">Traffic is only sent to <span
+                                class="exam-highlight-term">healthy</span> targets. Unhealthy targets are automatically
+                            excluded until they pass health checks again.</span></p>
+                    <h3 id="hands-on-what-we-built">Hands-On: What We Built</h3>
+                    <p>In the session, the group built a working demonstration of path-based routing:</p>
+                    <ol>
+                        <li><strong>Created 3 EC2 instances</strong> — each running a simple web application for
+                            products, cart, and orders respectively</li>
+                        <li><strong>Created 3 target groups</strong> — one for each service, each registering the
+                            corresponding EC2 instance</li>
+                        <li><strong>Created one ALB</strong> — configured with HTTP listener on port 80</li>
+                        <li><strong>Added 3 listener rules:</strong>
+                            <ul>
+                                <li>Path <code>/products*</code> → forward to Products Target Group</li>
+                                <li>Path <code>/cart*</code> → forward to Cart Target Group</li>
+                                <li>Path <code>/orders*</code> → forward to Orders Target Group</li>
+                            </ul>
+                        </li>
+                        <li><strong>Tested routing</strong> — accessed each path via the ALB DNS name and confirmed it
+                            reached the correct backend</li>
+                    </ol>
+                    <div class="success-box">
+                        <p>✅ <strong>Key takeaway:</strong> One ALB, one DNS name, three completely separate backend
+                            services — all working seamlessly. This is the power of path-based routing.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="auto-scaling-groups">📈 Auto Scaling Groups (ASG)</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Path-based routing solves the <em>direction</em> problem — getting requests to the right service.
+                        But what happens when the products page goes viral? A single EC2 instance can only handle so
+                        many requests before it buckles. This is where <strong>Auto Scaling Groups</strong> come in.</p>
+                    <p>Think of an ASG like a staffing agency for your EC2 instances. You tell the agency: "I need at
+                        least 2 servers, never more than 10, and when things get busy, hire more." The agency (ASG)
+                        watches traffic, automatically spins up new instances when needed, and terminates extras when
+                        things quiet down — all without you lifting a finger.</p>
+                    <div class="diagram-container"><img src="images/asg-scaling-overview.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing an Auto Scaling Group with minimum 1 instance at low traffic, scaling to 3 instances at medium traffic, and scaling to 6 instances at high traffic. CloudWatch alarm triggers are shown between each state">
+                        <p class="diagram-caption"><em>Figure 5: Auto Scaling Group dynamically adjusts the number of
+                                EC2 instances based on demand</em></p>
+                    </div>
+                    <h3 id="why-auto-scaling-matters">Why Auto Scaling Matters</h3>
+                    <p>Without Auto Scaling, you have two bad choices:</p>
+                    <ul>
+                        <li><strong>Under-provision:</strong> Keep just enough servers for average traffic. When spikes
+                            hit, the application crashes.</li>
+                        <li><strong>Over-provision:</strong> Keep enough servers for peak traffic, all the time. 90% of
+                            the time you're paying for idle capacity.</li>
+                    </ul>
+                    <p>Auto Scaling gives you the best of both worlds: <span class="exam-highlight-sentence">you pay
+                            only for what you use, and you always have enough capacity to handle current demand.</span>
+                    </p>
+                    <h3 id="asg-key-components">ASG Key Components</h3>
+                    <h3 id="launch-template">Launch Template</h3>
+                    <p>Before you can create an Auto Scaling Group, AWS needs to know what kind of instance to create
+                        when it scales out. This blueprint is called a <strong>Launch Template</strong>.</p>
+                    <p><span class="exam-highlight-sentence">A <strong>Launch Template</strong> defines the AMI,
+                            instance type, key pair, security groups, user data, and any other configuration needed to
+                            launch a new EC2 instance.</span></p>
+                    <p>Think of a Launch Template like a cookie cutter. The cookie cutter (template) stays the same;
+                        every cookie (EC2 instance) it produces is identical. When ASG needs a new instance, it uses the
+                        launch template to stamp one out automatically.</p>
+                    <div class="info-box">
+                        <p>💡 Launch Templates replaced the older "Launch Configurations." AWS recommends always using
+                            Launch Templates because they support versioning, mixed instance types, and Spot Instance
+                            integration.</p>
+                        <p><strong>📚 Source:</strong> <a
+                                href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/launch-templates.html"
+                                target="_blank" rel="noopener noreferrer">AWS Auto Scaling Launch Templates Docs</a></p>
+                    </div>
+                    <h3 id="capacity-settings">Capacity Settings</h3>
+                    <p>Every ASG has three critical capacity numbers:</p>
+                    <ul>
+                        <li><span class="exam-highlight-term">Minimum capacity</span> — the ASG will never scale below
+                            this number of instances (floor)</li>
+                        <li><span class="exam-highlight-term">Maximum capacity</span> — the ASG will never scale above
+                            this number of instances (ceiling)</li>
+                        <li><span class="exam-highlight-term">Desired capacity</span> — the number of instances ASG
+                            tries to maintain right now</li>
+                    </ul>
+                    <p><span class="exam-highlight-sentence">The <strong>desired capacity</strong> is the current
+                            target. ASG constantly works to match actual running instances to the desired count —
+                            launching instances if below, terminating if above.</span></p>
+                    <div class="diagram-container"><img src="images/asg-capacity-diagram.png" loading="lazy"
+                            decoding="async"
+                            alt="Horizontal bar diagram showing minimum capacity of 2 at the left, desired capacity slider at 4 in the middle, and maximum capacity of 8 at the right. The range between min and max is labeled the scaling window">
+                        <p class="diagram-caption"><em>Figure 6: ASG capacity settings — minimum, desired, and maximum
+                                define the scaling window</em></p>
+                    </div>
+                    <h3 id="scaling-policies">Scaling Policies</h3>
+                    <p>How does the ASG know when to scale? Through <strong>scaling policies</strong> tied to
+                        <strong>CloudWatch alarms</strong>.</p>
+                    <p><strong>Target Tracking Scaling (Recommended)</strong> — the simplest and most commonly used
+                        policy. You set a target metric value (e.g., keep average CPU at <span
+                            class="exam-highlight-term">50%</span>), and ASG automatically adjusts instance count to
+                        maintain it. Think of it like a thermostat.</p>
+                    <p><strong>Step Scaling</strong> — you define specific steps: "If CPU is 60-70%, add 1 instance. If
+                        CPU is 70-90%, add 2 instances. If CPU &gt; 90%, add 4 instances." More granular control but
+                        requires more configuration.</p>
+                    <p><strong>Scheduled Scaling</strong> — scale based on a time schedule. Useful when you know traffic
+                        patterns in advance (e.g., scale up every weekday at 9am, scale down at 7pm).</p>
+                    <p><strong>Predictive Scaling</strong> — uses machine learning to analyze historical patterns and
+                        proactively scale before demand hits. Best for workloads with consistent, recurring patterns.
+                    </p>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Exam tip:</strong> <span class="exam-highlight-sentence">Target Tracking is the
+                                default recommendation for most workloads. It is simpler to configure and responds
+                                faster than step scaling for gradual load changes.</span></p>
+                    </div>
+                    <h3 id="asg-and-load-balancer-integration">ASG and Load Balancer Integration</h3>
+                    <p>Here is where everything ties together. When you attach an ASG to an ALB target group, something
+                        powerful happens automatically:</p>
+                    <ul>
+                        <li>When ASG launches a new instance, it <strong>automatically registers</strong> the instance
+                            with the target group</li>
+                        <li>The ALB immediately begins sending traffic to the new instance (once health checks pass)
+                        </li>
+                        <li>When ASG terminates an instance, it <strong>automatically deregisters</strong> it from the
+                            target group before termination</li>
+                        <li>The ALB stops sending traffic to that instance gracefully</li>
+                    </ul>
+                    <p><span class="exam-highlight-sentence">This integration means traffic is never sent to an instance
+                            that isn't ready, and no traffic is lost when an instance is terminated — the process is
+                            completely seamless.</span></p>
+                    <div class="diagram-container"><img src="images/asg-alb-integration.png" loading="lazy"
+                            decoding="async"
+                            alt="Architecture diagram showing ALB connected to Target Group, which is managed by an Auto Scaling Group. Three EC2 instances are inside the ASG boundary, with CloudWatch monitoring CPU metrics and triggering scale-out by adding a fourth instance shown with a dotted border">
+                        <p class="diagram-caption"><em>Figure 7: ASG automatically registers and deregisters instances
+                                with the ALB target group during scaling events</em></p>
+                    </div>
+                    <h3 id="per-service-scaling">Per-Service Scaling: The Real Power</h3>
+                    <p>Going back to our microservices example — one of the most powerful things about combining ALB
+                        path-based routing with ASG is <strong>per-service scaling</strong>.</p>
+                    <p>Imagine Black Friday: the products and cart services are under enormous load, but the orders
+                        service is relatively quiet. With per-service ASGs, you can scale the Products ASG from 2 to 20
+                        instances while the Orders ASG stays at 2. You're paying only for what each service actually
+                        needs.</p>
+                    <div class="info-box">
+                        <p>💡 This is why microservices + ALB + ASG is the standard architecture pattern at companies
+                            like Amazon, Netflix, and Uber. Each service scales independently based on its own traffic
+                            patterns.</p>
+                    </div>
+                    <h3 id="scale-in-protection">Scale-In Protection and Warm-Up Periods</h3>
+                    <p><strong>Instance Warm-Up Period</strong> — when a new EC2 instance starts, it needs time to
+                        initialize before it's ready to serve traffic. The warm-up period tells ASG to wait before
+                        counting the new instance's metrics in scaling decisions, preventing it from triggering another
+                        scale-out before the first new instance is even ready.</p>
+                    <p><strong>Scale-In Protection</strong> — you can mark specific instances as protected from scale-in
+                        (termination). Useful for instances running long-running jobs you don't want interrupted.</p>
+                    <p><span class="exam-highlight-sentence">During a scale-in event, ASG uses a <strong>termination
+                                policy</strong> (default: oldest launch configuration) to decide which instance to
+                            remove first.</span></p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="alb-vs-nlb">🔀 ALB vs Network Load Balancer (NLB)</h2>
+                </summary>
+                <div class="section-content">
+                    <p>AWS offers two main load balancers for most workloads: the Application Load Balancer (ALB) and
+                        the Network Load Balancer (NLB). They look similar on the surface — both distribute traffic,
+                        both have listeners and target groups — but they operate at completely different levels and
+                        solve different problems.</p>
+                    <h3 id="the-osi-model-context">The OSI Model Context</h3>
+                    <p>To understand ALB vs NLB, you need to know about the <strong>OSI (Open Systems Interconnection)
+                            model</strong> — a framework that describes the seven layers of computer networking.</p>
+                    <div class="diagram-container"><img src="images/osi-model-layers.png" loading="lazy"
+                            decoding="async"
+                            alt="Vertical stack diagram of the 7 OSI layers from bottom to top: Layer 1 Physical, Layer 2 Data Link, Layer 3 Network, Layer 4 Transport highlighted in blue as NLB layer, Layer 5 Session, Layer 6 Presentation, Layer 7 Application highlighted in orange as ALB layer">
+                        <p class="diagram-caption"><em>Figure 8: OSI model showing ALB operating at Layer 7
+                                (Application) and NLB operating at Layer 4 (Transport)</em></p>
+                    </div>
+                    <p>Think of the OSI layers like different floors of a post office:</p>
+                    <ul>
+                        <li><strong>Layer 4 (Transport)</strong> — knows the sender's address and port number, like
+                            knowing which building and room to deliver to, but not reading the letter inside</li>
+                        <li><strong>Layer 7 (Application)</strong> — can actually open the envelope and read the content
+                            of the letter — understanding HTTP headers, URL paths, cookies, and more</li>
+                    </ul>
+                    <h3 id="application-load-balancer-alb">Application Load Balancer (ALB) — Layer 7</h3>
+                    <p><span class="exam-highlight-sentence">The ALB operates at <span class="exam-highlight-term">Layer
+                                7</span> (Application Layer) of the OSI model, meaning it understands the full content
+                            of HTTP and HTTPS requests.</span></p>
+                    <p>Because ALB can read the full HTTP request, it can make intelligent routing decisions based on:
+                    </p>
+                    <ul>
+                        <li><strong>URL path</strong> — <code>/products</code>, <code>/cart</code>, <code>/orders</code>
+                        </li>
+                        <li><strong>HTTP headers</strong> — e.g., route mobile users differently from desktop users</li>
+                        <li><strong>Query strings</strong> — e.g., <code>?version=2</code></li>
+                        <li><strong>HTTP method</strong> — e.g., route GET and POST to different targets</li>
+                        <li><strong>Source IP</strong></li>
+                    </ul>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>ALB is ideal for:</strong> Web applications, microservices, REST APIs, HTTPS
+                            termination, WebSocket applications</p>
+                    </div>
+                    <h3 id="network-load-balancer-nlb">Network Load Balancer (NLB) — Layer 4</h3>
+                    <p><span class="exam-highlight-sentence">The NLB operates at <span class="exam-highlight-term">Layer
+                                4</span> (Transport Layer) of the OSI model, meaning it routes traffic based only on IP
+                            addresses and TCP/UDP ports — it cannot read HTTP content.</span></p>
+                    <p>Because NLB doesn't need to inspect packet content, it is extraordinarily fast. NLB is designed
+                        for workloads where:</p>
+                    <ul>
+                        <li>Latency must be minimized to <span class="exam-highlight-term">milliseconds</span></li>
+                        <li>You need to handle millions of requests per second</li>
+                        <li>You're using non-HTTP protocols (TCP, UDP, TLS)</li>
+                        <li>You need a <strong>static IP address</strong> or <strong>Elastic IP</strong> for the load
+                            balancer</li>
+                    </ul>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>NLB is ideal for:</strong> Gaming servers, IoT data ingestion, real-time trading
+                            systems, DNS, VoIP, any workload using UDP or raw TCP</p>
+                    </div>
+                    <h3 id="alb-vs-nlb-comparison-table">ALB vs NLB Comparison</h3>
+                    <div class="diagram-container"><img src="images/alb-vs-nlb-comparison.png" loading="lazy"
+                            decoding="async"
+                            alt="Side-by-side comparison diagram of ALB on the left in orange and NLB on the right in blue, showing their OSI layer, protocol support, routing capabilities, performance, and best use cases as contrasting columns">
+                        <p class="diagram-caption"><em>Figure 9: Side-by-side comparison of Application Load Balancer
+                                and Network Load Balancer</em></p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>ALB (Application)</th>
+                                <th>NLB (Network)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>OSI Layer</strong></td>
+                                <td>Layer 7 (Application)</td>
+                                <td>Layer 4 (Transport)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protocols</strong></td>
+                                <td>HTTP, HTTPS, WebSocket</td>
+                                <td>TCP, UDP, TLS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Routing basis</strong></td>
+                                <td>URL path, headers, query strings, method</td>
+                                <td>IP address + port only</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Slightly higher latency (inspects packets)</td>
+                                <td>Ultra-low latency (milliseconds)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Static IP</strong></td>
+                                <td>❌ No (DNS-based, IP changes)</td>
+                                <td>✅ Yes (supports Elastic IP)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL Termination</strong></td>
+                                <td>✅ Yes</td>
+                                <td>✅ Yes (TLS passthrough also supported)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WebSocket</strong></td>
+                                <td>✅ Native support</td>
+                                <td>✅ Via TCP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Best for</strong></td>
+                                <td>Web apps, microservices, REST APIs</td>
+                                <td>Gaming, IoT, real-time, non-HTTP</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="can-alb-and-nlb-chain-together">Can ALB and NLB Chain Together?</h3>
+                    <p>This came up directly in the session, and it's a very common exam topic.</p>
+                    <p><span class="exam-highlight-sentence">An <span class="exam-highlight-term">Application Load
+                                Balancer cannot directly forward traffic to a Network Load Balancer</span> as a
+                            target.</span></p>
+                    <p><span class="exam-highlight-sentence">However, a <span class="exam-highlight-term">Network Load
+                                Balancer can forward traffic to an Application Load Balancer</span> — this is used when
+                            you need a static IP (from NLB) combined with advanced HTTP routing (from ALB).</span></p>
+                    <div class="diagram-container"><img src="images/nlb-alb-chaining.png" loading="lazy"
+                            decoding="async"
+                            alt="Architecture diagram showing the internet connecting to an NLB with a static Elastic IP, which forwards TCP traffic to an ALB, which then performs path-based routing to three target groups. A red cross icon shows the reverse direction of ALB to NLB being invalid">
+                        <p class="diagram-caption"><em>Figure 10: NLB → ALB chaining is valid and gives you static IP
+                                plus smart HTTP routing. ALB → NLB is not supported.</em></p>
+                    </div>
+                    <div class="error-box">
+                        <p>❌ <strong>Common mistake:</strong> Trying to put an ALB in front of an NLB. This is not
+                            supported. If you need a static IP at the edge, start with an NLB, then chain to an ALB for
+                            HTTP routing.</p>
+                    </div>
+                    <h3 id="decision-tree-alb-vs-nlb">When to Use ALB vs NLB</h3>
+                    <div class="diagram-container"><img src="images/alb-nlb-decision-tree.png" loading="lazy"
+                            decoding="async"
+                            alt="Decision tree flowchart starting with 'What protocol does your app use?'. HTTP/HTTPS branch leads to ALB. TCP/UDP branch leads to 'Do you need a static IP?'. Yes leads to NLB. No leads to 'Is ultra-low latency critical?'. Yes leads to NLB. No leads to ALB.">
+                        <p class="diagram-caption"><em>Figure 11: Decision tree for choosing between ALB and NLB</em>
+                        </p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="exam-tips">🎓 Exam Tips & Key Facts</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="highlight-box">
+                        <p>⚡ <strong>High-frequency exam topics from this session:</strong></p>
+                    </div>
+                    <ul>
+                        <li><span class="exam-highlight-sentence">ALB operates at <span
+                                    class="exam-highlight-term">Layer 7</span>; NLB operates at <span
+                                    class="exam-highlight-term">Layer 4</span> of the OSI model.</span></li>
+                        <li><span class="exam-highlight-sentence">ALB routes based on URL path, HTTP headers, query
+                                strings, and HTTP method.</span></li>
+                        <li><span class="exam-highlight-sentence">NLB routes based on <span
+                                    class="exam-highlight-term">IP address and port</span> only — it cannot inspect HTTP
+                                content.</span></li>
+                        <li><span class="exam-highlight-sentence">NLB supports <span class="exam-highlight-term">Elastic
+                                    IP addresses</span>; ALB does not — ALB uses a DNS name with dynamic IPs.</span>
+                        </li>
+                        <li><span class="exam-highlight-sentence">NLB can forward traffic to ALB, but ALB
+                                <strong>cannot</strong> forward traffic to NLB.</span></li>
+                        <li><span class="exam-highlight-sentence">A <span class="exam-highlight-term">Launch
+                                    Template</span> defines the configuration used by Auto Scaling to launch new
+                                instances.</span></li>
+                        <li><span class="exam-highlight-sentence">ASG <span class="exam-highlight-term">desired
+                                    capacity</span> is the target instance count; the ASG always works to match actual
+                                count to desired.</span></li>
+                        <li><span class="exam-highlight-sentence">When an instance fails health checks in a target
+                                group, the ALB stops sending traffic to it automatically.</span></li>
+                        <li>Health check failure returns <span class="exam-highlight-term">503</span> to the end user if
+                            no healthy targets exist in a target group.</li>
+                        <li><span class="exam-highlight-sentence">Every ALB listener must have a <span
+                                    class="exam-highlight-term">default rule</span> as a fallback for unmatched
+                                requests.</span></li>
+                    </ul>
+                    <div class="info-box">
+                        <p>💡 <strong>Memory trick for OSI layers:</strong> "Please Do Not Throw Sausage Pizza Away" —
+                            Physical, Data Link, Network, Transport, Session, Presentation, Application. ALB =
+                            Application (Layer 7), NLB = Transport (Layer 4).</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="overall-summary">📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <ul>
+                        <li><strong>Application Load Balancer (ALB):</strong> Operates at Layer 7, reads full HTTP
+                            requests, routes based on URL path, headers, query strings, and method.</li>
+                        <li><strong>Path-Based Routing:</strong> A single ALB can route <code>/products</code>,
+                            <code>/cart</code>, and <code>/orders</code> to three completely separate target groups and
+                            backend services.</li>
+                        <li><strong>Listener Rules:</strong> Conditions (what to match) + Actions (what to do).
+                            Evaluated in priority order. Every listener must have a default rule.</li>
+                        <li><strong>Target Groups:</strong> Logical groupings of backend instances. Each group has its
+                            own health check. ALB only sends traffic to healthy targets.</li>
+                        <li><strong>Auto Scaling Groups (ASG):</strong> Automatically add or remove EC2 instances based
+                            on demand. Requires a Launch Template to define what to launch.</li>
+                        <li><strong>ASG Capacity:</strong> Minimum (floor), Maximum (ceiling), Desired (current target).
+                            ASG always reconciles actual count to desired.</li>
+                        <li><strong>Scaling Policies:</strong> Target Tracking (simplest, recommended), Step Scaling
+                            (granular), Scheduled (time-based), Predictive (ML-driven).</li>
+                        <li><strong>ASG + ALB Integration:</strong> New instances are automatically registered with the
+                            target group. Terminated instances are deregistered before shutdown. No dropped requests.
+                        </li>
+                        <li><strong>Network Load Balancer (NLB):</strong> Operates at Layer 4, routes based on IP + port
+                            only. Ultra-low latency, supports static/Elastic IP, ideal for TCP/UDP.</li>
+                        <li><strong>ALB vs NLB Chaining:</strong> NLB → ALB is valid (static IP + smart routing). ALB →
+                            NLB is not supported.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="glossary">📖 Glossary</h2>
+                </summary>
+                <div class="section-content">
+                    <div id="glossaryContainer" data-glossary-source="json/glossary.json"></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="interview-questions">🎤 Interview Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <p class="interview-intro">📚 Test your understanding with these questions.</p>
+                    <div class="interview-progress">
+                        <p id="interviewProgress">Progress: 0/25 (0%)</p>
+                    </div>
+                    <div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn"
+                            id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1
+                            / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn"
+                            id="nextInterviewBtn">Next →</button></div>
+                    <div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json">
+                    </div>
+                    <div class="quiz-reset-container"><button onclick="resetInterviewProgress()"
+                            class="quiz-reset-btn">🔄 Reset Progress</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="multiple-choice-questions">📝 Multiple Choice Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="quiz-header-info">
+                        <p>📝 Test your knowledge with immediate feedback.</p>
+                    </div>
+                    <div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn"
+                            id="prevBtn">← Previous</button>
+                        <div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span
+                                class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button
+                            onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button>
+                    </div>
+                    <div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div>
+                    <div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊
+                            View Summary</button>
+                        <div class="quiz-reset-container"><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄
+                                Reset All</button></div>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="hands-on-projects">💼 Hands-On Projects</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites</h4>
+                        <ul>
+                            <li>✅ AWS account (free tier eligible where noted)</li>
+                            <li>✅ Knowledge: EC2 basics, Security Groups, VPC fundamentals</li>
+                            <li>✅ Basic comfort with SSH and Linux command line</li>
+                        </ul>
+                    </div>
+                    <div class="info-box">
+                        <p>🗺️ <strong>Learning Path:</strong> These 16 projects are organized into 6 levels. Each level
+                            builds on the previous. Work through them in order for the best results — the pain you feel
+                            in Level 1 is intentional. It makes Level 3 click.</p>
+                    </div><!-- ===== LEVEL 1 ===== -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="level-1-foundation">🟢 Level 1 — Foundation</h3>
+                        </summary>
+                        <div class="section-content">
+                            <p>Start simple. No overthinking. The goal is to <em>touch</em> AWS and build confidence —
+                                not to build anything complex yet.</p>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-1-static-website-alb">Project 1: Static Website + ALB</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Launch 2 EC2 instances serving identical HTML
+                                            pages and put one ALB in front. Understand basic load balancing behavior by
+                                            watching traffic switch between servers on refresh.</p>
+                                        <p><strong>⏱️ Time:</strong> 30–40 min</p>
+                                        <p><strong>💰 Cost:</strong> t2.micro free tier eligible. ALB ~$0.008/hr —
+                                            delete after.</p>
+                                    </div>
+                                    <div class="error-box">
+                                        <p>💰 <strong>Cost Note:</strong> Application Load Balancers are NOT free tier
+                                            eligible. Delete the ALB when done to stop charges.</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Launch <strong>EC2 Instance A</strong>: Amazon Linux 2, t2.micro. In User
+                                                Data paste:</p>
+                                            <pre><code>#!/bin/bash
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "&lt;h1&gt;Hello from Server A&lt;/h1&gt;" &gt; /var/www/html/index.html</code></pre>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p1-instance-a-userdata.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of EC2 Launch Instance page showing Advanced Details section with User Data field containing the Server A bootstrap script">
+                                                <p class="diagram-caption"><em>Figure 1: 📸 User Data field for Instance
+                                                        A — note 'Server A' in the echo line</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Launch <strong>EC2 Instance B</strong> the same way, but change the echo
+                                                to <code>"&lt;h1&gt;Hello from Server B&lt;/h1&gt;"</code>. Tag both
+                                                instances clearly: <code>Name = Server-A</code> and
+                                                <code>Name = Server-B</code>.</p>
+                                        </li>
+                                        <li>
+                                            <p>Create a <strong>Target Group</strong>: EC2 → Load Balancing → Target
+                                                Groups → <code>Create target group</code>. Name:
+                                                <code>basic-alb-tg</code>, protocol HTTP, port 80. Health check path:
+                                                <code>/</code>. Register both instances.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p1-target-group-both-instances.png"
+                                                    loading="lazy" decoding="async"
+                                                    alt="Screenshot of the Target Group Targets tab showing both Server-A and Server-B EC2 instances registered with health status healthy in green">
+                                                <p class="diagram-caption"><em>Figure 2: 📸 Both instances registered
+                                                        and showing healthy in the target group</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Create an <strong>Application Load Balancer</strong>: Internet-facing,
+                                                HTTP:80 listener, select 2+ AZs. Default action: forward to
+                                                <code>basic-alb-tg</code>.</p>
+                                        </li>
+                                        <li>
+                                            <p>Copy the ALB DNS name. Open it in your browser. <strong>Refresh 5–10
+                                                    times.</strong> You should see the response alternate between
+                                                "Server A" and "Server B".</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p1-browser-server-a.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of a browser window showing the ALB DNS name in the address bar and the page content displaying Hello from Server A">
+                                                <p class="diagram-caption"><em>Figure 3: 📸 Browser showing Server A
+                                                        response — refresh to see Server B appear</em></p>
+                                            </div>
+                                        </li>
+                                    </ol>
+                                    <div class="success-box">
+                                        <p>✅ <strong>What you learned:</strong> The ALB distributes requests across both
+                                            instances in round-robin fashion. Neither server knows about the other — the
+                                            ALB is the traffic coordinator.</p>
+                                    </div>
+                                </div>
+                            </details>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-2-health-check-failure">Project 2: Health Check Failure Simulation
+                                    </h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Stop Apache on one instance and watch the ALB
+                                            automatically stop routing traffic to it. Health checks are not theory —
+                                            they actively control traffic.</p>
+                                        <p><strong>⏱️ Time:</strong> 15–20 min (uses setup from Project 1)</p>
+                                        <p><strong>💰 Cost:</strong> Continuation of Project 1 — ALB still running</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>SSH into <strong>Server B</strong>. Stop the Apache web server:</p>
+                                            <pre><code>sudo systemctl stop httpd</code></pre>
+                                        </li>
+                                        <li>
+                                            <p>In the AWS console, navigate to your target group
+                                                <code>basic-alb-tg</code> → <strong>Targets</strong> tab. Wait 1–2
+                                                minutes and watch Server B's health status change from
+                                                <code>healthy</code> to <code>unhealthy</code>.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p2-unhealthy-target.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the Target Group Targets tab showing Server-A with health status healthy in green and Server-B with health status unhealthy in red">
+                                                <p class="diagram-caption"><em>Figure 4: 📸 Server B now shows unhealthy
+                                                        — ALB has automatically removed it from rotation</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Refresh the ALB URL in your browser 10 times. <strong>Every response
+                                                    should now say "Server A"</strong> — the ALB has completely stopped
+                                                sending traffic to the unhealthy Server B.</p>
+                                        </li>
+                                        <li>
+                                            <p>SSH back into Server B and restart Apache:</p>
+                                            <pre><code>sudo systemctl start httpd</code></pre>
+                                            <p>Watch the health status return to <code>healthy</code> in the console.
+                                                Traffic resumes automatically.</p>
+                                        </li>
+                                    </ol>
+                                    <div class="success-box">
+                                        <p>✅ <strong>What you learned:</strong> Health checks are the mechanism that
+                                            makes ALB self-healing. No human had to intervene — the ALB detected the
+                                            failure and rerouted traffic automatically.</p>
+                                    </div>
+                                </div>
+                            </details>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-3-manual-scaling">Project 3: Manual Scaling (Feel the Pain)</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Manually add a third EC2 instance and register
+                                            it with the target group. Feel how slow and error-prone manual scaling is —
+                                            this pain is intentional. It motivates Auto Scaling Groups.</p>
+                                        <p><strong>⏱️ Time:</strong> 20–25 min</p>
+                                        <p><strong>💰 Cost:</strong> Third EC2 t2.micro (free tier) + ongoing ALB</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Launch <strong>EC2 Instance C</strong> with the same User Data as before
+                                                but echo <code>"&lt;h1&gt;Hello from Server C&lt;/h1&gt;"</code>. Wait
+                                                for it to reach running state.</p>
+                                        </li>
+                                        <li>
+                                            <p>Navigate to your target group <code>basic-alb-tg</code> →
+                                                <strong>Targets</strong> tab → <code>Register targets</code>. Select
+                                                Instance C → <code>Include as pending below</code> →
+                                                <code>Register pending targets</code>.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p3-register-manual-target.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the Register Targets page inside the target group showing Instance C selected in the instances list and appearing in the pending targets section at the bottom">
+                                                <p class="diagram-caption"><em>Figure 5: 📸 Manually registering
+                                                        Instance C — note how many steps this takes compared to what ASG
+                                                        does automatically</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Wait for Instance C to pass health checks. Refresh the ALB URL — you
+                                                should now see three possible responses: Server A, Server B, and Server
+                                                C.</p>
+                                        </li>
+                                        <li>
+                                            <p><strong>Reflect:</strong> You just manually tracked down an instance,
+                                                went to a separate console page, clicked through registration steps, and
+                                                waited. Now imagine doing this 20 times during a traffic spike at 2am.
+                                                <em>This is why Auto Scaling Groups exist.</em></p>
+                                        </li>
+                                    </ol>
+                                    <div class="highlight-box">
+                                        <p>⚡ <strong>The lesson:</strong> Manual scaling is operationally fragile. It
+                                            requires human attention, is slow, and introduces risk. ASG automates this
+                                            entire process in seconds.</p>
+                                    </div>
+                                    <p><strong>Cleanup:</strong> Terminate Instance C. Deregister it from the target
+                                        group. Keep Instances A and B for Level 2.</p>
+                                </div>
+                            </details>
+                        </div>
+                    </details><!-- ===== LEVEL 2 ===== -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="level-2-core-mastery">🟡 Level 2 — Core Concept Mastery</h3>
+                        </summary>
+                        <div class="section-content">
+                            <p>Now we build what the theory actually describes. This is where concepts click into real
+                                understanding.</p>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-4-path-based-routing">Project 4: Full Path-Based Routing System</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Build a microservices simulation — one ALB
+                                            routing <code>/products</code>, <code>/cart</code>, and <code>/orders</code>
+                                            to three separate EC2 instances. This is your first real microservice
+                                            architecture.</p>
+                                        <p><strong>⏱️ Time:</strong> 45–60 min</p>
+                                        <p><strong>💰 Cost:</strong> 3x t2.micro free tier + ALB ~$0.008/hr</p>
+                                    </div>
+                                    <div class="error-box">
+                                        <p>💰 <strong>Cost Note:</strong> Delete the ALB when done with Levels 2
+                                            experiments to avoid ongoing charges.</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Launch three EC2 instances with the following User Data scripts:</p>
+                                            <p><strong>Products instance:</strong></p>
+                                            <pre><code>#!/bin/bash
+yum update -y && yum install -y httpd
+systemctl start httpd && systemctl enable httpd
+mkdir -p /var/www/html/products
+echo "&lt;h1&gt;Products Service&lt;/h1&gt;&lt;p&gt;Serving product catalog&lt;/p&gt;" &gt; /var/www/html/products/index.html</code></pre>
+                                            <p><strong>Cart instance:</strong></p>
+                                            <pre><code>#!/bin/bash
+yum update -y && yum install -y httpd
+systemctl start httpd && systemctl enable httpd
+mkdir -p /var/www/html/cart
+echo "&lt;h1&gt;Cart Service&lt;/h1&gt;&lt;p&gt;Managing shopping cart&lt;/p&gt;" &gt; /var/www/html/cart/index.html</code></pre>
+                                            <p><strong>Orders instance:</strong></p>
+                                            <pre><code>#!/bin/bash
+yum update -y && yum install -y httpd
+systemctl start httpd && systemctl enable httpd
+mkdir -p /var/www/html/orders
+echo "&lt;h1&gt;Orders Service&lt;/h1&gt;&lt;p&gt;Processing orders&lt;/p&gt;" &gt; /var/www/html/orders/index.html</code></pre>
+                                        </li>
+                                        <li>
+                                            <p>Create three target groups: <code>products-tg</code> (health check:
+                                                <code>/products/index.html</code>), <code>cart-tg</code> (health check:
+                                                <code>/cart/index.html</code>), <code>orders-tg</code> (health check:
+                                                <code>/orders/index.html</code>). Register each instance with its
+                                                respective target group.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p4-three-target-groups.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the Target Groups list page showing three target groups: products-tg, cart-tg, and orders-tg each with 1 healthy target and protocol HTTP port 80">
+                                                <p class="diagram-caption"><em>Figure 6: 📸 All three target groups
+                                                        created — each with 1 healthy target</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Create a new ALB named <code>microservices-alb</code>. Add listener rules
+                                                (EC2 → Load Balancers → select ALB → Listeners → View/edit rules):</p>
+                                            <ul>
+                                                <li>Priority 1: Path is <code>/products*</code> → Forward to
+                                                    <code>products-tg</code></li>
+                                                <li>Priority 2: Path is <code>/cart*</code> → Forward to
+                                                    <code>cart-tg</code></li>
+                                                <li>Priority 3: Path is <code>/orders*</code> → Forward to
+                                                    <code>orders-tg</code></li>
+                                                <li>Default: Return fixed response 404 "Not Found"</li>
+                                            </ul>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p4-listener-rules-complete.png"
+                                                    loading="lazy" decoding="async"
+                                                    alt="Screenshot of the ALB Listener Rules editor showing four rules: priority 1 /products* to products-tg, priority 2 /cart* to cart-tg, priority 3 /orders* to orders-tg, and default returning 404 fixed response">
+                                                <p class="diagram-caption"><em>Figure 7: 📸 Four listener rules
+                                                        configured — three path rules plus a 404 default</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Test all three paths in your browser:</p>
+                                            <ul>
+                                                <li><code>http://[ALB-DNS]/products/index.html</code> → Products Service
+                                                </li>
+                                                <li><code>http://[ALB-DNS]/cart/index.html</code> → Cart Service</li>
+                                                <li><code>http://[ALB-DNS]/orders/index.html</code> → Orders Service
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ol>
+                                    <div class="success-box">
+                                        <p>✅ <strong>What you learned:</strong> One ALB, one DNS name, three completely
+                                            separate backend services. This is how every modern web company routes
+                                            traffic to microservices.</p>
+                                    </div>
+                                </div>
+                            </details>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-5-break-it-intentionally">Project 5: Break It Intentionally</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Deliberately misconfigure things to understand
+                                            why 503s happen and how routing fails. Most people skip this. That's why
+                                            they get stuck in production.</p>
+                                        <p><strong>⏱️ Time:</strong> 20–30 min (uses Project 4 setup)</p>
+                                        <p><strong>💰 Cost:</strong> No additional cost</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p><strong>Experiment A — Wrong health check path:</strong> Edit the
+                                                <code>products-tg</code> target group. Change the health check path from
+                                                <code>/products/index.html</code> to <code>/wrong-path</code>. Wait 2
+                                                minutes. The instance will become unhealthy. Try accessing
+                                                <code>/products/index.html</code> — you'll get a 503. <em>Fix it back
+                                                    and watch the instance recover.</em></p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p5-wrong-healthcheck.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the Target Group Health Check settings tab showing the health check path changed to /wrong-path and the Targets tab showing the products EC2 instance with health status unhealthy in red">
+                                                <p class="diagram-caption"><em>Figure 8: 📸 Wrong health check path
+                                                        causes the instance to appear unhealthy even though the app is
+                                                        running fine</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p><strong>Experiment B — Misconfigured path rule:</strong> Edit listener
+                                                rule Priority 1. Change the path condition from <code>/products*</code>
+                                                to <code>/product*</code> (remove the 's'). Now try accessing
+                                                <code>/products/index.html</code> — it matches the new rule and routes
+                                                correctly, but <code>/products-sale/index.html</code> would not. Try a
+                                                path like <code>/productx/</code> and see what happens. Restore the
+                                                rule.</p>
+                                        </li>
+                                        <li>
+                                            <p><strong>Experiment C — Trigger a real 503:</strong> Stop Apache on the
+                                                Products instance (<code>sudo systemctl stop httpd</code>). Wait for
+                                                unhealthy status. Access <code>/products/index.html</code> — you get a
+                                                <code>503 Service Unavailable</code> from the ALB directly.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p5-503-browser.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of a browser window showing a 503 Service Unavailable error page returned by the ALB when the products target group has no healthy targets">
+                                                <p class="diagram-caption"><em>Figure 9: 📸 Real 503 error — the ALB
+                                                        returns this when no healthy targets exist in the target
+                                                        group</em></p>
+                                            </div>
+                                            <p>Restart Apache and watch the 503 disappear.</p>
+                                        </li>
+                                    </ol>
+                                    <div class="success-box">
+                                        <p>✅ <strong>What you learned:</strong> 503s have specific causes — wrong health
+                                            check paths, stopped services, or misconfigured rules. You now know how to
+                                            diagnose each one.</p>
+                                    </div>
+                                </div>
+                            </details>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-6-default-rule-experiment">Project 6: Default Rule Experiment</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Hit paths that match no rule and observe
+                                            exactly what the default rule does. Understand that every request gets a
+                                            response — the question is what response.</p>
+                                        <p><strong>⏱️ Time:</strong> 10 min (uses Project 4 setup)</p>
+                                        <p><strong>💰 Cost:</strong> No additional cost</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Using the Project 4 ALB, visit these URLs and note the response each
+                                                time:</p>
+                                            <ul>
+                                                <li><code>http://[ALB-DNS]/random</code> → should hit default rule (404)
+                                                </li>
+                                                <li><code>http://[ALB-DNS]/</code> → default rule</li>
+                                                <li><code>http://[ALB-DNS]/Products</code> (capital P) → does it match
+                                                    <code>/products*</code>? Try it.</li>
+                                                <li><code>http://[ALB-DNS]/products-old</code> → does the wildcard
+                                                    <code>/products*</code> match?</li>
+                                            </ul>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p6-default-rule-response.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of a browser window showing the ALB DNS name with /random path in the address bar returning a 404 fixed response from the default listener rule">
+                                                <p class="diagram-caption"><em>Figure 10: 📸 /random hits the default
+                                                        rule and returns 404 — no service handles this path</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Now change the default rule action: edit listener → Default rule → change
+                                                from "Return fixed response 404" to "Forward to products-tg". Visit
+                                                <code>/random</code> again — now you get the Products page as fallback.
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <p><strong>Restore:</strong> Set the default back to 404 fixed response.</p>
+                                        </li>
+                                    </ol>
+                                    <div class="highlight-box">
+                                        <p>⚡ <strong>Burn this in:</strong> Path matching is
+                                            <strong>case-sensitive</strong> and <strong>exact prefix</strong>.
+                                            <code>/Products</code> does NOT match <code>/products*</code>. Every request
+                                            hits exactly one rule. The default rule is always the last resort.</p>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </details><!-- ===== LEVEL 3 ===== -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="level-3-auto-scaling">🟠 Level 3 — Auto Scaling</h3>
+                        </summary>
+                        <div class="section-content">
+                            <p>Now we remove manual work. This is where the architecture starts feeling like a real
+                                system.</p>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-7-first-asg">Project 7: Your First Auto Scaling Group</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Create a Launch Template, build an ASG with
+                                            min=1 desired=2 max=4, attach it to a target group, and watch instances
+                                            auto-register with the ALB. That moment matters.</p>
+                                        <p><strong>⏱️ Time:</strong> 30–40 min</p>
+                                        <p><strong>💰 Cost:</strong> t2.micro free tier + ALB. Delete after.</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Create a <strong>Launch Template</strong>: EC2 → Launch Templates →
+                                                <code>Create launch template</code>. Name:
+                                                <code>web-launch-template</code>. AMI: Amazon Linux 2. Instance type:
+                                                t2.micro. User Data:</p>
+                                            <pre><code>#!/bin/bash
+yum update -y && yum install -y httpd
+systemctl start httpd && systemctl enable httpd
+INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+echo "&lt;h1&gt;Auto-Scaled Instance: $INSTANCE_ID&lt;/h1&gt;" &gt; /var/www/html/index.html</code></pre>
+                                            <p class="info-box">💡 This script fetches the actual instance ID from EC2
+                                                instance metadata and puts it in the page — so you can see
+                                                <em>which</em> instance served each request when refreshing.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p7-launch-template-userdata.png"
+                                                    loading="lazy" decoding="async"
+                                                    alt="Screenshot of the Create Launch Template page showing the Advanced Details section with User Data field containing the instance metadata fetch script">
+                                                <p class="diagram-caption"><em>Figure 11: 📸 Launch Template User Data —
+                                                        the metadata URL fetches the real instance ID dynamically</em>
+                                                </p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Create a target group <code>asg-demo-tg</code>: HTTP, port 80, health
+                                                check path <code>/</code>. Do NOT register any instances manually — the
+                                                ASG will do this.</p>
+                                        </li>
+                                        <li>
+                                            <p>Create the <strong>Auto Scaling Group</strong>: EC2 → Auto Scaling Groups
+                                                → <code>Create Auto Scaling group</code>. Name: <code>web-asg</code>.
+                                                Select <code>web-launch-template</code>. Choose 2 subnets in different
+                                                AZs. Attach to <code>asg-demo-tg</code>. Enable ELB health checks. Set:
+                                                Min=1, Desired=2, Max=4.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p7-asg-capacity-settings.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the Auto Scaling Group creation wizard showing the Group size section with Minimum capacity set to 1, Desired capacity set to 2, and Maximum capacity set to 4">
+                                                <p class="diagram-caption"><em>Figure 12: 📸 ASG capacity settings —
+                                                        desired of 2 means it will immediately launch 2 instances</em>
+                                                </p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Click <strong>Create</strong>. Immediately navigate to
+                                                <code>asg-demo-tg</code> → Targets tab. Watch instances appear and
+                                                transition from <code>initial</code> → <code>healthy</code> without you
+                                                doing anything.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p7-asg-auto-registered.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the asg-demo-tg Targets tab showing two EC2 instances automatically registered by the ASG both showing health status healthy with different instance IDs">
+                                                <p class="diagram-caption"><em>Figure 13: 📸 Two instances
+                                                        auto-registered — the ASG did this with no manual registration
+                                                        step</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Create a simple ALB with this target group. Refresh the ALB URL several
+                                                times — you'll see different instance IDs, confirming both instances are
+                                                serving traffic.</p>
+                                        </li>
+                                    </ol>
+                                    <div class="success-box">
+                                        <p>✅ <strong>The moment that matters:</strong> You watched instances appear in a
+                                            target group without touching anything. That's ASG. This is what makes
+                                            scalable architecture possible at any scale.</p>
+                                    </div>
+                                </div>
+                            </details>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-8-load-simulation">Project 8: Load Simulation — Watch ASG Scale Out
+                                    </h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Simulate CPU load and watch the ASG launch new
+                                            instances automatically. This is where "theory" stops and real behavior
+                                            begins.</p>
+                                        <p><strong>⏱️ Time:</strong> 30–40 min (uses Project 7 ASG)</p>
+                                        <p><strong>💰 Cost:</strong> Extra EC2 instances will launch during test — watch
+                                            the ASG max setting</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>First, update the ASG scaling policy to Target Tracking on CPU at 30%
+                                                (low threshold so it triggers easily in a demo). EC2 → Auto Scaling
+                                                Groups → <code>web-asg</code> → Automatic scaling tab →
+                                                <code>Create dynamic scaling policy</code> → Target tracking → CPU
+                                                utilization → target 30%.</p>
+                                        </li>
+                                        <li>
+                                            <p>SSH into one of the running instances. Install and run the
+                                                <code>stress</code> tool to spike CPU:</p>
+                                            <pre><code>sudo yum install -y stress
+stress --cpu 4 --timeout 300</code></pre>
+                                            <p>This runs 4 CPU-intensive threads for 5 minutes.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p8-stress-running.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of an SSH terminal session showing the stress command running with 4 CPU workers, alongside an EC2 CloudWatch CPU Utilization graph spiking to near 100 percent">
+                                                <p class="diagram-caption"><em>Figure 14: 📸 Stress tool running — CPU
+                                                        spikes immediately. CloudWatch will detect this and trigger
+                                                        scaling.</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Navigate to: EC2 → Auto Scaling Groups → <code>web-asg</code> → Activity
+                                                tab. Within 3–5 minutes, you'll see a new scaling activity entry:
+                                                "Launching a new instance."</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p8-asg-scale-out-activity.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the ASG Activity tab showing a scale-out event entry with description Launching a new EC2 instance and a timestamp, with the cause showing the CloudWatch alarm trigger">
+                                                <p class="diagram-caption"><em>Figure 15: 📸 ASG Activity tab showing
+                                                        the scale-out event — note the CloudWatch alarm listed as the
+                                                        cause</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Navigate to the target group — a new instance will appear and become
+                                                healthy. The ALB immediately starts sending it traffic.</p>
+                                        </li>
+                                    </ol>
+                                    <div class="success-box">
+                                        <p>✅ <strong>What you learned:</strong> The ASG → CloudWatch → scale-out loop is
+                                            fully automated. You triggered load, the system responded. No human
+                                            intervention.</p>
+                                    </div>
+                                </div>
+                            </details>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-9-scale-in-behavior">Project 9: Scale-In Behavior — Watch ASG Clean
+                                        Up</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Let the CPU load from Project 8 finish (or
+                                            stop it manually) and watch ASG scale back in, terminating the extra
+                                            instances it launched.</p>
+                                        <p><strong>⏱️ Time:</strong> 15–20 min (continues Project 8)</p>
+                                        <p><strong>💰 Cost:</strong> No additional — you're reducing instances</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Stop the stress tool on the SSH session (Ctrl+C or wait for the timeout).
+                                                CPU will drop back to near 0%.</p>
+                                        </li>
+                                        <li>
+                                            <p>Wait 10–15 minutes. CloudWatch needs to see sustained low CPU before
+                                                triggering scale-in (it uses a longer cooldown to prevent oscillation).
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <p>Watch the ASG Activity tab. A new entry will appear: "Terminating
+                                                instance i-xxxx" — this is the scale-in event.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p9-asg-scale-in-activity.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the ASG Activity tab showing a scale-in event entry with description Terminating EC2 instance and a recent timestamp, with the extra instance count returned to desired capacity of 2">
+                                                <p class="diagram-caption"><em>Figure 16: 📸 ASG scale-in event — the
+                                                        extra instance is terminated, returning to desired capacity of
+                                                        2</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Check the target group — the terminated instance disappears
+                                                automatically. The ALB stops routing to it before termination
+                                                (connection draining).</p>
+                                        </li>
+                                    </ol>
+                                    <div class="highlight-box">
+                                        <p>⚡ <strong>Key insight:</strong> ASG scale-in uses a longer cooldown than
+                                            scale-out (default: 300 seconds). This prevents "thrashing" where it scales
+                                            out then immediately back in. The system is deliberately conservative about
+                                            removing capacity.</p>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </details><!-- ===== LEVEL 4 ===== -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="level-4-intermediate-architecture">🔴 Level 4 — Intermediate Architecture</h3>
+                        </summary>
+                        <div class="section-content">
+                            <p>Now we move toward how companies actually build systems. Each service independent. Each
+                                service scalable on its own.</p>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-10-multi-service-multi-asg">Project 10: Multi-Service + Multi-ASG
+                                        Setup</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Build the full architecture — Products, Cart,
+                                            and Orders each with their own ASG, their own target group, and the ALB
+                                            routing between them. Each service scales independently.</p>
+                                        <p><strong>⏱️ Time:</strong> 60–90 min</p>
+                                        <p><strong>💰 Cost:</strong> 3x ASG (min=1, so 3 instances minimum) + ALB. This
+                                            is the most expensive lab — delete promptly after.</p>
+                                    </div>
+                                    <div class="error-box">
+                                        <p>💰 <strong>Cost Note:</strong> With 3 ASGs each at min=1, you'll be running
+                                            at least 3 instances plus an ALB. Budget ~$0.05/hr total. Complete this
+                                            project in one sitting and clean up immediately.</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Create three Launch Templates with distinct User Data (one for each
+                                                service). Each template's User Data should display which service it is.
+                                                Use the instance-ID metadata trick from Project 7 for each.</p>
+                                        </li>
+                                        <li>
+                                            <p>Create three ASGs: <code>products-asg</code>, <code>cart-asg</code>,
+                                                <code>orders-asg</code>. Each with min=1, desired=1, max=3. Each
+                                                attached to its own target group. Each with a Target Tracking scaling
+                                                policy (CPU target: 50%).</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p10-three-asgs.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the Auto Scaling Groups list page showing three groups: products-asg, cart-asg, and orders-asg each with desired capacity 1, min 1, max 3, and status In service">
+                                                <p class="diagram-caption"><em>Figure 17: 📸 Three independent ASGs —
+                                                        each managing its own service's instances</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Create one ALB with path-based routing rules connecting to all three
+                                                target groups (same as Project 4).</p>
+                                        </li>
+                                        <li>
+                                            <p>Verify: hitting <code>/products</code>, <code>/cart</code>,
+                                                <code>/orders</code> all work and show the correct service name +
+                                                instance ID.</p>
+                                        </li>
+                                    </ol>
+                                    <div class="success-box">
+                                        <p>✅ <strong>What you built:</strong> This is the architecture used by real
+                                            companies. Three services, independently managed, independently scalable,
+                                            all behind one load balancer.</p>
+                                    </div>
+                                </div>
+                            </details>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-11-uneven-traffic-simulation">Project 11: Uneven Traffic Simulation
+                                    </h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Hammer the Products service with load while
+                                            leaving Cart and Orders idle. Watch only the Products ASG scale — Cart and
+                                            Orders stay at min capacity. This is the "aha moment" for per-service
+                                            scaling.</p>
+                                        <p><strong>⏱️ Time:</strong> 30–40 min (uses Project 10 setup)</p>
+                                        <p><strong>💰 Cost:</strong> Extra Products instances during test</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Lower the Products ASG scaling policy CPU target to <strong>20%</strong>
+                                                so it triggers quickly. Leave Cart and Orders at 50%.</p>
+                                        </li>
+                                        <li>
+                                            <p>SSH into the Products EC2 instance. Run the stress tool:</p>
+                                            <pre><code>sudo yum install -y stress
+stress --cpu 4 --timeout 300</code></pre>
+                                        </li>
+                                        <li>
+                                            <p>Watch the three ASGs side by side in the console. After a few minutes:
+                                            </p>
+                                            <ul>
+                                                <li><code>products-asg</code>: desired increases from 1 → 2 or 3</li>
+                                                <li><code>cart-asg</code>: stays at 1 (no load)</li>
+                                                <li><code>orders-asg</code>: stays at 1 (no load)</li>
+                                            </ul>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p11-products-scaled-others-not.png"
+                                                    loading="lazy" decoding="async"
+                                                    alt="Screenshot of the Auto Scaling Groups list page showing products-asg with desired capacity increased to 2 while cart-asg and orders-asg both remain at desired capacity of 1">
+                                                <p class="diagram-caption"><em>Figure 18: 📸 Only products-asg scaled
+                                                        out — cart and orders are unaffected. Per-service scaling in
+                                                        action.</em></p>
+                                            </div>
+                                        </li>
+                                    </ol>
+                                    <div class="success-box">
+                                        <p>✅ <strong>The big "aha":</strong> If this were a monolith, you'd have to
+                                            scale everything together — wasting money scaling the cart server when only
+                                            products is busy. With per-service ASGs, you pay only for what's actually
+                                            under load.</p>
+                                    </div>
+                                </div>
+                            </details>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-12-multi-az-deployment">Project 12: Multi-AZ Deployment + AZ Failure
+                                        Simulation</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Deploy instances across 2 Availability Zones.
+                                            Then stop all instances in one AZ. System still works. This is high
+                                            availability in action.</p>
+                                        <p><strong>⏱️ Time:</strong> 30–40 min</p>
+                                        <p><strong>💰 Cost:</strong> Slightly more instances (2 AZs × services)</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Update each ASG to have <strong>desired=2, min=2</strong>. Make sure each
+                                                ASG is configured across <strong>two subnets in different AZs</strong>
+                                                (e.g., us-east-1a and us-east-1b). ASG will place one instance in each
+                                                AZ.</p>
+                                        </li>
+                                        <li>
+                                            <p>Verify the target group shows instances from both AZs by checking the
+                                                instance details (Availability Zone column in the Targets tab).</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p12-targets-two-azs.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the products-tg Target Group Targets tab showing two EC2 instances one in us-east-1a and one in us-east-1b both with health status healthy">
+                                                <p class="diagram-caption"><em>Figure 19: 📸 Targets spread across two
+                                                        AZs — the ALB routes to both</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Simulate AZ failure: manually <strong>stop the instances in
+                                                    us-east-1a</strong> (select instances → Instance State → Stop). Do
+                                                not terminate — just stop.</p>
+                                        </li>
+                                        <li>
+                                            <p>Immediately refresh the ALB URL. The application still responds — traffic
+                                                is now flowing only to us-east-1b.</p>
+                                        </li>
+                                        <li>
+                                            <p>Watch the ASG Activity tab. ASG detects the unhealthy instances and
+                                                launches replacements — but since us-east-1a instances are stopped (not
+                                                terminated), ASG may try to replace them. Let it. You're now watching
+                                                <strong>automatic failure recovery</strong>.</p>
+                                        </li>
+                                    </ol>
+                                    <div class="success-box">
+                                        <p>✅ <strong>What you learned:</strong> Multi-AZ is not just a checkbox. It's
+                                            the difference between your application surviving an AZ outage and going
+                                            down. ALB automatically routes around unhealthy AZ instances.</p>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </details><!-- ===== LEVEL 5 ===== -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="level-5-advanced">🔵 Level 5 — Advanced</h3>
+                        </summary>
+                        <div class="section-content">
+                            <p>This is where interview-level thinking starts. These projects are closer to real
+                                production decisions.</p>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-13-nlb-alb-chaining">Project 13: NLB → ALB Real Use Case (Static IP
+                                        + Smart Routing)</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Create an NLB with a static Elastic IP in
+                                            front of your ALB. Understand why this pattern exists and when ALB alone is
+                                            not enough.</p>
+                                        <p><strong>⏱️ Time:</strong> 30–40 min</p>
+                                        <p><strong>💰 Cost:</strong> NLB ~$0.008/hr + Elastic IP (free when attached to
+                                            running resource) + ALB</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Allocate an <strong>Elastic IP</strong>: EC2 → Network & Security →
+                                                Elastic IPs → <code>Allocate Elastic IP address</code>. Note the IP
+                                                address.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p13-elastic-ip.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the Elastic IP Addresses page showing a newly allocated Elastic IP address with its public IP value visible and allocation ID">
+                                                <p class="diagram-caption"><em>Figure 20: 📸 Freshly allocated Elastic
+                                                        IP — this is the static IP that won't change</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Create a <strong>Network Load Balancer</strong>: EC2 → Load Balancers →
+                                                Create load balancer → Network Load Balancer. Name:
+                                                <code>edge-nlb</code>. Internet-facing. Select 1 subnet in your AZ.
+                                                Under <strong>Elastic IP</strong> for that AZ, select the Elastic IP you
+                                                just allocated.</p>
+                                        </li>
+                                        <li>
+                                            <p>Create a target group for the NLB: type = <strong>Application Load
+                                                    Balancer</strong> (not instances). Protocol TCP, port 80. Select
+                                                your existing <code>microservices-alb</code> as the target.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p13-nlb-target-alb.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the NLB Target Group configuration page showing target type set to Application Load Balancer and the microservices-alb selected as the target">
+                                                <p class="diagram-caption"><em>Figure 21: 📸 NLB target group pointing
+                                                        to the ALB — this is the chaining configuration</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Complete NLB creation with the TCP:80 listener forwarding to this target
+                                                group.</p>
+                                        </li>
+                                        <li>
+                                            <p>Test: access the Elastic IP directly in your browser
+                                                (<code>http://[ELASTIC-IP]/products/index.html</code>). The request
+                                                flows: Elastic IP → NLB → ALB → products-tg → EC2 instance.</p>
+                                        </li>
+                                        <li>
+                                            <p><strong>The point:</strong> Your firewall team can whitelist this single
+                                                Elastic IP. The ALB behind it handles all the intelligent routing. You
+                                                got both static IP and smart routing.</p>
+                                        </li>
+                                        <li>
+                                            <p><strong>Cleanup:</strong> Delete NLB → Release Elastic IP (or you'll be
+                                                charged for an unattached EIP).</p>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </details>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-14-sticky-sessions">Project 14: Sticky Sessions Test</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Enable session stickiness on a target group
+                                            and observe that every request from your browser goes to the same instance.
+                                            Then disable it and see traffic distributed again. Understand when this
+                                            helps and when it hurts.</p>
+                                        <p><strong>⏱️ Time:</strong> 15–20 min (uses Project 7 ASG setup with 2
+                                            instances)</p>
+                                        <p><strong>💰 Cost:</strong> No additional</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Navigate to the target group used by your ALB (with 2 instances running).
+                                                Go to the <strong>Attributes</strong> tab → <code>Edit</code>. Enable
+                                                <strong>Stickiness</strong>: type = Load balancer generated cookie,
+                                                duration = 1 day.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p14-stickiness-enabled.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the Target Group Attributes edit page showing Stickiness toggle enabled with type set to Load balancer generated cookie and duration set to 1 day">
+                                                <p class="diagram-caption"><em>Figure 22: 📸 Stickiness enabled — the
+                                                        ALB will now set an AWSALB cookie to pin users to an
+                                                        instance</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Refresh the ALB URL many times. Notice <strong>you always see the same
+                                                    instance ID</strong>. Open DevTools (F12) → Application → Cookies →
+                                                look for the <code>AWSALB</code> cookie set by the load balancer.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p14-awsalb-cookie.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of Chrome DevTools Application tab showing Cookies section with the AWSALB cookie value set by the Application Load Balancer for the ALB domain">
+                                                <p class="diagram-caption"><em>Figure 23: 📸 AWSALB cookie in the
+                                                        browser — this cookie is how the ALB knows which instance to
+                                                        stick you to</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Open the same URL in a <strong>different browser or incognito
+                                                    window</strong>. You'll get a different instance — a different
+                                                sticky session.</p>
+                                        </li>
+                                        <li>
+                                            <p>Return to Target Group Attributes → disable stickiness. Refresh from your
+                                                original browser — now traffic alternates again as the cookie is
+                                                ignored.</p>
+                                        </li>
+                                    </ol>
+                                    <div class="highlight-box">
+                                        <p>⚡ <strong>Important caveat:</strong> Sticky sessions create uneven load
+                                            distribution. If Instance A gets stuck with many high-traffic users, it gets
+                                            overloaded while Instance B sits idle. The architectural solution is to make
+                                            your application stateless and store sessions externally in ElastiCache or
+                                            DynamoDB.</p>
+                                    </div>
+                                </div>
+                            </details>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-15-blue-green-deployment">Project 15: Blue-Green Deployment</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Deploy a new version of your application to a
+                                            "green" target group while the "blue" target group serves production. Switch
+                                            traffic instantly with a single listener rule change. Learn zero-downtime
+                                            deployment.</p>
+                                        <p><strong>⏱️ Time:</strong> 40–50 min</p>
+                                        <p><strong>💰 Cost:</strong> Runs 2 sets of instances briefly. Clean up the blue
+                                            group after switching.</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>Your existing target group is <strong>Blue</strong> (current production).
+                                                Create a new set of EC2 instances with updated content — change the echo
+                                                line to something like
+                                                <code>"&lt;h1&gt;Version 2.0 — Green&lt;/h1&gt;"</code>. Register them
+                                                in a new target group called <code>green-tg</code>.</p>
+                                        </li>
+                                        <li>
+                                            <p>Verify the green target group is healthy (all instances pass health
+                                                checks) <strong>before touching production traffic</strong>.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p15-green-tg-healthy.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the green-tg Target Group Targets tab showing all instances with health status healthy confirming the new version is ready before receiving traffic">
+                                                <p class="diagram-caption"><em>Figure 24: 📸 Green target group healthy
+                                                        and ready — NEVER switch traffic until this is confirmed</em>
+                                                </p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Update the ALB listener default rule (or the relevant path rule): change
+                                                the action from "Forward to blue-tg" to "Forward to green-tg". Click
+                                                <strong>Save</strong>.</p>
+                                        </li>
+                                        <li>
+                                            <p>Immediately refresh your browser. You're now on Green (v2.0). The switch
+                                                took milliseconds. <strong>Zero downtime.</strong></p>
+                                        </li>
+                                        <li>
+                                            <p>If something goes wrong: change the listener rule back to blue-tg.
+                                                Instant rollback. Blue is still running — you haven't deleted it.</p>
+                                        </li>
+                                        <li>
+                                            <p>Once confident in Green: terminate the Blue instances and delete the blue
+                                                target group. Green is now production.</p>
+                                        </li>
+                                    </ol>
+                                    <div class="success-box">
+                                        <p>✅ <strong>What you learned:</strong> Blue-green deployment is the industry
+                                            standard for zero-downtime releases. The key: both environments run
+                                            simultaneously until the switch. The ALB is the switch. The old version
+                                            stays alive as an instant rollback option.</p>
+                                    </div>
+                                </div>
+                            </details>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-16-canary-deployment">Project 16: Canary Deployment (Advanced
+                                        Traffic Splitting)</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Route 10% of traffic to a new version while
+                                            90% continues hitting the old version. Real companies use this to test new
+                                            releases on a small percentage of users before full rollout.</p>
+                                        <p><strong>⏱️ Time:</strong> 30–40 min</p>
+                                        <p><strong>💰 Cost:</strong> Two sets of instances running simultaneously</p>
+                                    </div>
+                                    <ol>
+                                        <li>
+                                            <p>You need two target groups: <code>stable-tg</code> (current version,
+                                                instances showing "Stable v1") and <code>canary-tg</code> (new version,
+                                                instances showing "Canary v2"). Both should have healthy instances.</p>
+                                        </li>
+                                        <li>
+                                            <p>In the ALB listener rules editor, create a forwarding rule with
+                                                <strong>weighted target groups</strong>: select the rule → Action:
+                                                Forward to → click "Add target group" → set weights: stable-tg = 90,
+                                                canary-tg = 10.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-p16-weighted-target-groups.png"
+                                                    loading="lazy" decoding="async"
+                                                    alt="Screenshot of the ALB Listener Rule forwarding action configuration showing two target groups with weights: stable-tg with weight 90 and canary-tg with weight 10">
+                                                <p class="diagram-caption"><em>Figure 25: 📸 Weighted forwarding — 90%
+                                                        to stable, 10% to canary. One rule, two destinations.</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Refresh the ALB URL many times (try 20+). You should see approximately
+                                                1-2 out of every 10 requests return "Canary v2". The exact ratio won't
+                                                be perfect at small sample sizes but the distribution is correct
+                                                statistically.</p>
+                                        </li>
+                                        <li>
+                                            <p>Experiment with different weight ratios: 50/50, then 75/25, then 100/0
+                                                (full cutover to canary). Watch the response distribution change.</p>
+                                        </li>
+                                        <li>
+                                            <p><strong>Rollback test:</strong> Change canary weight to 0 and stable to
+                                                100. 100% of traffic returns to stable instantly — your canary release
+                                                has been pulled without any downtime.</p>
+                                        </li>
+                                    </ol>
+                                    <div class="success-box">
+                                        <p>✅ <strong>What you learned:</strong> Canary deployments let you expose a new
+                                            version to a small percentage of real users to catch bugs before they affect
+                                            everyone. Combined with CloudWatch monitoring, you roll forward if metrics
+                                            look good, roll back if they don't — all without downtime.</p>
+                                    </div>
+                                    <div class="highlight-box">
+                                        <p>⚡ <strong>Cleanup for all Level 5 projects:</strong> Delete all ALBs, NLBs,
+                                            target groups, and terminate all EC2 instances. Release any Elastic IPs.
+                                            Check EC2 → Load Balancers and Auto Scaling Groups to confirm nothing is
+                                            left running.</p>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </details><!-- ===== LEVEL 6 ===== -->
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="level-6-job-level-project">⚫ Level 6 — Job-Level Final Project</h3>
+                        </summary>
+                        <div class="section-content">
+                            <p>Combine everything into one production-grade system. This is what you describe in
+                                interviews.</p>
+                            <details class="collapsible-section">
+                                <summary>
+                                    <h3 id="project-final-production-architecture">Final Project: Production-Grade
+                                        Microservices Architecture</h3>
+                                </summary>
+                                <div class="section-content">
+                                    <div class="info-box">
+                                        <p><strong>🎯 Objective:</strong> Build a complete, production-grade
+                                            architecture from scratch — one ALB, three services (Products/Cart/Orders),
+                                            each with its own ASG and health checks, deployed across multiple AZs with
+                                            target tracking scaling.</p>
+                                        <p><strong>⏱️ Time:</strong> 2–3 hours</p>
+                                        <p><strong>💰 Cost:</strong> ~$0.10–0.20 total if you clean up same day. This is
+                                            the highest-cost lab.</p>
+                                    </div>
+                                    <div class="error-box">
+                                        <p>💰 <strong>Cost Note:</strong> This project runs 3+ instances across 2 AZs
+                                            plus an ALB. Complete it in one session and clean up the same day.</p>
+                                    </div>
+                                    <h4>Phase 1: Foundation</h4>
+                                    <ol>
+                                        <li>
+                                            <p>Create three Launch Templates (<code>products-lt</code>,
+                                                <code>cart-lt</code>, <code>orders-lt</code>) each with distinct User
+                                                Data that identifies the service name and instance ID. Use the metadata
+                                                fetch pattern from Project 7.</p>
+                                        </li>
+                                        <li>
+                                            <p>Create three target groups with proper health check paths
+                                                (<code>/products/health</code>, <code>/cart/health</code>,
+                                                <code>/orders/health</code>).</p>
+                                        </li>
+                                        <li>
+                                            <p>Create one ALB (<code>production-alb</code>) with path-based routing
+                                                rules for all three services plus a meaningful default rule.</p>
+                                        </li>
+                                    </ol>
+                                    <h4>Phase 2: Auto Scaling</h4>
+                                    <ol>
+                                        <li>
+                                            <p>Create three ASGs (<code>products-asg</code>, <code>cart-asg</code>,
+                                                <code>orders-asg</code>) each spanning <strong>two Availability
+                                                    Zones</strong>. Configuration: min=2, desired=2, max=6. Attach each
+                                                to its target group. Enable ELB health checks.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-final-asg-multi-az.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the Auto Scaling Group detail page for products-asg showing it spans two availability zones and has minimum 2 desired 2 maximum 6 capacity with ELB health check type enabled">
+                                                <p class="diagram-caption"><em>Figure 26: 📸 Products ASG — multi-AZ,
+                                                        min=2 ensures at least one instance in each AZ</em></p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <p>Add Target Tracking scaling policies (CPU 50%) to all three ASGs.</p>
+                                        </li>
+                                    </ol>
+                                    <h4>Phase 3: Verification</h4>
+                                    <ol>
+                                        <li>
+                                            <p>Verify all six instances (2 per service) are healthy in their target
+                                                groups.</p>
+                                        </li>
+                                        <li>
+                                            <p>Test all three paths via the ALB DNS. Confirm routing works correctly.
+                                            </p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-final-all-healthy.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot showing three browser tabs side by side each showing a different service: Products Service on the left, Cart Service in the middle, and Orders Service on the right, all accessed through the same ALB DNS name with different paths">
+                                                <p class="diagram-caption"><em>Figure 27: 📸 All three services
+                                                        responding correctly — one ALB DNS, three completely separate
+                                                        backends</em></p>
+                                            </div>
+                                        </li>
+                                    </ol>
+                                    <h4>Phase 4: Resilience Testing</h4>
+                                    <ol>
+                                        <li>
+                                            <p>Stop 3 of the 6 instances (one per service, all in the same AZ). The
+                                                system should continue working with instances from the surviving AZ.</p>
+                                        </li>
+                                        <li>
+                                            <p>Watch ASG detect the unhealthy instances and launch replacements in the
+                                                surviving AZ.</p>
+                                            <div class="diagram-container"><img
+                                                    src="images/screenshot-final-asg-recovery.png" loading="lazy"
+                                                    decoding="async"
+                                                    alt="Screenshot of the ASG Activity tab showing termination of unhealthy instances and immediate launch of replacement instances as the auto scaling group recovers from simulated AZ failure">
+                                                <p class="diagram-caption"><em>Figure 28: 📸 ASG automatically
+                                                        recovering — failed instances terminated, replacements
+                                                        launched</em></p>
+                                            </div>
+                                        </li>
+                                    </ol>
+                                    <h4>Phase 5: Push Further (Optional)</h4>
+                                    <ul>
+                                        <li>Add an NLB → ALB layer for a static Elastic IP entry point (Project 13
+                                            pattern)</li>
+                                        <li>Simulate a traffic spike on Products only and confirm per-service scaling
+                                            (Project 11 pattern)</li>
+                                        <li>Document your architecture diagram</li>
+                                    </ul>
+                                    <div class="success-box">
+                                        <p>✅ <strong>What you can now say in an interview:</strong> "I built a scalable
+                                            microservices architecture using an Application Load Balancer with
+                                            path-based routing, three independently scaling Auto Scaling Groups with
+                                            target tracking policies across multiple Availability Zones, with automatic
+                                            health-check-driven traffic failover." Every word of that sentence is
+                                            something you have done with your own hands.</p>
+                                    </div>
+                                    <div class="highlight-box">
+                                        <p>⚡ <strong>Final Cleanup Checklist:</strong></p>
+                                        <ul>
+                                            <li>Delete all 3 Auto Scaling Groups (this terminates their instances)</li>
+                                            <li>Delete the ALB (and NLB if created)</li>
+                                            <li>Delete all target groups</li>
+                                            <li>Delete all launch templates</li>
+                                            <li>Verify EC2 → Instances shows no running instances</li>
+                                            <li>Release any Elastic IPs</li>
+                                            <li>Check Billing → Bills to confirm no unexpected charges</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </details>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="learning-checklist">☑️ Learning Checklist</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="checklist-progress">
+                        <p>Progress: <span id="checklistProgress">0/15</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                    <div id="checklistContainer" data-checklist-source="json/checklist.json"></div>
+                    <div class="quiz-reset-container"><button onclick="resetChecklist()" class="quiz-reset-btn">🔄 Reset
+                            Checklist</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="reflection-questions">🤔 Reflection Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="question-block">
+                        <h4>1. You have a web application where the login page gets 10x more traffic than any other
+                            page. How would you use ALB and ASG together to handle this efficiently?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about path-based routing to separate the login service into its own target
+                                    group, then attach an ASG specifically for that service with aggressive scaling
+                                    policies.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>2. A client says "My API needs a static IP address because our enterprise firewall only
+                            whitelists specific IPs." Which load balancer would you recommend, and how would you set it
+                            up?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>ALB uses dynamic DNS — its IP can change. NLB supports Elastic IPs. But if you also
+                                    need HTTP routing, think about chaining them.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>3. Your ASG is set to min=2, desired=4, max=10. CPU spikes to 95%. What happens? Walk
+                            through the sequence of events from the CloudWatch alarm to traffic reaching the new
+                            instance.</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think: CloudWatch alarm → scaling policy triggered → ASG increases desired → launch
+                                    template used → instance launches → registers with target group → health check →
+                                    traffic sent.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>4. Why can an NLB forward to an ALB, but an ALB cannot forward to an NLB? What is the
+                            architectural reason?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about what each layer knows about the request. An NLB at Layer 4 doesn't
+                                    inspect HTTP — it just sees TCP connections. An ALB has already terminated the HTTP
+                                    connection, so handing off a TCP stream to an NLB after the fact doesn't make sense
+                                    architecturally.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>5. If all instances in a target group fail their health checks simultaneously, what does the
+                            ALB return to end users? How would you prevent this scenario?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>503 Service Unavailable. Prevention: multiple AZs, ASG with minimum &gt; 0, health
+                                    check tuning to avoid false failures, circuit breaker patterns.</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="links-references">🔗 Links &amp; References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3 id="official-aws-docs">📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/"
+                                        target="_blank" rel="noopener noreferrer">ALB Docs</a></td>
+                                <td>Official Application Load Balancer documentation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/network/"
+                                        target="_blank" rel="noopener noreferrer">NLB Docs</a></td>
+                                <td>Official Network Load Balancer documentation</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/" target="_blank"
+                                        rel="noopener noreferrer">Auto Scaling Groups</a></td>
+                                <td>EC2 Auto Scaling User Guide</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/launch-templates.html"
+                                        target="_blank" rel="noopener noreferrer">Launch Templates</a></td>
+                                <td>Creating and using Launch Templates for ASG</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/elasticloadbalancing/pricing/" target="_blank"
+                                        rel="noopener noreferrer">ELB Pricing</a></td>
+                                <td>ALB, NLB, and GWLB pricing details</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="recommended-reading">🎓 Recommended Reading</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-target-tracking.html"
+                                        target="_blank" rel="noopener noreferrer">Target Tracking Scaling</a></td>
+                                <td>Deep dive on target tracking scaling policies</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/blogs/aws/new-host-based-routing-support-for-aws-application-load-balancers/"
+                                        target="_blank" rel="noopener noreferrer">ALB Advanced Routing</a></td>
+                                <td>AWS blog on advanced ALB routing features</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="additional-resources">🔧 Additional Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://calculator.aws/pricing/2/home" target="_blank"
+                                        rel="noopener noreferrer">AWS Pricing Calculator</a></td>
+                                <td>Estimate ALB and EC2 costs before building</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://www.awsgeek.com/Amazon-EC2/Auto-Scaling/" target="_blank"
+                                        rel="noopener noreferrer">AWS Geek - Auto Scaling</a></td>
+                                <td>Visual cheat sheets for EC2 Auto Scaling</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">ALB</span><span class="tag">Auto
+                Scaling</span><span class="tag">NLB</span><span class="tag">Load Balancer</span><span
+                class="tag">Microservices</span></div>
+    </div>
+    <script defer src="../../../js/notes-page.js"></script>
+</body>
+
+</html>

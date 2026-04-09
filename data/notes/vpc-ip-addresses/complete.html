@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Complete guide to AWS VPC IP addresses: private IP, public IP, elastic IP, bastion host, and NAT gateway vs NAT instances. Beginner-friendly AWS training notes.">
+    <meta name="keywords"
+        content="AWS, VPC, Private IP, Public IP, Elastic IP, Bastion Host, NAT Gateway, NAT Instance, cloud, certification">
+    <meta property="og:title" content="VPC IP Addresses & Bastion Host - AWS Training">
+    <meta property="og:description"
+        content="Complete guide to AWS VPC IP addresses: private IP, public IP, elastic IP, bastion host, and NAT gateway vs NAT instances.">
+    <meta property="og:type" content="article">
+    <meta property="og:url"
+        content="https://namrata2709.github.io/Resources/data/notes/vpc-ip-addresses/vpc-ip-addresses-complete.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/vpc-ip-addresses/images/vpc-ip-addresses-overview.png">
+    <link rel="canonical"
+        href="https://namrata2709.github.io/Resources/data/notes/vpc-ip-addresses/vpc-ip-addresses-complete.html">
+    <title>VPC IP Addresses & Bastion Host - Complete Notes - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+    <script src="../../../js/theme.js"></script>
+</head>
+
+<body class="complete-notes">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"VPC IP Addresses & Bastion Host","description":"Complete guide to AWS VPC IP addresses: private IP, public IP, elastic IP, bastion host, and NAT gateway vs NAT instances.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2025-11-07","dateModified":"2025-11-07","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/vpc-ip-addresses/vpc-ip-addresses-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/vpc-ip-addresses/images/vpc-ip-addresses-overview.png","articleSection":"AWS Training","keywords":["AWS","VPC","Private IP","Public IP","Elastic IP","Bastion Host","NAT Gateway"],"educationalLevel":"Beginner to Intermediate"}</script>
+    <div class="note-container">
+        <div class="note-header">
+            <h1>🌐 VPC IP Addresses, Bastion Host & NAT Gateway</h1>
+            <p class="note-date">📅 November 07, 2025</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> November 07, 2025</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="note-content">
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="introduction">📘 Introduction</h2>
+                </summary>
+                <div class="section-content">
+                    <p>You've already learned how VPCs, subnets, and CIDR ranges work. Now it's time to answer a
+                        question that every cloud engineer faces daily: <strong>how does a machine inside a private
+                            network communicate with the outside world — and how does the outside world reach back
+                            in?</strong></p>
+                    <p>The answer starts with understanding the three types of IP addresses AWS uses: <strong>Private
+                            IP</strong>, <strong>Public IP</strong>, and <strong>Elastic IP</strong>. Once you
+                        understand those, everything else — Bastion Hosts, NAT Gateways, and Session Manager — falls
+                        into place naturally.</p>
+                    <div class="diagram-container"><img src="images/vpc-ip-addresses-overview.png" decoding="async"
+                            alt="Overview diagram showing a VPC with private and public subnets, EC2 instances with private and public IP addresses, internet gateway, bastion host, and NAT gateway connections">
+                        <p class="diagram-caption"><em>Figure 1: VPC IP address landscape — private, public, and elastic
+                                IPs in context</em></p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>What you will understand after this session:</strong> Why every machine in AWS has
+                            two identities, when to use each IP type, how to securely reach private servers, and how
+                            private servers safely reach the internet.</p>
+                    </div>
+                    <h3 id="topics-covered">📋 Topics Covered</h3>
+                    <ul>
+                        <li>Private IP Address — what it is, when it is assigned, how it is used</li>
+                        <li>Public IP Address — what it is, when to request it, its limitation</li>
+                        <li>Elastic IP Address — the fixed public IP, when and why to use it</li>
+                        <li>Private IP address ranges (RFC 1918)</li>
+                        <li>Bastion Host (Jump Server) — secure access into private subnets</li>
+                        <li>NAT Gateway vs NAT Instances — outbound internet for private servers</li>
+                        <li>AWS Systems Manager Session Manager — modern alternative to Bastion</li>
+                    </ul>
+                    <h3 id="prerequisites">🔗 Prerequisites</h3>
+                    <ul>
+                        <li>VPC basics (covered in previous sessions)</li>
+                        <li>Subnets and Availability Zones</li>
+                        <li>CIDR ranges and IP addressing (IPv4)</li>
+                        <li>Internet Gateway</li>
+                        <li>Security Groups</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="why-two-ip-addresses">🤔 Why Does Every Machine Have Two IP Addresses?</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Before jumping into AWS, let's ground this with a real-world analogy your professor used in
+                        class.</p>
+                    <p>Imagine a person named <strong>Sai Guda</strong>. Within their locality — at home, in the
+                        neighbourhood, among family — everyone calls them <strong>"Guda"</strong>. That's the local
+                        identity. But when they go to the bank, fill a government form, or introduce themselves to
+                        strangers, they use <strong>"Sai"</strong> — the formal, external identity.</p>
+                    <p>A computer in a network works the same way:</p>
+                    <ul>
+                        <li>It has a <strong>local name (Private IP)</strong> used only inside its network — like "Guda"
+                            among family.</li>
+                        <li>It has an <strong>external name (Public IP)</strong> used to communicate with the outside
+                            world — like "Sai" on official documents.</li>
+                    </ul>
+                    <div class="diagram-container"><img src="images/vpc-ip-dual-identity.png" decoding="async"
+                            alt="Analogy diagram showing a person with two names: Guda used locally and Sai used externally, mapped to Private IP used inside VPC and Public IP used over internet">
+                        <p class="diagram-caption"><em>Figure 2: Every machine has two identities — one for internal
+                                use, one for the internet</em></p>
+                    </div>
+                    <p>This is not unique to AWS. Your home WiFi router does the same thing — your laptop gets a
+                        <code>192.168.x.x</code> private IP from your router, and your router itself has a public IP
+                        assigned by your ISP (Jio, Airtel, etc.).</p>
+                    <div class="info-box">
+                        <p>💡 In AWS, the role of the ISP is played by <strong>AWS itself</strong>. AWS assigns both the
+                            private IP (within the VPC) and the public IP (for internet communication). You are not
+                            using Jio, Airtel, or any external ISP — AWS is your internet service provider inside the
+                            cloud.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="private-ip-address">🔒 Private IP Address</h2>
+                </summary>
+                <div class="section-content">
+                    <p>A private IP address is the identity a machine uses <strong>inside its own network</strong>. It
+                        is never directly reachable from the internet — the outside world cannot use it to find your
+                        server.</p>
+                    <h3 id="private-ip-key-facts">Key Facts</h3>
+                    <ul>
+                        <li><span class="exam-highlight-sentence">A private IP address is <span
+                                    class="exam-highlight-term">automatically assigned</span> to every EC2 instance when
+                                it is launched inside a VPC.</span></li>
+                        <li>It does not change as long as the instance is running (it persists across stop/start for the
+                            same subnet assignment).</li>
+                        <li><span class="exam-highlight-sentence">Private IP addresses are used for <span
+                                    class="exam-highlight-term">internal communication</span> between resources within
+                                the same VPC.</span></li>
+                        <li>Private IPs are not routable on the public internet — no one outside your network can use
+                            them.</li>
+                        <li>Two different VPCs can have overlapping private IP ranges (they are isolated networks).</li>
+                    </ul>
+                    <h3 id="private-ip-ranges">📊 Private IP Address Ranges (RFC 1918)</h3>
+                    <p>Not all IP addresses are equal. The Internet Assigned Numbers Authority (IANA) has permanently
+                        reserved three blocks of IP addresses exclusively for private networks. These are defined by
+                        <strong>RFC 1918</strong> and will never be assigned as public internet addresses.</p>
+                    <div class="provided-image"><img src="images/screenshot-rfc1918.png" loading="lazy" decoding="async"
+                            alt="RFC 1918 document excerpt showing the three reserved private IP address blocks: 10.0.0.0 to 10.255.255.255, 172.16.0.0 to 172.31.255.255, and 192.168.0.0 to 192.168.255.255">
+                        <div class="image-note">
+                            <p><strong>📸 From Session:</strong> RFC 1918 — Address Allocation for Private Internets
+                                (February 1996)</p>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Block Name</th>
+                                <th>Range</th>
+                                <th>CIDR</th>
+                                <th>Total IPs</th>
+                                <th>Common Use</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="exam-highlight-term">24-bit block</span></td>
+                                <td>10.0.0.0 – 10.255.255.255</td>
+                                <td>10/8</td>
+                                <td>~16.7 million</td>
+                                <td>Large enterprise / AWS VPCs</td>
+                            </tr>
+                            <tr>
+                                <td><span class="exam-highlight-term">20-bit block</span></td>
+                                <td>172.16.0.0 – 172.31.255.255</td>
+                                <td>172.16/12</td>
+                                <td>~1 million</td>
+                                <td>Medium networks</td>
+                            </tr>
+                            <tr>
+                                <td><span class="exam-highlight-term">16-bit block</span></td>
+                                <td>192.168.0.0 – 192.168.255.255</td>
+                                <td>192.168/16</td>
+                                <td>~65,536</td>
+                                <td>Home routers / small networks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Exam Tip:</strong> You will almost always see AWS VPCs using the
+                            <code>10.0.0.0/8</code> range. AWS recommends this because it gives you the most address
+                            space. The <code>192.168.x.x</code> range is what your home WiFi router uses.</p>
+                    </div>
+                    <h3 id="private-ip-in-aws">Private IP in AWS Context</h3>
+                    <p>When you launch an EC2 instance inside a subnet (say <code>10.0.1.0/24</code>), AWS automatically
+                        picks an available address from that subnet's range — for example <code>10.0.1.7</code> — and
+                        assigns it to your instance. This happens instantly, without you doing anything.</p>
+                    <div class="diagram-container"><img src="images/vpc-private-ip-assignment.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing a VPC with CIDR 10.0.0.0/16 containing two subnets: public subnet 10.0.1.0/24 with EC2 instance assigned 10.0.1.7, and private subnet 10.0.2.0/24 with EC2 instance assigned 10.0.2.5">
+                        <p class="diagram-caption"><em>Figure 3: Automatic private IP assignment within subnets</em></p>
+                    </div>
+                    <div class="info-box">
+                        <p>💡 <strong>AWS reserves 5 IPs per subnet.</strong> For example, in a <code>/24</code> subnet
+                            (256 addresses), only <strong>251</strong> are available to you. AWS reserves the first 4
+                            addresses and the last 1 for internal purposes (network address, VPC router, DNS, future
+                            use, broadcast). This is why your professor wrote <strong>(251)</strong> on the board.</p>
+                        <p><strong>📚 Source:</strong> <a
+                                href="https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
+                                target="_blank" rel="noopener noreferrer">AWS VPC Subnet Sizing Docs</a></p>
+                    </div>
+                    <h3 id="private-ip-ec2-communication">EC2-to-EC2 Communication Using Private IP</h3>
+                    <p>If you have two EC2 instances in the same VPC — even in different subnets — they can communicate
+                        directly using their private IP addresses. No internet connection is needed. The traffic stays
+                        entirely inside the AWS backbone network.</p>
+                    <p>For example: EC2-A at <code>10.0.1.7</code> can SSH into EC2-B at <code>10.0.2.5</code> directly
+                        using the private IP, as long as the Security Group on EC2-B allows inbound SSH from EC2-A's
+                        private IP range.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="public-ip-address">🌍 Public IP Address</h2>
+                </summary>
+                <div class="section-content">
+                    <p>A public IP address is what makes your server reachable from the internet. Without it, the
+                        outside world has no way to find your EC2 instance.</p>
+                    <h3 id="public-ip-key-facts">Key Facts</h3>
+                    <ul>
+                        <li><span class="exam-highlight-sentence">A public IP address is <span
+                                    class="exam-highlight-term">not automatically assigned</span> unless you configure
+                                your subnet or instance to request one.</span></li>
+                        <li><span class="exam-highlight-sentence">In AWS, the public IP is assigned by <span
+                                    class="exam-highlight-term">AWS itself</span> — AWS acts as the internet service
+                                provider.</span></li>
+                        <li><span class="exam-highlight-sentence">A public IP is required for an EC2 instance to
+                                communicate through the <span class="exam-highlight-term">Internet
+                                    Gateway</span>.</span></li>
+                        <li>Public IPs in AWS come from AWS's own pool of globally routable addresses — they are not RFC
+                            1918 addresses.</li>
+                    </ul>
+                    <h3 id="public-ip-limitation">⚠️ The Big Limitation of Public IP</h3>
+                    <p>Here is the most important thing to remember about a standard public IP in AWS — and this will
+                        almost certainly appear in an exam:</p>
+                    <div class="error-box">
+                        <p>❌ <span class="exam-highlight-sentence">A public IP address in AWS is <span
+                                    class="exam-highlight-term">ephemeral</span> — it <strong>changes</strong> every
+                                time you stop and start your EC2 instance.</span></p>
+                    </div>
+                    <p>This creates a real problem. Imagine you've told your team "our server is at
+                        <code>54.200.10.5</code>". You stop the instance overnight to save money. The next morning you
+                        start it — and now it has a completely different public IP. Your team's connection configs are
+                        broken.</p>
+                    <p>This is exactly why Elastic IP exists.</p>
+                    <div class="diagram-container"><img src="images/vpc-public-ip-change.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing an EC2 instance that has public IP 54.200.10.5 before stop, then after stop and restart it receives a new public IP 34.221.88.12, illustrating the ephemeral nature of AWS public IPs">
+                        <p class="diagram-caption"><em>Figure 4: Public IP changes on stop/start — the ephemeral
+                                problem</em></p>
+                    </div>
+                    <h3 id="public-ip-how-assigned">How Public IPs Are Assigned in AWS</h3>
+                    <p>You can enable auto-assignment of public IPs at two levels:</p>
+                    <ul>
+                        <li><strong>Subnet level:</strong> In subnet settings, enable "Auto-assign public IPv4 address"
+                            — every new EC2 launched in this subnet automatically gets a public IP.</li>
+                        <li><strong>Instance level:</strong> During EC2 launch, in the network configuration, you can
+                            enable or disable public IP for that specific instance.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="elastic-ip-address">📌 Elastic IP Address (EIP)</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Elastic IP is the solution to the ephemeral public IP problem. It is a <strong>static, fixed
+                            public IP address</strong> that you own until you explicitly release it.</p>
+                    <h3 id="elastic-ip-key-facts">Key Facts</h3>
+                    <ul>
+                        <li><span class="exam-highlight-sentence">An Elastic IP is a <span
+                                    class="exam-highlight-term">static public IPv4 address</span> that you allocate to
+                                your AWS account and associate with an EC2 instance.</span></li>
+                        <li><span class="exam-highlight-sentence">An Elastic IP <span class="exam-highlight-term">does
+                                    not change</span> when you stop and start an EC2 instance — it stays the
+                                same.</span></li>
+                        <li>You can detach an Elastic IP from one instance and re-attach it to another — useful for
+                            disaster recovery or replacing a failed server.</li>
+                        <li><span class="exam-highlight-sentence">AWS charges for Elastic IPs that are <span
+                                    class="exam-highlight-term">allocated but not associated</span> with a running
+                                instance — to discourage waste of IPv4 addresses.</span></li>
+                    </ul>
+                    <div class="info-box">
+                        <p>💡 <strong>Real-world analogy:</strong> A regular public IP is like a temporary phone number
+                            given to you by a hotel — it changes every time you check into a different room. An Elastic
+                            IP is like your personal mobile number — it stays with you no matter where you go, and you
+                            can hand it to someone else if needed.</p>
+                    </div>
+                    <h3 id="elastic-ip-use-cases">When to Use Elastic IP</h3>
+                    <ul>
+                        <li>Production servers that need a consistent public IP for DNS records, firewall whitelisting,
+                            or customer connections</li>
+                        <li>Failover scenarios — if the primary EC2 fails, re-attach the EIP to a standby instance
+                            within seconds</li>
+                        <li>Bastion Hosts — so that admins always know the exact IP to connect to</li>
+                        <li>Any scenario where a fixed, predictable IP address is required</li>
+                    </ul>
+                    <h3 id="elastic-ip-limits">Limits and Costs</h3>
+                    <ul>
+                        <li><span class="exam-highlight-sentence">By default, you can have a maximum of <span
+                                    class="exam-highlight-term">5 Elastic IPs per region</span> per AWS account.</span>
+                        </li>
+                        <li>You can request a limit increase through AWS Support.</li>
+                        <li>An EIP associated with a running instance incurs no hourly charge — you only pay when it is
+                            unattached.</li>
+                    </ul>
+                    <div class="diagram-container"><img src="images/vpc-elastic-ip-overview.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram comparing regular public IP that changes on stop and start versus Elastic IP that remains fixed as 54.200.10.5 across stop and start cycles, with failover scenario showing EIP moved from failed instance to standby instance">
+                        <p class="diagram-caption"><em>Figure 5: Elastic IP — static IP that survives stop/start and
+                                enables failover</em></p>
+                    </div>
+                    <h3 id="elastic-ip-vs-public-ip">Elastic IP vs Public IP — Quick Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Public IP</th>
+                                <th>Elastic IP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Assigned by</td>
+                                <td>AWS automatically</td>
+                                <td>You allocate and attach</td>
+                            </tr>
+                            <tr>
+                                <td>Changes on stop/start</td>
+                                <td>Yes ❌</td>
+                                <td>No ✅</td>
+                            </tr>
+                            <tr>
+                                <td>Cost</td>
+                                <td>Free while running</td>
+                                <td>Free if attached to running instance; charged if idle</td>
+                            </tr>
+                            <tr>
+                                <td>Transferable</td>
+                                <td>No</td>
+                                <td>Yes — move between instances</td>
+                            </tr>
+                            <tr>
+                                <td>Use for production</td>
+                                <td>Risky (IP changes)</td>
+                                <td>Recommended</td>
+                            </tr>
+                            <tr>
+                                <td>DNS records</td>
+                                <td>Breaks on restart</td>
+                                <td>Stable, reliable</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="bastion-host">🛡️ Bastion Host (Jump Server)</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Now that you understand IP types, let's solve a real problem: <strong>how do you SSH into an EC2
+                            instance that is in a private subnet — one that has no public IP at all?</strong></p>
+                    <p>The answer is the Bastion Host — also called a Jump Server.</p>
+                    <div class="provided-image"><img src="images/screenshot-bastion-definition.png" loading="lazy"
+                            decoding="async"
+                            alt="Slide showing Bastion Host definition: a secure entry point to access private servers inside a private subnet, connect via SSH or RDP to bastion first then access private EC2 instances which don't have public IPs">
+                        <div class="image-note">
+                            <p><strong>📸 From Session:</strong> Bastion Host definition and purpose from class slides
+                            </p>
+                        </div>
+                    </div>
+                    <h3 id="bastion-host-what-is-it">What Is a Bastion Host?</h3>
+                    <p><span class="exam-highlight-sentence">A Bastion Host is a special EC2 instance placed in a <span
+                                class="exam-highlight-term">public subnet</span> that acts as a secure gateway to access
+                            EC2 instances in <span class="exam-highlight-term">private subnets</span>.</span></p>
+                    <p>Think of it like the reception desk at a secure office building. Visitors don't walk directly to
+                        any employee's desk — they check in at reception first, and reception escorts them in. The
+                        Bastion Host is your reception desk in the cloud.</p>
+                    <div class="diagram-container"><img src="images/vpc-bastion-host-architecture.png" loading="lazy"
+                            decoding="async"
+                            alt="Architecture diagram showing Internet connecting to Bastion Host in public subnet which has a public IP, then Bastion Host connecting via private IP to Private EC2 instances in private subnet with no public IP">
+                        <p class="diagram-caption"><em>Figure 6: Bastion Host architecture — two-hop access to private
+                                servers</em></p>
+                    </div>
+                    <h3 id="bastion-host-flow">How the Flow Works</h3>
+                    <div class="provided-image"><img src="images/screenshot-bastion-flow.png" loading="lazy"
+                            decoding="async"
+                            alt="Flow diagram showing Internet arrow down to Bastion Host labeled Public Subnet has Public IP, then arrow down to Private EC2s labeled Private Subnet no Public IP">
+                        <div class="image-note">
+                            <p><strong>📸 From Session:</strong> Access flow diagram for Bastion Host from class slides
+                            </p>
+                        </div>
+                    </div>
+                    <div class="provided-image"><img src="images/screenshot-bastion-how-it-works.png" loading="lazy"
+                            decoding="async"
+                            alt="Numbered steps showing: 1. Admin connects to Bastion Host using SSH port 22 from laptop, Bastion has public IP or Elastic IP. 2. From Bastion Host SSH into private EC2 instances inside VPC using their private IPs, no internet access needed for private servers">
+                        <div class="image-note">
+                            <p><strong>📸 From Session:</strong> Step-by-step Bastion Host access flow</p>
+                        </div>
+                    </div>
+                    <ol>
+                        <li><strong>You (the admin)</strong> SSH into the Bastion Host from your laptop over the
+                            internet. The Bastion has a <strong>public IP or Elastic IP</strong> — this is the only
+                            server exposed to the internet.</li>
+                        <li><strong>From the Bastion Host</strong>, you SSH into private EC2 instances using their
+                            <strong>private IPs</strong>. Since Bastion and the private instances are both in the same
+                            VPC, they can communicate over the private network.</li>
+                    </ol>
+                    <h3 id="bastion-host-security-rules">Security Group Rules for Bastion Host</h3>
+                    <p>Setting up a Bastion Host requires careful Security Group configuration:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Inbound Rule</th>
+                                <th>Source</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Bastion Host SG</td>
+                                <td>SSH (port 22)</td>
+                                <td>Your IP only (e.g., <code>203.x.x.x/32</code>)</td>
+                                <td>Only you can SSH into bastion</td>
+                            </tr>
+                            <tr>
+                                <td>Private EC2 SG</td>
+                                <td>SSH (port 22)</td>
+                                <td>Bastion Host SG ID</td>
+                                <td>Only bastion can SSH into private servers</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="success-box">
+                        <p>✅ <strong>Best Practice:</strong> Never allow SSH from <code>0.0.0.0/0</code> on your Bastion
+                            Host. Always restrict to specific IP addresses (your office IP, your home IP). Attackers
+                            constantly scan for open port 22. Assign an Elastic IP to your Bastion so the IP is
+                            predictable for whitelisting.</p>
+                    </div>
+                    <h3 id="bastion-host-limitations">Limitations of Bastion Host</h3>
+                    <ul>
+                        <li>You still need to manage SSH keys — both for reaching the Bastion and for reaching private
+                            instances from there.</li>
+                        <li>The Bastion itself is exposed to the internet and must be kept patched and hardened.</li>
+                        <li>Every admin needs to know the Bastion's IP (reason to use Elastic IP).</li>
+                        <li>Requires open port 22 — some organizations have strict firewall policies against this.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="session-manager">⚡ AWS Systems Manager — Session Manager (Modern Alternative)</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="provided-image"><img src="images/screenshot-session-manager.png" loading="lazy"
+                            decoding="async"
+                            alt="Slide showing Modern Alternative: AWS Systems Manager SSM Session Manager, which lets you connect to private EC2 without SSH ports or public IPs, described as fully managed and more secure">
+                        <div class="image-note">
+                            <p><strong>📸 From Session:</strong> Modern alternative to Bastion Host — AWS Session
+                                Manager</p>
+                        </div>
+                    </div>
+                    <p>Your professor mentioned this as something to be aware of — a recommended modern alternative to
+                        the Bastion Host pattern. Here's what you need to know:</p>
+                    <div class="highlight-box">
+                        <p>⚡ <span class="exam-highlight-sentence">AWS Systems Manager <span
+                                    class="exam-highlight-term">Session Manager</span> allows you to connect to private
+                                EC2 instances <strong>without SSH ports, without a Bastion Host, and without a public
+                                    IP</strong> — directly from the AWS Console or CLI.</span></p>
+                    </div>
+                    <h3 id="session-manager-how">How Session Manager Works</h3>
+                    <p>Instead of opening a network connection from the outside, Session Manager works the other way
+                        around: the SSM Agent running on the EC2 instance reaches <em>out</em> to the SSM service
+                        endpoint over HTTPS (port 443). Since outbound 443 is almost always allowed, no inbound port
+                        needs to be open at all.</p>
+                    <div class="diagram-container"><img src="images/vpc-session-manager-flow.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing admin connecting via AWS Console or CLI to AWS Systems Manager service, SSM Agent on private EC2 making outbound HTTPS connection to SSM endpoint, no inbound SSH port needed, compared to traditional Bastion Host path">
+                        <p class="diagram-caption"><em>Figure 7: Session Manager — no open ports, no Bastion Host
+                                required</em></p>
+                    </div>
+                    <h3 id="session-manager-vs-bastion">Session Manager vs Bastion Host</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Bastion Host</th>
+                                <th>Session Manager</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SSH keys needed</td>
+                                <td>Yes</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td>Open port 22 required</td>
+                                <td>Yes</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td>Public IP needed</td>
+                                <td>Yes (for Bastion)</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td>Managed by AWS</td>
+                                <td>No — you manage the EC2</td>
+                                <td>Yes — fully managed</td>
+                            </tr>
+                            <tr>
+                                <td>Audit trail</td>
+                                <td>Manual setup required</td>
+                                <td>Built-in session logging to CloudTrail and S3</td>
+                            </tr>
+                            <tr>
+                                <td>Cost</td>
+                                <td>EC2 instance cost</td>
+                                <td>No extra charge (SSM is free for this feature)</td>
+                            </tr>
+                            <tr>
+                                <td>Setup complexity</td>
+                                <td>Medium</td>
+                                <td>Low (install SSM Agent + IAM role)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="info-box">
+                        <p>💡 <strong>Interview tip from your professor:</strong> If an interviewer asks "How would you
+                            access a private EC2 instance?", you should mention both options — Bastion Host as the
+                            traditional approach, and Session Manager as the modern, recommended alternative. Knowing
+                            both shows depth.</p>
+                        <p><strong>📚 Source:</strong> <a
+                                href="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html"
+                                target="_blank" rel="noopener noreferrer">AWS Systems Manager Session Manager Docs</a>
+                        </p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="nat-gateway-intro">🔄 NAT Gateway vs NAT Instances — Introduction</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Your professor introduced this topic at the end of the session and promised a deep-dive with a
+                        live demo in the next class. Here's the complete foundation so you're ready.</p>
+                    <h3 id="nat-the-problem">The Problem NAT Solves</h3>
+                    <p>You've solved one direction: getting <em>into</em> a private subnet using a Bastion Host. Now
+                        think about the reverse: what if the <strong>EC2 instance in the private subnet wants to reach
+                            the internet</strong>?</p>
+                    <p>Why would a private server need the internet? Simple: to run system updates.</p>
+                    <pre><code>sudo yum update sudo yum install httpd sudo apt-get upgrade</code></pre>
+                    <p>These commands contact remote package repositories on the internet. But your private EC2 has no
+                        public IP and no route to the Internet Gateway directly — that would defeat the purpose of being
+                        private.</p>
+                    <p>The solution is <strong>NAT</strong> — Network Address Translation.</p>
+                    <div class="diagram-container"><img src="images/vpc-nat-gateway-overview.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing private EC2 in private subnet sending outbound request to NAT Gateway in public subnet, NAT Gateway forwarding request to Internet Gateway, internet responds back through same path, private EC2 never directly exposed to internet">
+                        <p class="diagram-caption"><em>Figure 8: NAT Gateway — private servers reach the internet
+                                without being exposed</em></p>
+                    </div>
+                    <h3 id="nat-analogy">The Analogy</h3>
+                    <p>Think of NAT Gateway like a post office for outgoing mail. Your private server puts its request
+                        in an envelope and hands it to the NAT Gateway (post office). The post office sends it out using
+                        its own public address. The internet responds to the post office, which opens the response and
+                        delivers it back to your server. Your server's private address was never revealed to the outside
+                        world.</p>
+                    <h3 id="nat-gateway-vs-nat-instance">NAT Gateway vs NAT Instance</h3>
+                    <p>AWS gives you two ways to implement NAT:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>NAT Gateway</th>
+                                <th>NAT Instance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Type</td>
+                                <td>Fully managed AWS service</td>
+                                <td>EC2 instance you configure</td>
+                            </tr>
+                            <tr>
+                                <td>Availability</td>
+                                <td>Highly available within AZ</td>
+                                <td>Single point of failure unless you add HA manually</td>
+                            </tr>
+                            <tr>
+                                <td>Bandwidth</td>
+                                <td>Scales automatically up to 100 Gbps</td>
+                                <td>Limited by instance type</td>
+                            </tr>
+                            <tr>
+                                <td>Maintenance</td>
+                                <td>Zero — AWS handles it</td>
+                                <td>You patch, monitor, and maintain the EC2</td>
+                            </tr>
+                            <tr>
+                                <td>Cost</td>
+                                <td>Hourly charge + data processing charge</td>
+                                <td>EC2 instance cost (often cheaper for low traffic)</td>
+                            </tr>
+                            <tr>
+                                <td>Security Groups</td>
+                                <td>Cannot attach SGs</td>
+                                <td>Can attach Security Groups</td>
+                            </tr>
+                            <tr>
+                                <td>Recommended for production</td>
+                                <td>✅ Yes</td>
+                                <td>Only for cost-sensitive dev/test</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="highlight-box">
+                        <p>⚡ <span class="exam-highlight-sentence">A <span class="exam-highlight-term">NAT
+                                    Gateway</span> must be placed in a <span class="exam-highlight-term">public
+                                    subnet</span> and needs an Elastic IP address associated with it.</span></p>
+                    </div>
+                    <div class="info-box">
+                        <p>💡 <strong>NAT Gateway is NOT free tier eligible.</strong> Your professor confirmed this and
+                            said he will cover the cost in the upcoming demo. It costs approximately $0.045/hour +
+                            $0.045 per GB processed in most regions. Always delete it after practice to avoid charges.
+                        </p>
+                        <p><strong>📚 Source:</strong> <a href="https://aws.amazon.com/vpc/pricing/" target="_blank"
+                                rel="noopener noreferrer">AWS VPC Pricing</a></p>
+                    </div>
+                    <h3 id="nat-traffic-flow">Traffic Flow: Private EC2 → Internet (via NAT Gateway)</h3>
+                    <ol>
+                        <li>Private EC2 instance initiates a request (e.g., <code>sudo yum update</code>)</li>
+                        <li>Request goes to the <strong>route table</strong> of the private subnet</li>
+                        <li>Route table has a rule: <code>0.0.0.0/0 → NAT Gateway</code></li>
+                        <li>NAT Gateway (in public subnet) receives the request</li>
+                        <li>NAT Gateway translates the private IP to its own Elastic IP</li>
+                        <li>Request goes out through the <strong>Internet Gateway</strong> to the internet</li>
+                        <li>Internet responds to the Elastic IP of the NAT Gateway</li>
+                        <li>NAT Gateway translates back and forwards the response to the private EC2</li>
+                    </ol>
+                    <div class="success-box">
+                        <p>✅ <strong>Key insight:</strong> The internet never sees the private EC2's IP address. It only
+                            sees the NAT Gateway's Elastic IP. This is the security benefit — your servers remain
+                            invisible to the outside world while still being able to reach out.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="overall-summary">📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Here's everything you learned in this session, distilled into the key points:</p>
+                    <ul>
+                        <li><strong>Every EC2 instance gets a Private IP automatically</strong> — used for communication
+                            inside the VPC. Never reachable from the internet.</li>
+                        <li><strong>Public IP is optional and ephemeral</strong> — it changes every time you stop/start
+                            the instance. Assigned by AWS (your ISP in the cloud).</li>
+                        <li><strong>Elastic IP is a fixed public IP</strong> — stays with your account until you release
+                            it. Move it between instances for failover. Charged when idle.</li>
+                        <li><strong>RFC 1918 defines three private ranges:</strong> <code>10.0.0.0/8</code>,
+                            <code>172.16.0.0/12</code>, <code>192.168.0.0/16</code>.</li>
+                        <li><strong>AWS reserves 5 IPs per subnet</strong> — a /24 has 251 usable addresses, not 256.
+                        </li>
+                        <li><strong>Bastion Host (Jump Server)</strong> — a public-facing EC2 that acts as the secure
+                            entry point to private subnets. Two-hop SSH: You → Bastion → Private EC2.</li>
+                        <li><strong>Session Manager</strong> — the modern alternative. No SSH keys, no port 22, no
+                            public IP needed. Fully managed by AWS.</li>
+                        <li><strong>NAT Gateway</strong> — allows private EC2s to initiate outbound internet connections
+                            (e.g., for updates) without being exposed to inbound traffic.</li>
+                        <li><strong>NAT Instance</strong> — same purpose as NAT Gateway but implemented using an EC2.
+                            More control, but more work and single point of failure.</li>
+                    </ul>
+                    <div class="diagram-container"><img src="images/vpc-complete-architecture.png" loading="lazy"
+                            decoding="async"
+                            alt="Complete architecture diagram showing VPC with public and private subnets, Internet Gateway, Bastion Host in public subnet with Elastic IP, private EC2 instances in private subnet, NAT Gateway in public subnet for outbound traffic, and route tables connecting everything">
+                        <p class="diagram-caption"><em>Figure 9: Complete VPC architecture with all components from this
+                                session</em></p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="glossary">📖 Glossary</h2>
+                </summary>
+                <div class="section-content">
+                    <div id="glossaryContainer" data-glossary-source="json/glossary.json"></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="interview-questions">🎤 Interview Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <p class="interview-intro">📚 Test your understanding with these questions.</p>
+                    <div class="interview-progress">
+                        <p id="interviewProgress">Progress: 0/25 (0%)</p>
+                    </div>
+                    <div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn"
+                            id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1
+                            / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn"
+                            id="nextInterviewBtn">Next →</button></div>
+                    <div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json">
+                    </div>
+                    <div class="quiz-reset-container"><button onclick="resetInterviewProgress()"
+                            class="quiz-reset-btn">🔄 Reset Progress</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="multiple-choice-questions">📝 Multiple Choice Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="quiz-header-info">
+                        <p>📝 Test your knowledge with immediate feedback.</p>
+                    </div>
+                    <div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn"
+                            id="prevBtn">← Previous</button>
+                        <div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span
+                                class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button
+                            onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button>
+                    </div>
+                    <div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div>
+                    <div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊
+                            View Summary</button>
+                        <div class="quiz-reset-container"><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄
+                                Reset All</button></div>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="hands-on-projects">💼 Hands-On Projects</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites</h4>
+                        <ul>
+                            <li>✅ AWS account with free tier access</li>
+                            <li>✅ VPC with public and private subnets already created</li>
+                            <li>✅ Security Groups knowledge (covered in previous sessions)</li>
+                            <li>✅ SSH client (Terminal on Mac/Linux, PuTTY or Windows Terminal on Windows)</li>
+                            <li>✅ An EC2 key pair (.pem file)</li>
+                        </ul>
+                    </div>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-1-three-ip-types">Project 1: See All Three IP Types in Action</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Launch an EC2 instance and observe its private IP,
+                                    public IP, and then allocate and associate an Elastic IP to understand the
+                                    difference.</p>
+                                <p><strong>⏱️ Time:</strong> 20–30 min</p>
+                                <p><strong>💰 Cost:</strong> Free tier (Elastic IP is free while attached to a running
+                                    instance)</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Open the <strong>EC2 Console</strong> and click <code>Launch Instance</code>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-launch-instance-start.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of EC2 console showing the Launch Instance button in the top right corner of the Instances page">
+                                        <p class="diagram-caption"><em>📸 Screenshot: EC2 dashboard with Launch Instance
+                                                button visible</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Choose <strong>Amazon Linux 2023</strong>, select <strong>t2.micro</strong> (free
+                                        tier), select your key pair, and choose a <strong>public subnet</strong> in your
+                                        VPC. Ensure <strong>Auto-assign public IP</strong> is set to
+                                        <code>Enable</code>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-instance-network-config.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of EC2 launch wizard network settings showing VPC selector, subnet selector, and Auto-assign public IP dropdown set to Enable">
+                                        <p class="diagram-caption"><em>📸 Screenshot: Network settings with public IP
+                                                enabled</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Launch the instance and wait for it to show <strong>Running</strong> status.</p>
+                                </li>
+                                <li>
+                                    <p>Click on the instance and view the <strong>Details</strong> tab. Note down both
+                                        the <strong>Private IPv4 address</strong> and the <strong>Public IPv4
+                                            address</strong>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-instance-details-both-ips.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of EC2 instance details tab showing Private IPv4 address field and Public IPv4 address field with their values">
+                                        <p class="diagram-caption"><em>📸 Screenshot: Instance details showing both
+                                                private and public IPs</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p><strong>Stop the instance</strong> (do not terminate). Wait until it shows
+                                        <strong>Stopped</strong> status. Then <strong>Start</strong> it again.</p>
+                                </li>
+                                <li>
+                                    <p>View the <strong>Details</strong> tab again. Observe that the <strong>Public IPv4
+                                            address has changed</strong>, while the Private IPv4 address remains the
+                                        same. This confirms the ephemeral nature of public IPs.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-public-ip-changed.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of EC2 instance details tab showing the new public IP address after stop and start, demonstrating that the public IP changed from the previously noted value">
+                                        <p class="diagram-caption"><em>📸 Screenshot: New public IP after restart —
+                                                confirm it differs from step 4</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Now navigate to <strong>Elastic IPs</strong> in the left menu. Click
+                                        <code>Allocate Elastic IP address</code> and confirm.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-allocate-eip.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of Elastic IPs page in EC2 console showing the Allocate Elastic IP address button and the allocation confirmation screen">
+                                        <p class="diagram-caption"><em>📸 Screenshot: Allocate Elastic IP page</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Select the newly allocated EIP, click <code>Actions</code> →
+                                        <code>Associate Elastic IP address</code>. Select your EC2 instance and click
+                                        <code>Associate</code>.</p>
+                                </li>
+                                <li>
+                                    <p>Stop and start the instance again. Verify the <strong>Elastic IP does not
+                                            change</strong>.</p>
+                                </li>
+                                <li>
+                                    <p><strong>Cleanup:</strong> Disassociate the Elastic IP, then release it. Stop and
+                                        terminate the instance. Unattached EIPs incur charges.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-eip-release.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot showing Actions menu with Disassociate Elastic IP address option selected, and then Release Elastic IP addresses confirmation dialog">
+                                        <p class="diagram-caption"><em>📸 Screenshot: Releasing the Elastic IP to avoid
+                                                charges</em></p>
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-2-bastion-host-setup">Project 2: Set Up a Bastion Host and SSH Into a
+                                Private EC2</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Create a Bastion Host in a public subnet and use it to
+                                    SSH into an EC2 instance in a private subnet that has no public IP.</p>
+                                <p><strong>⏱️ Time:</strong> 40–60 min</p>
+                                <p><strong>💰 Cost:</strong> Free tier (two t2.micro instances)</p>
+                            </div>
+                            <div class="error-box">
+                                <p>💰 <strong>Cost Note:</strong> Two t2.micro instances are free tier eligible. Make
+                                    sure to stop and terminate both after the lab to avoid any charges.</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Launch <strong>EC2-Bastion</strong>: Amazon Linux 2023, t2.micro, in your
+                                        <strong>public subnet</strong>, auto-assign public IP <strong>enabled</strong>.
+                                        In the Security Group, allow <strong>SSH (port 22) from your IP only</strong>
+                                        (use <code>My IP</code> option in the console).</p>
+                                    <div class="diagram-container"><img src="images/screenshot-bastion-sg-inbound.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of Security Group inbound rules for Bastion Host showing SSH port 22 allowed from specific IP address using My IP option, with type SSH, protocol TCP, port 22, and source as the user's IP">
+                                        <p class="diagram-caption"><em>📸 Screenshot: Bastion SG — SSH restricted to
+                                                your IP only</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Launch <strong>EC2-Private</strong>: Amazon Linux 2023, t2.micro, in your
+                                        <strong>private subnet</strong>, auto-assign public IP
+                                        <strong>disabled</strong>. Create a new Security Group (SG-Private) that allows
+                                        SSH only from the Bastion's Security Group ID.</p>
+                                    <div class="diagram-container"><img src="images/screenshot-private-ec2-sg.png"
+                                            loading="lazy" decoding="async"
+                                            alt="Screenshot of Security Group inbound rules for private EC2 showing SSH port 22 allowed with source set to the Bastion Host security group ID, not from any IP range">
+                                        <p class="diagram-caption"><em>📸 Screenshot: Private EC2 SG — SSH allowed only
+                                                from Bastion SG</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Confirm EC2-Private shows <strong>no public IP</strong> in its details.</p>
+                                </li>
+                                <li>
+                                    <p>SSH into the Bastion Host from your laptop:</p>
+                                    <pre><code>ssh -i your-key.pem ec2-user@&lt;Bastion-Public-IP&gt;</code></pre>
+                                </li>
+                                <li>
+                                    <p>From inside the Bastion, SSH into the private EC2 using its <strong>private
+                                            IP</strong>:</p>
+                                    <pre><code>ssh -i your-key.pem ec2-user@&lt;Private-EC2-Private-IP&gt;</code></pre>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-ssh-private-from-bastion.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of terminal showing successful SSH connection from bastion host to private EC2, displaying the Amazon Linux welcome message with the private EC2 hostname">
+                                        <p class="diagram-caption"><em>📸 Screenshot: Successful SSH into private EC2
+                                                from Bastion</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p><strong>Cleanup:</strong> Terminate both EC2 instances. Delete both Security
+                                        Groups.</p>
+                                </li>
+                            </ol>
+                            <div class="info-box">
+                                <p>💡 <strong>Pro tip:</strong> In real projects, you would use <strong>SSH agent
+                                        forwarding</strong> (<code>ssh -A</code>) so you don't have to copy your private
+                                    key onto the Bastion Host — that's a security risk. The Bastion uses your locally
+                                    loaded key to authenticate the second hop.</p>
+                            </div>
+                        </div>
+                    </details>
+
+
+<!-- ═══════════════════════════════════════════════════════
+  LEVEL 1 — FOUNDATION
+═══════════════════════════════════════════════════════ -->
+
+<details class="collapsible-section"><summary><h3 id="project-3-nat-gateway-private-ec2">Project 3: Private EC2 + Internet via NAT Gateway</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Create a NAT Gateway and prove that a private EC2 can reach the internet for outbound updates while remaining completely unreachable from the internet inbound.</p><p><strong>⏱️ Time:</strong> 45–60 min</p><p><strong>💰 Cost:</strong> ~$0.05–0.10 (NAT Gateway is NOT free tier — delete immediately after the lab)</p></div><div class="error-box"><p>💰 <strong>Cost Note:</strong> NAT Gateway charges ~$0.045/hour + $0.045/GB processed. Always delete it after finishing this lab — it is the most common source of unexpected AWS bills for students.</p></div><div class="highlight-box"><p>⚡ <strong>What you will prove:</strong> Private EC2 can <code>yum update</code> (outbound works) but no one on the internet can SSH into it directly (inbound blocked). This is the core value of NAT.</p></div><ol><li><p><strong>Prerequisites check:</strong> You need a VPC with at least one public subnet and one private subnet. Confirm your private subnet's route table has NO route to an Internet Gateway (only the local VPC route <code>10.0.0.0/16 → local</code>).</p><div class="diagram-container"><img src="images/screenshot-private-rt-before-nat.png" loading="lazy" decoding="async" alt="Screenshot of private subnet route table showing only one route: destination 10.0.0.0/16 with target local, confirming no internet gateway route exists yet"><p class="diagram-caption"><em>📸 Screenshot: Private subnet route table — only local route, no IGW</em></p></div></li><li><p><strong>Launch a private EC2:</strong> EC2 → Launch Instance → Amazon Linux 2023, t2.micro. Choose your <strong>private subnet</strong>. Set Auto-assign Public IP to <strong>Disable</strong>. Create a Security Group (SG-Private-NAT) with NO inbound rules (we want zero inbound internet access). Launch.</p><div class="diagram-container"><img src="images/screenshot-private-ec2-no-public-ip.png" loading="lazy" decoding="async" alt="Screenshot of EC2 launch wizard network settings showing private subnet selected, Auto-assign public IP set to Disable, confirming this instance will have no public IP address"><p class="diagram-caption"><em>📸 Screenshot: Private EC2 launch config — no public IP, private subnet only</em></p></div></li><li><p><strong>Create a NAT Gateway:</strong> Go to VPC → NAT Gateways → Create NAT Gateway. Name it <code>my-nat-gw</code>. Select your <strong>public subnet</strong>. Click <code>Allocate Elastic IP</code> (this auto-allocates a new EIP for the NAT Gateway). Click <strong>Create NAT Gateway</strong>.</p><div class="diagram-container"><img src="images/screenshot-create-nat-gateway.png" loading="lazy" decoding="async" alt="Screenshot of Create NAT Gateway page showing name field with my-nat-gw, subnet selector showing public subnet selected, Elastic IP allocation ID field with a newly allocated EIP, and the Create NAT Gateway button"><p class="diagram-caption"><em>📸 Screenshot: Create NAT Gateway — public subnet + allocated Elastic IP</em></p></div></li><li><p><strong>Wait for NAT Gateway to become Available.</strong> This takes 1–3 minutes. Refresh until the Status column shows <strong>Available</strong>.</p><div class="diagram-container"><img src="images/screenshot-nat-gateway-available.png" loading="lazy" decoding="async" alt="Screenshot of NAT Gateways list showing the new NAT gateway with Status column displaying Available in green, and the Elastic IP address assigned to it"><p class="diagram-caption"><em>📸 Screenshot: NAT Gateway status = Available</em></p></div></li><li><p><strong>Update the private subnet route table:</strong> VPC → Route Tables → find the route table associated with your private subnet → Routes tab → Edit Routes → Add Route. Destination: <code>0.0.0.0/0</code>. Target: select <strong>NAT Gateway</strong> → choose your <code>my-nat-gw</code>. Save.</p><div class="diagram-container"><img src="images/screenshot-private-rt-add-nat-route.png" loading="lazy" decoding="async" alt="Screenshot of Edit Routes page for private subnet route table showing two routes: 10.0.0.0/16 to local, and new route 0.0.0.0/0 with target set to the NAT Gateway ID"><p class="diagram-caption"><em>📸 Screenshot: Private route table after adding NAT Gateway route</em></p></div></li><li><p><strong>SSH into the private EC2 via Bastion Host</strong> (use Project 2 setup or Session Manager). Once inside the private EC2, run:</p><pre><code>curl -I https://www.google.com
+sudo yum update -y</code></pre><p>You should see HTTP 200 response from curl and package updates downloading. This confirms outbound internet works through NAT.</p><div class="diagram-container"><img src="images/screenshot-private-ec2-yum-update-success.png" loading="lazy" decoding="async" alt="Screenshot of terminal inside private EC2 showing curl -I https://www.google.com returning HTTP 200 OK response, and sudo yum update showing packages being downloaded from the internet"><p class="diagram-caption"><em>📸 Screenshot: Outbound internet confirmed — curl and yum working on private EC2</em></p></div></li><li><p><strong>Verify inbound is blocked:</strong> Try to SSH directly into the private EC2's private IP from your laptop (skip the Bastion). It will time out — confirming there is no inbound route from the internet to the private EC2.</p><pre><code># This should TIME OUT — proving inbound is blocked
+ssh -i your-key.pem ec2-user@10.0.2.x  # (from your local machine, not from Bastion)</code></pre></li><li><p><strong>Cleanup (CRITICAL):</strong><br>1. Terminate the private EC2.<br>2. VPC → NAT Gateways → Select <code>my-nat-gw</code> → Actions → <strong>Delete NAT Gateway</strong>. Wait for state to become Deleted.<br>3. EC2 → Elastic IPs → Select the EIP that was used by NAT Gateway → Actions → <strong>Release Elastic IP address</strong>.<br>4. Remove the <code>0.0.0.0/0 → NAT Gateway</code> route from the private subnet route table (or it will become a blackhole route).</p><div class="diagram-container"><img src="images/screenshot-delete-nat-gateway.png" loading="lazy" decoding="async" alt="Screenshot of NAT Gateways page with the gateway selected, Actions dropdown open showing Delete NAT gateway option, and a confirmation dialog warning that deletion is permanent"><p class="diagram-caption"><em>📸 Screenshot: Deleting NAT Gateway — critical cleanup step to stop charges</em></p></div></li></ol><div class="success-box"><p>✅ <strong>What you just proved:</strong> NAT Gateway is a one-way valve — it lets your private server reach out, but nothing can reach in. This is exactly the architecture used by every production system that needs servers to download packages or call external APIs while staying completely private.</p></div></div></details>
+
+<details class="collapsible-section"><summary><h3 id="project-4-public-private-communication">Project 4: Public vs Private Communication Between EC2 Instances</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Place two EC2 instances in the same VPC — one public, one private — and observe the exact communication rules: they talk to each other via private IP, and the public one is reachable from the internet while the private one is not.</p><p><strong>⏱️ Time:</strong> 30–45 min</p><p><strong>💰 Cost:</strong> Free tier (two t2.micro instances)</p></div><ol><li><p><strong>Launch EC2-Public:</strong> Amazon Linux 2023, t2.micro, in your <strong>public subnet</strong>, auto-assign public IP <strong>enabled</strong>. Create Security Group <code>SG-Public</code>: allow SSH (22) from your IP, allow ICMP (ping) from anywhere (<code>0.0.0.0/0</code>) so we can test ping.</p></li><li><p><strong>Launch EC2-Private:</strong> Amazon Linux 2023, t2.micro, in your <strong>private subnet</strong>, auto-assign public IP <strong>disabled</strong>. Create Security Group <code>SG-Private</code>: allow SSH (22) from <code>SG-Public</code> (the public EC2's SG). Allow ICMP from <code>SG-Public</code> as well.</p><div class="diagram-container"><img src="images/screenshot-sg-private-allow-icmp.png" loading="lazy" decoding="async" alt="Screenshot of SG-Private inbound rules showing two rules: SSH port 22 from SG-Public security group ID, and All ICMP - IPv4 from SG-Public security group ID"><p class="diagram-caption"><em>📸 Screenshot: Private EC2 SG — SSH and ICMP allowed only from public EC2's SG</em></p></div></li><li><p><strong>Note both private IPs.</strong> From the EC2 console, record: EC2-Public private IP (e.g. <code>10.0.1.10</code>) and EC2-Private private IP (e.g. <code>10.0.2.20</code>).</p><div class="diagram-container"><img src="images/screenshot-both-ec2-ips.png" loading="lazy" decoding="async" alt="Screenshot of EC2 instances list showing both instances with their private IP addresses visible in the Private IPv4 addresses column, one in public subnet and one in private subnet"><p class="diagram-caption"><em>📸 Screenshot: Both instances in the list — note their private IP addresses</em></p></div></li><li><p><strong>SSH into EC2-Public</strong> directly from your laptop (it has a public IP):</p><pre><code>ssh -i your-key.pem ec2-user@&lt;EC2-Public-Public-IP&gt;</code></pre></li><li><p><strong>From EC2-Public, ping EC2-Private</strong> using the private IP:</p><pre><code>ping 10.0.2.20  # Replace with your EC2-Private private IP
+# You should see ICMP replies — they communicate via private IP inside the VPC</code></pre><div class="diagram-container"><img src="images/screenshot-ping-private-from-public.png" loading="lazy" decoding="async" alt="Screenshot of terminal on EC2-Public showing ping command to EC2-Private private IP address with successful ICMP echo replies showing round-trip times, confirming VPC internal communication works"><p class="diagram-caption"><em>📸 Screenshot: Ping from public EC2 to private EC2 using private IP — success</em></p></div></li><li><p><strong>SSH from EC2-Public into EC2-Private</strong> using private IP:</p><pre><code>ssh -i your-key.pem ec2-user@10.0.2.20</code></pre><p>You should land on EC2-Private. Run <code>hostname</code> to confirm you are on the private machine. Notice the prompt changes to the private EC2's hostname (e.g. <code>ip-10-0-2-20</code>).</p><div class="diagram-container"><img src="images/screenshot-ssh-private-from-public-ec2.png" loading="lazy" decoding="async" alt="Screenshot of terminal showing SSH from EC2-Public into EC2-Private using private IP, with the Amazon Linux welcome banner and command prompt showing ip-10-0-2-20 hostname confirming successful connection to the private instance"><p class="diagram-caption"><em>📸 Screenshot: Successfully SSH'd into private EC2 from public EC2 using private IP</em></p></div></li><li><p><strong>Try to ping EC2-Public's private IP from EC2-Private</strong> (reverse direction):</p><pre><code>ping 10.0.1.10  # EC2-Public's private IP</code></pre><p>This works too — both machines are in the same VPC so they can communicate bidirectionally using private IPs, regardless of which subnet they are in.</p></li><li><p><strong>Key observation to record:</strong> EC2-Private has no public IP. Try to SSH to it directly from your laptop using its private IP — it will not work. The private IP is only reachable from within the VPC.</p></li><li><p><strong>Cleanup:</strong> Terminate both EC2 instances. Delete both Security Groups.</p></li></ol><div class="success-box"><p>✅ <strong>Core insight confirmed:</strong> Within a VPC, all instances communicate using private IPs regardless of which subnet they are in. Public IPs are only for reaching the internet. Two EC2s in the same VPC never need each other's public IPs to talk — private IP is always faster, cheaper (no data transfer charges), and more secure.</p></div></div></details>
+
+<!-- ═══════════════════════════════════════════════════════
+  LEVEL 2 — REAL UNDERSTANDING
+═══════════════════════════════════════════════════════ -->
+
+<details class="collapsible-section"><summary><h3 id="project-5-secure-web-app-2-tier">Project 5: Secure 2-Tier Web App (Public Web + Private Backend)</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Build a 2-tier architecture — a public-facing web server in a public subnet and a private backend server in a private subnet. Users reach the web server; the web server talks to the backend via private IP. The backend is never reachable from the internet.</p><p><strong>⏱️ Time:</strong> 60–75 min</p><p><strong>💰 Cost:</strong> Free tier (two t2.micro instances)</p></div><div class="highlight-box"><p>⚡ <strong>Architecture pattern:</strong> Internet → Web Server (public subnet) → Backend Server (private subnet, private IP only). The Bastion Host provides admin access to both. This is the most common interview architecture question.</p></div><ol><li><p><strong>Create Security Groups first</strong> (doing SGs before EC2 launch is best practice):</p><ul><li><strong>SG-Web:</strong> Inbound: HTTP (80) from <code>0.0.0.0/0</code>, HTTPS (443) from <code>0.0.0.0/0</code>, SSH (22) from your IP only.</li><li><strong>SG-Backend:</strong> Inbound: Custom TCP 8080 (app port) from <strong>SG-Web</strong> only. SSH (22) from <strong>SG-Bastion</strong> only (create SG-Bastion first if not exists, or reuse from Project 2).</li></ul><div class="diagram-container"><img src="images/screenshot-sg-web-inbound.png" loading="lazy" decoding="async" alt="Screenshot of SG-Web inbound rules showing three rules: HTTP port 80 from 0.0.0.0/0, HTTPS port 443 from 0.0.0.0/0, and SSH port 22 from a specific admin IP address"><p class="diagram-caption"><em>📸 Screenshot: SG-Web inbound rules — HTTP/HTTPS open, SSH restricted to admin</em></p></div><div class="diagram-container"><img src="images/screenshot-sg-backend-inbound.png" loading="lazy" decoding="async" alt="Screenshot of SG-Backend inbound rules showing two rules: Custom TCP port 8080 with source as SG-Web security group ID, and SSH port 22 with source as SG-Bastion security group ID"><p class="diagram-caption"><em>📸 Screenshot: SG-Backend — port 8080 only from web tier SG, SSH only from Bastion SG</em></p></div></li><li><p><strong>Launch EC2-WebServer</strong> in public subnet, t2.micro, Amazon Linux 2023. Attach <code>SG-Web</code>. Enable auto-assign public IP. In the <strong>User Data</strong> field (Advanced Details → User Data), paste this to auto-install a simple web server:</p><pre><code>#!/bin/bash
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "&lt;h1&gt;Web Server - $(hostname -f)&lt;/h1&gt;&lt;p&gt;Tier 1: Public Subnet&lt;/p&gt;" &gt; /var/www/html/index.html</code></pre><div class="diagram-container"><img src="images/screenshot-web-server-user-data.png" loading="lazy" decoding="async" alt="Screenshot of EC2 launch wizard Advanced Details section with User Data text area containing the bash script to install and configure Apache web server with a simple HTML page"><p class="diagram-caption"><em>📸 Screenshot: User Data script for auto-installing Apache on the web server</em></p></div></li><li><p><strong>Launch EC2-Backend</strong> in private subnet, t2.micro, Amazon Linux 2023. Attach <code>SG-Backend</code>. Disable auto-assign public IP. In User Data, install a simple app listener:</p><pre><code>#!/bin/bash
+yum update -y
+# Start a simple HTTP server on port 8080 to simulate a backend
+python3 -m http.server 8080 &amp;</code></pre></li><li><p><strong>Verify the web server is publicly reachable:</strong> Get EC2-WebServer's public IP. Open a browser and navigate to <code>http://&lt;WebServer-Public-IP&gt;</code>. You should see "Web Server - [hostname]".</p><div class="diagram-container"><img src="images/screenshot-web-server-browser.png" loading="lazy" decoding="async" alt="Screenshot of web browser showing the simple HTML page served by the Apache web server with the text showing Web Server followed by the EC2 hostname and Tier 1 Public Subnet"><p class="diagram-caption"><em>📸 Screenshot: Web server responding in browser — confirms public EC2 is live</em></p></div></li><li><p><strong>Test web-to-backend connectivity:</strong> SSH into EC2-WebServer. From there, test that the backend is reachable on port 8080:</p><pre><code>curl http://10.0.2.x:8080  # Replace with EC2-Backend private IP
+# Should return a directory listing from Python's HTTP server</code></pre><div class="diagram-container"><img src="images/screenshot-web-to-backend-curl.png" loading="lazy" decoding="async" alt="Screenshot of terminal on EC2-WebServer showing curl command to EC2-Backend private IP on port 8080 returning an HTML directory listing response, confirming web tier can reach backend tier"><p class="diagram-caption"><em>📸 Screenshot: Web server successfully calling backend via private IP:port</em></p></div></li><li><p><strong>Verify backend is NOT reachable from internet:</strong> From your laptop, try to curl the backend directly:</p><pre><code>curl http://&lt;EC2-Backend-Private-IP&gt;:8080
+# This will time out — the private IP is not routable from the internet</code></pre></li><li><p><strong>Draw the flow to solidify understanding:</strong> Internet (HTTP 80) → SG-Web allows → EC2-WebServer → Private IP:8080 → SG-Backend allows from SG-Web → EC2-Backend. Internet → EC2-Backend direct = BLOCKED.</p></li><li><p><strong>Cleanup:</strong> Terminate both EC2 instances. Delete SG-Web and SG-Backend.</p></li></ol><div class="success-box"><p>✅ <strong>What you built:</strong> A real 2-tier architecture. The web layer is public. The backend layer is private. Security Groups enforce the boundary — SG-Backend ONLY accepts traffic from SG-Web on port 8080. This is exactly how production web apps are designed.</p></div></div></details>
+
+<details class="collapsible-section"><summary><h3 id="project-6-session-manager-replace-bastion">Project 6: Replace Bastion Host with AWS Session Manager</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Eliminate the Bastion Host entirely. Access a private EC2 instance using AWS Systems Manager Session Manager — no open ports, no SSH keys, no public IP required. This is interview gold.</p><p><strong>⏱️ Time:</strong> 30–45 min</p><p><strong>💰 Cost:</strong> Free tier (t2.micro + SSM Session Manager is free)</p></div><div class="highlight-box"><p>⚡ <strong>Why this matters:</strong> Session Manager is the AWS-recommended approach as of 2023+. Companies like Amazon, Netflix, and Airbnb use SSM-based access rather than Bastion Hosts. Knowing this in an interview immediately shows senior-level thinking.</p></div><ol><li><p><strong>Create an IAM Role for SSM:</strong> IAM → Roles → Create role. Trusted entity: <strong>AWS Service → EC2</strong>. Attach the managed policy: <code>AmazonSSMManagedInstanceCore</code>. Name the role <code>EC2-SSM-Role</code>. This policy allows the SSM Agent on the EC2 to communicate with the SSM service.</p><div class="diagram-container"><img src="images/screenshot-create-ssm-iam-role.png" loading="lazy" decoding="async" alt="Screenshot of IAM Create Role page showing EC2 as the trusted entity selected, and AmazonSSMManagedInstanceCore policy attached in the permissions step, with role name EC2-SSM-Role"><p class="diagram-caption"><em>📸 Screenshot: IAM Role with AmazonSSMManagedInstanceCore policy — required for Session Manager</em></p></div></li><li><p><strong>Launch a private EC2 with SSM Role:</strong> Amazon Linux 2023, t2.micro, private subnet, no public IP. Create Security Group with <strong>zero inbound rules</strong> (no SSH, no nothing — that is the point). In <strong>Advanced Details → IAM instance profile</strong>, select <code>EC2-SSM-Role</code>.</p><div class="diagram-container"><img src="images/screenshot-private-ec2-ssm-role.png" loading="lazy" decoding="async" alt="Screenshot of EC2 launch wizard Advanced Details section showing IAM instance profile dropdown with EC2-SSM-Role selected, confirming the instance will have SSM permissions"><p class="diagram-caption"><em>📸 Screenshot: Attaching the SSM IAM role during EC2 launch</em></p></div></li><li><p><strong>Verify Security Group has zero inbound rules:</strong> After launch, check the instance's Security Group. It should show "No inbound rules" — confirming port 22 is NOT open.</p><div class="diagram-container"><img src="images/screenshot-ssm-ec2-no-inbound.png" loading="lazy" decoding="async" alt="Screenshot of Security Group inbound rules tab showing empty inbound rules table with the message No inbound rules, confirming no ports are open on this instance"><p class="diagram-caption"><em>📸 Screenshot: Security Group with zero inbound rules — no port 22, no nothing</em></p></div></li><li><p><strong>Wait 2–3 minutes</strong> for the SSM Agent to register. The SSM Agent (pre-installed on Amazon Linux 2023) will reach out to the SSM service endpoint over HTTPS automatically.</p></li><li><p><strong>Open Session Manager:</strong> AWS Console → Systems Manager → Session Manager → Start Session. Your EC2 instance should appear in the list. Select it and click <strong>Start session</strong>.</p><div class="diagram-container"><img src="images/screenshot-session-manager-start.png" loading="lazy" decoding="async" alt="Screenshot of AWS Systems Manager Session Manager Start Session page showing the private EC2 instance listed as a target with status Online, and the Start session button"><p class="diagram-caption"><em>📸 Screenshot: Session Manager — private EC2 appears as Online target, no Bastion needed</em></p></div></li><li><p><strong>You now have a browser-based shell on the private EC2.</strong> Run:</p><pre><code>whoami           # Should show ssm-user
+hostname         # Shows the EC2 hostname (private)
+curl -I https://www.google.com  # Test outbound (needs NAT Gateway or VPC endpoint)</code></pre><div class="diagram-container"><img src="images/screenshot-session-manager-shell.png" loading="lazy" decoding="async" alt="Screenshot of AWS Systems Manager Session Manager terminal in the browser showing successful shell access to the private EC2, with whoami returning ssm-user and hostname showing the private EC2 instance name"><p class="diagram-caption"><em>📸 Screenshot: Browser-based shell on private EC2 via Session Manager — no SSH, no Bastion</em></p></div></li><li><p><strong>Check session logs (bonus):</strong> Session Manager → Session History. Every session is automatically logged — who connected, when, and duration. This is the audit trail that Bastion Hosts require manual setup to achieve.</p><div class="diagram-container"><img src="images/screenshot-session-manager-history.png" loading="lazy" decoding="async" alt="Screenshot of Session Manager Session History tab showing a completed session with details including the target instance ID, start time, end time, and the IAM user who initiated the session"><p class="diagram-caption"><em>📸 Screenshot: Session history — automatic audit trail with no extra setup</em></p></div></li><li><p><strong>Cleanup:</strong> Terminate session. Terminate the EC2 instance. Delete the IAM role (optional, or keep for future use).</p></li></ol><div class="success-box"><p>✅ <strong>What you proved:</strong> You connected to a private EC2 with NO open ports, NO public IP, NO SSH keys, and NO Bastion Host. The entire connection happened because the SSM Agent on the EC2 made an outbound HTTPS call to AWS's SSM endpoint. This is the modern, production-grade access pattern.</p></div></div></details>
+
+<details class="collapsible-section"><summary><h3 id="project-7-elastic-ip-failover">Project 7: Elastic IP Failover Simulation</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Simulate a real production failover — attach an Elastic IP to Server A, simulate a failure by stopping it, and move the EIP to Server B without changing any external IP. Zero downtime, same public address.</p><p><strong>⏱️ Time:</strong> 30–40 min</p><p><strong>💰 Cost:</strong> Free tier (two t2.micro). Brief EIP idle charge (~$0.01) if you take long between steps.</p></div><div class="highlight-box"><p>⚡ <strong>Real-world scenario:</strong> Your production web server's IP is 52.10.20.30. It is whitelisted in your client's firewall. The server dies at 2 AM. You need to bring up a new server with the exact same public IP — without calling your client at 2 AM to update their firewall rules. This is how Elastic IP enables that.</p></div><ol><li><p><strong>Launch EC2-A (Primary Server):</strong> Amazon Linux 2023, t2.micro, public subnet. User Data to make it identifiable:</p><pre><code>#!/bin/bash
+yum install -y httpd
+systemctl start httpd
+echo "&lt;h1&gt;SERVER A — Primary&lt;/h1&gt;" &gt; /var/www/html/index.html</code></pre><p>Allow HTTP (80) from anywhere and SSH from your IP in its Security Group.</p></li><li><p><strong>Launch EC2-B (Standby Server):</strong> Same config, same public subnet. User Data:</p><pre><code>#!/bin/bash
+yum install -y httpd
+systemctl start httpd
+echo "&lt;h1&gt;SERVER B — Standby (now Primary)&lt;/h1&gt;" &gt; /var/www/html/index.html</code></pre></li><li><p><strong>Allocate an Elastic IP:</strong> EC2 → Elastic IPs → Allocate Elastic IP address → Allocate. Note the EIP address (e.g. <code>52.10.20.30</code>).</p></li><li><p><strong>Associate EIP with EC2-A:</strong> Select the EIP → Actions → Associate → select EC2-A → Associate.</p><div class="diagram-container"><img src="images/screenshot-eip-associated-server-a.png" loading="lazy" decoding="async" alt="Screenshot of EC2 instance details for EC2-A showing the Elastic IP address field populated with the allocated EIP value, confirming the EIP is now associated with Server A"><p class="diagram-caption"><em>📸 Screenshot: EIP associated with EC2-A (note the EIP address — it will stay the same after failover)</em></p></div></li><li><p><strong>Verify Server A responds:</strong> Open browser to <code>http://&lt;EIP&gt;</code>. You should see "SERVER A — Primary".</p><div class="diagram-container"><img src="images/screenshot-server-a-browser.png" loading="lazy" decoding="async" alt="Screenshot of browser showing the simple web page with text SERVER A Primary, confirming EC2-A is serving traffic on the Elastic IP address"><p class="diagram-caption"><em>📸 Screenshot: Server A serving traffic on the Elastic IP</em></p></div></li><li><p><strong>Simulate failure — stop EC2-A:</strong> EC2 → select EC2-A → Instance State → Stop. Wait for Stopped state. In production this would be an unexpected failure.</p></li><li><p><strong>Execute failover — move EIP to EC2-B:</strong> EC2 → Elastic IPs → select your EIP → Actions → Disassociate. Confirm. Then Actions → Associate → select EC2-B → Associate.</p><div class="diagram-container"><img src="images/screenshot-eip-reassociate-server-b.png" loading="lazy" decoding="async" alt="Screenshot of Associate Elastic IP address dialog showing EC2-B selected as the instance to associate the EIP with, after having just disassociated it from EC2-A"><p class="diagram-caption"><em>📸 Screenshot: EIP being associated to EC2-B after disassociating from stopped EC2-A</em></p></div></li><li><p><strong>Verify Server B now responds on the SAME IP:</strong> Refresh <code>http://&lt;EIP&gt;</code> (same address as before). Now it shows "SERVER B — Standby (now Primary)". The IP never changed.</p><div class="diagram-container"><img src="images/screenshot-server-b-browser-same-ip.png" loading="lazy" decoding="async" alt="Screenshot of browser showing the web page with text SERVER B Standby now Primary, on the exact same Elastic IP address that was previously showing Server A, demonstrating seamless EIP failover"><p class="diagram-caption"><em>📸 Screenshot: Server B on the same EIP — client firewall rules unchanged, seamless failover</em></p></div></li><li><p><strong>Cleanup:</strong> Terminate both EC2 instances. Disassociate and release the Elastic IP.</p></li></ol><div class="success-box"><p>✅ <strong>What you proved:</strong> Elastic IP enables zero-downtime IP failover. The public address never changed. Any DNS records or firewall rules pointing to that IP continued to work immediately without any changes on the client side. This is a standard production disaster recovery pattern.</p></div></div></details>
+
+<!-- ═══════════════════════════════════════════════════════
+  LEVEL 3 — ARCHITECTURE THINKING
+═══════════════════════════════════════════════════════ -->
+
+<details class="collapsible-section"><summary><h3 id="project-8-3-tier-architecture">Project 8: 3-Tier Architecture (Web + App + Database)</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Build a 3-tier architecture — the most common production pattern. Public tier for web, private tier for application logic, private tier for database. Each tier is isolated from the others by Security Groups and subnets.</p><p><strong>⏱️ Time:</strong> 75–90 min</p><p><strong>💰 Cost:</strong> Free tier for EC2. NAT Gateway ~$0.05 if you use it. Use NAT Instance instead to stay free.</p></div><div class="error-box"><p>💰 <strong>Cost Note:</strong> Skip NAT Gateway for this project to keep costs at zero. Your private EC2s won't have outbound internet — that is fine for this architecture demo. Add NAT Gateway only if you need the app server to make outbound API calls.</p></div><div class="highlight-box"><p>⚡ <strong>The 3-tier rule:</strong> Web tier talks to App tier. App tier talks to DB tier. Web tier NEVER talks directly to DB tier. Security Groups enforce these boundaries technically, not just by convention.</p></div><ol><li><p><strong>Plan your Security Groups (create all 4 before any EC2):</strong></p><ul><li><strong>SG-Web3T:</strong> Inbound HTTP 80 from <code>0.0.0.0/0</code>, HTTPS 443 from <code>0.0.0.0/0</code>, SSH 22 from your IP.</li><li><strong>SG-App3T:</strong> Inbound Custom TCP 8080 from <strong>SG-Web3T</strong> only. SSH 22 from SG-Bastion.</li><li><strong>SG-DB3T:</strong> Inbound MySQL/Aurora 3306 from <strong>SG-App3T</strong> only. No SSH (databases should not be SSH'd into directly).</li><li><strong>SG-Bastion3T:</strong> Inbound SSH 22 from your IP only.</li></ul><div class="diagram-container"><img src="images/screenshot-3tier-sg-db.png" loading="lazy" decoding="async" alt="Screenshot of SG-DB3T inbound rules showing only one rule: MySQL Aurora port 3306 with source as SG-App3T security group ID, confirming the database tier is only accessible from the application tier"><p class="diagram-caption"><em>📸 Screenshot: SG-DB3T — MySQL port 3306 accessible ONLY from App tier SG, nothing else</em></p></div></li><li><p><strong>Launch all 4 EC2 instances:</strong><br>
+EC2-Web3T → public subnet, SG-Web3T, public IP enabled. User Data: Apache install (same as Project 5).<br>
+EC2-App3T → private subnet, SG-App3T, no public IP. User Data: <code>python3 -m http.server 8080 &amp;</code><br>
+EC2-DB3T → private subnet (ideally a second private subnet for DB isolation), SG-DB3T, no public IP. User Data: <code>yum install -y mariadb105-server &amp;&amp; systemctl start mariadb</code><br>
+EC2-Bastion3T → public subnet, SG-Bastion3T, public IP enabled (or use Elastic IP).</p><div class="diagram-container"><img src="images/screenshot-3tier-instances-list.png" loading="lazy" decoding="async" alt="Screenshot of EC2 instances list showing all four instances: EC2-Web3T and EC2-Bastion3T in public subnets with public IPs, EC2-App3T and EC2-DB3T in private subnets with no public IPs, all running"><p class="diagram-caption"><em>📸 Screenshot: All 4 instances running — 2 public, 2 private, no public IPs on private ones</em></p></div></li><li><p><strong>Verify the chain: Web → App.</strong> SSH into EC2-Web3T. From there:</p><pre><code>curl http://&lt;EC2-App3T-private-IP&gt;:8080
+# Should return Python HTTP server directory listing</code></pre></li><li><p><strong>Verify App → DB.</strong> SSH into EC2-App3T (via Bastion). From there:</p><pre><code>mysql -h &lt;EC2-DB3T-private-IP&gt; -u root
+# Should connect (or show auth error — either way, the port is reachable)</code></pre><div class="diagram-container"><img src="images/screenshot-app-to-db-mysql.png" loading="lazy" decoding="async" alt="Screenshot of terminal on EC2-App3T showing mysql command connecting to EC2-DB3T private IP on port 3306, with either a successful connection prompt or an authentication error confirming port 3306 is reachable from the app tier"><p class="diagram-caption"><em>📸 Screenshot: App tier reaching database tier on port 3306 via private IP</em></p></div></li><li><p><strong>Verify Web CANNOT reach DB directly.</strong> From EC2-Web3T:</p><pre><code>curl http://&lt;EC2-DB3T-private-IP&gt;:3306
+# Should time out — SG-DB3T blocks web tier from talking to database</code></pre></li><li><p><strong>Cleanup:</strong> Terminate all 4 EC2 instances. Delete all 4 Security Groups.</p></li></ol><div class="success-box"><p>✅ <strong>What you built:</strong> A proper 3-tier architecture. The web tier can reach the app tier. The app tier can reach the database. The web tier CANNOT directly access the database — the Security Group blocks it even though they are in the same VPC. This is defense-in-depth: even if the web server is compromised, the attacker cannot directly query your database.</p></div></div></details>
+
+<details class="collapsible-section"><summary><h3 id="project-9-load-balancer-auto-scaling">Project 9: Auto Scaling + Load Balancer (Traffic Distribution)</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Set up an Application Load Balancer with an Auto Scaling Group. Traffic distributes across multiple EC2 instances automatically. Instances scale out when load increases and scale in when load drops.</p><p><strong>⏱️ Time:</strong> 60–90 min</p><p><strong>💰 Cost:</strong> ALB ~$0.025/hour. EC2 t2.micro free tier. Delete ALB immediately after to avoid charges.</p></div><div class="error-box"><p>💰 <strong>Cost Note:</strong> Application Load Balancer charges ~$0.025/hour even with zero traffic. Run this lab, take screenshots, then delete the ALB promptly. The ASG instances (t2.micro) are free tier.</p></div><ol><li><p><strong>Create a Launch Template</strong> (the blueprint for auto-scaled instances): EC2 → Launch Templates → Create launch template. Name: <code>web-lt</code>. AMI: Amazon Linux 2023. Instance type: t2.micro. Security Group: one that allows HTTP 80 from the ALB's SG (create SG-ALB first — see next step). User Data:</p><pre><code>#!/bin/bash
+yum install -y httpd
+systemctl start httpd
+# Shows which instance served the request
+echo "&lt;h1&gt;Hello from $(hostname -f)&lt;/h1&gt;" &gt; /var/www/html/index.html</code></pre><div class="diagram-container"><img src="images/screenshot-launch-template-create.png" loading="lazy" decoding="async" alt="Screenshot of Create Launch Template page showing the template name web-lt, Amazon Linux 2023 AMI selected, t2.micro instance type, and the User Data field containing the Apache installation bash script"><p class="diagram-caption"><em>📸 Screenshot: Launch Template with User Data for auto-configuring web servers</em></p></div></li><li><p><strong>Create SG-ALB:</strong> Allow HTTP 80 from <code>0.0.0.0/0</code>. Create <strong>SG-ASG-Instances</strong>: Allow HTTP 80 from <strong>SG-ALB</strong> only (instances only accept traffic from the load balancer, not directly from the internet).</p></li><li><p><strong>Create an Application Load Balancer:</strong> EC2 → Load Balancers → Create → Application Load Balancer. Name: <code>my-alb</code>. Internet-facing. Select at least 2 public subnets (different AZs). Attach SG-ALB.</p><div class="diagram-container"><img src="images/screenshot-alb-create-config.png" loading="lazy" decoding="async" alt="Screenshot of Create Application Load Balancer page showing the load balancer name my-alb, Internet-facing scheme selected, two public subnets in different availability zones selected, and SG-ALB attached"><p class="diagram-caption"><em>📸 Screenshot: ALB creation — internet-facing, two AZs, correct SG</em></p></div></li><li><p><strong>Create a Target Group:</strong> During ALB creation, create a new Target Group. Type: Instances. Port: 80. Health check path: <code>/</code>. Leave empty for now — the Auto Scaling Group will register instances automatically.</p></li><li><p><strong>Create an Auto Scaling Group:</strong> EC2 → Auto Scaling Groups → Create. Select your Launch Template <code>web-lt</code>. Select your VPC and 2 public subnets. Attach to your ALB target group. Set: Desired capacity: 2, Minimum: 1, Maximum: 4.</p><div class="diagram-container"><img src="images/screenshot-asg-create-config.png" loading="lazy" decoding="async" alt="Screenshot of Create Auto Scaling Group page showing the launch template web-lt selected, VPC and two public subnets chosen, ALB target group attached, with desired capacity 2, minimum 1, maximum 4 configured"><p class="diagram-caption"><em>📸 Screenshot: ASG configuration — 2 desired instances, attached to ALB target group</em></p></div></li><li><p><strong>Verify instances registered in the target group:</strong> EC2 → Target Groups → your TG → Targets tab. Both instances should show as <strong>healthy</strong>.</p><div class="diagram-container"><img src="images/screenshot-target-group-healthy.png" loading="lazy" decoding="async" alt="Screenshot of Target Group Targets tab showing two EC2 instances registered as targets, both with Health status showing Healthy in green"><p class="diagram-caption"><em>📸 Screenshot: Both ASG instances showing Healthy in the Target Group</em></p></div></li><li><p><strong>Test load distribution:</strong> Get the ALB DNS name (from the Load Balancers page). Open it in browser — note the hostname. Refresh several times. The hostname in the response should alternate between the two instances, proving load balancing is working.</p><pre><code># Or use curl in a loop to see distribution clearly
+for i in {1..10}; do curl -s http://&lt;ALB-DNS-name&gt; | grep hostname; done</code></pre><div class="diagram-container"><img src="images/screenshot-alb-load-distribution.png" loading="lazy" decoding="async" alt="Screenshot of terminal showing curl loop output with alternating hostnames from two different EC2 instances responding to requests, demonstrating the load balancer distributing traffic across both instances"><p class="diagram-caption"><em>📸 Screenshot: Traffic alternating between instances — load balancing confirmed</em></p></div></li><li><p><strong>Simulate auto-healing:</strong> Manually terminate one of the two instances (not via ASG, just EC2 terminate). Watch the ASG automatically launch a replacement to maintain the desired count of 2.</p><div class="diagram-container"><img src="images/screenshot-asg-auto-replace.png" loading="lazy" decoding="async" alt="Screenshot of Auto Scaling Group Activity tab showing a scaling activity where a new instance was launched to replace a terminated instance, maintaining the desired capacity of 2"><p class="diagram-caption"><em>📸 Screenshot: ASG automatically replacing the terminated instance — self-healing</em></p></div></li><li><p><strong>Cleanup (order matters):</strong><br>1. Set ASG Desired/Minimum to 0 — instances terminate automatically.<br>2. Wait for 0 instances running.<br>3. Delete the Auto Scaling Group.<br>4. Delete the Application Load Balancer.<br>5. Delete the Target Group.<br>6. Delete the Launch Template.</p></li></ol><div class="success-box"><p>✅ <strong>What you built:</strong> Real production infrastructure. Traffic enters through the ALB and is distributed across instances. If an instance dies, ASG auto-replaces it. If traffic spikes, ASG scales out. This is the core pattern behind every high-traffic web application on AWS.</p></div></div></details>
+
+<details class="collapsible-section"><summary><h3 id="project-10-multi-az-high-availability">Project 10: High Availability — Multi-AZ Architecture</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Deploy the same infrastructure across two Availability Zones. One NAT Gateway per AZ. Load balancer spans both AZs. If one entire AZ goes down, the application continues running in the other.</p><p><strong>⏱️ Time:</strong> 90–120 min</p><p><strong>💰 Cost:</strong> Two NAT Gateways (~$0.10/hour total). Delete promptly after lab.</p></div><div class="error-box"><p>💰 <strong>Cost Note:</strong> Two NAT Gateways = ~$0.09/hour. This adds up fast. Complete the lab efficiently and delete both immediately.</p></div><div class="highlight-box"><p>⚡ <strong>The HA principle:</strong> Every single-point-of-failure must be either eliminated or duplicated across AZs. Load Balancer, NAT Gateway, and instances — all span multiple AZs. When a full AZ fails, traffic automatically reroutes to the surviving AZ.</p></div><ol><li><p><strong>VPC Setup — ensure you have resources in two AZs:</strong><br>Public Subnet AZ-a: e.g. <code>10.0.1.0/24</code> in us-east-1a<br>Public Subnet AZ-b: e.g. <code>10.0.3.0/24</code> in us-east-1b<br>Private Subnet AZ-a: e.g. <code>10.0.2.0/24</code> in us-east-1a<br>Private Subnet AZ-b: e.g. <code>10.0.4.0/24</code> in us-east-1b</p><div class="diagram-container"><img src="images/screenshot-multi-az-subnets.png" loading="lazy" decoding="async" alt="Screenshot of VPC Subnets list showing four subnets: two public subnets in different availability zones us-east-1a and us-east-1b, and two private subnets also in different availability zones, all associated with the same VPC"><p class="diagram-caption"><em>📸 Screenshot: Four subnets across two AZs — foundation for HA architecture</em></p></div></li><li><p><strong>Create NAT Gateway in AZ-a:</strong> Place in Public Subnet AZ-a. Allocate a new EIP.</p></li><li><p><strong>Create NAT Gateway in AZ-b:</strong> Place in Public Subnet AZ-b. Allocate a different EIP.</p><div class="diagram-container"><img src="images/screenshot-two-nat-gateways.png" loading="lazy" decoding="async" alt="Screenshot of NAT Gateways list showing two NAT gateways, one in each availability zone, both with Available status, each with their own different Elastic IP addresses"><p class="diagram-caption"><em>📸 Screenshot: Two NAT Gateways — one per AZ, each with its own Elastic IP</em></p></div></li><li><p><strong>Create separate route tables for each private subnet:</strong><br>RT-Private-AZ-a: route <code>0.0.0.0/0 → NAT-GW-AZ-a</code>. Associate with Private Subnet AZ-a.<br>RT-Private-AZ-b: route <code>0.0.0.0/0 → NAT-GW-AZ-b</code>. Associate with Private Subnet AZ-b.<br><br>This is the key: each AZ's private subnet routes to its <em>own</em> NAT Gateway. If AZ-a's NAT fails, AZ-b is unaffected.</p><div class="diagram-container"><img src="images/screenshot-private-rt-per-az.png" loading="lazy" decoding="async" alt="Screenshot showing two separate route tables for private subnets, RT-Private-AZ-a pointing 0.0.0.0/0 to NAT Gateway in AZ-a, and RT-Private-AZ-b pointing 0.0.0.0/0 to NAT Gateway in AZ-b"><p class="diagram-caption"><em>📸 Screenshot: Each AZ has its own private route table pointing to its own NAT Gateway</em></p></div></li><li><p><strong>Deploy an ALB + ASG spanning both AZs</strong> (same as Project 9, but select both public subnets). The ASG should place instances in both private subnets — one in each AZ.</p></li><li><p><strong>Simulate AZ failure:</strong> Go to EC2 → find the instance in AZ-a → terminate it. Observe: the ALB stops routing to AZ-a (the target becomes unhealthy). The ASG launches a replacement in AZ-b OR back in AZ-a (depending on rebalancing). Traffic continues uninterrupted to AZ-b's instance.</p><div class="diagram-container"><img src="images/screenshot-az-failover-tg.png" loading="lazy" decoding="async" alt="Screenshot of Target Group Targets showing one instance in us-east-1a with Unhealthy status and one instance in us-east-1b with Healthy status, demonstrating that the ALB continues routing to the healthy AZ while the failed AZ is excluded"><p class="diagram-caption"><em>📸 Screenshot: ALB automatically stops routing to the failed AZ instance</em></p></div></li><li><p><strong>Cleanup:</strong> Delete both NAT Gateways. Release both EIPs. Delete ALB, Target Group, ASG. Terminate all EC2 instances.</p></li></ol><div class="success-box"><p>✅ <strong>What you built:</strong> A genuinely highly available system. No single component is a single point of failure. This is what "99.99% availability" actually looks like in practice. This project alone makes for an exceptional interview story.</p></div></div></details>
+
+<!-- ═══════════════════════════════════════════════════════
+  LEVEL 4 — DEVOPS MINDSET
+═══════════════════════════════════════════════════════ -->
+
+<details class="collapsible-section"><summary><h3 id="project-11-infrastructure-as-code">Project 11: Infrastructure as Code — VPC with CloudFormation</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Create your entire VPC setup — subnets, route tables, Internet Gateway, NAT Gateway, Security Groups — using AWS CloudFormation. Never click the console again. Everything is versioned, repeatable, and deletable with one command.</p><p><strong>⏱️ Time:</strong> 45–60 min</p><p><strong>💰 Cost:</strong> NAT Gateway ~$0.045/hour. Delete the CloudFormation stack when done — it cleans up everything automatically.</p></div><div class="highlight-box"><p>⚡ <strong>Why IaC matters:</strong> Clicking the console creates infrastructure no one can audit, reproduce, or delete cleanly. CloudFormation (or Terraform) gives you version control for your infrastructure, just like Git gives you version control for your code. This is a fundamental DevOps skill.</p></div><ol><li><p><strong>Create the CloudFormation template file.</strong> Open a text editor and save this as <code>vpc-stack.yaml</code>:</p><pre><code>AWSTemplateFormatVersion: '2010-09-09'
+Description: 'VPC with Public and Private Subnets, IGW, NAT Gateway'
+
+Parameters:
+  VpcCIDR:
+    Default: 10.0.0.0/16
+    Type: String
+  PublicSubnetCIDR:
+    Default: 10.0.1.0/24
+    Type: String
+  PrivateSubnetCIDR:
+    Default: 10.0.2.0/24
+    Type: String
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: MyVPC-CFN
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: MyIGW-CFN
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnetCIDR
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: PublicSubnet-CFN
+
+  PrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnetCIDR
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: PrivateSubnet-CFN
+
+  NatEIP:
+    Type: AWS::EC2::EIP
+    DependsOn: AttachGateway
+    Properties:
+      Domain: vpc
+
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatEIP.AllocationId
+      SubnetId: !Ref PublicSubnet
+      Tags:
+        - Key: Name
+          Value: MyNAT-CFN
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: PublicRT-CFN
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: PrivateRT-CFN
+
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+
+  PrivateSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet
+      RouteTableId: !Ref PrivateRouteTable
+
+Outputs:
+  VpcId:
+    Value: !Ref VPC
+    Description: VPC ID
+  PublicSubnetId:
+    Value: !Ref PublicSubnet
+    Description: Public Subnet ID
+  PrivateSubnetId:
+    Value: !Ref PrivateSubnet
+    Description: Private Subnet ID</code></pre></li><li><p><strong>Deploy the stack:</strong> AWS Console → CloudFormation → Create Stack → Upload a template file → select your <code>vpc-stack.yaml</code>. Stack name: <code>my-vpc-stack</code>. Leave parameters as defaults. Next → Next → Create Stack.</p><div class="diagram-container"><img src="images/screenshot-cfn-create-stack.png" loading="lazy" decoding="async" alt="Screenshot of CloudFormation Create Stack page showing the template file uploaded, stack name as my-vpc-stack, and the Create Stack button, with parameter fields showing VpcCIDR, PublicSubnetCIDR, and PrivateSubnetCIDR with their default values"><p class="diagram-caption"><em>📸 Screenshot: CloudFormation stack creation with YAML template uploaded</em></p></div></li><li><p><strong>Watch the stack build:</strong> CloudFormation → Stacks → my-vpc-stack → Events tab. Watch each resource being created in real time. VPC, IGW, Subnets, NAT Gateway, Route Tables — all created automatically in the correct order.</p><div class="diagram-container"><img src="images/screenshot-cfn-stack-events.png" loading="lazy" decoding="async" alt="Screenshot of CloudFormation Stack Events tab showing a series of CREATE_IN_PROGRESS and CREATE_COMPLETE events for each resource in the template, including VPC, InternetGateway, PublicSubnet, NatGateway, and route tables"><p class="diagram-caption"><em>📸 Screenshot: Stack events showing infrastructure being created resource by resource</em></p></div></li><li><p><strong>Verify the Outputs:</strong> Outputs tab shows the VPC ID, Public Subnet ID, and Private Subnet ID — ready to be used by other stacks (cross-stack references).</p><div class="diagram-container"><img src="images/screenshot-cfn-stack-outputs.png" loading="lazy" decoding="async" alt="Screenshot of CloudFormation Stack Outputs tab showing three output values: VpcId with the new VPC ID, PublicSubnetId with the subnet ID, and PrivateSubnetId with the private subnet ID"><p class="diagram-caption"><em>📸 Screenshot: Stack outputs — IDs exported for use in dependent stacks</em></p></div></li><li><p><strong>Cleanup — delete the entire stack:</strong> CloudFormation → Stacks → my-vpc-stack → Delete. One click removes every resource in reverse-dependency order. No manual cleanup needed.</p><div class="diagram-container"><img src="images/screenshot-cfn-delete-stack.png" loading="lazy" decoding="async" alt="Screenshot of CloudFormation Stacks list showing my-vpc-stack with DELETE_IN_PROGRESS status, showing that all resources are being cleaned up automatically by CloudFormation"><p class="diagram-caption"><em>📸 Screenshot: Stack deletion — everything cleaned up automatically in one operation</em></p></div></li></ol><div class="success-box"><p>✅ <strong>What you proved:</strong> Infrastructure as Code means your architecture is repeatable, auditable, and version-controllable. The same YAML that just built your VPC can build it again in any region, in any account, identically. This is how Netflix, Airbnb, and every major tech company manages AWS infrastructure.</p></div></div></details>
+
+<details class="collapsible-section"><summary><h3 id="project-12-cost-optimization-nat-instance">Project 12: Cost Optimization — NAT Instance vs NAT Gateway</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Replace a NAT Gateway with a NAT Instance to understand the cost/complexity trade-off. Then compare both approaches side-by-side and make a documented decision about when each is appropriate.</p><p><strong>⏱️ Time:</strong> 45–60 min</p><p><strong>💰 Cost:</strong> Free tier (t2.micro for NAT Instance). NAT Gateway: ~$0.045/hour for comparison only.</p></div><div class="highlight-box"><p>⚡ <strong>The real-world context:</strong> In a dev/test environment running 8 hours a day, a NAT Gateway costs ~$25/month. A NAT Instance on t2.micro (free tier eligible) costs $0. For hundreds of dev environments, this difference is significant. But for production — NAT Gateway every time.</p></div><ol><li><p><strong>Launch the NAT Instance:</strong> EC2 → Launch Instance. AMI: search for <strong>fck-nat</strong> or use the community AMI <code>ami-0775b8e0c68e8a7e3</code> (fck-nat, a popular open-source NAT AMI for us-east-1 — verify current AMI ID from <a href="https://github.com/AndrewGuenther/fck-nat" target="_blank" rel="noopener noreferrer">fck-nat GitHub</a>). Instance type: t2.micro. Place in <strong>public subnet</strong>. Enable public IP. Security Group: allow all traffic from your private subnet CIDR (e.g. <code>10.0.2.0/24</code>).</p><div class="diagram-container"><img src="images/screenshot-nat-instance-ami.png" loading="lazy" decoding="async" alt="Screenshot of EC2 Launch Instance AMI search showing fck-nat AMI in the search results with the community AMI selected for use as a NAT Instance"><p class="diagram-caption"><em>📸 Screenshot: Selecting the NAT AMI — community AMI designed for NAT use case</em></p></div></li><li><p><strong>Disable source/destination check on the NAT Instance:</strong> Select the NAT Instance → Actions → Networking → Change source/destination check → <strong>Stop</strong>. This is critical — without this, EC2 drops packets that are not addressed to or from it, which breaks NAT.</p><div class="diagram-container"><img src="images/screenshot-disable-src-dst-check.png" loading="lazy" decoding="async" alt="Screenshot of EC2 instance Actions menu showing Networking submenu expanded and Change source destination check option highlighted, with the dialog showing the Stop checkbox to disable the check"><p class="diagram-caption"><em>📸 Screenshot: Disabling source/destination check — required for NAT Instances to work</em></p></div></li><li><p><strong>Update private subnet route table:</strong> Change the <code>0.0.0.0/0</code> route from NAT Gateway to <strong>Instance → your NAT Instance ID</strong>.</p></li><li><p><strong>Test: SSH into a private EC2 via Bastion and run:</strong></p><pre><code>curl -I https://www.google.com
+# Should return 200 OK — outbound working through NAT Instance</code></pre><div class="diagram-container"><img src="images/screenshot-nat-instance-curl-success.png" loading="lazy" decoding="async" alt="Screenshot of terminal on private EC2 showing curl -I https://www.google.com returning HTTP 200 OK, confirming outbound internet access is working through the NAT Instance"><p class="diagram-caption"><em>📸 Screenshot: Outbound internet confirmed through NAT Instance</em></p></div></li><li><p><strong>Document the trade-offs side by side. Fill this in for yourself:</strong></p><table><thead><tr><th>Dimension</th><th>NAT Gateway</th><th>NAT Instance (fck-nat)</th></tr></thead><tbody><tr><td>Monthly cost (light use)</td><td>~$32/month</td><td>~$0 (free tier) or ~$7/month (t3.nano)</td></tr><tr><td>Setup time</td><td>2 minutes</td><td>10–15 minutes</td></tr><tr><td>Maintenance</td><td>Zero</td><td>You patch + monitor</td></tr><tr><td>Max throughput</td><td>100 Gbps</td><td>~5 Gbps (c5.4xlarge) or 1.25 Gbps (t3.large)</td></tr><tr><td>High availability</td><td>Built-in (within AZ)</td><td>Manual (you set up ASG)</td></tr><tr><td>Use for production</td><td>✅ Yes</td><td>⚠️ Only if you accept the trade-offs</td></tr><tr><td>Use for dev/test</td><td>Expensive</td><td>✅ Recommended to save cost</td></tr></tbody></table></li><li><p><strong>Cleanup:</strong> Terminate NAT Instance. Remove the route or update back to no internet route. Release any EIPs.</p></li></ol><div class="success-box"><p>✅ <strong>Decision framework you now have:</strong> Production = NAT Gateway (reliability, zero ops). Dev/test with budget constraints = NAT Instance or fck-nat. Demonstrating this nuance in an interview shows you think about real-world trade-offs, not just textbook answers.</p></div></div></details>
+
+<details class="collapsible-section"><summary><h3 id="project-13-monitoring-cloudwatch">Project 13: Monitoring + Alerts with CloudWatch</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Set up CloudWatch monitoring and alarms for your EC2 instances. Get notified via email when CPU is high, when a server becomes unreachable, or when network traffic spikes. Enable VPC Flow Logs to see all network traffic in your VPC.</p><p><strong>⏱️ Time:</strong> 45–60 min</p><p><strong>💰 Cost:</strong> CloudWatch basic metrics free. Detailed metrics ~$0.01/metric/month. SNS email notifications free. VPC Flow Logs stored in CloudWatch Logs — small cost for log volume.</p></div><ol><li><p><strong>Launch a test EC2</strong> in your public subnet (any config, t2.micro, Amazon Linux 2023). This is our subject for monitoring.</p></li><li><p><strong>Create an SNS Topic for alerts:</strong> Simple Notification Service → Topics → Create topic. Type: Standard. Name: <code>ec2-alerts</code>. Create topic. Then create a subscription: Protocol = Email, Endpoint = your email address. Confirm the subscription from your email inbox.</p><div class="diagram-container"><img src="images/screenshot-sns-subscription-confirmed.png" loading="lazy" decoding="async" alt="Screenshot of SNS subscription showing the email subscription with Status as Confirmed after clicking the confirmation link in the email, ready to receive CloudWatch alarm notifications"><p class="diagram-caption"><em>📸 Screenshot: SNS email subscription confirmed — ready to receive alarm notifications</em></p></div></li><li><p><strong>Create a CPU alarm:</strong> CloudWatch → Alarms → Create Alarm → Select metric → EC2 → Per-Instance Metrics → find your instance → <code>CPUUtilization</code>. Threshold: Greater than 70% for 1 consecutive period (5 minutes). Action: Send notification to SNS topic <code>ec2-alerts</code>.</p><div class="diagram-container"><img src="images/screenshot-cloudwatch-alarm-create.png" loading="lazy" decoding="async" alt="Screenshot of CloudWatch Create Alarm page showing CPUUtilization metric selected for the EC2 instance, threshold set to greater than 70 percent, and SNS topic ec2-alerts selected as the notification action"><p class="diagram-caption"><em>📸 Screenshot: CloudWatch alarm configuration — CPU &gt; 70% triggers email notification</em></p></div></li><li><p><strong>Create a StatusCheck alarm:</strong> Same process but select <code>StatusCheckFailed</code> metric. Threshold: Greater than or equal to 1. This fires if EC2 has a hardware or OS failure — critical for production systems.</p></li><li><p><strong>Enable detailed monitoring on the EC2:</strong> EC2 → select instance → Actions → Monitor and troubleshoot → Enable detailed monitoring. This changes metrics from 5-minute intervals to 1-minute intervals.</p><div class="diagram-container"><img src="images/screenshot-enable-detailed-monitoring.png" loading="lazy" decoding="async" alt="Screenshot of EC2 instance Actions menu showing Monitor and troubleshoot submenu with Enable detailed monitoring option, and the confirmation dialog indicating 1-minute interval metrics will be collected"><p class="diagram-caption"><em>📸 Screenshot: Enabling detailed monitoring for 1-minute metric granularity</em></p></div></li><li><p><strong>Trigger the CPU alarm (optional stress test):</strong> SSH into the EC2 and run:</p><pre><code>sudo yum install -y stress
+stress --cpu 2 --timeout 300   # 100% CPU for 5 minutes</code></pre><p>Wait ~5 minutes. CloudWatch will detect the spike and trigger the alarm. Check your email for the notification.</p><div class="diagram-container"><img src="images/screenshot-cloudwatch-alarm-in-alarm.png" loading="lazy" decoding="async" alt="Screenshot of CloudWatch Alarms page showing the CPU alarm with state changed to In alarm shown in red, after the stress test caused CPU utilization to exceed the 70 percent threshold"><p class="diagram-caption"><em>📸 Screenshot: CloudWatch alarm triggered — CPU &gt; 70% detected, notification sent</em></p></div></li><li><p><strong>Enable VPC Flow Logs:</strong> VPC → Your VPC → Flow logs tab → Create flow log. Destination: CloudWatch Logs. Log group: create new <code>/vpc/flow-logs</code>. IAM role: create the suggested role. Filter: All (captures accepted AND rejected traffic). This logs every connection attempt in your VPC — critical for security analysis.</p><div class="diagram-container"><img src="images/screenshot-vpc-flow-logs-create.png" loading="lazy" decoding="async" alt="Screenshot of Create Flow Log page showing the VPC selected, filter set to All, destination set to CloudWatch Logs, log group set to slash vpc slash flow-logs, and the appropriate IAM role selected for permissions"><p class="diagram-caption"><em>📸 Screenshot: VPC Flow Logs configuration — logging all traffic to CloudWatch Logs</em></p></div></li><li><p><strong>View flow log data:</strong> CloudWatch → Log groups → <code>/vpc/flow-logs</code> → Log streams. After a few minutes of network activity, you will see log entries showing: source IP, destination IP, port, protocol, bytes, and whether it was ACCEPT or REJECT.</p><div class="diagram-container"><img src="images/screenshot-flow-log-entries.png" loading="lazy" decoding="async" alt="Screenshot of CloudWatch Logs showing VPC Flow Log entries with columns for source IP address, destination IP address, source port, destination port, protocol number, bytes transferred, and action field showing ACCEPT or REJECT"><p class="diagram-caption"><em>📸 Screenshot: VPC Flow Log entries — every network connection visible, ACCEPT and REJECT</em></p></div></li><li><p><strong>Cleanup:</strong> Delete CloudWatch alarms. Delete SNS topic and subscription. Disable or delete VPC Flow Logs (they will continue to write logs and accrue small charges otherwise). Terminate test EC2.</p></li></ol><div class="success-box"><p>✅ <strong>What you built:</strong> A production monitoring setup. You will know about a failing server before your users do. VPC Flow Logs give you the forensic data to answer "who tried to connect to what, when, and was it allowed?" This is the observability layer that separates a student project from a production system.</p></div></div></details>
+
+<!-- ═══════════════════════════════════════════════════════
+  LEVEL 5 — JOB LEVEL
+═══════════════════════════════════════════════════════ -->
+
+<details class="collapsible-section"><summary><h3 id="final-project-production-architecture">🏆 Final Project: Production-Ready AWS Architecture</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Build a complete, production-ready AWS architecture that combines everything you have learned. This is the project you put on your resume and explain in interviews. Not a tutorial — a system you designed and built.</p><p><strong>⏱️ Time:</strong> 3–5 hours (spread across multiple sessions)</p><p><strong>💰 Cost:</strong> ~$0.50–1.00 total if you build and tear down in one session. ALB + NAT Gateway are the main charges. Delete all resources when done.</p></div><div class="highlight-box"><p>⚡ <strong>What you are building:</strong> A 3-tier web application with VPC isolation, load balancing, auto-scaling, private database access, Session Manager access (no Bastion), Elastic IP for the management layer, full monitoring, and CloudFormation for deployment. This is what a senior cloud engineer builds on day one at a new job.</p></div><h4>Architecture Overview</h4><div class="diagram-container"><img src="images/vpc-final-project-architecture.png" loading="lazy" decoding="async" alt="Complete production architecture diagram showing VPC with two AZs, public subnets containing ALB and NAT Gateways, private app subnets with Auto Scaling Group of web servers, private DB subnets with RDS, Session Manager access without Bastion, CloudWatch monitoring, and all Security Groups configured for minimum access"><p class="diagram-caption"><em>Figure: Production-ready architecture — all session concepts combined</em></p></div><h4>Components to Build</h4><table><thead><tr><th>Component</th><th>Config</th><th>Why</th></tr></thead><tbody><tr><td>VPC</td><td>10.0.0.0/16, DNS enabled</td><td>Isolated network namespace</td></tr><tr><td>Public Subnets (x2)</td><td>/24 in AZ-a and AZ-b</td><td>ALB, NAT Gateway — needs internet</td></tr><tr><td>Private App Subnets (x2)</td><td>/24 in AZ-a and AZ-b</td><td>App servers — no direct internet exposure</td></tr><tr><td>Private DB Subnets (x2)</td><td>/24 in AZ-a and AZ-b</td><td>Database — maximum isolation</td></tr><tr><td>Internet Gateway</td><td>Attached to VPC</td><td>Public subnet internet access</td></tr><tr><td>NAT Gateway (x2)</td><td>One per AZ, each with EIP</td><td>Private app servers → outbound internet</td></tr><tr><td>Application Load Balancer</td><td>Internet-facing, spanning both AZs</td><td>Traffic distribution, HA</td></tr><tr><td>Auto Scaling Group</td><td>Min 2, Max 4, Apache installed via User Data</td><td>Self-healing, cost-efficient scaling</td></tr><tr><td>RDS (or EC2 DB)</td><td>Private DB subnet, no public access</td><td>Persistent data storage</td></tr><tr><td>Session Manager</td><td>IAM role on all private EC2s</td><td>Zero-port admin access</td></tr><tr><td>CloudWatch Alarms</td><td>CPU + StatusCheck on all instances</td><td>Proactive failure detection</td></tr><tr><td>VPC Flow Logs</td><td>All traffic, CloudWatch Logs</td><td>Security forensics and compliance</td></tr><tr><td>SNS Topic</td><td>Email alerts</td><td>Human notification channel</td></tr></tbody></table><h4>Build Steps (High Level)</h4><ol><li>Deploy the VPC + all subnets + IGW + NAT Gateways using the CloudFormation template from Project 11 (extended for multi-AZ and DB subnets).</li><li>Create all Security Groups: SG-ALB, SG-AppServers, SG-DB. Follow least-privilege — SG-AppServers allows HTTP only from SG-ALB. SG-DB allows MySQL only from SG-AppServers.</li><li>Create an IAM Role with AmazonSSMManagedInstanceCore. Attach to all app server instances.</li><li>Create Launch Template with Apache + SSM role. Configure User Data to install app and register with the ALB target group.</li><li>Create ALB in both public subnets. Create Target Group. Create listener on port 80.</li><li>Create Auto Scaling Group using the Launch Template. Min 2 instances across both private app subnets. Attach to ALB Target Group.</li><li>Deploy RDS MySQL in the private DB subnets (or use an EC2 if staying free tier).</li><li>Set up CloudWatch alarms on CPU, StatusCheck, ALB RequestCount, and TargetResponseTime.</li><li>Enable VPC Flow Logs.</li><li>Test end-to-end: Browser → ALB DNS → App server → DB. Session Manager → App server → verify no SSH keys needed.</li></ol><h4>README Template (CRITICAL — this is what makes your project stand out)</h4><pre><code># Production-Ready AWS VPC Architecture
+
+## Architecture Overview
+[Insert your architecture diagram here]
+
+## What This Builds
+A 3-tier highly available web application on AWS using:
+- VPC with public and private subnets across 2 Availability Zones
+- Application Load Balancer for traffic distribution
+- Auto Scaling Group for self-healing and elastic capacity
+- NAT Gateway (one per AZ) for private server outbound access
+- AWS Systems Manager Session Manager for zero-port admin access
+- CloudWatch monitoring with SNS email alerts
+- VPC Flow Logs for security forensics
+
+## Architecture Decisions (WHY, not just WHAT)
+
+### Why 2 AZs?
+Single AZ = single point of failure. If AWS's us-east-1a datacenter has an issue,
+a single-AZ architecture goes down. Multi-AZ ensures the app survives an AZ outage.
+
+### Why Session Manager instead of Bastion Host?
+Bastion Hosts require open port 22, SSH key management, and an EC2 to maintain.
+Session Manager requires none of these. It is more secure, fully managed, and
+automatically logged to CloudTrail. AWS recommends this as of 2022.
+
+### Why NAT Gateway per AZ instead of a shared one?
+If you have one NAT Gateway in AZ-a and it fails (or AZ-a goes down), every
+private server in AZ-b loses outbound internet access. One NAT per AZ means
+each AZ is completely independent.
+
+### Why private subnets for app and DB servers?
+Defense in depth. Even if the load balancer or web tier is compromised, the
+attacker cannot directly reach app servers or the database. Security Groups
+enforce this programmatically — it is not just convention.
+
+## Cost Estimate
+| Resource | Monthly Cost |
+|---|---|
+| ALB | ~$16 |
+| NAT Gateway x2 | ~$65 |
+| EC2 t3.micro x2 | ~$14 |
+| RDS t3.micro | ~$25 |
+| CloudWatch | ~$2 |
+| **Total** | **~$122/month** |
+
+For dev/test: replace NAT Gateways with NAT Instances to save ~$60/month.
+
+## How to Deploy
+1. Clone this repository
+2. Update parameters in vpc-stack.yaml
+3. Run: aws cloudformation create-stack --stack-name prod-vpc --template-body file://vpc-stack.yaml
+4. Wait for stack to complete
+5. Deploy app tier: aws cloudformation create-stack --stack-name prod-app --template-body file://app-stack.yaml
+
+## How to Destroy Everything
+aws cloudformation delete-stack --stack-name prod-app
+aws cloudformation delete-stack --stack-name prod-vpc
+# CloudFormation handles all cleanup in dependency order</code></pre><div class="success-box"><p>✅ <strong>This is job-level work.</strong> A GitHub repository with this architecture, a README explaining the decisions (not just the commands), an architecture diagram, and a cost estimate is what separates a cloud practitioner from a cloud engineer. Build it. Document it. Put it on LinkedIn. This is the project.</p></div></div></details>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="learning-checklist">☑️ Learning Checklist</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="checklist-progress">
+                        <p>Progress: <span id="checklistProgress">0/15</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                    <div id="checklistContainer" data-checklist-source="json/checklist.json"></div>
+                    <div class="quiz-reset-container"><button onclick="resetChecklist()" class="quiz-reset-btn">🔄 Reset
+                            Checklist</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="reflection-questions">🤔 Reflection Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="question-block">
+                        <h4>1. You have a production web server on EC2. A customer tells you they've been whitelisting
+                            your server's IP in their firewall, and now they can't reach your server after a restart.
+                            What happened and how would you fix it?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about what happens to a standard public IP on stop/start, and what you should
+                                    use instead.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>2. Your company policy says no EC2 instance can have a public IP address. But your
+                            developers need to SSH into private servers for debugging. What is the recommended approach
+                            today?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Consider the modern alternative your professor mentioned — the one that requires no
+                                    open ports at all.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>3. An EC2 in a private subnet is trying to run <code>sudo yum update</code> but it's failing
+                            with a network timeout. What service is likely missing from the architecture?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about what allows outbound internet traffic from private subnets.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>4. You have five different EC2 instances across different AZs. One of them fails and you
+                            spin up a replacement. How do you ensure the replacement gets the same public IP as the
+                            failed instance?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about which IP type can be moved between instances and stays fixed.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>5. Explain to a non-technical friend why a private IP address can't be used to access a
+                            website from home, but a public IP can.</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Use the analogy of a building address vs a room number inside the building.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>6. What are the three RFC 1918 private IP ranges? Which one does AWS most commonly use for
+                            VPCs and why?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Consider which range gives the most available IP addresses.</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="links-references">🔗 Links &amp; References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3 id="official-aws-docs">📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html"
+                                        target="_blank" rel="noopener noreferrer">VPC IP Addressing</a></td>
+                                <td>Official guide to public, private, and Elastic IPs in VPC</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
+                                        target="_blank" rel="noopener noreferrer">Subnet Sizing</a></td>
+                                <td>Why AWS reserves 5 IPs per subnet</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html"
+                                        target="_blank" rel="noopener noreferrer">Elastic IP Addresses</a></td>
+                                <td>Full guide to allocating, associating, and releasing EIPs</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html"
+                                        target="_blank" rel="noopener noreferrer">NAT Gateway</a></td>
+                                <td>Setup and usage of NAT Gateway</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html"
+                                        target="_blank" rel="noopener noreferrer">Session Manager</a></td>
+                                <td>AWS SSM Session Manager — the Bastion Host alternative</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="recommended-reading">🎓 Recommended Reading</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://tools.ietf.org/html/rfc1918" target="_blank"
+                                        rel="noopener noreferrer">RFC 1918</a></td>
+                                <td>The original standard defining private IP address ranges</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/vpc/pricing/" target="_blank"
+                                        rel="noopener noreferrer">VPC Pricing</a></td>
+                                <td>NAT Gateway and Elastic IP pricing details</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="additional-resources">🔧 Additional Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://cidr.xyz/" target="_blank" rel="noopener noreferrer">CIDR.xyz</a>
+                                </td>
+                                <td>Visual CIDR calculator — see exactly how many IPs are in a range</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html"
+                                        target="_blank" rel="noopener noreferrer">NAT Instances</a></td>
+                                <td>Older NAT Instance approach — for comparison understanding</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">VPC</span><span
+                class="tag">Networking</span><span class="tag">Private IP</span><span class="tag">Public IP</span><span
+                class="tag">Elastic IP</span><span class="tag">Bastion Host</span><span class="tag">NAT Gateway</span>
+        </div>
+    </div>
+    <script defer src="../../../js/notes-page.js"></script>
+</body>
+
+</html>
