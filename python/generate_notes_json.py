@@ -14,7 +14,16 @@ IMAGE_EXT = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg")
 # -----------------------------
 
 def clean_title(name):
-    return name.replace("-", " ").replace("_", " ").title()
+    # remove leading emojis / symbols
+    name = re.sub(r'^[^\w]+', '', name)
+
+    # replace separators
+    name = name.replace("-", " ").replace("_", " ")
+
+    # normalize spaces
+    name = re.sub(r'\s+', ' ', name)
+
+    return name.strip().title()
 
 
 def parse_date(date_str):
@@ -66,7 +75,7 @@ def extract_title_from_html(base_path):
             )
 
             if match:
-                return match.group(1).strip()
+                return clean_title(match.group(1).strip())
 
         except Exception as e:
             print(f"⚠️ Title extraction failed ({filename}): {e}")
