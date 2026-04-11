@@ -1,7 +1,8 @@
 import os
 import json
-from datetime import datetime
 import re
+import html
+from datetime import datetime
 
 ROOT = "../data/notes"
 OUTPUT = "../data/notes-list.json"
@@ -10,152 +11,127 @@ IMAGE_EXT = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg")
 
 
 # -----------------------------
-# Helpers
+# Utilities
 # -----------------------------
 
-def clean_title(name):
-    # remove leading emojis / symbols
-    name = re.sub(r'^[^\w]+', '', name)
-
-    # replace separators
-    name = name.replace("-", " ").replace("_", " ")
-
-    # normalize spaces
-    name = re.sub(r'\s+', ' ', name)
-
-    return name.strip().title()
+def normalize_text(text: str) -> str:
+    text = html.unescape(text)  # ✅ fix HTML entities
+    text = re.sub(r'^[^\w]+', '', text)
+    text = text.replace("-", " ").replace("_", " ")
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
 
 
-def parse_date(date_str):
+def smart_title(text: str) -> str:
+    words = text.split()
+    result = []
+
+    for w in words:
+        if w.isupper() or any(char.isdigit() for char in w):
+            result.append(w)  # keep AWS, EC2
+        else:
+            result.append(w.capitalize())
+
+    return " ".join(result)
+
+
+def parse_date_safe(date_str: str):
     try:
         return datetime.strptime(date_str, "%Y-%m-%d")
     except Exception:
         return datetime.min
 
 
-def get_folder_creation_date(base):
-    """Fallback date using oldest file timestamp"""
-    oldest_time = None
-
-    for root, _, files in os.walk(base):
-        for f in files:
-            path = os.path.join(root, f)
+def read_html(base_path):
+    for name in ("complete.html", "overview.html"):
+        path = os.path.join(base_path, name)
+        if os.path.isfile(path):
             try:
-                t = os.path.getmtime(path)
-                if oldest_time is None or t < oldest_time:
-                    oldest_time = t
+                with open(path, "r", encoding="utf-8") as f:
+                    return f.read()
+            except Exception:
+                return None
+    return None
+
+
+# -----------------------------
+# Extractors
+# -----------------------------
+
+def extract_title(content):
+    if not content:
+        return None
+
+    match = re.search(r'<h1>(.*?)</h1>', content, re.DOTALL)
+    if not match:
+        return None
+
+    raw = match.group(1)
+    clean = normalize_text(raw)
+    return smart_title(clean)
+
+
+def extract_date(content):
+    if not content:
+        return None
+
+    match = re.search(r'📅\s*(.*?)</p>', content)
+    if not match:
+        return None
+
+    try:
+        parsed = datetime.strptime(match.group(1).strip(), "%B %d, %Y")
+        return parsed.strftime("%Y-%m-%d")
+    except Exception:
+        return None
+
+
+def extract_tags(content):
+    if not content:
+        return []
+
+    matches = re.findall(r'<span class="tag">(.*?)</span>', content)
+    tags = [normalize_text(tag) for tag in matches if tag.strip()]
+
+    return list(dict.fromkeys(tags))  # remove duplicates
+
+
+def extract_metadata_date(base_path):
+    path = os.path.join(base_path, "metadata.json")
+    if not os.path.isfile(path):
+        return None
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f).get("date")
+    except Exception:
+        return None
+
+
+def fallback_folder_date(base_path):
+    oldest = None
+
+    for root, _, files in os.walk(base_path):
+        for f in files:
+            try:
+                t = os.path.getmtime(os.path.join(root, f))
+                if oldest is None or t < oldest:
+                    oldest = t
             except Exception:
                 continue
 
-    if oldest_time:
-        return datetime.fromtimestamp(oldest_time).strftime("%Y-%m-%d")
+    if oldest:
+        return datetime.fromtimestamp(oldest).strftime("%Y-%m-%d")
 
     return "1970-01-01"
 
 
 # -----------------------------
-# HTML Extractors
+# Classification
 # -----------------------------
 
-def extract_title_from_html(base_path):
-    for filename in ["complete.html", "overview.html"]:
-        file_path = os.path.join(base_path, filename)
-
-        if not os.path.isfile(file_path):
-            continue
-
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                content = f.read()
-
-            match = re.search(
-                r'<div class="note-header">.*?<h1>(.*?)</h1>',
-                content,
-                re.DOTALL
-            )
-
-            if match:
-                return clean_title(match.group(1).strip())
-
-        except Exception as e:
-            print(f"⚠️ Title extraction failed ({filename}): {e}")
-
-    return None
-
-
-def extract_date_from_html(base_path):
-    for filename in ["complete.html", "overview.html"]:
-        file_path = os.path.join(base_path, filename)
-
-        if not os.path.isfile(file_path):
-            continue
-
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                content = f.read()
-
-            match = re.search(
-                r'<p class="note-date">.*?📅\s*(.*?)</p>',
-                content
-            )
-
-            if match:
-                raw_date = match.group(1).strip()
-                parsed = datetime.strptime(raw_date, "%B %d, %Y")
-                return parsed.strftime("%Y-%m-%d")
-
-        except Exception as e:
-            print(f"⚠️ Date extraction failed ({filename}): {e}")
-
-    return None
-
-
-def extract_tags_from_html(base_path):
-    """Extract tags from HTML safely"""
-    tags = []
-
-    for filename in ["complete.html", "overview.html"]:
-        file_path = os.path.join(base_path, filename)
-
-        if not os.path.isfile(file_path):
-            continue
-
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                content = f.read()
-
-            matches = re.findall(r'<span class="tag">(.*?)</span>', content)
-
-            if matches:
-                tags = list(dict.fromkeys(tag.strip() for tag in matches if tag.strip()))
-                break
-
-        except Exception as e:
-            print(f"⚠️ Tag extraction failed ({filename}): {e}")
-
-    return tags
-
-
-def extract_date_from_metadata(base_path):
-    metadata_path = os.path.join(base_path, "metadata.json")
-
-    if os.path.isfile(metadata_path):
-        try:
-            with open(metadata_path, 'r', encoding='utf-8') as f:
-                metadata = json.load(f)
-                return metadata.get("date", None)
-        except Exception:
-            pass
-
-    return None
-
-
-# -----------------------------
-# Detection Logic
-# -----------------------------
-
-def detect_category(folder_name):
-    categories = {
+def detect_category(folder):
+    mapping = {
         "compute": ["ec2", "lambda", "ecs", "eks", "fargate"],
         "storage": ["s3", "ebs", "efs", "glacier"],
         "database": ["rds", "dynamodb", "redshift", "aurora"],
@@ -163,67 +139,56 @@ def detect_category(folder_name):
         "security": ["iam", "kms", "waf", "shield", "cognito"],
         "monitoring": ["cloudwatch", "cloudtrail"],
         "management": ["cloudformation", "systems-manager"],
-        "fundamentals": ["basics", "introduction", "cloud"]
+        "fundamentals": ["basics", "introduction", "cloud"],
     }
 
-    folder_lower = folder_name.lower()
+    folder = folder.lower()
 
-    for category, keywords in categories.items():
-        if any(keyword in folder_lower for keyword in keywords):
+    for category, keys in mapping.items():
+        if any(k in folder for k in keys):
             return category.title()
 
     return "General"
 
 
-def detect_difficulty(folder_name):
-    folder_lower = folder_name.lower()
+def detect_difficulty(folder):
+    f = folder.lower()
 
-    if any(word in folder_lower for word in ["basics", "introduction", "fundamentals"]):
+    if any(x in f for x in ["basics", "introduction", "fundamentals"]):
         return "Beginner"
-    elif any(word in folder_lower for word in ["advanced", "architecture", "deep"]):
+    if any(x in f for x in ["advanced", "architecture", "deep"]):
         return "Advanced"
+
     return "Intermediate"
 
 
 # -----------------------------
-# Core Builder
+# Builder
 # -----------------------------
 
 def build_note(folder):
     base = os.path.join(ROOT, folder)
+    content = read_html(base)
 
-    # Title
-    try:
-        title = extract_title_from_html(base) or clean_title(folder)
-    except Exception:
-        title = clean_title(folder)
-
-    # Category & difficulty
+    title = extract_title(content) or smart_title(normalize_text(folder))
     category = detect_category(folder)
     difficulty = detect_difficulty(folder)
 
-    # Tags
-    try:
-        tags = extract_tags_from_html(base)
-    except Exception:
-        tags = []
+    tags = extract_tags(content) or [category]
 
-    if not tags:
-        tags = [category]
-
-    # Images
+    # images
     images = []
-    images_dir = os.path.join(base, "images")
+    img_dir = os.path.join(base, "images")
 
-    if os.path.isdir(images_dir):
-        for f in os.listdir(images_dir):
+    if os.path.isdir(img_dir):
+        for f in os.listdir(img_dir):
             if f.lower().endswith(IMAGE_EXT):
                 images.append({
-                    "name": clean_title(os.path.splitext(f)[0]),
+                    "name": smart_title(normalize_text(os.path.splitext(f)[0])),
                     "file": f
                 })
 
-    # Files
+    # files
     files = []
     for f in os.listdir(base):
         full = os.path.join(base, f)
@@ -231,57 +196,47 @@ def build_note(folder):
         if not os.path.isfile(full):
             continue
 
-        lower = f.lower()
-
-        if lower.endswith(".md"):
-            continue
-        if lower in ["metadata.json"]:
-            continue
-
-        if lower.endswith(".html"):
+        if f.lower().endswith(".html"):
             files.append({
-                "name": clean_title(os.path.splitext(f)[0]),
+                "name": smart_title(normalize_text(os.path.splitext(f)[0])),
                 "file": f,
                 "type": "html",
                 "icon": "📄"
             })
 
-    # Date
-    try:
-        date_str = extract_date_from_metadata(base)
-        if not date_str:
-            date_str = extract_date_from_html(base)
-        if not date_str:
-            date_str = get_folder_creation_date(base)
-    except Exception:
-        date_str = "1970-01-01"
+    # date priority
+    date = (
+        extract_metadata_date(base)
+        or extract_date(content)
+        or fallback_folder_date(base)
+    )
 
     return {
         "title": title,
         "folder": folder,
-        "date": date_str,
+        "date": date,
         "type": "daily",
         "category": category,
         "difficulty": difficulty,
         "tags": tags,
-        "hasImages": len(images) > 0,
+        "hasImages": bool(images),
         "images": sorted(images, key=lambda x: x["file"]),
         "files": sorted(files, key=lambda x: x["file"])
     }
 
 
-def is_valid_topic_folder(folder_path):
-    if not os.path.isdir(folder_path):
+def is_valid_topic_folder(path):
+    if not os.path.isdir(path):
         return False
 
-    folder_name = os.path.basename(folder_path)
+    name = os.path.basename(path)
 
-    if folder_name.startswith('.') or folder_name in ['images', 'json', '__pycache__']:
+    if name.startswith('.') or name in ['images', 'json', '__pycache__']:
         return False
 
-    return (
-        os.path.isfile(os.path.join(folder_path, "overview.html")) or
-        os.path.isfile(os.path.join(folder_path, "complete.html"))
+    return any(
+        os.path.isfile(os.path.join(path, f))
+        for f in ("overview.html", "complete.html")
     )
 
 
@@ -293,20 +248,20 @@ def main():
     notes = []
 
     for item in os.listdir(ROOT):
-        item_path = os.path.join(ROOT, item)
+        path = os.path.join(ROOT, item)
 
-        if is_valid_topic_folder(item_path):
+        if is_valid_topic_folder(path):
             try:
                 notes.append(build_note(item))
             except Exception as e:
-                print(f"❌ Failed to process {item}: {e}")
+                print(f"❌ Failed: {item} → {e}")
 
-    notes.sort(key=lambda x: parse_date(x["date"]), reverse=True)
+    notes.sort(key=lambda x: parse_date_safe(x["date"]), reverse=True)
 
     with open(OUTPUT, "w", encoding="utf-8") as f:
         json.dump({"notes": notes}, f, indent=2, ensure_ascii=False)
 
-    print(f"✅ Wrote {len(notes)} topics to {OUTPUT}")
+    print(f"✅ Generated {len(notes)} notes")
 
 
 if __name__ == "__main__":
