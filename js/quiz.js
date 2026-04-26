@@ -86,22 +86,9 @@ class QuizEngine {
         this._explanationFields = [
             ['Key Points',              'keyPoints'],
             ['Examples',                'examples'],
-            ['Important',               'why'],
+            ['summary',                'summary'],
             ['Analogy',                 'analogy'],
             ['Comparison',              'comparison'],
-            ['What it does',            'whatItDoes'],
-            ['What it does NOT do',     'whatItDoesNot'],
-            ['Speed Comparison',        'speedComparison'],
-            ['Why so fast',             'whyFast'],
-            ['Key Functions',           'keyFunctions'],
-            ['Key Features',            'keyFeatures'],
-            ['Characteristics',         'characteristics'],
-            ['What RAM stores',         'whatRAMStores'],
-            ['Real-world implications', 'implications'],
-            ['How it works',            'howItWorks'],
-            ['What is EC2',             'whatIsEC2'],
-            ['How it relates to OS',    'howItRelates'],
-            ['Architecture',            'architecture'],
             ['Key Distinction',         'keyDistinction'],
             ['Common Confusion',        'confusion'],
             ['Identification',          'identification'],
@@ -1363,7 +1350,7 @@ class QuizEngine {
         const cls    = option.isCorrect ? 'explanation correct' : 'explanation incorrect';
         const prefix = option.isCorrect ? '✓ Why this is correct:' : '✗ Why this is incorrect:';
         return `<div class="${cls}">
-            <div class="explanation-text"><strong>${prefix}</strong><br>${exp.summary || ''}</div>
+            <div class="explanation-text"><strong>${prefix}</strong><br>${exp.why || ''}</div>
             ${this._renderExplanationInner(option)}
         </div>`;
     }
@@ -1375,6 +1362,8 @@ class QuizEngine {
         // Known fields — rendered in this order with friendly labels
         const knownKeys = new Set(this._explanationFields.map(([, k]) => k));
         knownKeys.add('learnMore'); // handled separately below
+        knownKeys.add('summary');
+        knownKeys.add('why');
 
         let html = '';
 
