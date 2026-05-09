@@ -330,9 +330,9 @@
                     "text": "Amazon Simple Storage Service (Amazon S3)",
                     "isCorrect": false,
                     "explanation": {
-                        "summary": "Amazon S3 has usage-based pricing and is not always free.",
-                        "why": "Amazon S3 provides a limited free tier for new customers, but storage, requests, and data transfer charges apply beyond free-tier limits. It is not categorized as an always-free AWS service.",
-                        "comparison": "IAM remains free permanently, while S3 usage eventually incurs charges.",
+                        "summary": "Amazon S3 has a free tier but is not always free.",
+                        "why": "Amazon S3 offers limited free tier usage for new AWS customers, but storage, requests, and data transfer beyond the free tier are billed according to usage.",
+                        "comparison": "S3 usage-based pricing differs from IAM and Auto Scaling, which have no additional service charges.",
                         "learnMore": [
                             {
                                 "title": "Amazon S3 Pricing",
@@ -344,19 +344,10 @@
                 {
                     "id": "B",
                     "text": "Amazon DynamoDB",
-                    "isCorrect": true,
+                    "isCorrect": false,
                     "explanation": {
-                        "summary": "Amazon DynamoDB includes an always free tier for limited usage.",
-                        "why": "Amazon DynamoDB offers an AWS Free Tier that remains available indefinitely within monthly usage limits, making it classified as an always-free eligible service.",
-                        "keyPoints": [
-                            "Always free monthly capacity",
-                            "Managed NoSQL database",
-                            "Suitable for lightweight workloads"
-                        ],
-                        "examples": [
-                            "Small web applications",
-                            "Development and testing databases"
-                        ],
+                        "summary": "Amazon DynamoDB includes a free tier but is not permanently free.",
+                        "why": "Amazon DynamoDB provides limited free monthly capacity, but charges apply when workloads exceed free tier limits.",
                         "learnMore": [
                             {
                                 "title": "Amazon DynamoDB Pricing",
@@ -370,18 +361,21 @@
                     "text": "AWS Identity and Access Management (AWS IAM)",
                     "isCorrect": true,
                     "explanation": {
-                        "summary": "AWS IAM is provided at no additional charge for AWS account management.",
-                        "why": "AWS IAM enables identity and access management for AWS resources and is available without additional cost. Customers pay only for the AWS resources accessed by IAM users and roles.",
+                        "summary": "AWS IAM is provided at no additional charge.",
+                        "why": "AWS Identity and Access Management (IAM) enables authentication and authorization for AWS resources and does not incur additional service charges.",
                         "keyPoints": [
-                            "No additional charge",
-                            "Core AWS identity service",
-                            "Used for authentication and authorization"
+                            "No additional cost",
+                            "Identity and access management",
+                            "Core AWS security service"
                         ],
-                        "comparison": "IAM itself is free, while many AWS services incur usage-based charges.",
+                        "examples": [
+                            "Creating IAM users and roles",
+                            "Managing access policies"
+                        ],
                         "learnMore": [
                             {
                                 "title": "AWS IAM Pricing",
-                                "url": "https://aws.amazon.com/iam/pricing/"
+                                "url": "https://aws.amazon.com/iam/"
                             }
                         ]
                     }
@@ -389,14 +383,23 @@
                 {
                     "id": "D",
                     "text": "AWS Auto Scaling",
-                    "isCorrect": false,
+                    "isCorrect": true,
                     "explanation": {
-                        "summary": "Auto Scaling manages resources but underlying scaled resources incur charges.",
-                        "why": "AWS Auto Scaling itself helps optimize resources, but the EC2 instances and other services it manages are billed normally. It is not considered an always-free AWS service.",
+                        "summary": "AWS Auto Scaling itself does not have an additional charge.",
+                        "why": "AWS Auto Scaling automatically adjusts resource capacity based on demand and does not charge for the scaling service itself, although the scaled AWS resources incur standard usage charges.",
+                        "keyPoints": [
+                            "No service management fee",
+                            "Automatic scaling",
+                            "Supports cost optimization"
+                        ],
+                        "examples": [
+                            "Scaling EC2 instances during traffic spikes",
+                            "Reducing capacity during low demand"
+                        ],
                         "learnMore": [
                             {
                                 "title": "AWS Auto Scaling",
-                                "url": "https://aws.amazon.com/autoscaling/"
+                                "url": "https://docs.aws.amazon.com/autoscaling/"
                             }
                         ]
                     }
@@ -899,20 +902,14 @@
                 {
                     "id": "A",
                     "text": "Amazon Elastic Block Store (Amazon EBS)",
-                    "isCorrect": true,
+                    "isCorrect": false,
                     "explanation": {
-                        "summary": "Amazon EBS encryption can be enabled by default at the account level.",
-                        "why": "Amazon EBS supports encryption using AWS KMS, and AWS provides account-level default EBS encryption to automatically encrypt newly created EBS volumes and snapshots.",
-                        "keyPoints": [
-                            "Supports default encryption",
-                            "Integrated with AWS KMS",
-                            "Protects data at rest"
-                        ],
-                        "comparison": "Unlike some services requiring manual encryption setup, EBS can enforce default automatic encryption.",
+                        "summary": "Amazon EBS encryption must be explicitly enabled unless account-level encryption by default is configured.",
+                        "why": "Amazon EBS supports encryption using AWS KMS, but encryption is not automatically enabled for all volumes unless the account setting for EBS encryption by default has been activated.",
                         "learnMore": [
                             {
                                 "title": "Amazon EBS Encryption",
-                                "url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-encryption.html"
+                                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html"
                             }
                         ]
                     }
@@ -922,9 +919,8 @@
                     "text": "Amazon Redshift",
                     "isCorrect": false,
                     "explanation": {
-                        "summary": "Amazon Redshift supports encryption but it is not automatically enabled by default in all configurations.",
-                        "why": "Amazon Redshift allows encryption using AWS KMS or HSMs, but encryption settings must typically be configured during cluster creation rather than always being automatically enabled.",
-                        "confusion": "Encryption support exists, but automatic default encryption is not universally enforced like some storage services.",
+                        "summary": "Amazon Redshift supports encryption but does not automatically enable it for all clusters.",
+                        "why": "Amazon Redshift provides optional encryption for data at rest using AWS KMS or HSM integration, but customers must enable encryption when creating the cluster.",
                         "learnMore": [
                             {
                                 "title": "Amazon Redshift Encryption",
@@ -938,12 +934,12 @@
                     "text": "AWS Storage Gateway",
                     "isCorrect": true,
                     "explanation": {
-                        "summary": "AWS Storage Gateway encrypts data automatically during transfer and storage.",
-                        "why": "AWS Storage Gateway automatically encrypts data in transit using SSL and encrypts stored data in AWS using AWS-managed encryption mechanisms.",
+                        "summary": "AWS Storage Gateway encrypts stored data by default.",
+                        "why": "AWS Storage Gateway automatically encrypts data stored in AWS using server-side encryption integrated with AWS-managed key management capabilities.",
                         "keyPoints": [
-                            "Automatic encryption in transit",
-                            "Encrypted storage in AWS",
-                            "Hybrid storage security"
+                            "Automatic encryption",
+                            "Secure hybrid storage integration",
+                            "AWS-managed encryption support"
                         ],
                         "learnMore": [
                             {
@@ -959,20 +955,20 @@
                     "isCorrect": true,
                     "explanation": {
                         "summary": "Amazon S3 automatically applies server-side encryption for new objects.",
-                        "why": "Amazon S3 automatically encrypts all newly uploaded objects using server-side encryption with Amazon S3 managed keys (SSE-S3) by default.",
+                        "why": "Amazon S3 automatically encrypts all newly uploaded objects using server-side encryption with Amazon S3 managed keys (SSE-S3) unless another encryption option is specified.",
                         "keyPoints": [
-                            "Default encryption enabled",
                             "Automatic server-side encryption",
-                            "Protects data at rest"
+                            "Encryption at rest",
+                            "Default SSE-S3 protection"
                         ],
                         "examples": [
-                            "Encrypted object uploads",
-                            "Secure archival storage"
+                            "Automatic encryption for uploaded objects",
+                            "Transparent protection for stored data"
                         ],
                         "learnMore": [
                             {
                                 "title": "Amazon S3 Default Encryption",
-                                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-bucket-encryption.html"
+                                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-encryption-faq.html"
                             }
                         ]
                     }
@@ -2209,9 +2205,8 @@
                     "text": "For a service like Amazon EC2, that falls under Infrastructure as a Service (IaaS), AWS is responsible for maintaining guest operating system",
                     "isCorrect": false,
                     "explanation": {
-                        "summary": "Customers are responsible for guest operating systems on Amazon EC2 instances.",
-                        "why": "Under the AWS Shared Responsibility Model, AWS secures the infrastructure, while customers manage guest operating systems, patches, applications, and configurations for EC2 instances.",
-                        "comparison": "AWS manages the hardware and virtualization layer, while customers manage the operating system and applications.",
+                        "summary": "Customers are responsible for managing guest operating systems on EC2 instances.",
+                        "why": "Under the AWS Shared Responsibility Model, AWS secures the underlying infrastructure, while customers are responsible for managing and patching guest operating systems, applications, and configurations on Amazon EC2.",
                         "learnMore": [
                             {
                                 "title": "AWS Shared Responsibility Model",
@@ -2223,15 +2218,11 @@
                 {
                     "id": "B",
                     "text": "Configuration Management is the responsibility of the customer",
-                    "isCorrect": true,
+                    "isCorrect": false,
                     "explanation": {
-                        "summary": "Customers are responsible for configuring AWS services and workloads securely.",
-                        "why": "The customer is responsible for configuring resources, identity policies, operating systems, applications, and network controls according to security and operational requirements.",
-                        "keyPoints": [
-                            "Customer-managed configurations",
-                            "Security settings responsibility",
-                            "Applies across AWS services"
-                        ],
+                        "summary": "Configuration management responsibilities vary depending on the AWS service model.",
+                        "why": "In the AWS Shared Responsibility Model, configuration management is not universally the customer's responsibility. For abstracted services such as Amazon S3, AWS manages much of the infrastructure and platform configuration, while customers primarily manage data and access controls.",
+                        "comparison": "Customers manage more configurations in IaaS services like EC2, while AWS manages more in abstracted managed services.",
                         "learnMore": [
                             {
                                 "title": "AWS Shared Responsibility Model",
@@ -2245,16 +2236,16 @@
                     "text": "AWS is responsible for Security 'of' the Cloud",
                     "isCorrect": true,
                     "explanation": {
-                        "summary": "AWS secures the underlying cloud infrastructure and physical facilities.",
-                        "why": "AWS is responsible for protecting the infrastructure that runs AWS services, including hardware, software, networking, and physical data center security.",
+                        "summary": "AWS secures the infrastructure that runs AWS services.",
+                        "why": "AWS is responsible for protecting the global infrastructure that supports the AWS Cloud, including hardware, networking, storage, and virtualization layers.",
                         "keyPoints": [
-                            "Infrastructure protection",
                             "Physical security",
-                            "Managed cloud platform security"
+                            "Infrastructure security",
+                            "Managed cloud platform protection"
                         ],
                         "examples": [
                             "Securing AWS data centers",
-                            "Maintaining virtualization infrastructure"
+                            "Maintaining hypervisor security"
                         ],
                         "learnMore": [
                             {
@@ -2269,14 +2260,14 @@
                     "text": "For abstracted services like Amazon S3, AWS operates the infrastructure layer, the operating system, and platforms",
                     "isCorrect": true,
                     "explanation": {
-                        "summary": "AWS manages the underlying infrastructure and platform components for abstracted services like Amazon S3.",
-                        "why": "For managed and abstracted services such as Amazon S3, AWS handles infrastructure operations, platform maintenance, and service availability, while customers manage their data and access controls.",
+                        "summary": "AWS manages the underlying infrastructure and platforms for abstracted services like Amazon S3.",
+                        "why": "For managed services such as Amazon S3, AWS handles infrastructure operations, platform maintenance, and operating systems, while customers remain responsible for their data and access permissions.",
                         "keyPoints": [
                             "Managed service model",
-                            "Reduced operational overhead",
-                            "AWS-managed platform components"
+                            "Reduced operational responsibility",
+                            "AWS-managed infrastructure"
                         ],
-                        "comparison": "Abstracted services shift more operational responsibility to AWS than IaaS services like EC2.",
+                        "comparison": "Abstracted services shift more operational responsibility to AWS compared to EC2.",
                         "learnMore": [
                             {
                                 "title": "AWS Shared Responsibility Model",
@@ -2376,8 +2367,9 @@
                     "text": "AWS Cost & Usage Report (AWS CUR)",
                     "isCorrect": false,
                     "explanation": {
-                        "summary": "AWS CUR provides detailed billing data but does not automatically identify underutilized EC2 instances.",
-                        "why": "AWS Cost & Usage Reports export raw billing and usage data for analysis, but customers must manually analyze the data to detect underutilized resources.",
+                        "summary": "AWS CUR provides raw billing and usage data for analysis.",
+                        "why": "AWS Cost & Usage Reports export detailed billing and usage information, but customers must manually analyze the data to determine EC2 utilization patterns.",
+                        "comparison": "CUR provides detailed raw data, while Cost Explorer and Trusted Advisor provide built-in optimization insights.",
                         "learnMore": [
                             {
                                 "title": "AWS Cost and Usage Reports",
@@ -2389,19 +2381,11 @@
                 {
                     "id": "B",
                     "text": "Amazon CloudWatch",
-                    "isCorrect": true,
+                    "isCorrect": false,
                     "explanation": {
-                        "summary": "Amazon CloudWatch provides utilization metrics that help identify idle or underutilized EC2 instances.",
-                        "why": "Amazon CloudWatch automatically collects metrics such as CPU utilization, network usage, and disk activity that can be used directly to identify EC2 instances with low utilization.",
-                        "keyPoints": [
-                            "Automatic metrics collection",
-                            "Operational monitoring",
-                            "Resource utilization visibility"
-                        ],
-                        "examples": [
-                            "Detecting EC2 instances with low CPU usage",
-                            "Monitoring unused compute capacity"
-                        ],
+                        "summary": "Amazon CloudWatch provides monitoring metrics but may require manual analysis and configuration.",
+                        "why": "CloudWatch collects EC2 metrics such as CPU utilization and network activity, but identifying underutilized resources typically requires creating dashboards, alarms, or custom analysis.",
+                        "comparison": "CloudWatch provides monitoring data, while Trusted Advisor and Cost Explorer provide off-the-shelf optimization recommendations.",
                         "learnMore": [
                             {
                                 "title": "Amazon CloudWatch",
@@ -2416,19 +2400,19 @@
                     "isCorrect": true,
                     "explanation": {
                         "summary": "AWS Trusted Advisor automatically identifies underutilized EC2 instances.",
-                        "why": "AWS Trusted Advisor includes cost optimization checks that identify idle and underutilized Amazon EC2 instances without requiring manual setup or custom analysis.",
+                        "why": "AWS Trusted Advisor includes built-in cost optimization checks that identify idle and underutilized EC2 instances without requiring additional setup or manual configurations.",
                         "keyPoints": [
-                            "Built-in cost optimization checks",
-                            "Underutilized EC2 recommendations",
-                            "Operational best-practice insights"
+                            "Built-in optimization checks",
+                            "Automatic EC2 utilization analysis",
+                            "Actionable recommendations"
                         ],
                         "examples": [
-                            "Finding low-utilization EC2 instances",
-                            "Recommending cost-saving actions"
+                            "Detecting low CPU utilization instances",
+                            "Identifying idle load balancers"
                         ],
                         "learnMore": [
                             {
-                                "title": "AWS Trusted Advisor",
+                                "title": "AWS Trusted Advisor Cost Optimization Checks",
                                 "url": "https://docs.aws.amazon.com/awssupport/latest/user/cost-optimization-checks.html"
                             }
                         ]
@@ -2437,15 +2421,27 @@
                 {
                     "id": "D",
                     "text": "AWS Cost Explorer",
-                    "isCorrect": false,
+                    "isCorrect": true,
                     "explanation": {
-                        "summary": "AWS Cost Explorer analyzes spending trends but does not directly detect underutilized EC2 resources automatically.",
-                        "why": "AWS Cost Explorer focuses on billing analysis and forecasting. While it can help identify cost patterns, it does not provide direct operational utilization metrics like CloudWatch or Trusted Advisor checks.",
-                        "comparison": "Cost Explorer analyzes costs, while CloudWatch and Trusted Advisor analyze utilization.",
+                        "summary": "AWS Cost Explorer provides built-in recommendations for identifying cost-saving opportunities.",
+                        "why": "AWS Cost Explorer includes rightsizing recommendations that help identify underutilized EC2 instances and suggest more cost-effective resource configurations.",
+                        "keyPoints": [
+                            "Rightsizing recommendations",
+                            "Built-in cost analysis",
+                            "No custom setup required"
+                        ],
+                        "examples": [
+                            "Finding oversized EC2 instances",
+                            "Analyzing compute spending trends"
+                        ],
                         "learnMore": [
                             {
                                 "title": "AWS Cost Explorer",
                                 "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html"
+                            },
+                            {
+                                "title": "Cost Explorer Rightsizing Recommendations",
+                                "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/ce-rightsizing.html"
                             }
                         ]
                     }
