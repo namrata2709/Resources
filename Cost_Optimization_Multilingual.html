@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS Cost Optimization – Multilingual Presentation</title>
+<style>
+  :root {
+    --aws-teal: #00A591;
+    --aws-teal-dark: #007B6E;
+    --aws-teal-light: #E6F7F5;
+    --aws-orange: #FF9900;
+    --aws-orange-dark: #E88A00;
+    --aws-dark: #1A2332;
+    --aws-dark-blue: #232F3E;
+    --aws-mid: #3A4A5C;
+    --aws-light: #F8FAFB;
+    --aws-white: #FFFFFF;
+    --aws-text: #1A2332;
+    --aws-muted: #667788;
+    --aws-border: #D9E2EC;
+    --aws-card: #FFFFFF;
+    --slide-w: 960px;
+    --slide-h: 540px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0F1923;
+    color: var(--aws-text);
+    min-height: 100vh;
+  }
+
+  /* ── TOOLBAR ── */
+  #toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: var(--aws-dark-blue);
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    flex-wrap: wrap;
+  }
+  #toolbar .logo {
+    font-weight: 800; color: var(--aws-orange); font-size: 15px; letter-spacing: 0.5px;
+    white-space: nowrap; margin-right: 8px;
+  }
+  #lang-select {
+    background: #2D3F52; color: #fff; border: 1px solid #4A6070;
+    padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer;
+    outline: none; transition: border-color 0.2s;
+  }
+  #lang-select:hover { border-color: var(--aws-orange); }
+
+  .nav-btn {
+    background: #2D3F52; color: #fff; border: 1px solid #4A6070;
+    padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .nav-btn:hover { background: var(--aws-teal); border-color: var(--aws-teal); }
+  .nav-btn:disabled { opacity: 0.35; cursor: default; }
+
+  #slide-counter {
+    color: #8FA4B8; font-size: 13px; margin-left: 4px; white-space: nowrap;
+  }
+
+  /* ── SLIDE STAGE ── */
+  #stage {
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 80px 20px 40px;
+    min-height: 100vh;
+  }
+
+  .slide {
+    width: var(--slide-w); min-height: var(--slide-h);
+    background: var(--aws-white);
+    border-radius: 6px;
+    overflow: hidden;
+    display: none;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .slide.active { display: flex; flex-direction: column; }
+
+  /* ── AWS FOOTER ── */
+  .aws-footer {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 20px;
+    background: var(--aws-dark-blue);
+    font-size: 9px; color: #8FA4B8;
+  }
+  .aws-footer .aws-logo { color: var(--aws-orange); font-weight: 800; font-size: 11px; }
+
+  /* ── SLIDE TYPE: COVER ── */
+  .slide-cover {
+    background: linear-gradient(135deg, var(--aws-teal-dark) 0%, var(--aws-teal) 60%, #00C5AF 100%);
+    justify-content: center;
+    padding: 60px 80px 60px;
+  }
+  .slide-cover .cover-tag {
+    color: rgba(255,255,255,0.7); font-size: 11px; text-transform: uppercase;
+    letter-spacing: 2px; margin-bottom: 16px; font-weight: 600;
+  }
+  .slide-cover h1 {
+    color: #fff; font-size: 42px; font-weight: 800; line-height: 1.15;
+    margin-bottom: 20px;
+  }
+  .slide-cover .subtitle {
+    color: rgba(255,255,255,0.85); font-size: 17px; line-height: 1.5;
+    max-width: 500px; font-weight: 400;
+  }
+  .cover-icon {
+    position: absolute; right: 70px; top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.15; font-size: 140px; line-height: 1;
+  }
+
+  /* ── SLIDE TYPE: SECTION HEADER ── */
+  .slide-section {
+    background: linear-gradient(135deg, var(--aws-teal-dark) 0%, var(--aws-teal) 100%);
+    justify-content: center; align-items: center;
+  }
+  .slide-section h2 {
+    color: #fff; font-size: 38px; font-weight: 800;
+    text-align: center; padding: 0 60px;
+  }
+
+  /* ── SLIDE TYPE: DARK SECTION ── */
+  .slide-section-dark {
+    background: var(--aws-dark-blue);
+    justify-content: center; align-items: center;
+  }
+  .slide-section-dark h2 {
+    color: #fff; font-size: 38px; font-weight: 800;
+    text-align: center; padding: 0 60px;
+  }
+
+  /* ── SLIDE TYPE: CONTENT ── */
+  .slide-content {
+    padding: 36px 44px 50px;
+    flex-direction: column;
+  }
+  .slide-content .slide-title {
+    font-size: 22px; font-weight: 800; color: var(--aws-dark);
+    margin-bottom: 4px;
+  }
+  .slide-content .slide-title span { color: var(--aws-teal); }
+  .slide-content .slide-title .orange { color: var(--aws-orange); }
+  .divider { height: 3px; width: 50px; background: var(--aws-orange); margin-bottom: 22px; border-radius: 2px; }
+
+  /* ── CARDS / GRID ── */
+  .card-grid { display: grid; gap: 14px; flex: 1; }
+  .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  .card {
+    background: var(--aws-light); border-radius: 8px;
+    padding: 16px 18px;
+    border-left: 4px solid var(--aws-teal);
+  }
+  .card.orange { border-left-color: var(--aws-orange); }
+  .card h4 { font-size: 13px; font-weight: 700; color: var(--aws-dark); margin-bottom: 6px; }
+  .card p, .card ul { font-size: 12px; color: #4A5568; line-height: 1.5; }
+  .card ul { padding-left: 14px; }
+  .card ul li { margin-bottom: 3px; }
+
+  /* ── PRINCIPLES TWO-COLUMN ── */
+  .principles-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1;
+  }
+  .principle-row {
+    display: grid; grid-template-columns: 160px 1fr; gap: 0; align-items: stretch;
+    border-radius: 8px; overflow: hidden;
+  }
+  .principle-label {
+    background: var(--aws-orange); color: #fff;
+    font-size: 12px; font-weight: 700; padding: 14px 12px;
+    display: flex; align-items: center; text-align: center; line-height: 1.3;
+  }
+  .principle-desc {
+    background: #FFF8EE; font-size: 12px; color: #4A5568;
+    padding: 14px 14px; line-height: 1.5;
+    display: flex; align-items: center;
+  }
+
+  /* ── PRICING MODELS TABLE ── */
+  .pricing-table { flex: 1; border-collapse: collapse; width: 100%; font-size: 12px; }
+  .pricing-table th {
+    background: var(--aws-orange); color: #fff;
+    padding: 10px 14px; text-align: left; font-weight: 700;
+    font-size: 13px;
+  }
+  .pricing-table th:first-child { background: var(--aws-teal); }
+  .pricing-table td { padding: 8px 14px; vertical-align: top; border-bottom: 1px solid #E8EDF2; line-height: 1.4; }
+  .pricing-table tr:nth-child(even) td { background: #F8FAFB; }
+
+  .service-table { flex: 1; border-collapse: collapse; width: 100%; font-size: 12px; }
+  .service-table th { background: var(--aws-dark); color: #fff; padding: 9px 12px; text-align: left; font-size: 12px; font-weight: 700; }
+  .service-table td { padding: 8px 12px; border-bottom: 1px solid #E8EDF2; vertical-align: middle; }
+  .service-table tr:nth-child(even) td { background: #F8FAFB; }
+  .badge {
+    display: inline-block; padding: 3px 8px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-teal { background: var(--aws-teal-light); color: var(--aws-teal-dark); }
+  .badge-orange { background: #FFF3E0; color: #E65100; }
+
+  /* ── S3 / EBS PRICING ── */
+  .storage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; flex: 1; }
+  .storage-section h4 { font-size: 13px; font-weight: 700; color: var(--aws-teal-dark); margin-bottom: 10px; }
+  .storage-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 10px; border-radius: 5px; margin-bottom: 4px;
+    background: var(--aws-light); font-size: 12px;
+  }
+  .storage-row .tier { font-weight: 600; color: var(--aws-dark); }
+  .storage-row .price { color: var(--aws-orange); font-weight: 700; }
+
+  /* ── FREE TIER ── */
+  .free-tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; flex: 1; }
+  .free-tier-card {
+    background: linear-gradient(160deg, var(--aws-teal-light) 0%, #fff 100%);
+    border-radius: 10px; padding: 20px 16px; text-align: center;
+    border: 1px solid #B2DDD8;
+  }
+  .free-tier-card .icon { font-size: 28px; margin-bottom: 8px; }
+  .free-tier-card h4 { font-size: 13px; font-weight: 700; color: var(--aws-teal-dark); margin-bottom: 6px; }
+  .free-tier-card .amount { font-size: 26px; font-weight: 800; color: var(--aws-orange); }
+  .free-tier-card .label { font-size: 11px; color: var(--aws-muted); margin-top: 4px; }
+
+  /* ── CALCULATOR ── */
+  .calc-feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1; }
+  .calc-col h4 { font-size: 13px; font-weight: 700; color: var(--aws-teal-dark); margin-bottom: 10px;
+    border-left: 3px solid var(--aws-orange); padding-left: 8px; }
+
+  .step-row {
+    display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;
+  }
+  .step-num {
+    min-width: 28px; height: 28px; border-radius: 50%;
+    background: var(--aws-teal); color: #fff; font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-content h5 { font-size: 13px; font-weight: 700; color: var(--aws-dark); margin-bottom: 3px; }
+  .step-content p { font-size: 12px; color: var(--aws-muted); line-height: 1.45; }
+
+  /* ── REDUCE BILL – 2x5 GRID ── */
+  .reduce-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex: 1; }
+  .reduce-card {
+    background: var(--aws-light); border-radius: 8px; padding: 12px 10px;
+    border-top: 3px solid var(--aws-teal); font-size: 11px; color: #4A5568;
+    line-height: 1.4;
+  }
+  .reduce-card .ri { font-size: 18px; margin-bottom: 5px; }
+  .reduce-card p { font-size: 11px; }
+
+  /* ── COST OPT THREE PILLARS ── */
+  .pillars-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; flex: 1; }
+  .pillar {
+    border-radius: 10px; overflow: hidden;
+  }
+  .pillar-header {
+    padding: 12px 14px;
+    font-size: 13px; font-weight: 700; color: #fff; text-align: center;
+  }
+  .pillar-body { padding: 12px 14px; background: var(--aws-light); }
+  .pillar-body ul { padding-left: 14px; font-size: 11.5px; color: #4A5568; line-height: 1.55; }
+  .pillar-body ul li { margin-bottom: 5px; }
+
+  /* ── QA SLIDE ── */
+  .slide-qa {
+    background: linear-gradient(135deg, var(--aws-dark-blue) 0%, #1A2D40 100%);
+    justify-content: center; align-items: center;
+    flex-direction: column; gap: 20px;
+  }
+  .slide-qa h2 { color: #fff; font-size: 48px; font-weight: 800; }
+  .slide-qa p { color: rgba(255,255,255,0.6); font-size: 16px; }
+
+  /* ── THANK YOU ── */
+  .slide-thankyou {
+    background: linear-gradient(135deg, #0D1B2A 0%, var(--aws-dark-blue) 60%, #1A3350 100%);
+    justify-content: center; align-items: center;
+  }
+  .slide-thankyou h2 { color: #fff; font-size: 52px; font-weight: 800; }
+
+  /* ── AGENDA ── */
+  .agenda-list { flex: 1; display: flex; flex-direction: column; gap: 9px; justify-content: center; }
+  .agenda-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 11px 16px; border-radius: 8px; background: var(--aws-light);
+    border-left: 4px solid var(--aws-teal);
+    font-size: 14px; font-weight: 500; color: var(--aws-dark);
+  }
+  .agenda-item:nth-child(2n) { border-left-color: var(--aws-orange); }
+  .agenda-num {
+    min-width: 26px; height: 26px; border-radius: 50%;
+    background: var(--aws-teal); color: #fff; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .agenda-item:nth-child(2n) .agenda-num { background: var(--aws-orange); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1000px) {
+    :root { --slide-w: 98vw; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <div class="logo">☁ AWS</div>
+  <select id="lang-select" onchange="setLang(this.value)">
+    <option value="en">🇺🇸 English</option>
+    <option value="ko">🇰🇷 한국어</option>
+    <option value="es">🇪🇸 Español</option>
+    <option value="pt">🇧🇷 Português</option>
+    <option value="it">🇮🇹 Italiano</option>
+    <option value="fr">🇫🇷 Français</option>
+    <option value="de">🇩🇪 Deutsch</option>
+    <option value="id">🇮🇩 Bahasa Indonesia</option>
+    <option value="th">🇹🇭 ภาษาไทย</option>
+  </select>
+  <button class="nav-btn" id="btn-prev" onclick="changeSlide(-1)">◀ Prev</button>
+  <button class="nav-btn" id="btn-next" onclick="changeSlide(1)">Next ▶</button>
+  <span id="slide-counter">1 / 20</span>
+</div>
+
+<!-- SLIDES -->
+<div id="stage">
+
+<!-- ─── SLIDE 1: COVER ─── -->
+<div class="slide slide-cover active" id="s1">
+  <div class="cover-icon">💸</div>
+  <div class="cover-tag" data-key="cover_tag">AWS Training &amp; Certification</div>
+  <h1 data-key="cover_title">Cost Optimization</h1>
+  <p class="subtitle" data-key="cover_sub">Fundamental Pricing for Compute, Storage &amp; Data Transfer: Key Considerations</p>
+  <div class="aws-footer">
+    <span class="aws-logo">aws</span>
+    <span>© 2025, Amazon Web Services, Inc. or its affiliates. All rights reserved.</span>
+  </div>
+</div>
+
+<!-- ─── SLIDE 2: AGENDA ─── -->
+<div class="slide slide-content" id="s2">
+  <div class="slide-title" data-key="agenda_title">Agenda</div>
+  <div class="divider"></div>
+  <div class="agenda-list">
+    <div class="agenda-item"><div class="agenda-num">1</div><span data-key="ag1">AWS Pricing Key Principles</span></div>
+    <div class="agenda-item"><div class="agenda-num">2</div><span data-key="ag2">AWS Pricing Models</span></div>
+    <div class="agenda-item"><div class="agenda-num">3</div><span data-key="ag3">AWS Pricing Calculator</span></div>
+    <div class="agenda-item"><div class="agenda-num">4</div><span data-key="ag4">Ways to Reduce Your AWS Bill</span></div>
+    <div class="agenda-item"><div class="agenda-num">5</div><span data-key="ag5">AWS Cost Optimization</span></div>
+    <div class="agenda-item"><div class="agenda-num">6</div><span data-key="ag6">Demo: Pricing Calculator / Estimates</span></div>
+    <div class="agenda-item"><div class="agenda-num">7</div><span data-key="ag7">Q &amp; A</span></div>
+  </div>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc.</span></div>
+</div>
+
+<!-- ─── SLIDE 3: SECTION – PRICING KEY PRINCIPLES ─── -->
+<div class="slide slide-section" id="s3">
+  <h2 data-key="s3_title">AWS Pricing Key Principles</h2>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc.</span></div>
+</div>
+
+<!-- ─── SLIDE 4: PRICING KEY PRINCIPLES ─── -->
+<div class="slide slide-content" id="s4">
+  <div class="slide-title" data-key="s4_title">Pricing Key Principles</div>
+  <div class="divider"></div>
+  <div class="principles-grid">
+    <div class="principle-row">
+      <div class="principle-label" data-key="p1l">Understand the fundamentals of pricing</div>
+      <div class="principle-desc" data-key="p1d">Three fundamental drivers: <strong>compute</strong>, <strong>storage</strong>, and <strong>outbound data transfer</strong>. These are billed independently and transparently.</div>
+    </div>
+    <div class="principle-row">
+      <div class="principle-label" data-key="p2l">Start early with cost optimization</div>
+      <div class="principle-desc" data-key="p2d">Trade fixed expenses (data centers, physical servers) for variable expenses — pay only for what you consume.</div>
+    </div>
+    <div class="principle-row">
+      <div class="principle-label" data-key="p3l">Maximize the power of flexibility</div>
+      <div class="principle-desc" data-key="p3d">AWS services are priced independently, available on-demand — choose and pay for exactly what you need, when you need it.</div>
+    </div>
+    <div class="principle-row">
+      <div class="principle-label" data-key="p4l">Use the right pricing model for the job</div>
+      <div class="principle-desc" data-key="p4d">On-Demand, Savings Plans, Spot Instances, Reserved Instances — match your workload pattern to the right model.</div>
+    </div>
+  </div>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></div>
+</div>
+
+<!-- ─── SLIDE 5: SECTION – PRICING MODELS ─── -->
+<div class="slide slide-section" id="s5">
+  <h2 data-key="s5_title">AWS Pricing Models</h2>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc.</span></div>
+</div>
+
+<!-- ─── SLIDE 6: COMPARING BY INSTANCE TYPE ─── -->
+<div class="slide slide-content" id="s6">
+  <div class="slide-title">Comparing Pricing by <span>Instance Type</span></div>
+  <div class="divider"></div>
+  <table class="pricing-table">
+    <thead>
+      <tr>
+        <th data-key="inst_col0">Use Case</th>
+        <th data-key="inst_col1">On-Demand</th>
+        <th data-key="inst_col2">Reserved</th>
+        <th data-key="inst_col3">Spot</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td data-key="inst_r1c0">Commitment</td>
+        <td data-key="inst_r1c1">None — pay per hour, stop anytime</td>
+        <td data-key="inst_r1c2">1 or 3 years — save up to 72% vs On-Demand</td>
+        <td data-key="inst_r1c3">None — use spare capacity at up to 90% discount</td>
+      </tr>
+      <tr>
+        <td data-key="inst_r2c0">Best for</td>
+        <td data-key="inst_r2c1">New apps, dev/test, unpredictable workloads</td>
+        <td data-key="inst_r2c2">Steady-state, production workloads with predictable usage</td>
+        <td data-key="inst_r2c3">Batch jobs, big data, fault-tolerant workloads</td>
+      </tr>
+      <tr>
+        <td data-key="inst_r3c0">Interruption Risk</td>
+        <td data-key="inst_r3c1">None</td>
+        <td data-key="inst_r3c2">None</td>
+        <td data-key="inst_r3c3">May be reclaimed with 2-minute notice</td>
+      </tr>
+      <tr>
+        <td data-key="inst_r4c0">Payment Options</td>
+        <td data-key="inst_r4c1">Pay as you go</td>
+        <td data-key="inst_r4c2">All Upfront / Partial Upfront / No Upfront</td>
+        <td data-key="inst_r4c3">Market price (automatically set)</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></div>
+</div>
+
+<!-- ─── SLIDE 7: COMPARING BY SERVICE ─── -->
+<div class="slide slide-content" id="s7">
+  <div class="slide-title">Comparing Pricing by <span>Service</span></div>
+  <div class="divider"></div>
+  <table class="service-table">
+    <thead>
+      <tr>
+        <th data-key="svc_col0">Pricing Model</th>
+        <th data-key="svc_col1">Type</th>
+        <th data-key="svc_col2">Services</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-teal" data-key="svc_od">On-Demand</span></td>
+        <td data-key="svc_od_t1">Pay per hour (size provisioned)</td>
+        <td>EC2, RDS</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td data-key="svc_od_t2">Pay per hour (size &amp; quantity used)</td>
+        <td>S3, EFS, Lambda</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td data-key="svc_od_t3">On-Demand pay per use</td>
+        <td data-key="svc_od_t3s">All Services</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-orange" data-key="svc_ri">Reserved (Commitment discount)</span></td>
+        <td data-key="svc_ri_t">1 or 3-year commitment — significant savings</td>
+        <td>EC2, RDS, Redshift, ElastiCache, DynamoDB</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-teal" data-key="svc_sp">Spot (Spare Capacity)</span></td>
+        <td data-key="svc_sp_t">Up to 90% discount on spare capacity</td>
+        <td>EC2</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-orange" data-key="svc_svp">Savings Plans</span></td>
+        <td data-key="svc_svp_t">Flexible commitment — EC2, Fargate, Lambda</td>
+        <td>EC2, Fargate, Lambda</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></div>
+</div>
+
+<!-- ─── SLIDE 8: S3 PRICING ─── -->
+<div class="slide slide-content" id="s8">
+  <div class="slide-title">AWS Pricing Models for <span>S3</span></div>
+  <div class="divider"></div>
+  <div class="storage-grid">
+    <div class="storage-section">
+      <h4 data-key="s3_storage_h">Storage Classes (us-east-1)</h4>
+      <div class="storage-row"><span class="tier" data-key="s3_s1">S3 Standard</span><span class="price">$0.023/GB</span></div>
+      <div class="storage-row"><span class="tier" data-key="s3_s2">S3 Intelligent-Tiering</span><span class="price">From $0.0025/GB</span></div>
+      <div class="storage-row"><span class="tier" data-key="s3_s3">S3 Standard-IA</span><span class="price">$0.0125/GB</span></div>
+      <div class="storage-row"><span class="tier" data-key="s3_s4">S3 One Zone-IA</span><span class="price">$0.01/GB</span></div>
+      <div class="storage-row"><span class="tier" data-key="s3_s5">S3 Glacier Instant</span><span class="price">$0.004/GB</span></div>
+      <div class="storage-row"><span class="tier" data-key="s3_s6">S3 Glacier Deep Archive</span><span class="price">$0.00099/GB</span></div>
+    </div>
+    <div class="storage-section">
+      <h4 data-key="s3_req_h">Request &amp; Data Transfer Fees</h4>
+      <div class="storage-row"><span class="tier" data-key="s3_r1">PUT / COPY / POST / LIST</span><span class="price">$0.005/1K requests</span></div>
+      <div class="storage-row"><span class="tier" data-key="s3_r2">GET / SELECT</span><span class="price">$0.0004/1K requests</span></div>
+      <div class="storage-row"><span class="tier" data-key="s3_r3">Data Transfer IN</span><span class="price">Free</span></div>
+      <div class="storage-row"><span class="tier" data-key="s3_r4">Data Transfer OUT (to internet)</span><span class="price">$0.09/GB (first 10TB)</span></div>
+      <div class="storage-row"><span class="tier" data-key="s3_r5">S3 Transfer Acceleration</span><span class="price">+$0.04–$0.08/GB</span></div>
+      <div class="storage-row"><span class="tier" data-key="s3_r6">Replication (cross-region)</span><span class="price">Standard data transfer rates</span></div>
+    </div>
+  </div>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></div>
+</div>
+
+<!-- ─── SLIDE 9: EBS PRICING ─── -->
+<div class="slide slide-content" id="s9">
+  <div class="slide-title">AWS Pricing Models for <span>EBS</span></div>
+  <div class="divider"></div>
+  <div class="storage-grid">
+    <div class="storage-section">
+      <h4 data-key="ebs_vol_h">Volume Types</h4>
+      <div class="storage-row"><span class="tier" data-key="ebs_v1">gp3 (General Purpose SSD)</span><span class="price">$0.08/GB-month</span></div>
+      <div class="storage-row"><span class="tier" data-key="ebs_v2">gp2 (General Purpose SSD)</span><span class="price">$0.10/GB-month</span></div>
+      <div class="storage-row"><span class="tier" data-key="ebs_v3">io2 Block Express (Provisioned IOPS)</span><span class="price">$0.125/GB-month</span></div>
+      <div class="storage-row"><span class="tier" data-key="ebs_v4">st1 (Throughput Optimized HDD)</span><span class="price">$0.045/GB-month</span></div>
+      <div class="storage-row"><span class="tier" data-key="ebs_v5">sc1 (Cold HDD)</span><span class="price">$0.015/GB-month</span></div>
+    </div>
+    <div class="storage-section">
+      <h4 data-key="ebs_snap_h">Snapshots &amp; Tips</h4>
+      <div class="storage-row"><span class="tier" data-key="ebs_sn1">Snapshot storage</span><span class="price">$0.05/GB-month</span></div>
+      <div class="storage-row"><span class="tier" data-key="ebs_sn2">Fast Snapshot Restore</span><span class="price">$0.75/DSU-hour</span></div>
+      <div class="storage-row"><span class="tier" data-key="ebs_sn3">Archive tier snapshot</span><span class="price">$0.0125/GB-month</span></div>
+      <div class="storage-row"><span class="tier" data-key="ebs_sn4">gp3 vs gp2 savings</span><span class="price">Save ~20% switching</span></div>
+      <div class="storage-row"><span class="tier" data-key="ebs_sn5">Delete unattached volumes</span><span class="price">Immediate savings</span></div>
+    </div>
+  </div>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></div>
+</div>
+
+<!-- ─── SLIDE 10: FREE TIER ─── -->
+<div class="slide slide-content" id="s10">
+  <div class="slide-title">AWS Free Tier — <span>Storage</span></div>
+  <div class="divider"></div>
+  <div class="free-tier-grid">
+    <div class="free-tier-card">
+      <div class="icon">🪣</div>
+      <h4>Amazon S3</h4>
+      <div class="amount">5 GB</div>
+      <div class="label" data-key="ft_s3">Standard Storage · 12 months</div>
+      <div style="font-size:11px;color:#666;margin-top:6px" data-key="ft_s3b">20,000 GET + 2,000 PUT requests/month</div>
+    </div>
+    <div class="free-tier-card">
+      <div class="icon">💾</div>
+      <h4>Amazon EBS</h4>
+      <div class="amount">30 GB</div>
+      <div class="label" data-key="ft_ebs">SSD storage · 12 months</div>
+      <div style="font-size:11px;color:#666;margin-top:6px" data-key="ft_ebsb">2 million I/Os + 1 GB snapshot storage</div>
+    </div>
+    <div class="free-tier-card">
+      <div class="icon">📁</div>
+      <h4>Amazon EFS</h4>
+      <div class="amount">5 GB</div>
+      <div class="label" data-key="ft_efs">Standard storage · 12 months</div>
+      <div style="font-size:11px;color:#666;margin-top:6px" data-key="ft_efsb">Elastic file system, auto-scaling</div>
+    </div>
+    <div class="free-tier-card">
+      <div class="icon">⚡</div>
+      <h4>AWS Lambda</h4>
+      <div class="amount">1M</div>
+      <div class="label" data-key="ft_lambda">requests/month — Always Free</div>
+      <div style="font-size:11px;color:#666;margin-top:6px" data-key="ft_lambdab">400,000 GB-seconds compute/month</div>
+    </div>
+    <div class="free-tier-card">
+      <div class="icon">🖥️</div>
+      <h4>Amazon EC2</h4>
+      <div class="amount">750h</div>
+      <div class="label" data-key="ft_ec2">t2.micro or t3.micro · 12 months</div>
+      <div style="font-size:11px;color:#666;margin-top:6px" data-key="ft_ec2b">Linux &amp; Windows, per region</div>
+    </div>
+    <div class="free-tier-card">
+      <div class="icon">🗄️</div>
+      <h4>Amazon RDS</h4>
+      <div class="amount">750h</div>
+      <div class="label" data-key="ft_rds">db.t2/t3.micro · 12 months</div>
+      <div style="font-size:11px;color:#666;margin-top:6px" data-key="ft_rdsb">20 GB DB storage + 20 GB backups</div>
+    </div>
+  </div>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></div>
+</div>
+
+<!-- ─── SLIDE 11: SECTION – PRICING CALCULATOR ─── -->
+<div class="slide slide-section" id="s11">
+  <h2 data-key="s11_title">AWS Pricing Calculator</h2>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc.</span></div>
+</div>
+
+<!-- ─── SLIDE 12: WHAT IS AWS PRICING CALCULATOR ─── -->
+<div class="slide slide-content" id="s12">
+  <div class="slide-title"><span data-key="s12_title">What is AWS Pricing Calculator?</span></div>
+  <div class="divider"></div>
+  <div class="calc-feature-grid">
+    <div class="calc-col">
+      <h4 data-key="s12_bh">Benefits &amp; Features</h4>
+      <div class="card" style="margin-bottom:10px">
+        <ul>
+          <li data-key="s12_b1">Transparent, itemised pricing for 200+ AWS services</li>
+          <li data-key="s12_b2">Share estimates via a unique URL</li>
+          <li data-key="s12_b3">Hierarchical estimates (groups &amp; sub-groups)</li>
+          <li data-key="s12_b4">Export estimates to CSV / PDF</li>
+          <li data-key="s12_b5">No AWS account required</li>
+        </ul>
+      </div>
+      <div class="card orange">
+        <h4 data-key="s12_uh">Use Cases</h4>
+        <ul>
+          <li data-key="s12_u1">Reduce your Amazon EC2 spend</li>
+          <li data-key="s12_u2">Find the right EC2 instance type</li>
+          <li data-key="s12_u3">Estimate total AWS spend before migrating</li>
+          <li data-key="s12_u4">Compare service costs across Regions</li>
+        </ul>
+      </div>
+    </div>
+    <div class="calc-col">
+      <h4 data-key="s12_hh">How it Works</h4>
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h5 data-key="s12_step1h">Open AWS Pricing Calculator</h5>
+          <p data-key="s12_step1p">Go to calculator.aws/pricing — no login needed</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h5 data-key="s12_step2h">Search &amp; Add Services</h5>
+          <p data-key="s12_step2p">Choose the AWS products and services you plan to use</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h5 data-key="s12_step3h">Configure Each Service</h5>
+          <p data-key="s12_step3p">Enter usage details — instance type, region, hours, storage</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h5 data-key="s12_step4h">View &amp; Share Estimate Totals</h5>
+          <p data-key="s12_step4p">Review monthly &amp; 12-month totals; share or export</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></div>
+</div>
+
+<!-- ─── SLIDE 13: SECTION – REDUCE BILL ─── -->
+<div class="slide slide-section-dark" id="s13">
+  <h2 data-key="s13_title">Ways to Reduce Your AWS Bill</h2>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc.</span></div>
+</div>
+
+<!-- ─── SLIDE 14: REDUCE BILL ─── -->
+<div class="slide slide-content" id="s14">
+  <div class="slide-title">Different Ways to <span class="orange">Reduce Your AWS Bill</span></div>
+  <div class="divider"></div>
+  <div class="reduce-grid">
+    <div class="reduce-card"><div class="ri">🖥️</div><p data-key="rb1">Identify EC2 with low utilisation — stop or right-size instances</p></div>
+    <div class="reduce-card"><div class="ri">💾</div><p data-key="rb2">Find low-utilisation EBS volumes — snapshot then delete</p></div>
+    <div class="reduce-card"><div class="ri">🪣</div><p data-key="rb3">Optimise S3 costs by moving data to lower-cost storage tiers</p></div>
+    <div class="reduce-card"><div class="ri">🗄️</div><p data-key="rb4">Stop low-utilisation RDS; pause Redshift clusters</p></div>
+    <div class="reduce-card"><div class="ri">⚡</div><p data-key="rb5">Optimise DynamoDB with Auto Scaling or On-Demand mode</p></div>
+    <div class="reduce-card"><div class="ri">🔗</div><p data-key="rb6">Delete idle load balancers and unused NAT Gateways</p></div>
+    <div class="reduce-card"><div class="ri">🎯</div><p data-key="rb7">Use EC2 Spot Instances for fault-tolerant workloads</p></div>
+    <div class="reduce-card"><div class="ri">🔄</div><p data-key="rb8">Review &amp; tune EC2 Auto Scaling Group configuration</p></div>
+    <div class="reduce-card"><div class="ri">📋</div><p data-key="rb9">Use Reserved Instances for RDS, Redshift, ElastiCache, OpenSearch</p></div>
+    <div class="reduce-card"><div class="ri">💡</div><p data-key="rb10">Use Compute Savings Plans for EC2, Fargate &amp; Lambda</p></div>
+  </div>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></div>
+</div>
+
+<!-- ─── SLIDE 15: SECTION – COST OPTIMIZATION ─── -->
+<div class="slide slide-section" id="s15">
+  <h2 data-key="s15_title">AWS Cost Optimization</h2>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc.</span></div>
+</div>
+
+<!-- ─── SLIDE 16: COST OPT PILLARS ─── -->
+<div class="slide slide-content" id="s16">
+  <div class="slide-title">What is <span>AWS Cost Optimization?</span></div>
+  <div class="divider"></div>
+  <div class="pillars-grid">
+    <div class="pillar">
+      <div class="pillar-header" style="background:var(--aws-orange)" data-key="co1h">Choose the Right Pricing Models</div>
+      <div class="pillar-body">
+        <ul>
+          <li data-key="co1b1">Reserved Instances for RDS, Redshift, ElastiCache &amp; OpenSearch</li>
+          <li data-key="co1b2">Spot Instances to reduce EC2 costs</li>
+          <li data-key="co1b3">Compute Savings Plans for EC2, Fargate &amp; Lambda</li>
+          <li data-key="co1b4">Savings Plans require 1 or 3-year commitment</li>
+        </ul>
+      </div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-header" style="background:var(--aws-teal)" data-key="co2h">Match Capacity with Demand</div>
+      <div class="pillar-body">
+        <ul>
+          <li data-key="co2b1">Right-size or stop low-utilisation EC2 instances</li>
+          <li data-key="co2b2">Stop low-utilisation RDS; pause Redshift</li>
+          <li data-key="co2b3">DynamoDB: Auto Scaling or On-Demand mode</li>
+          <li data-key="co2b4">Use AWS Compute Optimizer for recommendations</li>
+        </ul>
+      </div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-header" style="background:var(--aws-mid)" data-key="co3h">Implement Processes to Identify Waste</div>
+      <div class="pillar-body">
+        <ul>
+          <li data-key="co3b1">Delete low-utilisation EBS volumes (snapshot first)</li>
+          <li data-key="co3b2">Move S3 objects to cheaper tiers (Lifecycle policies)</li>
+          <li data-key="co3b3">Remove idle load balancers &amp; unused IPs</li>
+          <li data-key="co3b4">Use AWS Cost Explorer &amp; Budgets for visibility</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></div>
+</div>
+
+<!-- ─── SLIDE 17: COST OPTIMIZATION TOOLS ─── -->
+<div class="slide slide-content" id="s17">
+  <div class="slide-title">AWS Cost Optimization <span>Tools &amp; Services</span></div>
+  <div class="divider"></div>
+  <div class="card-grid cols-2" style="flex:1">
+    <div class="card">
+      <h4>💰 AWS Cost Explorer</h4>
+      <p data-key="tool1">Visualise, understand and manage your AWS costs and usage over time. Filter by service, region, tag. Identify top cost drivers instantly.</p>
+    </div>
+    <div class="card orange">
+      <h4>📊 AWS Budgets</h4>
+      <p data-key="tool2">Set custom cost and usage budgets. Receive alerts via SNS or email when thresholds are exceeded — daily, monthly or annual periods.</p>
+    </div>
+    <div class="card orange">
+      <h4>🔍 AWS Compute Optimizer</h4>
+      <p data-key="tool3">ML-based recommendations for EC2, Lambda, EBS and ECS on Fargate. Identifies over- and under-provisioned resources automatically.</p>
+    </div>
+    <div class="card">
+      <h4>🛡️ AWS Trusted Advisor</h4>
+      <p data-key="tool4">Real-time guidance across cost optimisation, security, fault tolerance and performance. Highlights idle and underutilised resources.</p>
+    </div>
+    <div class="card">
+      <h4>📋 AWS Cost &amp; Usage Report (CUR)</h4>
+      <p data-key="tool5">Most granular billing data available. Integrates with Athena, Redshift or QuickSight for custom analytics and showback/chargeback.</p>
+    </div>
+    <div class="card orange">
+      <h4>🏷️ AWS Cost Allocation Tags</h4>
+      <p data-key="tool6">Tag resources by project, team or environment. Use tags in Cost Explorer and CUR to attribute spend to the right business unit.</p>
+    </div>
+  </div>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></div>
+</div>
+
+<!-- ─── SLIDE 18: SECTION – DEMO ─── -->
+<div class="slide slide-section-dark" id="s18">
+  <h2 data-key="s18_title">Demo: Pricing Calculator / Estimates</h2>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc.</span></div>
+</div>
+
+<!-- ─── SLIDE 19: DEMO STEPS ─── -->
+<div class="slide slide-content" id="s19">
+  <div class="slide-title">Demo: <span>AWS Pricing Calculator</span></div>
+  <div class="divider"></div>
+  <div style="display:flex;gap:16px;flex:1;align-items:flex-start">
+    <div style="flex:1">
+      <div class="step-row">
+        <div class="step-num" style="background:var(--aws-orange)">1</div>
+        <div class="step-content">
+          <h5 data-key="demo1h">Visit calculator.aws/pricing</h5>
+          <p data-key="demo1p">No AWS account needed. The tool is fully public.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num" style="background:var(--aws-orange)">2</div>
+        <div class="step-content">
+          <h5 data-key="demo2h">Create an estimate</h5>
+          <p data-key="demo2p">Click "Create estimate" and then "Add service"</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num" style="background:var(--aws-orange)">3</div>
+        <div class="step-content">
+          <h5 data-key="demo3h">Configure EC2</h5>
+          <p data-key="demo3p">Select region → instance type → OS → pricing model → hours/month</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num" style="background:var(--aws-orange)">4</div>
+        <div class="step-content">
+          <h5 data-key="demo4h">Compare pricing models</h5>
+          <p data-key="demo4p">Toggle between On-Demand, Reserved (1yr/3yr) and Savings Plans to see savings</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num" style="background:var(--aws-orange)">5</div>
+        <div class="step-content">
+          <h5 data-key="demo5h">Share or export</h5>
+          <p data-key="demo5p">Copy the shareable URL or export to CSV/PDF for stakeholders</p>
+        </div>
+      </div>
+    </div>
+    <div style="width:300px;background:var(--aws-light);border-radius:10px;padding:16px;border:1px solid var(--aws-border)">
+      <h4 style="font-size:13px;font-weight:700;color:var(--aws-teal-dark);margin-bottom:10px" data-key="demo_tip_h">💡 Pro Tips</h4>
+      <ul style="font-size:12px;color:#4A5568;line-height:1.55;padding-left:14px">
+        <li data-key="demo_t1">Use groups to organise estimates by service tier or environment</li>
+        <li data-key="demo_t2">Add a data transfer service to include egress costs</li>
+        <li data-key="demo_t3">Compare Region prices — us-east-1 is often the cheapest</li>
+        <li data-key="demo_t4">Save Plans show exact $ savings vs On-Demand side by side</li>
+      </ul>
+    </div>
+  </div>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc. or its affiliates. All rights reserved.</span></div>
+</div>
+
+<!-- ─── SLIDE 20: Q&A ─── -->
+<div class="slide slide-qa" id="s20">
+  <h2 data-key="qa_title">Q &amp; A</h2>
+  <p data-key="qa_sub">Questions, comments, feedback?</p>
+  <div class="aws-footer"><span class="aws-logo">aws</span><span>© 2025 Amazon Web Services, Inc.</span></div>
+</div>
+
+</div><!-- /stage -->
+
+<script>
+// ── TRANSLATIONS ──────────────────────────────────────────────────────────────
+const T = {
+  en: {
+    cover_tag:"AWS Training & Certification",
+    cover_title:"Cost Optimization",
+    cover_sub:"Fundamental Pricing for Compute, Storage & Data Transfer: Key Considerations",
+    agenda_title:"Agenda",
+    ag1:"AWS Pricing Key Principles", ag2:"AWS Pricing Models", ag3:"AWS Pricing Calculator",
+    ag4:"Ways to Reduce Your AWS Bill", ag5:"AWS Cost Optimization",
+    ag6:"Demo: Pricing Calculator / Estimates", ag7:"Q & A",
+    s3_title:"AWS Pricing Key Principles",
+    s4_title:"Pricing Key Principles",
+    p1l:"Understand the fundamentals of pricing", p1d:"Three fundamental drivers: compute, storage, and outbound data transfer. These are billed independently and transparently.",
+    p2l:"Start early with cost optimization", p2d:"Trade fixed expenses (data centers, physical servers) for variable expenses — pay only for what you consume.",
+    p3l:"Maximize the power of flexibility", p3d:"AWS services are priced independently, available on-demand — choose and pay for exactly what you need, when you need it.",
+    p4l:"Use the right pricing model for the job", p4d:"On-Demand, Savings Plans, Spot Instances, Reserved Instances — match your workload pattern to the right model.",
+    s5_title:"AWS Pricing Models",
+    inst_col0:"Use Case", inst_col1:"On-Demand", inst_col2:"Reserved", inst_col3:"Spot",
+    inst_r1c0:"Commitment", inst_r1c1:"None — pay per hour, stop anytime", inst_r1c2:"1 or 3 years — save up to 72% vs On-Demand", inst_r1c3:"None — use spare capacity at up to 90% discount",
+    inst_r2c0:"Best for", inst_r2c1:"New apps, dev/test, unpredictable workloads", inst_r2c2:"Steady-state, production workloads with predictable usage", inst_r2c3:"Batch jobs, big data, fault-tolerant workloads",
+    inst_r3c0:"Interruption Risk", inst_r3c1:"None", inst_r3c2:"None", inst_r3c3:"May be reclaimed with 2-minute notice",
+    inst_r4c0:"Payment Options", inst_r4c1:"Pay as you go", inst_r4c2:"All Upfront / Partial Upfront / No Upfront", inst_r4c3:"Market price (automatically set)",
+    svc_col0:"Pricing Model", svc_col1:"Type", svc_col2:"Services",
+    svc_od:"On-Demand", svc_od_t1:"Pay per hour (size provisioned)", svc_od_t2:"Pay per hour (size & quantity used)", svc_od_t3:"On-Demand pay per use", svc_od_t3s:"All Services",
+    svc_ri:"Reserved (Commitment discount)", svc_ri_t:"1 or 3-year commitment — significant savings",
+    svc_sp:"Spot (Spare Capacity)", svc_sp_t:"Up to 90% discount on spare capacity",
+    svc_svp:"Savings Plans", svc_svp_t:"Flexible commitment — EC2, Fargate, Lambda",
+    s3_storage_h:"Storage Classes (us-east-1)", s3_s1:"S3 Standard", s3_s2:"S3 Intelligent-Tiering", s3_s3:"S3 Standard-IA", s3_s4:"S3 One Zone-IA", s3_s5:"S3 Glacier Instant", s3_s6:"S3 Glacier Deep Archive",
+    s3_req_h:"Request & Data Transfer Fees", s3_r1:"PUT / COPY / POST / LIST", s3_r2:"GET / SELECT", s3_r3:"Data Transfer IN", s3_r4:"Data Transfer OUT (to internet)", s3_r5:"S3 Transfer Acceleration", s3_r6:"Replication (cross-region)",
+    ebs_vol_h:"Volume Types", ebs_v1:"gp3 (General Purpose SSD)", ebs_v2:"gp2 (General Purpose SSD)", ebs_v3:"io2 Block Express (Provisioned IOPS)", ebs_v4:"st1 (Throughput Optimized HDD)", ebs_v5:"sc1 (Cold HDD)",
+    ebs_snap_h:"Snapshots & Tips", ebs_sn1:"Snapshot storage", ebs_sn2:"Fast Snapshot Restore", ebs_sn3:"Archive tier snapshot", ebs_sn4:"gp3 vs gp2 savings", ebs_sn5:"Delete unattached volumes",
+    ft_s3:"Standard Storage · 12 months", ft_s3b:"20,000 GET + 2,000 PUT requests/month",
+    ft_ebs:"SSD storage · 12 months", ft_ebsb:"2 million I/Os + 1 GB snapshot storage",
+    ft_efs:"Standard storage · 12 months", ft_efsb:"Elastic file system, auto-scaling",
+    ft_lambda:"requests/month — Always Free", ft_lambdab:"400,000 GB-seconds compute/month",
+    ft_ec2:"t2.micro or t3.micro · 12 months", ft_ec2b:"Linux & Windows, per region",
+    ft_rds:"db.t2/t3.micro · 12 months", ft_rdsb:"20 GB DB storage + 20 GB backups",
+    s11_title:"AWS Pricing Calculator",
+    s12_title:"What is AWS Pricing Calculator?", s12_bh:"Benefits & Features",
+    s12_b1:"Transparent, itemised pricing for 200+ AWS services", s12_b2:"Share estimates via a unique URL", s12_b3:"Hierarchical estimates (groups & sub-groups)", s12_b4:"Export estimates to CSV / PDF", s12_b5:"No AWS account required",
+    s12_uh:"Use Cases", s12_u1:"Reduce your Amazon EC2 spend", s12_u2:"Find the right EC2 instance type", s12_u3:"Estimate total AWS spend before migrating", s12_u4:"Compare service costs across Regions",
+    s12_hh:"How it Works", s12_step1h:"Open AWS Pricing Calculator", s12_step1p:"Go to calculator.aws/pricing — no login needed",
+    s12_step2h:"Search & Add Services", s12_step2p:"Choose the AWS products and services you plan to use",
+    s12_step3h:"Configure Each Service", s12_step3p:"Enter usage details — instance type, region, hours, storage",
+    s12_step4h:"View & Share Estimate Totals", s12_step4p:"Review monthly & 12-month totals; share or export",
+    s13_title:"Ways to Reduce Your AWS Bill",
+    rb1:"Identify EC2 with low utilisation — stop or right-size instances", rb2:"Find low-utilisation EBS volumes — snapshot then delete", rb3:"Optimise S3 costs by moving data to lower-cost storage tiers", rb4:"Stop low-utilisation RDS; pause Redshift clusters",
+    rb5:"Optimise DynamoDB with Auto Scaling or On-Demand mode", rb6:"Delete idle load balancers and unused NAT Gateways", rb7:"Use EC2 Spot Instances for fault-tolerant workloads", rb8:"Review & tune EC2 Auto Scaling Group configuration",
+    rb9:"Use Reserved Instances for RDS, Redshift, ElastiCache, OpenSearch", rb10:"Use Compute Savings Plans for EC2, Fargate & Lambda",
+    s15_title:"AWS Cost Optimization",
+    co1h:"Choose the Right Pricing Models", co1b1:"Reserved Instances for RDS, Redshift, ElastiCache & OpenSearch", co1b2:"Spot Instances to reduce EC2 costs", co1b3:"Compute Savings Plans for EC2, Fargate & Lambda", co1b4:"Savings Plans require 1 or 3-year commitment",
+    co2h:"Match Capacity with Demand", co2b1:"Right-size or stop low-utilisation EC2 instances", co2b2:"Stop low-utilisation RDS; pause Redshift", co2b3:"DynamoDB: Auto Scaling or On-Demand mode", co2b4:"Use AWS Compute Optimizer for recommendations",
+    co3h:"Implement Processes to Identify Waste", co3b1:"Delete low-utilisation EBS volumes (snapshot first)", co3b2:"Move S3 objects to cheaper tiers (Lifecycle policies)", co3b3:"Remove idle load balancers & unused IPs", co3b4:"Use AWS Cost Explorer & Budgets for visibility",
+    tool1:"Visualise, understand and manage your AWS costs and usage over time. Filter by service, region, tag. Identify top cost drivers instantly.",
+    tool2:"Set custom cost and usage budgets. Receive alerts via SNS or email when thresholds are exceeded — daily, monthly or annual periods.",
+    tool3:"ML-based recommendations for EC2, Lambda, EBS and ECS on Fargate. Identifies over- and under-provisioned resources automatically.",
+    tool4:"Real-time guidance across cost optimisation, security, fault tolerance and performance. Highlights idle and underutilised resources.",
+    tool5:"Most granular billing data available. Integrates with Athena, Redshift or QuickSight for custom analytics and showback/chargeback.",
+    tool6:"Tag resources by project, team or environment. Use tags in Cost Explorer and CUR to attribute spend to the right business unit.",
+    s18_title:"Demo: Pricing Calculator / Estimates",
+    demo1h:"Visit calculator.aws/pricing", demo1p:"No AWS account needed. The tool is fully public.",
+    demo2h:"Create an estimate", demo2p:"Click 'Create estimate' and then 'Add service'",
+    demo3h:"Configure EC2", demo3p:"Select region → instance type → OS → pricing model → hours/month",
+    demo4h:"Compare pricing models", demo4p:"Toggle between On-Demand, Reserved (1yr/3yr) and Savings Plans to see savings",
+    demo5h:"Share or export", demo5p:"Copy the shareable URL or export to CSV/PDF for stakeholders",
+    demo_tip_h:"💡 Pro Tips", demo_t1:"Use groups to organise estimates by service tier or environment", demo_t2:"Add a data transfer service to include egress costs", demo_t3:"Compare Region prices — us-east-1 is often the cheapest", demo_t4:"Save Plans show exact $ savings vs On-Demand side by side",
+    qa_title:"Q & A", qa_sub:"Questions, comments, feedback?"
+  },
+
+  ko: {
+    cover_tag:"AWS 교육 및 자격증",
+    cover_title:"비용 최적화",
+    cover_sub:"컴퓨팅, 스토리지 및 데이터 전송의 기본 요금 체계: 주요 고려 사항",
+    agenda_title:"안건",
+    ag1:"AWS 요금 핵심 원칙", ag2:"AWS 요금 모델", ag3:"AWS 요금 계산기",
+    ag4:"AWS 요금 절감 방법", ag5:"AWS 비용 최적화",
+    ag6:"데모: 요금 계산기 / 견적", ag7:"Q & A",
+    s3_title:"AWS 요금 핵심 원칙",
+    s4_title:"요금 핵심 원칙",
+    p1l:"요금의 기본 이해", p1d:"세 가지 핵심 비용 요소: 컴퓨팅, 스토리지, 아웃바운드 데이터 전송. 각각 독립적으로 투명하게 청구됩니다.",
+    p2l:"비용 최적화를 일찍 시작", p2d:"데이터 센터, 물리적 서버 등 고정 비용을 변동 비용으로 전환 — 사용한 만큼만 지불합니다.",
+    p3l:"유연성의 힘 극대화", p3d:"AWS 서비스는 독립적으로 요금이 책정되며 온디맨드로 제공 — 필요한 것만 정확하게 선택하고 지불합니다.",
+    p4l:"작업에 맞는 요금 모델 사용", p4d:"온디맨드, 세이빙스 플랜, 스팟 인스턴스, 예약 인스턴스 — 워크로드 패턴에 맞는 모델을 선택하세요.",
+    s5_title:"AWS 요금 모델",
+    inst_col0:"사용 사례", inst_col1:"온디맨드", inst_col2:"예약", inst_col3:"스팟",
+    inst_r1c0:"약정", inst_r1c1:"없음 — 시간당 지불, 언제든 중단 가능", inst_r1c2:"1년 또는 3년 — 온디맨드 대비 최대 72% 절감", inst_r1c3:"없음 — 여유 용량을 최대 90% 할인",
+    inst_r2c0:"적합한 경우", inst_r2c1:"신규 앱, 개발/테스트, 예측 불가 워크로드", inst_r2c2:"안정적인 운영 워크로드", inst_r2c3:"배치 작업, 빅데이터, 내결함성 워크로드",
+    inst_r3c0:"중단 위험", inst_r3c1:"없음", inst_r3c2:"없음", inst_r3c3:"2분 전 통보 후 회수될 수 있음",
+    inst_r4c0:"결제 옵션", inst_r4c1:"사용한 만큼 지불", inst_r4c2:"전액 선불 / 일부 선불 / 선불 없음", inst_r4c3:"시장 가격 (자동 설정)",
+    svc_col0:"요금 모델", svc_col1:"유형", svc_col2:"서비스",
+    svc_od:"온디맨드", svc_od_t1:"프로비저닝 크기 기준 시간당 지불", svc_od_t2:"크기 및 사용량 기준 시간당 지불", svc_od_t3:"온디맨드 사용량 기준 지불", svc_od_t3s:"모든 서비스",
+    svc_ri:"예약 (약정 할인)", svc_ri_t:"1년 또는 3년 약정 — 상당한 절감",
+    svc_sp:"스팟 (여유 용량)", svc_sp_t:"여유 용량을 최대 90% 할인",
+    svc_svp:"세이빙스 플랜", svc_svp_t:"유연한 약정 — EC2, Fargate, Lambda",
+    s3_storage_h:"스토리지 클래스 (us-east-1)", s3_s1:"S3 Standard", s3_s2:"S3 Intelligent-Tiering", s3_s3:"S3 Standard-IA", s3_s4:"S3 One Zone-IA", s3_s5:"S3 Glacier Instant", s3_s6:"S3 Glacier Deep Archive",
+    s3_req_h:"요청 및 데이터 전송 요금", s3_r1:"PUT / COPY / POST / LIST", s3_r2:"GET / SELECT", s3_r3:"데이터 전송 IN", s3_r4:"데이터 전송 OUT (인터넷)", s3_r5:"S3 전송 가속", s3_r6:"복제 (크로스 리전)",
+    ebs_vol_h:"볼륨 유형", ebs_v1:"gp3 (범용 SSD)", ebs_v2:"gp2 (범용 SSD)", ebs_v3:"io2 Block Express (프로비저닝 IOPS)", ebs_v4:"st1 (처리량 최적화 HDD)", ebs_v5:"sc1 (콜드 HDD)",
+    ebs_snap_h:"스냅샷 및 팁", ebs_sn1:"스냅샷 스토리지", ebs_sn2:"빠른 스냅샷 복원", ebs_sn3:"아카이브 티어 스냅샷", ebs_sn4:"gp3 vs gp2 절감", ebs_sn5:"미연결 볼륨 삭제",
+    ft_s3:"Standard 스토리지 · 12개월", ft_s3b:"월 20,000 GET + 2,000 PUT 요청",
+    ft_ebs:"SSD 스토리지 · 12개월", ft_ebsb:"200만 I/O + 스냅샷 스토리지 1GB",
+    ft_efs:"Standard 스토리지 · 12개월", ft_efsb:"탄력적 파일 시스템, 자동 확장",
+    ft_lambda:"요청/월 — 상시 무료", ft_lambdab:"월 400,000 GB-초 컴퓨팅",
+    ft_ec2:"t2.micro 또는 t3.micro · 12개월", ft_ec2b:"Linux 및 Windows, 리전당",
+    ft_rds:"db.t2/t3.micro · 12개월", ft_rdsb:"DB 스토리지 20GB + 백업 20GB",
+    s11_title:"AWS 요금 계산기",
+    s12_title:"AWS 요금 계산기란?", s12_bh:"혜택 및 기능",
+    s12_b1:"200개 이상의 AWS 서비스에 대한 투명한 항목별 요금", s12_b2:"고유 URL로 견적 공유", s12_b3:"계층적 견적 (그룹 및 하위 그룹)", s12_b4:"CSV / PDF로 견적 내보내기", s12_b5:"AWS 계정 불필요",
+    s12_uh:"사용 사례", s12_u1:"Amazon EC2 비용 절감", s12_u2:"적합한 EC2 인스턴스 유형 찾기", s12_u3:"마이그레이션 전 총 AWS 비용 예상", s12_u4:"리전별 서비스 비용 비교",
+    s12_hh:"작동 방식", s12_step1h:"AWS 요금 계산기 열기", s12_step1p:"calculator.aws/pricing — 로그인 불필요",
+    s12_step2h:"서비스 검색 및 추가", s12_step2p:"사용할 AWS 제품 및 서비스 선택",
+    s12_step3h:"각 서비스 구성", s12_step3p:"인스턴스 유형, 리전, 시간, 스토리지 등 사용량 입력",
+    s12_step4h:"견적 합계 보기 및 공유", s12_step4p:"월간 및 12개월 합계 검토, 공유 또는 내보내기",
+    s13_title:"AWS 요금 절감 방법",
+    rb1:"낮은 사용률의 EC2 식별 — 중지 또는 적정 크기 조정", rb2:"낮은 사용률의 EBS 볼륨 — 스냅샷 후 삭제", rb3:"S3 비용 최적화 — 저비용 스토리지 티어로 데이터 이동", rb4:"낮은 사용률의 RDS 중지, Redshift 클러스터 일시 중지",
+    rb5:"DynamoDB를 Auto Scaling 또는 온디맨드 모드로 최적화", rb6:"유휴 로드 밸런서 및 미사용 NAT 게이트웨이 삭제", rb7:"내결함성 워크로드에 EC2 스팟 인스턴스 사용", rb8:"EC2 Auto Scaling 그룹 구성 검토 및 조정",
+    rb9:"RDS, Redshift, ElastiCache, OpenSearch에 예약 인스턴스 사용", rb10:"EC2, Fargate 및 Lambda에 컴퓨팅 세이빙스 플랜 사용",
+    s15_title:"AWS 비용 최적화",
+    co1h:"올바른 요금 모델 선택", co1b1:"RDS, Redshift, ElastiCache 및 OpenSearch에 예약 인스턴스 사용", co1b2:"EC2 비용 절감을 위한 스팟 인스턴스 활용", co1b3:"EC2, Fargate 및 Lambda에 컴퓨팅 세이빙스 플랜 사용", co1b4:"세이빙스 플랜은 1년 또는 3년 약정 필요",
+    co2h:"수요에 맞는 용량 조정", co2b1:"낮은 사용률의 EC2 인스턴스 적정 크기 조정 또는 중지", co2b2:"낮은 사용률의 RDS 중지, Redshift 일시 중지", co2b3:"DynamoDB: Auto Scaling 또는 온디맨드 모드", co2b4:"AWS Compute Optimizer로 추천 사항 확인",
+    co3h:"낭비 식별 프로세스 구현", co3b1:"낮은 사용률의 EBS 볼륨 삭제 (먼저 스냅샷)", co3b2:"S3 객체를 저렴한 티어로 이동 (수명 주기 정책)", co3b3:"유휴 로드 밸런서 및 미사용 IP 제거", co3b4:"AWS Cost Explorer 및 Budgets으로 가시성 확보",
+    tool1:"시간 경과에 따른 AWS 비용 및 사용량을 시각화, 이해, 관리합니다. 서비스, 리전, 태그별로 필터링. 주요 비용 요인을 즉시 파악.",
+    tool2:"맞춤형 비용 및 사용량 예산 설정. 임계값 초과 시 SNS 또는 이메일로 알림 수신 — 일별, 월별 또는 연간.",
+    tool3:"EC2, Lambda, EBS 및 Fargate의 ECS에 대한 ML 기반 권장 사항. 과다/과소 프로비저닝된 리소스를 자동으로 식별.",
+    tool4:"비용 최적화, 보안, 내결함성 및 성능에 대한 실시간 지침. 유휴 및 미활용 리소스를 강조 표시.",
+    tool5:"가장 세분화된 청구 데이터. Athena, Redshift 또는 QuickSight와 통합하여 맞춤형 분석 및 비용 배분.",
+    tool6:"프로젝트, 팀 또는 환경별로 리소스에 태그 지정. Cost Explorer 및 CUR에서 태그를 사용하여 적절한 비즈니스 단위에 지출 귀속.",
+    s18_title:"데모: 요금 계산기 / 견적",
+    demo1h:"calculator.aws/pricing 방문", demo1p:"AWS 계정 불필요. 도구는 완전히 공개되어 있습니다.",
+    demo2h:"견적 만들기", demo2p:"'견적 만들기' 클릭 후 '서비스 추가' 클릭",
+    demo3h:"EC2 구성", demo3p:"리전 → 인스턴스 유형 → OS → 요금 모델 → 월간 시간 선택",
+    demo4h:"요금 모델 비교", demo4p:"온디맨드, 예약(1년/3년), 세이빙스 플랜 간 전환하여 절감액 확인",
+    demo5h:"공유 또는 내보내기", demo5p:"공유 가능한 URL 복사 또는 이해관계자용 CSV/PDF로 내보내기",
+    demo_tip_h:"💡 전문가 팁", demo_t1:"서비스 티어 또는 환경별로 견적을 구성하려면 그룹 사용", demo_t2:"이그레스 비용을 포함하려면 데이터 전송 서비스 추가", demo_t3:"리전 가격 비교 — us-east-1이 가장 저렴한 경우가 많음", demo_t4:"세이빙스 플랜은 온디맨드 대비 정확한 $ 절감액을 나란히 표시",
+    qa_title:"Q & A", qa_sub:"질문, 의견, 피드백?"
+  },
+
+  es: {
+    cover_tag:"Capacitación y Certificación de AWS",
+    cover_title:"Optimización de Costos",
+    cover_sub:"Precios fundamentales para cómputo, almacenamiento y transferencia de datos: consideraciones clave",
+    agenda_title:"Agenda",
+    ag1:"Principios clave de precios de AWS", ag2:"Modelos de precios de AWS", ag3:"Calculadora de precios de AWS",
+    ag4:"Formas de reducir su factura de AWS", ag5:"Optimización de costos de AWS",
+    ag6:"Demo: Calculadora de precios / Estimaciones", ag7:"Preguntas y Respuestas",
+    s3_title:"Principios clave de precios de AWS",
+    s4_title:"Principios clave de precios",
+    p1l:"Entender los fundamentos del precio", p1d:"Tres impulsores fundamentales: cómputo, almacenamiento y transferencia de datos saliente. Se facturan de forma independiente y transparente.",
+    p2l:"Comenzar la optimización de costos pronto", p2d:"Cambie los gastos fijos (centros de datos, servidores físicos) por gastos variables: pague solo por lo que consume.",
+    p3l:"Maximizar el poder de la flexibilidad", p3d:"Los servicios de AWS tienen precios independientes, disponibles bajo demanda — elija y pague exactamente lo que necesita.",
+    p4l:"Usar el modelo de precios correcto", p4d:"On-Demand, Savings Plans, Spot, Instancias Reservadas — haga coincidir su patrón de carga de trabajo con el modelo adecuado.",
+    s5_title:"Modelos de precios de AWS",
+    inst_col0:"Caso de uso", inst_col1:"Bajo Demanda", inst_col2:"Reservado", inst_col3:"Spot",
+    inst_r1c0:"Compromiso", inst_r1c1:"Ninguno — pago por hora, pare en cualquier momento", inst_r1c2:"1 o 3 años — ahorre hasta 72% vs Bajo Demanda", inst_r1c3:"Ninguno — capacidad de reserva con hasta 90% de descuento",
+    inst_r2c0:"Ideal para", inst_r2c1:"Apps nuevas, dev/prueba, cargas impredecibles", inst_r2c2:"Cargas de producción estables con uso predecible", inst_r2c3:"Trabajos por lotes, big data, cargas tolerantes a fallos",
+    inst_r3c0:"Riesgo de interrupción", inst_r3c1:"Ninguno", inst_r3c2:"Ninguno", inst_r3c3:"Puede recuperarse con 2 minutos de aviso",
+    inst_r4c0:"Opciones de pago", inst_r4c1:"Pago por uso", inst_r4c2:"Todo por adelantado / Parcial / Sin adelanto", inst_r4c3:"Precio de mercado (establecido automáticamente)",
+    svc_col0:"Modelo de precio", svc_col1:"Tipo", svc_col2:"Servicios",
+    svc_od:"Bajo Demanda", svc_od_t1:"Pago por hora (tamaño aprovisionado)", svc_od_t2:"Pago por hora (tamaño y cantidad)", svc_od_t3:"Pago por uso bajo demanda", svc_od_t3s:"Todos los servicios",
+    svc_ri:"Reservado (descuento por compromiso)", svc_ri_t:"Compromiso de 1 o 3 años — ahorros significativos",
+    svc_sp:"Spot (capacidad de reserva)", svc_sp_t:"Hasta 90% de descuento en capacidad de reserva",
+    svc_svp:"Savings Plans", svc_svp_t:"Compromiso flexible — EC2, Fargate, Lambda",
+    s3_storage_h:"Clases de almacenamiento (us-east-1)", s3_s1:"S3 Standard", s3_s2:"S3 Intelligent-Tiering", s3_s3:"S3 Standard-IA", s3_s4:"S3 One Zone-IA", s3_s5:"S3 Glacier Instant", s3_s6:"S3 Glacier Deep Archive",
+    s3_req_h:"Tarifas de solicitudes y transferencia", s3_r1:"PUT / COPY / POST / LIST", s3_r2:"GET / SELECT", s3_r3:"Transferencia de datos ENTRADA", s3_r4:"Transferencia de datos SALIDA (internet)", s3_r5:"S3 Transfer Acceleration", s3_r6:"Replicación (entre regiones)",
+    ebs_vol_h:"Tipos de volumen", ebs_v1:"gp3 (SSD de propósito general)", ebs_v2:"gp2 (SSD de propósito general)", ebs_v3:"io2 Block Express (IOPS aprovisionados)", ebs_v4:"st1 (HDD optimizado para rendimiento)", ebs_v5:"sc1 (HDD en frío)",
+    ebs_snap_h:"Instantáneas y consejos", ebs_sn1:"Almacenamiento de instantáneas", ebs_sn2:"Restauración rápida de instantáneas", ebs_sn3:"Instantánea en nivel de archivo", ebs_sn4:"Ahorro gp3 vs gp2", ebs_sn5:"Eliminar volúmenes sin adjuntar",
+    ft_s3:"Almacenamiento estándar · 12 meses", ft_s3b:"20,000 GET + 2,000 PUT solicitudes/mes",
+    ft_ebs:"Almacenamiento SSD · 12 meses", ft_ebsb:"2 millones de E/S + 1 GB de instantáneas",
+    ft_efs:"Almacenamiento estándar · 12 meses", ft_efsb:"Sistema de archivos elástico, autoescalable",
+    ft_lambda:"solicitudes/mes — Siempre gratis", ft_lambdab:"400,000 GB-segundos de cómputo/mes",
+    ft_ec2:"t2.micro o t3.micro · 12 meses", ft_ec2b:"Linux y Windows, por región",
+    ft_rds:"db.t2/t3.micro · 12 meses", ft_rdsb:"20 GB de almacenamiento DB + 20 GB de copias de seguridad",
+    s11_title:"Calculadora de precios de AWS",
+    s12_title:"¿Qué es la Calculadora de precios de AWS?", s12_bh:"Beneficios y características",
+    s12_b1:"Precios transparentes e itemizados para más de 200 servicios", s12_b2:"Comparta estimaciones mediante URL única", s12_b3:"Estimaciones jerárquicas (grupos y subgrupos)", s12_b4:"Exporte estimaciones a CSV / PDF", s12_b5:"No requiere cuenta de AWS",
+    s12_uh:"Casos de uso", s12_u1:"Reducir el gasto en Amazon EC2", s12_u2:"Encontrar el tipo de instancia EC2 adecuado", s12_u3:"Estimar el gasto total en AWS antes de migrar", s12_u4:"Comparar costos de servicios entre Regiones",
+    s12_hh:"Cómo funciona", s12_step1h:"Abrir la Calculadora de precios de AWS", s12_step1p:"Ir a calculator.aws/pricing — sin inicio de sesión",
+    s12_step2h:"Buscar y agregar servicios", s12_step2p:"Elija los productos y servicios de AWS que planea usar",
+    s12_step3h:"Configurar cada servicio", s12_step3p:"Ingrese detalles de uso — tipo de instancia, región, horas, almacenamiento",
+    s12_step4h:"Ver y compartir totales", s12_step4p:"Revise totales mensuales y de 12 meses; comparta o exporte",
+    s13_title:"Formas de reducir su factura de AWS",
+    rb1:"Identificar EC2 con baja utilización — detener o ajustar tamaño", rb2:"Encontrar volúmenes EBS con baja utilización — instantánea y eliminar", rb3:"Optimizar costos de S3 moviendo datos a niveles más económicos", rb4:"Detener RDS con baja utilización; pausar clústeres Redshift",
+    rb5:"Optimizar DynamoDB con Auto Scaling o modo Bajo Demanda", rb6:"Eliminar balanceadores de carga inactivos y NAT Gateways no utilizados", rb7:"Usar instancias Spot de EC2 para cargas tolerantes a fallos", rb8:"Revisar y ajustar la configuración de EC2 Auto Scaling Groups",
+    rb9:"Usar Instancias Reservadas para RDS, Redshift, ElastiCache, OpenSearch", rb10:"Usar Savings Plans de cómputo para EC2, Fargate y Lambda",
+    s15_title:"Optimización de costos de AWS",
+    co1h:"Elegir los modelos de precio correctos", co1b1:"Instancias Reservadas para RDS, Redshift, ElastiCache y OpenSearch", co1b2:"Instancias Spot para reducir costos de EC2", co1b3:"Savings Plans para EC2, Fargate y Lambda", co1b4:"Los Savings Plans requieren compromiso de 1 o 3 años",
+    co2h:"Ajustar la capacidad a la demanda", co2b1:"Ajustar tamaño o detener instancias EC2 con baja utilización", co2b2:"Detener RDS con baja utilización; pausar Redshift", co2b3:"DynamoDB: Auto Scaling o modo Bajo Demanda", co2b4:"Usar AWS Compute Optimizer para recomendaciones",
+    co3h:"Implementar procesos para identificar desperdicios", co3b1:"Eliminar volúmenes EBS con baja utilización (primero instantánea)", co3b2:"Mover objetos S3 a niveles más económicos (políticas de ciclo de vida)", co3b3:"Eliminar balanceadores de carga inactivos e IPs no utilizadas", co3b4:"Usar AWS Cost Explorer y Budgets para visibilidad",
+    tool1:"Visualice, comprenda y administre sus costos y uso de AWS a lo largo del tiempo. Filtre por servicio, región, etiqueta.",
+    tool2:"Establezca presupuestos personalizados. Reciba alertas por SNS o correo cuando se superen los umbrales — diario, mensual o anual.",
+    tool3:"Recomendaciones basadas en ML para EC2, Lambda, EBS y ECS en Fargate. Identifica recursos sobre/bajo aprovisionados automáticamente.",
+    tool4:"Orientación en tiempo real en optimización de costos, seguridad, tolerancia a fallos y rendimiento.",
+    tool5:"Datos de facturación más granulares. Se integra con Athena, Redshift o QuickSight para análisis personalizados.",
+    tool6:"Etiquete recursos por proyecto, equipo o entorno. Use etiquetas en Cost Explorer y CUR para atribuir gastos.",
+    s18_title:"Demo: Calculadora de precios / Estimaciones",
+    demo1h:"Visitar calculator.aws/pricing", demo1p:"Sin cuenta de AWS necesaria. La herramienta es completamente pública.",
+    demo2h:"Crear una estimación", demo2p:"Haga clic en 'Crear estimación' y luego en 'Agregar servicio'",
+    demo3h:"Configurar EC2", demo3p:"Seleccione región → tipo de instancia → SO → modelo de precio → horas/mes",
+    demo4h:"Comparar modelos de precio", demo4p:"Alterne entre Bajo Demanda, Reservado (1/3 años) y Savings Plans",
+    demo5h:"Compartir o exportar", demo5p:"Copie la URL compartible o exporte a CSV/PDF",
+    demo_tip_h:"💡 Consejos profesionales", demo_t1:"Use grupos para organizar estimaciones por nivel de servicio o entorno", demo_t2:"Agregue un servicio de transferencia de datos para incluir costos de salida", demo_t3:"Compare precios por región — us-east-1 suele ser el más barato", demo_t4:"Los Savings Plans muestran ahorros exactos vs Bajo Demanda",
+    qa_title:"Q & A", qa_sub:"¿Preguntas, comentarios, retroalimentación?"
+  },
+
+  pt: {
+    cover_tag:"Treinamento e Certificação AWS",
+    cover_title:"Otimização de Custos",
+    cover_sub:"Precificação fundamental para computação, armazenamento e transferência de dados: considerações principais",
+    agenda_title:"Agenda",
+    ag1:"Princípios-chave de precificação da AWS", ag2:"Modelos de precificação da AWS", ag3:"Calculadora de preços da AWS",
+    ag4:"Formas de reduzir sua fatura AWS", ag5:"Otimização de custos da AWS",
+    ag6:"Demo: Calculadora de preços / Estimativas", ag7:"Perguntas e Respostas",
+    s3_title:"Princípios-chave de precificação da AWS", s4_title:"Princípios-chave de precificação",
+    p1l:"Entender os fundamentos da precificação", p1d:"Três drivers fundamentais: computação, armazenamento e transferência de dados de saída. Cobrados de forma independente e transparente.",
+    p2l:"Iniciar a otimização de custos cedo", p2d:"Troque despesas fixas (data centers, servidores físicos) por despesas variáveis — pague apenas pelo que consumir.",
+    p3l:"Maximizar o poder da flexibilidade", p3d:"Serviços AWS têm preços independentes, disponíveis sob demanda — escolha e pague exatamente o que precisa.",
+    p4l:"Usar o modelo de preço certo", p4d:"On-Demand, Savings Plans, Spot, Instâncias Reservadas — combine seu padrão de workload ao modelo correto.",
+    s5_title:"Modelos de precificação da AWS",
+    inst_col0:"Caso de uso", inst_col1:"Sob Demanda", inst_col2:"Reservado", inst_col3:"Spot",
+    inst_r1c0:"Compromisso", inst_r1c1:"Nenhum — pago por hora, pare a qualquer momento", inst_r1c2:"1 ou 3 anos — economize até 72% vs Sob Demanda", inst_r1c3:"Nenhum — capacidade reserva com até 90% de desconto",
+    inst_r2c0:"Ideal para", inst_r2c1:"Novos apps, dev/teste, workloads imprevisíveis", inst_r2c2:"Workloads de produção estáveis", inst_r2c3:"Jobs em lote, big data, workloads tolerantes a falhas",
+    inst_r3c0:"Risco de interrupção", inst_r3c1:"Nenhum", inst_r3c2:"Nenhum", inst_r3c3:"Pode ser recuperado com 2 minutos de aviso",
+    inst_r4c0:"Opções de pagamento", inst_r4c1:"Pago conforme o uso", inst_r4c2:"Total antecipado / Parcial / Sem antecipado", inst_r4c3:"Preço de mercado (definido automaticamente)",
+    svc_col0:"Modelo de preço", svc_col1:"Tipo", svc_col2:"Serviços",
+    svc_od:"Sob Demanda", svc_od_t1:"Pago por hora (tamanho provisionado)", svc_od_t2:"Pago por hora (tamanho e quantidade)", svc_od_t3:"Sob demanda, pago por uso", svc_od_t3s:"Todos os serviços",
+    svc_ri:"Reservado (desconto por compromisso)", svc_ri_t:"Compromisso de 1 ou 3 anos — economias significativas",
+    svc_sp:"Spot (capacidade reserva)", svc_sp_t:"Até 90% de desconto na capacidade reserva",
+    svc_svp:"Savings Plans", svc_svp_t:"Compromisso flexível — EC2, Fargate, Lambda",
+    s3_storage_h:"Classes de armazenamento (us-east-1)", s3_s1:"S3 Standard", s3_s2:"S3 Intelligent-Tiering", s3_s3:"S3 Standard-IA", s3_s4:"S3 One Zone-IA", s3_s5:"S3 Glacier Instant", s3_s6:"S3 Glacier Deep Archive",
+    s3_req_h:"Taxas de requisição e transferência", s3_r1:"PUT / COPY / POST / LIST", s3_r2:"GET / SELECT", s3_r3:"Transferência de dados ENTRADA", s3_r4:"Transferência de dados SAÍDA (internet)", s3_r5:"S3 Transfer Acceleration", s3_r6:"Replicação (entre regiões)",
+    ebs_vol_h:"Tipos de volume", ebs_v1:"gp3 (SSD de uso geral)", ebs_v2:"gp2 (SSD de uso geral)", ebs_v3:"io2 Block Express (IOPS provisionados)", ebs_v4:"st1 (HDD otimizado para throughput)", ebs_v5:"sc1 (HDD frio)",
+    ebs_snap_h:"Snapshots e dicas", ebs_sn1:"Armazenamento de snapshot", ebs_sn2:"Restauração rápida de snapshot", ebs_sn3:"Snapshot em camada de arquivo", ebs_sn4:"Economia gp3 vs gp2", ebs_sn5:"Excluir volumes não anexados",
+    ft_s3:"Armazenamento Standard · 12 meses", ft_s3b:"20.000 GET + 2.000 PUT requisições/mês",
+    ft_ebs:"Armazenamento SSD · 12 meses", ft_ebsb:"2 milhões de E/S + 1 GB de snapshots",
+    ft_efs:"Armazenamento Standard · 12 meses", ft_efsb:"Sistema de arquivos elástico, auto-scaling",
+    ft_lambda:"requisições/mês — Sempre gratuito", ft_lambdab:"400.000 GB-segundos de computação/mês",
+    ft_ec2:"t2.micro ou t3.micro · 12 meses", ft_ec2b:"Linux e Windows, por região",
+    ft_rds:"db.t2/t3.micro · 12 meses", ft_rdsb:"20 GB de BD + 20 GB de backups",
+    s11_title:"Calculadora de preços da AWS",
+    s12_title:"O que é a Calculadora de preços da AWS?", s12_bh:"Benefícios e recursos",
+    s12_b1:"Preços transparentes para mais de 200 serviços AWS", s12_b2:"Compartilhe estimativas via URL única", s12_b3:"Estimativas hierárquicas (grupos e subgrupos)", s12_b4:"Exporte estimativas para CSV / PDF", s12_b5:"Sem necessidade de conta AWS",
+    s12_uh:"Casos de uso", s12_u1:"Reduzir gastos com Amazon EC2", s12_u2:"Encontrar o tipo certo de instância EC2", s12_u3:"Estimar gastos totais antes de migrar", s12_u4:"Comparar custos de serviços entre Regiões",
+    s12_hh:"Como funciona", s12_step1h:"Abrir a Calculadora de preços da AWS", s12_step1p:"Acesse calculator.aws/pricing — sem login necessário",
+    s12_step2h:"Pesquisar e adicionar serviços", s12_step2p:"Escolha os produtos e serviços AWS que planeja usar",
+    s12_step3h:"Configurar cada serviço", s12_step3p:"Insira detalhes de uso — tipo, região, horas, armazenamento",
+    s12_step4h:"Ver e compartilhar totais", s12_step4p:"Revise totais mensais e de 12 meses; compartilhe ou exporte",
+    s13_title:"Formas de reduzir sua fatura AWS",
+    rb1:"Identificar EC2 com baixa utilização — parar ou ajustar tamanho", rb2:"Encontrar volumes EBS com baixa utilização — snapshot e excluir", rb3:"Otimizar custos S3 movendo dados para camadas mais baratas", rb4:"Parar RDS com baixa utilização; pausar clusters Redshift",
+    rb5:"Otimizar DynamoDB com Auto Scaling ou modo Sob Demanda", rb6:"Excluir load balancers ociosos e NAT Gateways não usados", rb7:"Usar instâncias Spot do EC2 para workloads tolerantes a falhas", rb8:"Revisar e ajustar configuração de EC2 Auto Scaling Groups",
+    rb9:"Usar Instâncias Reservadas para RDS, Redshift, ElastiCache, OpenSearch", rb10:"Usar Savings Plans de computação para EC2, Fargate e Lambda",
+    s15_title:"Otimização de custos da AWS",
+    co1h:"Escolher os modelos de preço certos", co1b1:"Instâncias Reservadas para RDS, Redshift, ElastiCache e OpenSearch", co1b2:"Instâncias Spot para reduzir custos do EC2", co1b3:"Savings Plans para EC2, Fargate e Lambda", co1b4:"Savings Plans exigem compromisso de 1 ou 3 anos",
+    co2h:"Ajustar capacidade à demanda", co2b1:"Redimensionar ou parar instâncias EC2 com baixa utilização", co2b2:"Parar RDS com baixa utilização; pausar Redshift", co2b3:"DynamoDB: Auto Scaling ou modo Sob Demanda", co2b4:"Usar AWS Compute Optimizer para recomendações",
+    co3h:"Implementar processos para identificar desperdícios", co3b1:"Excluir volumes EBS com baixa utilização (snapshot primeiro)", co3b2:"Mover objetos S3 para camadas mais baratas (políticas de ciclo de vida)", co3b3:"Remover load balancers ociosos e IPs não usados", co3b4:"Usar AWS Cost Explorer e Budgets para visibilidade",
+    tool1:"Visualize, entenda e gerencie custos e uso da AWS ao longo do tempo. Filtre por serviço, região, tag.",
+    tool2:"Defina orçamentos personalizados. Receba alertas via SNS ou e-mail quando limites forem ultrapassados.",
+    tool3:"Recomendações baseadas em ML para EC2, Lambda, EBS e ECS no Fargate. Identifica recursos super/sub-provisionados.",
+    tool4:"Orientação em tempo real em otimização de custos, segurança, tolerância a falhas e desempenho.",
+    tool5:"Dados de faturamento mais granulares. Integra com Athena, Redshift ou QuickSight para análises personalizadas.",
+    tool6:"Etiquete recursos por projeto, equipe ou ambiente. Use tags no Cost Explorer e CUR para atribuir gastos.",
+    s18_title:"Demo: Calculadora de preços / Estimativas",
+    demo1h:"Acesse calculator.aws/pricing", demo1p:"Sem conta AWS necessária. A ferramenta é totalmente pública.",
+    demo2h:"Criar uma estimativa", demo2p:"Clique em 'Criar estimativa' e depois em 'Adicionar serviço'",
+    demo3h:"Configurar EC2", demo3p:"Selecione região → tipo de instância → SO → modelo de preço → horas/mês",
+    demo4h:"Comparar modelos de preço", demo4p:"Alterne entre Sob Demanda, Reservado (1/3 anos) e Savings Plans",
+    demo5h:"Compartilhar ou exportar", demo5p:"Copie a URL compartilhável ou exporte para CSV/PDF",
+    demo_tip_h:"💡 Dicas de especialista", demo_t1:"Use grupos para organizar estimativas por tier ou ambiente", demo_t2:"Adicione serviço de transferência de dados para incluir custos de saída", demo_t3:"Compare preços por região — us-east-1 costuma ser o mais barato", demo_t4:"Savings Plans mostram economias exatas vs Sob Demanda lado a lado",
+    qa_title:"Perguntas e Respostas", qa_sub:"Dúvidas, comentários, feedback?"
+  },
+
+  it: {
+    cover_tag:"Formazione e Certificazione AWS",
+    cover_title:"Ottimizzazione dei Costi",
+    cover_sub:"Prezzi fondamentali per elaborazione, archiviazione e trasferimento dati: considerazioni chiave",
+    agenda_title:"Agenda",
+    ag1:"Principi chiave dei prezzi AWS", ag2:"Modelli di prezzo AWS", ag3:"Calcolatore prezzi AWS",
+    ag4:"Modi per ridurre la fattura AWS", ag5:"Ottimizzazione dei costi AWS",
+    ag6:"Demo: Calcolatore prezzi / Stime", ag7:"Domande e Risposte",
+    s3_title:"Principi chiave dei prezzi AWS", s4_title:"Principi chiave dei prezzi",
+    p1l:"Comprendere i fondamenti del prezzo", p1d:"Tre driver fondamentali: elaborazione, archiviazione e trasferimento dati in uscita. Fatturati in modo indipendente e trasparente.",
+    p2l:"Iniziare presto l'ottimizzazione", p2d:"Sostituire spese fisse (data center, server fisici) con spese variabili — si paga solo per ciò che si consuma.",
+    p3l:"Massimizzare la flessibilità", p3d:"I servizi AWS hanno prezzi indipendenti, disponibili su richiesta — scegliere e pagare esattamente ciò che serve.",
+    p4l:"Usare il modello di prezzo giusto", p4d:"On-Demand, Savings Plans, Spot, Istanze Riservate — abbinare il modello al proprio pattern di carico.",
+    s5_title:"Modelli di prezzo AWS",
+    inst_col0:"Caso d'uso", inst_col1:"On-Demand", inst_col2:"Riservato", inst_col3:"Spot",
+    inst_r1c0:"Impegno", inst_r1c1:"Nessuno — pagamento orario, stop in qualsiasi momento", inst_r1c2:"1 o 3 anni — risparmio fino al 72% vs On-Demand", inst_r1c3:"Nessuno — capacità spare fino al 90% di sconto",
+    inst_r2c0:"Adatto per", inst_r2c1:"Nuove app, dev/test, carichi imprevedibili", inst_r2c2:"Carichi di produzione stabili", inst_r2c3:"Job batch, big data, carichi fault-tolerant",
+    inst_r3c0:"Rischio di interruzione", inst_r3c1:"Nessuno", inst_r3c2:"Nessuno", inst_r3c3:"Può essere ripreso con 2 minuti di preavviso",
+    inst_r4c0:"Opzioni di pagamento", inst_r4c1:"Pay as you go", inst_r4c2:"Tutto anticipato / Parziale / Niente anticipato", inst_r4c3:"Prezzo di mercato (impostato automaticamente)",
+    svc_col0:"Modello di prezzo", svc_col1:"Tipo", svc_col2:"Servizi",
+    svc_od:"On-Demand", svc_od_t1:"Pago per ora (dimensione fornita)", svc_od_t2:"Pago per ora (dimensione e quantità)", svc_od_t3:"On-Demand, pago per uso", svc_od_t3s:"Tutti i servizi",
+    svc_ri:"Riservato (sconto impegno)", svc_ri_t:"Impegno 1 o 3 anni — risparmi significativi",
+    svc_sp:"Spot (capacità spare)", svc_sp_t:"Fino al 90% di sconto sulla capacità spare",
+    svc_svp:"Savings Plans", svc_svp_t:"Impegno flessibile — EC2, Fargate, Lambda",
+    s3_storage_h:"Classi di archiviazione (us-east-1)", s3_s1:"S3 Standard", s3_s2:"S3 Intelligent-Tiering", s3_s3:"S3 Standard-IA", s3_s4:"S3 One Zone-IA", s3_s5:"S3 Glacier Instant", s3_s6:"S3 Glacier Deep Archive",
+    s3_req_h:"Tariffe richieste e trasferimento", s3_r1:"PUT / COPY / POST / LIST", s3_r2:"GET / SELECT", s3_r3:"Trasferimento dati IN", s3_r4:"Trasferimento dati OUT (internet)", s3_r5:"S3 Transfer Acceleration", s3_r6:"Replica (cross-region)",
+    ebs_vol_h:"Tipi di volume", ebs_v1:"gp3 (SSD per uso generale)", ebs_v2:"gp2 (SSD per uso generale)", ebs_v3:"io2 Block Express (IOPS forniti)", ebs_v4:"st1 (HDD ottimizzato throughput)", ebs_v5:"sc1 (HDD freddo)",
+    ebs_snap_h:"Snapshot e suggerimenti", ebs_sn1:"Archiviazione snapshot", ebs_sn2:"Ripristino rapido snapshot", ebs_sn3:"Snapshot livello archivio", ebs_sn4:"Risparmio gp3 vs gp2", ebs_sn5:"Eliminare volumi non collegati",
+    ft_s3:"Storage Standard · 12 mesi", ft_s3b:"20.000 GET + 2.000 PUT richieste/mese",
+    ft_ebs:"Storage SSD · 12 mesi", ft_ebsb:"2 milioni di I/O + 1 GB snapshot",
+    ft_efs:"Storage Standard · 12 mesi", ft_efsb:"File system elastico, auto-scaling",
+    ft_lambda:"richieste/mese — Sempre gratuito", ft_lambdab:"400.000 GB-secondi di calcolo/mese",
+    ft_ec2:"t2.micro o t3.micro · 12 mesi", ft_ec2b:"Linux e Windows, per regione",
+    ft_rds:"db.t2/t3.micro · 12 mesi", ft_rdsb:"20 GB DB + 20 GB backup",
+    s11_title:"Calcolatore prezzi AWS",
+    s12_title:"Cos'è il Calcolatore prezzi AWS?", s12_bh:"Vantaggi e funzionalità",
+    s12_b1:"Prezzi trasparenti per oltre 200 servizi AWS", s12_b2:"Condividi stime via URL univoco", s12_b3:"Stime gerarchiche (gruppi e sottogruppi)", s12_b4:"Esporta stime in CSV / PDF", s12_b5:"Account AWS non richiesto",
+    s12_uh:"Casi d'uso", s12_u1:"Ridurre la spesa Amazon EC2", s12_u2:"Trovare il tipo di istanza EC2 giusto", s12_u3:"Stimare la spesa totale prima della migrazione", s12_u4:"Confrontare costi dei servizi tra Regioni",
+    s12_hh:"Come funziona", s12_step1h:"Aprire il Calcolatore prezzi AWS", s12_step1p:"Vai a calculator.aws/pricing — nessun login richiesto",
+    s12_step2h:"Cercare e aggiungere servizi", s12_step2p:"Scegli i prodotti e servizi AWS che intendi usare",
+    s12_step3h:"Configurare ogni servizio", s12_step3p:"Inserisci dettagli di utilizzo — tipo istanza, regione, ore, storage",
+    s12_step4h:"Vedere e condividere totali", s12_step4p:"Rivedi totali mensili e annuali; condividi o esporta",
+    s13_title:"Modi per ridurre la fattura AWS",
+    rb1:"Identificare EC2 con bassa utilizzazione — fermare o ridimensionare", rb2:"Trovare volumi EBS con bassa utilizzazione — snapshot e cancellare", rb3:"Ottimizzare S3 spostando dati a livelli meno costosi", rb4:"Fermare RDS con bassa utilizzazione; mettere in pausa Redshift",
+    rb5:"Ottimizzare DynamoDB con Auto Scaling o modalità On-Demand", rb6:"Eliminare load balancer inattivi e NAT Gateway non utilizzati", rb7:"Usare istanze Spot EC2 per carichi fault-tolerant", rb8:"Rivedere e ottimizzare configurazione Auto Scaling Groups",
+    rb9:"Usare Istanze Riservate per RDS, Redshift, ElastiCache, OpenSearch", rb10:"Usare Savings Plans per EC2, Fargate e Lambda",
+    s15_title:"Ottimizzazione dei costi AWS",
+    co1h:"Scegliere i modelli di prezzo giusti", co1b1:"Istanze Riservate per RDS, Redshift, ElastiCache e OpenSearch", co1b2:"Istanze Spot per ridurre i costi EC2", co1b3:"Savings Plans per EC2, Fargate e Lambda", co1b4:"I Savings Plans richiedono impegno di 1 o 3 anni",
+    co2h:"Adeguare la capacità alla domanda", co2b1:"Ridimensionare o fermare istanze EC2 a bassa utilizzazione", co2b2:"Fermare RDS a bassa utilizzazione; mettere in pausa Redshift", co2b3:"DynamoDB: Auto Scaling o modalità On-Demand", co2b4:"Usare AWS Compute Optimizer per raccomandazioni",
+    co3h:"Implementare processi per identificare sprechi", co3b1:"Eliminare volumi EBS a bassa utilizzazione (prima snapshot)", co3b2:"Spostare oggetti S3 a livelli più economici (criteri ciclo di vita)", co3b3:"Rimuovere load balancer inattivi e IP non utilizzati", co3b4:"Usare AWS Cost Explorer e Budgets per visibilità",
+    tool1:"Visualizza, comprendi e gestisci costi e utilizzo AWS nel tempo. Filtra per servizio, regione, tag.",
+    tool2:"Imposta budget personalizzati. Ricevi avvisi tramite SNS o email quando le soglie vengono superate.",
+    tool3:"Raccomandazioni basate su ML per EC2, Lambda, EBS ed ECS su Fargate. Identifica risorse sovra/sotto-fornite.",
+    tool4:"Orientamento in tempo reale su ottimizzazione dei costi, sicurezza, tolleranza ai guasti e prestazioni.",
+    tool5:"Dati di fatturazione più granulari. Si integra con Athena, Redshift o QuickSight per analisi personalizzate.",
+    tool6:"Tagga le risorse per progetto, team o ambiente. Usa i tag in Cost Explorer e CUR per attribuire la spesa.",
+    s18_title:"Demo: Calcolatore prezzi / Stime",
+    demo1h:"Visita calculator.aws/pricing", demo1p:"Nessun account AWS necessario. Lo strumento è completamente pubblico.",
+    demo2h:"Creare una stima", demo2p:"Clicca 'Crea stima' e poi 'Aggiungi servizio'",
+    demo3h:"Configurare EC2", demo3p:"Seleziona regione → tipo istanza → OS → modello prezzo → ore/mese",
+    demo4h:"Confrontare modelli di prezzo", demo4p:"Alterna tra On-Demand, Riservato (1/3 anni) e Savings Plans",
+    demo5h:"Condividere o esportare", demo5p:"Copia l'URL condivisibile o esporta in CSV/PDF",
+    demo_tip_h:"💡 Suggerimenti pro", demo_t1:"Usa i gruppi per organizzare stime per livello di servizio o ambiente", demo_t2:"Aggiungi servizio di trasferimento dati per includere costi di uscita", demo_t3:"Confronta prezzi per regione — us-east-1 è spesso il più economico", demo_t4:"I Savings Plans mostrano risparmi esatti vs On-Demand affiancati",
+    qa_title:"Domande e Risposte", qa_sub:"Domande, commenti, feedback?"
+  },
+
+  fr: {
+    cover_tag:"Formation et Certification AWS",
+    cover_title:"Optimisation des Coûts",
+    cover_sub:"Tarification fondamentale pour le calcul, le stockage et le transfert de données : points clés",
+    agenda_title:"Ordre du jour",
+    ag1:"Principes clés de tarification AWS", ag2:"Modèles de tarification AWS", ag3:"Calculatrice de prix AWS",
+    ag4:"Façons de réduire votre facture AWS", ag5:"Optimisation des coûts AWS",
+    ag6:"Démo : Calculatrice de prix / Estimations", ag7:"Questions-Réponses",
+    s3_title:"Principes clés de tarification AWS", s4_title:"Principes clés de tarification",
+    p1l:"Comprendre les fondamentaux de la tarification", p1d:"Trois moteurs fondamentaux : calcul, stockage et transfert de données sortant. Facturés de façon indépendante et transparente.",
+    p2l:"Commencer tôt l'optimisation des coûts", p2d:"Échangez les dépenses fixes (centres de données, serveurs physiques) contre des dépenses variables — ne payez que ce que vous consommez.",
+    p3l:"Maximiser la puissance de la flexibilité", p3d:"Les services AWS sont tarifés indépendamment, disponibles à la demande — choisissez et payez exactement ce dont vous avez besoin.",
+    p4l:"Utiliser le bon modèle de tarification", p4d:"À la demande, Savings Plans, Spot, Instances Réservées — adaptez votre charge de travail au bon modèle.",
+    s5_title:"Modèles de tarification AWS",
+    inst_col0:"Cas d'usage", inst_col1:"À la demande", inst_col2:"Réservé", inst_col3:"Spot",
+    inst_r1c0:"Engagement", inst_r1c1:"Aucun — paiement à l'heure, arrêt à tout moment", inst_r1c2:"1 ou 3 ans — économies jusqu'à 72% vs À la demande", inst_r1c3:"Aucun — capacité disponible jusqu'à 90% de remise",
+    inst_r2c0:"Idéal pour", inst_r2c1:"Nouvelles apps, dev/test, charges imprévisibles", inst_r2c2:"Charges de production stables", inst_r2c3:"Jobs batch, big data, charges tolérantes aux pannes",
+    inst_r3c0:"Risque d'interruption", inst_r3c1:"Aucun", inst_r3c2:"Aucun", inst_r3c3:"Peut être récupéré avec 2 minutes de préavis",
+    inst_r4c0:"Options de paiement", inst_r4c1:"Paiement à l'usage", inst_r4c2:"Tout upfront / Partiel / Sans upfront", inst_r4c3:"Prix du marché (défini automatiquement)",
+    svc_col0:"Modèle de tarification", svc_col1:"Type", svc_col2:"Services",
+    svc_od:"À la demande", svc_od_t1:"Paiement à l'heure (taille provisionnée)", svc_od_t2:"Paiement à l'heure (taille et quantité)", svc_od_t3:"À la demande, paiement à l'usage", svc_od_t3s:"Tous les services",
+    svc_ri:"Réservé (remise engagement)", svc_ri_t:"Engagement 1 ou 3 ans — économies significatives",
+    svc_sp:"Spot (capacité disponible)", svc_sp_t:"Jusqu'à 90% de remise sur la capacité disponible",
+    svc_svp:"Savings Plans", svc_svp_t:"Engagement flexible — EC2, Fargate, Lambda",
+    s3_storage_h:"Classes de stockage (us-east-1)", s3_s1:"S3 Standard", s3_s2:"S3 Intelligent-Tiering", s3_s3:"S3 Standard-IA", s3_s4:"S3 One Zone-IA", s3_s5:"S3 Glacier Instant", s3_s6:"S3 Glacier Deep Archive",
+    s3_req_h:"Frais de requête et de transfert", s3_r1:"PUT / COPY / POST / LIST", s3_r2:"GET / SELECT", s3_r3:"Transfert de données EN", s3_r4:"Transfert de données SORTANT (internet)", s3_r5:"Accélération S3 Transfer", s3_r6:"Réplication (inter-régions)",
+    ebs_vol_h:"Types de volume", ebs_v1:"gp3 (SSD usage général)", ebs_v2:"gp2 (SSD usage général)", ebs_v3:"io2 Block Express (IOPS provisionnés)", ebs_v4:"st1 (HDD optimisé débit)", ebs_v5:"sc1 (HDD froid)",
+    ebs_snap_h:"Instantanés et conseils", ebs_sn1:"Stockage d'instantanés", ebs_sn2:"Restauration rapide d'instantanés", ebs_sn3:"Instantané niveau archive", ebs_sn4:"Économies gp3 vs gp2", ebs_sn5:"Supprimer les volumes non attachés",
+    ft_s3:"Stockage Standard · 12 mois", ft_s3b:"20 000 GET + 2 000 PUT requêtes/mois",
+    ft_ebs:"Stockage SSD · 12 mois", ft_ebsb:"2 millions d'E/S + 1 Go d'instantanés",
+    ft_efs:"Stockage Standard · 12 mois", ft_efsb:"Système de fichiers élastique, auto-scaling",
+    ft_lambda:"requêtes/mois — Toujours gratuit", ft_lambdab:"400 000 Go-secondes de calcul/mois",
+    ft_ec2:"t2.micro ou t3.micro · 12 mois", ft_ec2b:"Linux et Windows, par région",
+    ft_rds:"db.t2/t3.micro · 12 mois", ft_rdsb:"20 Go BD + 20 Go sauvegardes",
+    s11_title:"Calculatrice de prix AWS",
+    s12_title:"Qu'est-ce que la Calculatrice de prix AWS ?", s12_bh:"Avantages et fonctionnalités",
+    s12_b1:"Tarification transparente pour plus de 200 services AWS", s12_b2:"Partagez les estimations via une URL unique", s12_b3:"Estimations hiérarchiques (groupes et sous-groupes)", s12_b4:"Exportez les estimations en CSV / PDF", s12_b5:"Aucun compte AWS requis",
+    s12_uh:"Cas d'usage", s12_u1:"Réduire les dépenses Amazon EC2", s12_u2:"Trouver le bon type d'instance EC2", s12_u3:"Estimer la dépense totale avant migration", s12_u4:"Comparer les coûts des services par Région",
+    s12_hh:"Comment ça fonctionne", s12_step1h:"Ouvrir la Calculatrice de prix AWS", s12_step1p:"Allez sur calculator.aws/pricing — aucune connexion requise",
+    s12_step2h:"Rechercher et ajouter des services", s12_step2p:"Choisissez les produits et services AWS que vous prévoyez d'utiliser",
+    s12_step3h:"Configurer chaque service", s12_step3p:"Entrez les détails d'utilisation — type, région, heures, stockage",
+    s12_step4h:"Voir et partager les totaux", s12_step4p:"Vérifiez les totaux mensuels et annuels ; partagez ou exportez",
+    s13_title:"Façons de réduire votre facture AWS",
+    rb1:"Identifier les EC2 à faible utilisation — arrêter ou redimensionner", rb2:"Trouver les volumes EBS à faible utilisation — instantané puis supprimer", rb3:"Optimiser les coûts S3 en déplaçant les données vers des niveaux moins chers", rb4:"Arrêter les RDS à faible utilisation ; mettre en pause Redshift",
+    rb5:"Optimiser DynamoDB avec Auto Scaling ou mode À la demande", rb6:"Supprimer les équilibreurs de charge inactifs et les NAT Gateways inutilisés", rb7:"Utiliser les instances Spot EC2 pour les charges tolérantes aux pannes", rb8:"Réviser et ajuster la configuration des EC2 Auto Scaling Groups",
+    rb9:"Utiliser les Instances Réservées pour RDS, Redshift, ElastiCache, OpenSearch", rb10:"Utiliser les Savings Plans pour EC2, Fargate et Lambda",
+    s15_title:"Optimisation des coûts AWS",
+    co1h:"Choisir les bons modèles de tarification", co1b1:"Instances Réservées pour RDS, Redshift, ElastiCache et OpenSearch", co1b2:"Instances Spot pour réduire les coûts EC2", co1b3:"Savings Plans pour EC2, Fargate et Lambda", co1b4:"Les Savings Plans nécessitent un engagement de 1 ou 3 ans",
+    co2h:"Adapter la capacité à la demande", co2b1:"Redimensionner ou arrêter les instances EC2 à faible utilisation", co2b2:"Arrêter les RDS à faible utilisation ; mettre Redshift en pause", co2b3:"DynamoDB : Auto Scaling ou mode À la demande", co2b4:"Utiliser AWS Compute Optimizer pour les recommandations",
+    co3h:"Mettre en place des processus pour identifier les gaspillages", co3b1:"Supprimer les volumes EBS à faible utilisation (instantané d'abord)", co3b2:"Déplacer les objets S3 vers des niveaux moins chers (politiques de cycle de vie)", co3b3:"Supprimer les équilibreurs de charge inactifs et les IP inutilisées", co3b4:"Utiliser AWS Cost Explorer et Budgets pour la visibilité",
+    tool1:"Visualisez, comprenez et gérez vos coûts et usages AWS dans le temps. Filtrez par service, région, tag.",
+    tool2:"Définissez des budgets personnalisés. Recevez des alertes via SNS ou e-mail lorsque les seuils sont dépassés.",
+    tool3:"Recommandations basées sur ML pour EC2, Lambda, EBS et ECS sur Fargate. Identifie les ressources sur/sous-approvisionnées.",
+    tool4:"Conseils en temps réel sur l'optimisation des coûts, la sécurité, la tolérance aux pannes et les performances.",
+    tool5:"Données de facturation les plus granulaires. S'intègre avec Athena, Redshift ou QuickSight pour des analyses personnalisées.",
+    tool6:"Balisez les ressources par projet, équipe ou environnement. Utilisez les balises dans Cost Explorer et CUR.",
+    s18_title:"Démo : Calculatrice de prix / Estimations",
+    demo1h:"Visitez calculator.aws/pricing", demo1p:"Aucun compte AWS requis. L'outil est entièrement public.",
+    demo2h:"Créer une estimation", demo2p:"Cliquez sur 'Créer une estimation' puis sur 'Ajouter un service'",
+    demo3h:"Configurer EC2", demo3p:"Sélectionnez région → type d'instance → OS → modèle de tarification → heures/mois",
+    demo4h:"Comparer les modèles de tarification", demo4p:"Basculez entre À la demande, Réservé (1/3 ans) et Savings Plans",
+    demo5h:"Partager ou exporter", demo5p:"Copiez l'URL partageable ou exportez en CSV/PDF",
+    demo_tip_h:"💡 Conseils pro", demo_t1:"Utilisez des groupes pour organiser les estimations par niveau ou environnement", demo_t2:"Ajoutez un service de transfert de données pour inclure les coûts de sortie", demo_t3:"Comparez les prix par région — us-east-1 est souvent le moins cher", demo_t4:"Les Savings Plans affichent les économies exactes vs À la demande côte à côte",
+    qa_title:"Questions-Réponses", qa_sub:"Questions, commentaires, retours ?"
+  },
+
+  de: {
+    cover_tag:"AWS Schulung & Zertifizierung",
+    cover_title:"Kostenoptimierung",
+    cover_sub:"Grundlegende Preisgestaltung für Compute, Speicher und Datenübertragung: Wichtige Überlegungen",
+    agenda_title:"Agenda",
+    ag1:"AWS-Preisgestaltungs-Grundsätze", ag2:"AWS-Preismodelle", ag3:"AWS-Preisrechner",
+    ag4:"Möglichkeiten zur Reduzierung Ihrer AWS-Rechnung", ag5:"AWS-Kostenoptimierung",
+    ag6:"Demo: Preisrechner / Kostenschätzungen", ag7:"Fragen & Antworten",
+    s3_title:"AWS-Preisgestaltungs-Grundsätze", s4_title:"Preisgestaltungs-Grundsätze",
+    p1l:"Grundlagen der Preisgestaltung verstehen", p1d:"Drei grundlegende Kostentreiber: Compute, Speicher und ausgehende Datenübertragung. Werden unabhängig und transparent abgerechnet.",
+    p2l:"Frühzeitig mit Kostenoptimierung beginnen", p2d:"Tauschen Sie Fixkosten (Rechenzentren, physische Server) gegen variable Kosten — zahlen Sie nur für das, was Sie verbrauchen.",
+    p3l:"Flexibilität maximieren", p3d:"AWS-Dienste werden unabhängig bepreist, auf Abruf verfügbar — wählen und zahlen Sie genau das, was Sie benötigen.",
+    p4l:"Das richtige Preismodell wählen", p4d:"On-Demand, Savings Plans, Spot, Reserved Instances — passen Sie Ihr Workload-Muster dem richtigen Modell an.",
+    s5_title:"AWS-Preismodelle",
+    inst_col0:"Anwendungsfall", inst_col1:"On-Demand", inst_col2:"Reserviert", inst_col3:"Spot",
+    inst_r1c0:"Verpflichtung", inst_r1c1:"Keine — stündliche Zahlung, jederzeit stoppen", inst_r1c2:"1 oder 3 Jahre — bis zu 72% Ersparnis vs On-Demand", inst_r1c3:"Keine — Reservekapazität mit bis zu 90% Rabatt",
+    inst_r2c0:"Am besten für", inst_r2c1:"Neue Apps, Entwicklung/Tests, unvorhersehbare Workloads", inst_r2c2:"Stabile Produktions-Workloads", inst_r2c3:"Batch-Jobs, Big Data, fehlertolerante Workloads",
+    inst_r3c0:"Unterbrechungsrisiko", inst_r3c1:"Keines", inst_r3c2:"Keines", inst_r3c3:"Kann mit 2 Minuten Vorankündigung zurückgefordert werden",
+    inst_r4c0:"Zahlungsoptionen", inst_r4c1:"Pay as you go", inst_r4c2:"Vollständig vorab / Teilweise vorab / Kein Vorauszahlung", inst_r4c3:"Marktpreis (automatisch festgelegt)",
+    svc_col0:"Preismodell", svc_col1:"Typ", svc_col2:"Dienste",
+    svc_od:"On-Demand", svc_od_t1:"Zahlung pro Stunde (bereitgestellte Größe)", svc_od_t2:"Zahlung pro Stunde (Größe und Menge)", svc_od_t3:"On-Demand, Zahlung pro Nutzung", svc_od_t3s:"Alle Dienste",
+    svc_ri:"Reserviert (Verpflichtungsrabatt)", svc_ri_t:"1 oder 3 Jahre Verpflichtung — erhebliche Einsparungen",
+    svc_sp:"Spot (Reservekapazität)", svc_sp_t:"Bis zu 90% Rabatt auf Reservekapazität",
+    svc_svp:"Savings Plans", svc_svp_t:"Flexible Verpflichtung — EC2, Fargate, Lambda",
+    s3_storage_h:"Speicherklassen (us-east-1)", s3_s1:"S3 Standard", s3_s2:"S3 Intelligent-Tiering", s3_s3:"S3 Standard-IA", s3_s4:"S3 One Zone-IA", s3_s5:"S3 Glacier Instant", s3_s6:"S3 Glacier Deep Archive",
+    s3_req_h:"Anfrage- und Übertragungsgebühren", s3_r1:"PUT / COPY / POST / LIST", s3_r2:"GET / SELECT", s3_r3:"Datenübertragung EIN", s3_r4:"Datenübertragung AUS (Internet)", s3_r5:"S3 Transfer Acceleration", s3_r6:"Replikation (regionsübergreifend)",
+    ebs_vol_h:"Volumentypen", ebs_v1:"gp3 (Allzweck-SSD)", ebs_v2:"gp2 (Allzweck-SSD)", ebs_v3:"io2 Block Express (Bereitgestellte IOPS)", ebs_v4:"st1 (Durchsatzoptimierte HDD)", ebs_v5:"sc1 (Kalte HDD)",
+    ebs_snap_h:"Snapshots & Tipps", ebs_sn1:"Snapshot-Speicher", ebs_sn2:"Schnelle Snapshot-Wiederherstellung", ebs_sn3:"Archivebene-Snapshot", ebs_sn4:"gp3 vs gp2 Einsparungen", ebs_sn5:"Nicht angehängte Volumes löschen",
+    ft_s3:"Standard-Speicher · 12 Monate", ft_s3b:"20.000 GET + 2.000 PUT Anfragen/Monat",
+    ft_ebs:"SSD-Speicher · 12 Monate", ft_ebsb:"2 Mio. E/A + 1 GB Snapshot-Speicher",
+    ft_efs:"Standard-Speicher · 12 Monate", ft_efsb:"Elastisches Dateisystem, Auto-Scaling",
+    ft_lambda:"Anfragen/Monat — Dauerhaft kostenlos", ft_lambdab:"400.000 GB-Sekunden Compute/Monat",
+    ft_ec2:"t2.micro oder t3.micro · 12 Monate", ft_ec2b:"Linux & Windows, pro Region",
+    ft_rds:"db.t2/t3.micro · 12 Monate", ft_rdsb:"20 GB DB-Speicher + 20 GB Backups",
+    s11_title:"AWS-Preisrechner",
+    s12_title:"Was ist der AWS-Preisrechner?", s12_bh:"Vorteile & Funktionen",
+    s12_b1:"Transparente Preise für über 200 AWS-Dienste", s12_b2:"Schätzungen über eine eindeutige URL teilen", s12_b3:"Hierarchische Schätzungen (Gruppen & Untergruppen)", s12_b4:"Schätzungen als CSV / PDF exportieren", s12_b5:"Kein AWS-Konto erforderlich",
+    s12_uh:"Anwendungsfälle", s12_u1:"Amazon EC2-Ausgaben reduzieren", s12_u2:"Den richtigen EC2-Instance-Typ finden", s12_u3:"Gesamtausgaben vor Migration schätzen", s12_u4:"Dienstkosten über Regionen vergleichen",
+    s12_hh:"Wie es funktioniert", s12_step1h:"AWS-Preisrechner öffnen", s12_step1p:"Gehen Sie zu calculator.aws/pricing — keine Anmeldung erforderlich",
+    s12_step2h:"Dienste suchen und hinzufügen", s12_step2p:"Wählen Sie die AWS-Produkte und Dienste, die Sie nutzen möchten",
+    s12_step3h:"Jeden Dienst konfigurieren", s12_step3p:"Nutzungsdetails eingeben — Instance-Typ, Region, Stunden, Speicher",
+    s12_step4h:"Summen ansehen und teilen", s12_step4p:"Monatliche und 12-Monats-Summen überprüfen; teilen oder exportieren",
+    s13_title:"Möglichkeiten zur Reduzierung Ihrer AWS-Rechnung",
+    rb1:"EC2 mit geringer Auslastung identifizieren — stoppen oder richtig dimensionieren", rb2:"EBS-Volumes mit geringer Auslastung — Snapshot dann löschen", rb3:"S3-Kosten optimieren durch Verschieben zu günstigeren Speicherstufen", rb4:"RDS mit geringer Auslastung stoppen; Redshift pausieren",
+    rb5:"DynamoDB mit Auto Scaling oder On-Demand-Modus optimieren", rb6:"Inaktive Load Balancer und ungenutzte NAT Gateways löschen", rb7:"EC2 Spot Instances für fehlertolerante Workloads verwenden", rb8:"EC2 Auto Scaling Group Konfiguration überprüfen und anpassen",
+    rb9:"Reserved Instances für RDS, Redshift, ElastiCache, OpenSearch verwenden", rb10:"Compute Savings Plans für EC2, Fargate und Lambda verwenden",
+    s15_title:"AWS-Kostenoptimierung",
+    co1h:"Richtige Preismodelle wählen", co1b1:"Reserved Instances für RDS, Redshift, ElastiCache & OpenSearch", co1b2:"Spot Instances zur Reduzierung von EC2-Kosten", co1b3:"Savings Plans für EC2, Fargate & Lambda", co1b4:"Savings Plans erfordern 1- oder 3-Jahres-Verpflichtung",
+    co2h:"Kapazität an Nachfrage anpassen", co2b1:"EC2 Instances mit geringer Auslastung richtig dimensionieren oder stoppen", co2b2:"RDS mit geringer Auslastung stoppen; Redshift pausieren", co2b3:"DynamoDB: Auto Scaling oder On-Demand-Modus", co2b4:"AWS Compute Optimizer für Empfehlungen verwenden",
+    co3h:"Prozesse zur Erkennung von Verschwendung einführen", co3b1:"EBS-Volumes mit geringer Auslastung löschen (zuerst Snapshot)", co3b2:"S3-Objekte zu günstigeren Stufen verschieben (Lifecycle-Richtlinien)", co3b3:"Inaktive Load Balancer und ungenutzte IPs entfernen", co3b4:"AWS Cost Explorer & Budgets für Transparenz nutzen",
+    tool1:"Visualisieren, verstehen und verwalten Sie Ihre AWS-Kosten und -Nutzung über die Zeit. Filtern nach Dienst, Region, Tag.",
+    tool2:"Benutzerdefinierte Kosten- und Nutzungsbudgets festlegen. Benachrichtigungen per SNS oder E-Mail bei Überschreitung von Schwellenwerten.",
+    tool3:"ML-basierte Empfehlungen für EC2, Lambda, EBS und ECS auf Fargate. Identifiziert über- und unterprovisionierte Ressourcen.",
+    tool4:"Echtzeit-Empfehlungen zu Kostenoptimierung, Sicherheit, Fehlertoleranz und Leistung.",
+    tool5:"Detaillierteste Abrechnungsdaten. Integration mit Athena, Redshift oder QuickSight für benutzerdefinierte Analysen.",
+    tool6:"Ressourcen nach Projekt, Team oder Umgebung markieren. Tags in Cost Explorer und CUR für Kostenzuordnung nutzen.",
+    s18_title:"Demo: Preisrechner / Kostenschätzungen",
+    demo1h:"Besuchen Sie calculator.aws/pricing", demo1p:"Kein AWS-Konto erforderlich. Das Tool ist vollständig öffentlich.",
+    demo2h:"Schätzung erstellen", demo2p:"Klicken Sie auf 'Schätzung erstellen' und dann auf 'Dienst hinzufügen'",
+    demo3h:"EC2 konfigurieren", demo3p:"Region → Instance-Typ → BS → Preismodell → Stunden/Monat auswählen",
+    demo4h:"Preismodelle vergleichen", demo4p:"Zwischen On-Demand, Reserviert (1/3 Jahre) und Savings Plans wechseln",
+    demo5h:"Teilen oder exportieren", demo5p:"Teilbare URL kopieren oder als CSV/PDF für Stakeholder exportieren",
+    demo_tip_h:"💡 Profi-Tipps", demo_t1:"Gruppen verwenden, um Schätzungen nach Dienststufe oder Umgebung zu organisieren", demo_t2:"Datenübertragungsdienst hinzufügen, um Egress-Kosten einzubeziehen", demo_t3:"Regionspreise vergleichen — us-east-1 ist oft am günstigsten", demo_t4:"Savings Plans zeigen genaue Einsparungen vs On-Demand nebeneinander",
+    qa_title:"Fragen & Antworten", qa_sub:"Fragen, Kommentare, Feedback?"
+  },
+
+  id: {
+    cover_tag:"Pelatihan & Sertifikasi AWS",
+    cover_title:"Optimasi Biaya",
+    cover_sub:"Harga fundamental untuk komputasi, penyimpanan, dan transfer data: pertimbangan utama",
+    agenda_title:"Agenda",
+    ag1:"Prinsip utama harga AWS", ag2:"Model harga AWS", ag3:"Kalkulator harga AWS",
+    ag4:"Cara mengurangi tagihan AWS", ag5:"Optimasi biaya AWS",
+    ag6:"Demo: Kalkulator harga / Estimasi", ag7:"Tanya Jawab",
+    s3_title:"Prinsip utama harga AWS", s4_title:"Prinsip utama harga",
+    p1l:"Memahami dasar-dasar harga", p1d:"Tiga pendorong biaya utama: komputasi, penyimpanan, dan transfer data keluar. Ditagih secara independen dan transparan.",
+    p2l:"Mulai optimasi biaya lebih awal", p2d:"Ganti pengeluaran tetap (pusat data, server fisik) dengan pengeluaran variabel — bayar hanya untuk yang Anda konsumsi.",
+    p3l:"Maksimalkan kekuatan fleksibilitas", p3d:"Layanan AWS dihargai secara independen, tersedia sesuai permintaan — pilih dan bayar tepat yang Anda butuhkan.",
+    p4l:"Gunakan model harga yang tepat", p4d:"On-Demand, Savings Plans, Spot, Reserved Instances — cocokkan pola workload Anda dengan model yang tepat.",
+    s5_title:"Model harga AWS",
+    inst_col0:"Kasus penggunaan", inst_col1:"Sesuai Permintaan", inst_col2:"Terpesan", inst_col3:"Spot",
+    inst_r1c0:"Komitmen", inst_r1c1:"Tidak ada — bayar per jam, berhenti kapan saja", inst_r1c2:"1 atau 3 tahun — hemat hingga 72% vs Sesuai Permintaan", inst_r1c3:"Tidak ada — kapasitas cadangan dengan diskon hingga 90%",
+    inst_r2c0:"Terbaik untuk", inst_r2c1:"App baru, dev/uji, workload tidak dapat diprediksi", inst_r2c2:"Workload produksi stabil", inst_r2c3:"Batch job, big data, workload toleran kesalahan",
+    inst_r3c0:"Risiko gangguan", inst_r3c1:"Tidak ada", inst_r3c2:"Tidak ada", inst_r3c3:"Dapat diklaim kembali dengan pemberitahuan 2 menit",
+    inst_r4c0:"Opsi pembayaran", inst_r4c1:"Bayar sesuai penggunaan", inst_r4c2:"Semua di muka / Sebagian / Tanpa uang muka", inst_r4c3:"Harga pasar (ditetapkan otomatis)",
+    svc_col0:"Model harga", svc_col1:"Jenis", svc_col2:"Layanan",
+    svc_od:"Sesuai Permintaan", svc_od_t1:"Bayar per jam (ukuran yang disediakan)", svc_od_t2:"Bayar per jam (ukuran dan jumlah)", svc_od_t3:"Sesuai permintaan, bayar per penggunaan", svc_od_t3s:"Semua layanan",
+    svc_ri:"Terpesan (diskon komitmen)", svc_ri_t:"Komitmen 1 atau 3 tahun — penghematan signifikan",
+    svc_sp:"Spot (kapasitas cadangan)", svc_sp_t:"Diskon hingga 90% pada kapasitas cadangan",
+    svc_svp:"Savings Plans", svc_svp_t:"Komitmen fleksibel — EC2, Fargate, Lambda",
+    s3_storage_h:"Kelas penyimpanan (us-east-1)", s3_s1:"S3 Standard", s3_s2:"S3 Intelligent-Tiering", s3_s3:"S3 Standard-IA", s3_s4:"S3 One Zone-IA", s3_s5:"S3 Glacier Instant", s3_s6:"S3 Glacier Deep Archive",
+    s3_req_h:"Biaya permintaan & transfer data", s3_r1:"PUT / COPY / POST / LIST", s3_r2:"GET / SELECT", s3_r3:"Transfer data MASUK", s3_r4:"Transfer data KELUAR (internet)", s3_r5:"Akselerasi Transfer S3", s3_r6:"Replikasi (lintas wilayah)",
+    ebs_vol_h:"Jenis volume", ebs_v1:"gp3 (SSD serba guna)", ebs_v2:"gp2 (SSD serba guna)", ebs_v3:"io2 Block Express (IOPS yang disediakan)", ebs_v4:"st1 (HDD dioptimalkan throughput)", ebs_v5:"sc1 (HDD dingin)",
+    ebs_snap_h:"Snapshot & tips", ebs_sn1:"Penyimpanan snapshot", ebs_sn2:"Pemulihan snapshot cepat", ebs_sn3:"Snapshot tingkat arsip", ebs_sn4:"Penghematan gp3 vs gp2", ebs_sn5:"Hapus volume yang tidak terpasang",
+    ft_s3:"Penyimpanan Standard · 12 bulan", ft_s3b:"20.000 GET + 2.000 PUT permintaan/bulan",
+    ft_ebs:"Penyimpanan SSD · 12 bulan", ft_ebsb:"2 juta I/O + 1 GB penyimpanan snapshot",
+    ft_efs:"Penyimpanan Standard · 12 bulan", ft_efsb:"Sistem file elastis, auto-scaling",
+    ft_lambda:"permintaan/bulan — Selalu Gratis", ft_lambdab:"400.000 GB-detik komputasi/bulan",
+    ft_ec2:"t2.micro atau t3.micro · 12 bulan", ft_ec2b:"Linux & Windows, per wilayah",
+    ft_rds:"db.t2/t3.micro · 12 bulan", ft_rdsb:"20 GB penyimpanan DB + 20 GB cadangan",
+    s11_title:"Kalkulator harga AWS",
+    s12_title:"Apa itu Kalkulator Harga AWS?", s12_bh:"Manfaat & Fitur",
+    s12_b1:"Harga transparan untuk 200+ layanan AWS", s12_b2:"Bagikan estimasi melalui URL unik", s12_b3:"Estimasi hierarkis (grup & subgrup)", s12_b4:"Ekspor estimasi ke CSV / PDF", s12_b5:"Tidak perlu akun AWS",
+    s12_uh:"Kasus penggunaan", s12_u1:"Kurangi pengeluaran Amazon EC2", s12_u2:"Temukan jenis instance EC2 yang tepat", s12_u3:"Estimasi total pengeluaran AWS sebelum migrasi", s12_u4:"Bandingkan biaya layanan antar Wilayah",
+    s12_hh:"Cara kerjanya", s12_step1h:"Buka Kalkulator Harga AWS", s12_step1p:"Kunjungi calculator.aws/pricing — tidak perlu login",
+    s12_step2h:"Cari & tambahkan layanan", s12_step2p:"Pilih produk dan layanan AWS yang Anda rencanakan",
+    s12_step3h:"Konfigurasikan setiap layanan", s12_step3p:"Masukkan detail penggunaan — jenis instance, wilayah, jam, penyimpanan",
+    s12_step4h:"Lihat & bagikan total estimasi", s12_step4p:"Tinjau total bulanan & 12 bulan; bagikan atau ekspor",
+    s13_title:"Cara mengurangi tagihan AWS",
+    rb1:"Identifikasi EC2 dengan utilisasi rendah — hentikan atau ubah ukuran", rb2:"Temukan volume EBS utilisasi rendah — snapshot lalu hapus", rb3:"Optimalkan biaya S3 dengan memindahkan data ke tingkat penyimpanan lebih murah", rb4:"Hentikan RDS utilisasi rendah; jeda kluster Redshift",
+    rb5:"Optimalkan DynamoDB dengan Auto Scaling atau mode Sesuai Permintaan", rb6:"Hapus load balancer tidak aktif dan NAT Gateway tidak terpakai", rb7:"Gunakan Spot Instances EC2 untuk workload toleran kesalahan", rb8:"Tinjau dan sesuaikan konfigurasi EC2 Auto Scaling Groups",
+    rb9:"Gunakan Reserved Instances untuk RDS, Redshift, ElastiCache, OpenSearch", rb10:"Gunakan Compute Savings Plans untuk EC2, Fargate & Lambda",
+    s15_title:"Optimasi biaya AWS",
+    co1h:"Pilih model harga yang tepat", co1b1:"Reserved Instances untuk RDS, Redshift, ElastiCache & OpenSearch", co1b2:"Spot Instances untuk mengurangi biaya EC2", co1b3:"Savings Plans untuk EC2, Fargate & Lambda", co1b4:"Savings Plans memerlukan komitmen 1 atau 3 tahun",
+    co2h:"Sesuaikan kapasitas dengan permintaan", co2b1:"Ubah ukuran atau hentikan instance EC2 utilisasi rendah", co2b2:"Hentikan RDS utilisasi rendah; jeda Redshift", co2b3:"DynamoDB: Auto Scaling atau mode Sesuai Permintaan", co2b4:"Gunakan AWS Compute Optimizer untuk rekomendasi",
+    co3h:"Terapkan proses untuk mengidentifikasi pemborosan", co3b1:"Hapus volume EBS utilisasi rendah (snapshot dulu)", co3b2:"Pindahkan objek S3 ke tingkat lebih murah (kebijakan siklus hidup)", co3b3:"Hapus load balancer tidak aktif & IP tidak terpakai", co3b4:"Gunakan AWS Cost Explorer & Budgets untuk visibilitas",
+    tool1:"Visualisasikan, pahami, dan kelola biaya dan penggunaan AWS Anda dari waktu ke waktu. Filter berdasarkan layanan, wilayah, tag.",
+    tool2:"Tetapkan anggaran biaya dan penggunaan khusus. Terima peringatan melalui SNS atau email ketika ambang batas terlampaui.",
+    tool3:"Rekomendasi berbasis ML untuk EC2, Lambda, EBS, dan ECS di Fargate. Mengidentifikasi sumber daya yang over/under-provisioned.",
+    tool4:"Panduan real-time tentang optimasi biaya, keamanan, toleransi kesalahan, dan kinerja.",
+    tool5:"Data penagihan paling granular. Terintegrasi dengan Athena, Redshift, atau QuickSight untuk analitik kustom.",
+    tool6:"Tandai sumber daya berdasarkan proyek, tim, atau lingkungan. Gunakan tag di Cost Explorer dan CUR untuk atribusi pengeluaran.",
+    s18_title:"Demo: Kalkulator Harga / Estimasi",
+    demo1h:"Kunjungi calculator.aws/pricing", demo1p:"Tidak perlu akun AWS. Alat ini sepenuhnya publik.",
+    demo2h:"Buat estimasi", demo2p:"Klik 'Buat estimasi' lalu 'Tambahkan layanan'",
+    demo3h:"Konfigurasi EC2", demo3p:"Pilih wilayah → jenis instance → OS → model harga → jam/bulan",
+    demo4h:"Bandingkan model harga", demo4p:"Beralih antara Sesuai Permintaan, Terpesan (1/3 tahun), dan Savings Plans",
+    demo5h:"Bagikan atau ekspor", demo5p:"Salin URL yang dapat dibagikan atau ekspor ke CSV/PDF",
+    demo_tip_h:"💡 Tips Pro", demo_t1:"Gunakan grup untuk mengatur estimasi berdasarkan tingkat layanan atau lingkungan", demo_t2:"Tambahkan layanan transfer data untuk menyertakan biaya egress", demo_t3:"Bandingkan harga wilayah — us-east-1 sering yang termurah", demo_t4:"Savings Plans menampilkan penghematan $ tepat vs Sesuai Permintaan berdampingan",
+    qa_title:"Tanya Jawab", qa_sub:"Pertanyaan, komentar, masukan?"
+  },
+
+  th: {
+    cover_tag:"การฝึกอบรมและการรับรอง AWS",
+    cover_title:"การเพิ่มประสิทธิภาพต้นทุน",
+    cover_sub:"ราคาพื้นฐานสำหรับการประมวลผล พื้นที่จัดเก็บ และการถ่ายโอนข้อมูล: ข้อควรพิจารณาหลัก",
+    agenda_title:"วาระการประชุม",
+    ag1:"หลักการสำคัญด้านราคา AWS", ag2:"รูปแบบราคา AWS", ag3:"เครื่องคำนวณราคา AWS",
+    ag4:"วิธีลดค่าใช้จ่าย AWS", ag5:"การเพิ่มประสิทธิภาพต้นทุน AWS",
+    ag6:"สาธิต: เครื่องคำนวณราคา / การประมาณการ", ag7:"ถามตอบ",
+    s3_title:"หลักการสำคัญด้านราคา AWS", s4_title:"หลักการสำคัญด้านราคา",
+    p1l:"เข้าใจพื้นฐานการกำหนดราคา", p1d:"ปัจจัยต้นทุนหลักสามประการ: การประมวลผล พื้นที่จัดเก็บ และการถ่ายโอนข้อมูลขาออก เรียกเก็บเงินอย่างอิสระและโปร่งใส",
+    p2l:"เริ่มเพิ่มประสิทธิภาพต้นทุนแต่เนิ่นๆ", p2d:"เปลี่ยนค่าใช้จ่ายคงที่ (ศูนย์ข้อมูล เซิร์ฟเวอร์จริง) เป็นค่าใช้จ่ายแปรผัน — จ่ายเฉพาะสิ่งที่ใช้งาน",
+    p3l:"เพิ่มพลังความยืดหยุ่นสูงสุด", p3d:"บริการ AWS มีราคาอิสระ พร้อมใช้งานตามต้องการ — เลือกและจ่ายเฉพาะสิ่งที่คุณต้องการ",
+    p4l:"ใช้รูปแบบราคาที่เหมาะสม", p4d:"On-Demand, Savings Plans, Spot, Reserved Instances — จับคู่รูปแบบ workload ของคุณกับโมเดลที่เหมาะสม",
+    s5_title:"รูปแบบราคา AWS",
+    inst_col0:"กรณีการใช้งาน", inst_col1:"ตามความต้องการ", inst_col2:"สำรอง", inst_col3:"Spot",
+    inst_r1c0:"ข้อผูกมัด", inst_r1c1:"ไม่มี — จ่ายต่อชั่วโมง หยุดได้ตลอดเวลา", inst_r1c2:"1 หรือ 3 ปี — ประหยัดได้ถึง 72% เทียบกับ On-Demand", inst_r1c3:"ไม่มี — ใช้ capacity สำรองที่ส่วนลดสูงสุด 90%",
+    inst_r2c0:"เหมาะสำหรับ", inst_r2c1:"App ใหม่ dev/test workload ที่คาดเดาไม่ได้", inst_r2c2:"Workload การผลิตที่เสถียร", inst_r2c3:"Batch job, big data, workload ที่ทนต่อความผิดพลาด",
+    inst_r3c0:"ความเสี่ยงในการหยุดชะงัก", inst_r3c1:"ไม่มี", inst_r3c2:"ไม่มี", inst_r3c3:"อาจถูกเรียกคืนพร้อมแจ้งล่วงหน้า 2 นาที",
+    inst_r4c0:"ตัวเลือกการชำระเงิน", inst_r4c1:"จ่ายตามการใช้งาน", inst_r4c2:"ชำระทั้งหมดล่วงหน้า / บางส่วน / ไม่มีการชำระล่วงหน้า", inst_r4c3:"ราคาตลาด (กำหนดโดยอัตโนมัติ)",
+    svc_col0:"รูปแบบราคา", svc_col1:"ประเภท", svc_col2:"บริการ",
+    svc_od:"ตามความต้องการ", svc_od_t1:"จ่ายต่อชั่วโมง (ขนาดที่จัดสรร)", svc_od_t2:"จ่ายต่อชั่วโมง (ขนาดและปริมาณ)", svc_od_t3:"On-Demand จ่ายต่อการใช้งาน", svc_od_t3s:"บริการทั้งหมด",
+    svc_ri:"สำรอง (ส่วนลดข้อผูกมัด)", svc_ri_t:"ข้อผูกมัด 1 หรือ 3 ปี — ประหยัดอย่างมีนัยสำคัญ",
+    svc_sp:"Spot (ความจุสำรอง)", svc_sp_t:"ส่วนลดสูงสุด 90% บนความจุสำรอง",
+    svc_svp:"Savings Plans", svc_svp_t:"ข้อผูกมัดที่ยืดหยุ่น — EC2, Fargate, Lambda",
+    s3_storage_h:"คลาสที่จัดเก็บ (us-east-1)", s3_s1:"S3 Standard", s3_s2:"S3 Intelligent-Tiering", s3_s3:"S3 Standard-IA", s3_s4:"S3 One Zone-IA", s3_s5:"S3 Glacier Instant", s3_s6:"S3 Glacier Deep Archive",
+    s3_req_h:"ค่าธรรมเนียมคำขอและการถ่ายโอน", s3_r1:"PUT / COPY / POST / LIST", s3_r2:"GET / SELECT", s3_r3:"การถ่ายโอนข้อมูล เข้า", s3_r4:"การถ่ายโอนข้อมูล ออก (อินเทอร์เน็ต)", s3_r5:"S3 Transfer Acceleration", s3_r6:"การจำลอง (ข้ามภูมิภาค)",
+    ebs_vol_h:"ประเภทวอลุ่ม", ebs_v1:"gp3 (SSD ใช้งานทั่วไป)", ebs_v2:"gp2 (SSD ใช้งานทั่วไป)", ebs_v3:"io2 Block Express (IOPS ที่จัดสรร)", ebs_v4:"st1 (HDD ปรับปรุงปริมาณงาน)", ebs_v5:"sc1 (HDD เย็น)",
+    ebs_snap_h:"สแนปช็อตและเคล็ดลับ", ebs_sn1:"พื้นที่จัดเก็บสแนปช็อต", ebs_sn2:"การกู้คืนสแนปช็อตอย่างรวดเร็ว", ebs_sn3:"สแนปช็อตระดับเก็บถาวร", ebs_sn4:"ประหยัด gp3 vs gp2", ebs_sn5:"ลบวอลุ่มที่ไม่ได้แนบ",
+    ft_s3:"พื้นที่จัดเก็บ Standard · 12 เดือน", ft_s3b:"20,000 GET + 2,000 PUT คำขอ/เดือน",
+    ft_ebs:"พื้นที่จัดเก็บ SSD · 12 เดือน", ft_ebsb:"2 ล้าน I/O + 1 GB สแนปช็อต",
+    ft_efs:"พื้นที่จัดเก็บ Standard · 12 เดือน", ft_efsb:"ระบบไฟล์ elastic, auto-scaling",
+    ft_lambda:"คำขอ/เดือน — ฟรีตลอดเวลา", ft_lambdab:"400,000 GB-วินาทีการประมวลผล/เดือน",
+    ft_ec2:"t2.micro หรือ t3.micro · 12 เดือน", ft_ec2b:"Linux และ Windows ต่อภูมิภาค",
+    ft_rds:"db.t2/t3.micro · 12 เดือน", ft_rdsb:"พื้นที่ DB 20 GB + สำรองข้อมูล 20 GB",
+    s11_title:"เครื่องคำนวณราคา AWS",
+    s12_title:"เครื่องคำนวณราคา AWS คืออะไร?", s12_bh:"ประโยชน์และคุณสมบัติ",
+    s12_b1:"ราคาโปร่งใสสำหรับบริการ AWS มากกว่า 200 รายการ", s12_b2:"แชร์การประมาณการผ่าน URL เฉพาะ", s12_b3:"การประมาณการแบบลำดับชั้น (กลุ่มและกลุ่มย่อย)", s12_b4:"ส่งออกการประมาณการเป็น CSV / PDF", s12_b5:"ไม่ต้องใช้บัญชี AWS",
+    s12_uh:"กรณีการใช้งาน", s12_u1:"ลดค่าใช้จ่าย Amazon EC2", s12_u2:"ค้นหาประเภท instance EC2 ที่เหมาะสม", s12_u3:"ประมาณค่าใช้จ่าย AWS ทั้งหมดก่อนย้าย", s12_u4:"เปรียบเทียบค่าใช้จ่ายบริการในแต่ละภูมิภาค",
+    s12_hh:"วิธีการทำงาน", s12_step1h:"เปิดเครื่องคำนวณราคา AWS", s12_step1p:"ไปที่ calculator.aws/pricing — ไม่ต้องเข้าสู่ระบบ",
+    s12_step2h:"ค้นหาและเพิ่มบริการ", s12_step2p:"เลือกผลิตภัณฑ์และบริการ AWS ที่คุณวางแผนจะใช้",
+    s12_step3h:"กำหนดค่าแต่ละบริการ", s12_step3p:"ป้อนรายละเอียดการใช้งาน — ประเภท ภูมิภาค ชั่วโมง พื้นที่จัดเก็บ",
+    s12_step4h:"ดูและแชร์ยอดรวมการประมาณการ", s12_step4p:"ตรวจสอบยอดรวมรายเดือนและ 12 เดือน แชร์หรือส่งออก",
+    s13_title:"วิธีลดค่าใช้จ่าย AWS",
+    rb1:"ระบุ EC2 ที่ใช้งานต่ำ — หยุดหรือปรับขนาด", rb2:"ค้นหาวอลุ่ม EBS ที่ใช้งานต่ำ — สแนปช็อตแล้วลบ", rb3:"เพิ่มประสิทธิภาพต้นทุน S3 โดยย้ายข้อมูลไปยังระดับที่ถูกกว่า", rb4:"หยุด RDS ที่ใช้งานต่ำ หยุดชั่วคราวคลัสเตอร์ Redshift",
+    rb5:"เพิ่มประสิทธิภาพ DynamoDB ด้วย Auto Scaling หรือโหมด On-Demand", rb6:"ลบ load balancer ที่ไม่ได้ใช้และ NAT Gateway ที่ไม่จำเป็น", rb7:"ใช้ EC2 Spot Instances สำหรับ workload ที่ทนต่อความผิดพลาด", rb8:"ตรวจสอบและปรับการกำหนดค่า EC2 Auto Scaling Groups",
+    rb9:"ใช้ Reserved Instances สำหรับ RDS, Redshift, ElastiCache, OpenSearch", rb10:"ใช้ Compute Savings Plans สำหรับ EC2, Fargate และ Lambda",
+    s15_title:"การเพิ่มประสิทธิภาพต้นทุน AWS",
+    co1h:"เลือกรูปแบบราคาที่เหมาะสม", co1b1:"Reserved Instances สำหรับ RDS, Redshift, ElastiCache & OpenSearch", co1b2:"Spot Instances เพื่อลดต้นทุน EC2", co1b3:"Savings Plans สำหรับ EC2, Fargate & Lambda", co1b4:"Savings Plans ต้องการข้อผูกมัด 1 หรือ 3 ปี",
+    co2h:"จับคู่ความจุกับความต้องการ", co2b1:"ปรับขนาดหรือหยุด EC2 instances ที่ใช้งานต่ำ", co2b2:"หยุด RDS ที่ใช้งานต่ำ หยุด Redshift ชั่วคราว", co2b3:"DynamoDB: Auto Scaling หรือโหมด On-Demand", co2b4:"ใช้ AWS Compute Optimizer เพื่อรับคำแนะนำ",
+    co3h:"นำกระบวนการระบุของเสียมาใช้", co3b1:"ลบวอลุ่ม EBS ที่ใช้งานต่ำ (สแนปช็อตก่อน)", co3b2:"ย้ายออบเจ็กต์ S3 ไปยังระดับที่ถูกกว่า (นโยบาย lifecycle)", co3b3:"ลบ load balancer ที่ไม่ได้ใช้และ IP ที่ไม่จำเป็น", co3b4:"ใช้ AWS Cost Explorer & Budgets เพื่อการมองเห็น",
+    tool1:"แสดงภาพ ทำความเข้าใจ และจัดการต้นทุนและการใช้งาน AWS ของคุณเมื่อเวลาผ่านไป กรองตามบริการ ภูมิภาค แท็ก",
+    tool2:"ตั้งงบประมาณต้นทุนและการใช้งานแบบกำหนดเอง รับการแจ้งเตือนผ่าน SNS หรืออีเมลเมื่อเกินเกณฑ์",
+    tool3:"คำแนะนำบนพื้นฐาน ML สำหรับ EC2, Lambda, EBS และ ECS บน Fargate ระบุทรัพยากรที่จัดสรรมากเกินไป/น้อยเกินไปโดยอัตโนมัติ",
+    tool4:"คำแนะนำแบบเรียลไทม์เกี่ยวกับการเพิ่มประสิทธิภาพต้นทุน ความปลอดภัย ความทนทานต่อความผิดพลาด และประสิทธิภาพ",
+    tool5:"ข้อมูลการเรียกเก็บเงินที่ละเอียดที่สุด รวมกับ Athena, Redshift หรือ QuickSight สำหรับการวิเคราะห์แบบกำหนดเอง",
+    tool6:"แท็กทรัพยากรตามโปรเจ็กต์ ทีม หรือสภาพแวดล้อม ใช้แท็กใน Cost Explorer และ CUR เพื่อกำหนดค่าใช้จ่าย",
+    s18_title:"สาธิต: เครื่องคำนวณราคา / การประมาณการ",
+    demo1h:"เยี่ยมชม calculator.aws/pricing", demo1p:"ไม่ต้องใช้บัญชี AWS เครื่องมือนี้เปิดให้ใช้งานสาธารณะ",
+    demo2h:"สร้างการประมาณการ", demo2p:"คลิก 'สร้างการประมาณการ' แล้วคลิก 'เพิ่มบริการ'",
+    demo3h:"กำหนดค่า EC2", demo3p:"เลือกภูมิภาค → ประเภท instance → OS → รูปแบบราคา → ชั่วโมง/เดือน",
+    demo4h:"เปรียบเทียบรูปแบบราคา", demo4p:"สลับระหว่าง On-Demand, Reserved (1/3 ปี) และ Savings Plans",
+    demo5h:"แชร์หรือส่งออก", demo5p:"คัดลอก URL ที่แชร์ได้หรือส่งออกเป็น CSV/PDF สำหรับผู้มีส่วนได้ส่วนเสีย",
+    demo_tip_h:"💡 เคล็ดลับจากผู้เชี่ยวชาญ", demo_t1:"ใช้กลุ่มเพื่อจัดระเบียบการประมาณการตามระดับบริการหรือสภาพแวดล้อม", demo_t2:"เพิ่มบริการถ่ายโอนข้อมูลเพื่อรวมต้นทุน egress", demo_t3:"เปรียบเทียบราคาตามภูมิภาค — us-east-1 มักถูกที่สุด", demo_t4:"Savings Plans แสดงการประหยัดที่แน่นอนเทียบกับ On-Demand เคียงข้างกัน",
+    qa_title:"ถามตอบ", qa_sub:"คำถาม ความคิดเห็น ข้อเสนอแนะ?"
+  }
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentSlide = 1;
+const totalSlides = 20;
+let currentLang = 'en';
+
+// ── APPLY TRANSLATIONS ────────────────────────────────────────────────────────
+function setLang(lang) {
+  currentLang = lang;
+  const d = T[lang] || T['en'];
+  document.querySelectorAll('[data-key]').forEach(el => {
+    const key = el.getAttribute('data-key');
+    if (d[key] !== undefined) el.innerHTML = d[key];
+  });
+}
+
+// ── SLIDE NAVIGATION ──────────────────────────────────────────────────────────
+function showSlide(n) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  const slide = document.getElementById('s' + n);
+  if (slide) slide.classList.add('active');
+  document.getElementById('slide-counter').textContent = n + ' / ' + totalSlides;
+  document.getElementById('btn-prev').disabled = (n === 1);
+  document.getElementById('btn-next').disabled = (n === totalSlides);
+}
+
+function changeSlide(dir) {
+  const next = currentSlide + dir;
+  if (next < 1 || next > totalSlides) return;
+  currentSlide = next;
+  showSlide(currentSlide);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changeSlide(-1);
+});
+
+// Init
+showSlide(1);
+setLang('en');
+</script>
+</body>
+</html>
