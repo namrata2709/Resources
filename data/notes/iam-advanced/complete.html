@@ -1,1 +1,1232 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Deep-dive SAA-C03 notes on IAM Permission Boundaries, Session Policies, Cross-Account Access (STS AssumeRole), and MFA Condition Keys. Sessions May 25 & June 8, 2026."><meta name="keywords" content="AWS, IAM, Permission Boundary, Session Policy, STS, AssumeRole, Cross-Account, MFA, SAA-C03, certification"><meta property="og:title" content="IAM Advanced — Permission Boundaries, Session Policies & Cross-Account Access - AWS Training"><meta property="og:description" content="Deep-dive SAA-C03 notes on IAM Permission Boundaries, Session Policies, Cross-Account Access (STS AssumeRole), and MFA Condition Keys."><meta property="og:type" content="article"><meta property="og:url" content="https://namrata2709.github.io/Resources/data/notes/iam-advanced/iam-advanced-complete.html"><meta property="og:image" content="https://namrata2709.github.io/Resources/data/notes/iam-advanced/images/iam-advanced-overview.png"><link rel="canonical" href="https://namrata2709.github.io/Resources/data/notes/iam-advanced/iam-advanced-complete.html"><title>IAM Advanced — Permission Boundaries, Session Policies & Cross-Account - AWS Training</title><link rel="stylesheet" href="../../../css/styles.css"><link rel="stylesheet" href="../../../css/notes-template.css"><script src="../../../js/theme.js"></script></head><body class="complete-notes"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"IAM Advanced — Permission Boundaries, Session Policies, Cross-Account Access & MFA Condition Keys","description":"Deep-dive SAA-C03 notes on IAM Permission Boundaries, Session Policies, Cross-Account Access (STS AssumeRole), and MFA Condition Keys. Sessions May 25 & June 8, 2026.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2026-06-14","dateModified":"2026-06-14","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/iam-advanced/iam-advanced-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/iam-advanced/images/iam-advanced-overview.png","articleSection":"AWS Training","keywords":["AWS","IAM","Permission Boundary","Session Policy","STS","Cross-Account","MFA","SAA-C03"],"educationalLevel":"Intermediate"}</script><div class="note-container"><div class="note-header"><h1>IAM Advanced — Permission Boundaries, Session Policies, Cross-Account Access &amp; MFA Condition Keys</h1><p class="note-date">📅 May 25, 2026 &amp; June 8, 2026</p><div class="version-info"><p><strong>Version:</strong> 1.0</p><p><strong>Last Updated:</strong> June 14, 2026</p><p><strong>Status:</strong> ✅ Current</p></div></div><div class="note-content"><div class="success-box"><p>🎓 <strong>Lecture by:</strong> <a href="https://www.linkedin.com/in/chandra-dunn" target="_blank" rel="noopener noreferrer">Chandra Dunn</a><br>💬 <strong>Session:</strong> <a href="https://awsskillbuild-wb84118.slack.com/archives/C0APY09FW1J/p1777438331264969" target="_blank" rel="noopener noreferrer">View Slack session details →</a></p></div><details class="collapsible-section"><summary><h2 id="introduction">📖 Introduction</h2></summary><div class="section-content"><p>If IAM were a building, identity-based policies are your keycard — they say what you're allowed to do. But what stops a junior admin from accidentally giving someone <em>too much</em> access? What stops a shared vendor from peeking at the wrong customer's files? And how do you make sure that even if someone steals your login session, they can't delete your production database?</p><p>Those are exactly the problems this session solves. We're covering the advanced layer of IAM — the mechanisms that sit <em>above</em> ordinary identity policies and enforce hard limits, scoped assumptions, and real-time security decisions.</p><div class="diagram-container"><img src="images/iam-advanced-overview.png" decoding="async" alt="Overview diagram showing the four IAM security mechanism layers: identity-based policies as the floor, permission boundaries as the ceiling, resource-based policies as the gate, and condition keys as contextual filters"><p class="diagram-caption"><em>Figure 1: The four IAM security mechanisms and their roles in the overall authorization stack</em></p></div><div class="highlight-box"><p>⚡ <strong>What you'll master in these two sessions:</strong></p><ul><li>Permission boundaries — the ceiling that caps what any identity can ever do</li><li>Session policies — the per-call scope you pass directly at role assumption time</li><li>Cross-account access — the two-policy handshake between source and destination accounts</li><li>MFA condition keys — the difference between session-level MFA and fresh-MFA enforcement</li></ul></div><p>These topics map directly to the SAA-C03 domain <strong>Security</strong> (statement 1.1: Authentication and Authorization) and appear in some of the hardest multi-select scenario questions on the exam. Get these right and you're set for a significant portion of security questions.</p><div class="info-box"><p><strong>📋 Prerequisites from earlier sessions:</strong></p><ul><li>IAM users, groups, and roles — how they differ</li><li>Identity-based policies and policy structure (Effect, Action, Resource, Condition)</li><li>STS (Security Token Service) — how it issues temporary credentials</li><li>The concept of role assumption — what it means to "assume" a role</li></ul></div></div></details><details class="collapsible-section"><summary><h2 id="quick-recap-iam-evaluation">🔁 Quick Recap — How IAM Makes Decisions</h2></summary><div class="section-content"><p>Before diving into permission boundaries and session policies, it's critical to lock in the rule that underlies every IAM decision. Chandra called this "one of the few things you just have to memorize" — and for good reason. Every scenario question on the exam reduces to applying this rule correctly.</p><div class="diagram-container"><img src="images/iam-evaluation-flow.png" decoding="async" alt="Three-step IAM authorization evaluation flowchart: Step 1 Explicit Deny check, Step 2 Explicit Allow check, Step 3 Implicit Deny default — with arrows showing the evaluation stops at Explicit Deny"><p class="diagram-caption"><em>Figure 2: IAM's three-step authorization evaluation — the invariant rule that applies everywhere</em></p></div><p><span class="exam-highlight-sentence">Every IAM authorization decision follows the same <span class="exam-highlight-term">three-step evaluation</span>, regardless of which AWS service or how many policies are applied.</span></p><ol><li><strong>Explicit Deny:</strong> <span class="exam-highlight-sentence">If any evaluated policy contains an <span class="exam-highlight-term">explicit deny</span>, the request is denied immediately and evaluation stops. No allow, no condition, no other consideration can override an explicit deny.</span></li><li><strong>Explicit Allow:</strong> If an explicit allow exists and no deny overrides it, the request is allowed.</li><li><strong>Implicit Deny:</strong> <span class="exam-highlight-sentence">If neither an explicit deny nor an explicit allow applies, the request is <span class="exam-highlight-term">denied by default</span>. AWS is deny-by-default — the absence of a permission means no permission.</span></li></ol><div class="highlight-box"><p>⚡ <strong>The sentence to memorize:</strong> <em>"Explicit deny wins. Explicit allow grants. Implicit deny is the default."</em></p></div><p>This rule is invariant. It applies to identity-based vs resource-based policy combinations, permission boundaries, service control policies, session policies, and cross-account evaluation. When an allow doesn't work during debugging, <strong>look for the explicit deny</strong> — it's always in one of the evaluated policies.</p></div></details><details class="collapsible-section"><summary><h2 id="permission-boundaries">🔒 Permission Boundaries — The Standing Ceiling</h2></summary><div class="section-content"><p>Permission boundaries are, as Chandra put it, "one of the most misunderstood features in IAM." So let's be precise.</p><h3 id="what-a-boundary-does-and-doesnt-do">What a Boundary Does (and Doesn't Do)</h3><p><span class="exam-highlight-sentence">A permission boundary <span class="exam-highlight-term">grants nothing</span>. It defines the maximum — the ceiling — of what an identity-based policy is allowed to grant to a user or role.</span></p><p>Think of it like a governor on a car engine. The engine (identity policy) might be capable of 200 mph. But the governor (boundary) limits it to 80 mph, no matter what. The governor doesn't make the car go — it just caps how fast it can go.</p><div class="diagram-container"><img src="images/iam-permission-boundary-intersection.png" loading="lazy" decoding="async" alt="Venn diagram showing two overlapping circles: left circle labeled Identity Policy with all allowed actions, right circle labeled Permission Boundary with allowed ceiling, the intersection in the middle labeled Effective Permissions — what the principal can actually do"><p class="diagram-caption"><em>Figure 3: Effective permissions = intersection of identity policy and permission boundary</em></p></div><h3 id="how-it-resolves-intersection">How It Resolves — Intersection</h3><p><span class="exam-highlight-sentence">Effective permissions are the <span class="exam-highlight-term">intersection</span> of the identity-based policy and the permission boundary — only actions that both allow at the same time.</span></p><ul><li>Identity policy grants 10 actions + boundary allows 3 of them → principal gets <strong>3 actions</strong></li><li>Identity policy grants AdministratorAccess + boundary allows only Amazon S3 → principal can do <strong>S3 only</strong></li><li>Boundary has only Deny statements → <span class="exam-highlight-sentence">the allowed set in the boundary is <span class="exam-highlight-term">empty</span>, so the intersection collapses to nothing — the principal can do essentially nothing regardless of the identity policy</span></li></ul><div class="error-box"><p>❌ <strong>Common trap:</strong> Adding Deny statements to a permission boundary. A boundary works by intersection of <em>allows</em>. If you only put denies in the boundary, there's nothing in the allowed set — the intersection with any identity policy is empty. To use a boundary correctly, put the <strong>allowed actions</strong> in it.</p></div><h3 id="the-delegated-administration-pattern">The Delegated Administration Pattern</h3><p>Here's the real reason permission boundaries exist. Imagine you want junior administrators to be able to attach policies to developer users — but you want to guarantee that those developers can never gain access to things outside an approved set.</p><p>You attach a permission boundary with the approved actions to each developer IAM user. Now it doesn't matter how broad a policy the junior admin attaches. The boundary caps the result automatically — and the security team doesn't need to review each policy attachment by hand.</p><div class="success-box"><p>✅ <strong>Exam tip from Chandra:</strong> "A permission boundary is an advanced IAM feature that sets the maximum permissions an identity-based policy can grant to an IAM user or role. Any action outside the boundary is implicitly denied no matter what an attached policy grants. The security team does not have to review each attachment because the boundary enforces the ceiling automatically."</p></div></div></details><details class="collapsible-section"><summary><h2 id="session-policies">⏱️ Session Policies — The Per-Call Scope</h2></summary><div class="section-content"><p>If permission boundaries are the standing ceiling on an entity, session policies are the temporary scope you apply to just one specific role assumption. These two are so often confused that Chandra called "keeping the two apart worth real exam points."</p><h3 id="how-session-policies-work">How Session Policies Work</h3><p><span class="exam-highlight-sentence">A session policy is a policy you pass as a <span class="exam-highlight-term">parameter</span> at the moment you call <span class="exam-highlight-term">STS:AssumeRole</span>. It applies to that single session only — the role itself is unchanged.</span></p><p>Everyone else who assumes the same role is unaffected. You've simply narrowed this one assumption.</p><div class="diagram-container"><img src="images/iam-session-policy-flow.png" loading="lazy" decoding="async" alt="Diagram showing two separate AssumeRole calls to the same role: Call 1 with a session policy narrows to read-only permissions shown as a smaller intersection, Call 2 without session policy gets the full role permissions — illustrating per-call scoping"><p class="diagram-caption"><em>Figure 4: Session policies narrow one assumption — the role's permissions are unchanged for other callers</em></p></div><h3 id="session-policy-resolution">Resolution — Intersection Again</h3><p><span class="exam-highlight-sentence">The effective permissions of the session are the <span class="exam-highlight-term">intersection of the role's permission policy and the session policy</span> you pass.</span></p><p><span class="exam-highlight-sentence">A hard rule: <span class="exam-highlight-term">a session policy can only narrow, never widen</span>. You cannot use a session policy to grant more than the role already allows.</span></p><div class="highlight-box"><p>⚡ <strong>Example:</strong> Role permits <strong>S3:GetObject</strong> and <strong>S3:PutObject</strong>. Session policy permits <strong>S3:GetObject</strong> and <strong>S3:DeleteObject</strong>. The session can only do <strong>S3:GetObject</strong> — the only action both allow.</p></div><h3 id="boundary-vs-session-policy-comparison">Boundary vs Session Policy — The Clean Division</h3><table><thead><tr><th>Feature</th><th>Permission Boundary</th><th>Session Policy</th></tr></thead><tbody><tr><td><strong>Where it lives</strong></td><td>Attached to an entity (user or role)</td><td>Passed as parameter at AssumeRole time</td></tr><tr><td><strong>Duration</strong></td><td>Permanent — applies across all sessions</td><td>One session only</td></tr><tr><td><strong>Affects whom</strong></td><td>Every session of that entity</td><td>Only the caller who passes it</td></tr><tr><td><strong>Use case</strong></td><td>Delegated admin ceiling, standing cap</td><td>SaaS per-customer scoping, per-call narrowing</td></tr><tr><td><strong>Resolution</strong></td><td>Intersection of allows</td><td>Intersection of allows</td></tr></tbody></table><div class="success-box"><p>✅ <strong>Decision rule:</strong> Use a <strong>session policy</strong> when you want to scope one specific assumption at the moment you make it. Use a <strong>permission boundary</strong> when you want a durable cap on an entity across everything it does in the system.</p></div><div class="error-box"><p>❌ <strong>Remember:</strong> An explicit deny in any policy — the identity policy, the resource policy, the boundary, or the session policy — still wins outright. Both session policies and permission boundaries work by intersection of <em>allows</em>. A deny anywhere in the picture overrides all of them.</p></div></div></details><details class="collapsible-section"><summary><h2 id="role-assumption-mechanics">🔄 Role Assumption — The Most-Missed IAM Fact</h2></summary><div class="section-content"><p>Chandra called this "the most important and most frequently missed fact about role assumption." It has a direct and surprising consequence for how you design permission boundaries — and the exam loves to test it.</p><h3 id="what-drops-at-assumption-time">What Drops at Assumption Time</h3><p><span class="exam-highlight-sentence">When a principal assumes a role, the <span class="exam-highlight-term">principal's own identity policies and permission boundaries are not evaluated</span> for the session — they are set aside entirely.</span></p><p>The session runs with <strong>the role's permission policy</strong> and <strong>the role's own permission boundary</strong> only.</p><div class="diagram-container"><img src="images/iam-role-assumption-drop.png" loading="lazy" decoding="async" alt="Two-stage diagram: Stage 1 shows a principal in Account B with identity policy and permission boundary attached. Stage 2 shows the assumed role session in Account A — the principal's policies are marked with X as dropped, and only the role's own policy and boundary govern the session"><p class="diagram-caption"><em>Figure 5: The caller's policies are dropped at assumption time — only the role's policies govern the session</em></p></div><h3 id="three-step-design-rule">The Three-Step Design Rule</h3><ol><li><strong>User policies drop away</strong> when the AssumeRole call succeeds. The identity policies and boundary on the calling principal stop mattering for the session.</li><li><strong>The role's policies govern.</strong> The session is authorized by the role's permission policy and the role's own boundary (or a session policy passed at assume time).</li><li><strong>Design rule:</strong> <span class="exam-highlight-sentence">To limit what anyone gains by assuming a role, <span class="exam-highlight-term">put the boundary on the role</span>, not on the assuming user.</span></li></ol><div class="error-box"><p>❌ <strong>The classic trap:</strong> Imagine you let developers assume a read-only analyst role. You try to cap them by putting a permission boundary on each developer user. Once they assume the role, the user's boundary is <strong>not evaluated</strong> — they get the role's full permissions. The correct control is a <strong>boundary on the role</strong>, which caps every session regardless of who assumes it.</p></div><div class="highlight-box"><p>⚡ <strong>Cross-account note:</strong> A permission boundary you put on a user in Account B does not follow that user into an assumed role session in Account A. It limits only what the user does directly with its own identity in Account B. This was hammered throughout both sessions — the policies and boundaries of the caller exist only in their own account and their own context.</p></div></div></details><details class="collapsible-section"><summary><h2 id="cross-account-access">🌐 Cross-Account Access — The Two-Policy Handshake</h2></summary><div class="section-content"><p>Cross-account access is one of the most frequently tested patterns on the SAA-C03 exam, and one of the most commonly answered incorrectly under time pressure. Chandra spent significant time on this across both sessions — including a live exercise to identify source vs destination account.</p><h3 id="the-cross-account-scenario">The Classic Scenario</h3><p>A company has two AWS accounts. EC2 instances in <strong>Account B</strong> need to access encrypted videos stored in an S3 bucket in <strong>Account A</strong>. The S3 bucket is encrypted with a customer-managed KMS key also in Account A.</p><div class="diagram-container"><img src="images/iam-cross-account-architecture.png" loading="lazy" decoding="async" alt="Architecture diagram showing two AWS accounts side by side: Account B on the left contains an EC2 instance with an instance profile, connected by an arrow labeled STS AssumeRole to Account A on the right, which contains an IAM role with trust policy, an S3 bucket with encrypted videos, and a KMS key — arrows show the role's permission policy allowing S3 GetObject and KMS Decrypt"><p class="diagram-caption"><em>Figure 6: Cross-account architecture — EC2 in Account B assumes a role in Account A to access KMS-encrypted S3 objects</em></p></div><h3 id="the-two-policy-handshake">The Two-Policy Handshake</h3><p><span class="exam-highlight-sentence">Cross-account access requires <span class="exam-highlight-term">both policies simultaneously</span>: the caller in the source account must have STS:AssumeRole permission, AND the role in the destination account must have a trust policy that names the caller.</span></p><div class="highlight-box"><p>⚡ <strong>Source vs Destination — get this right every time:</strong></p><ul><li><strong>Source account</strong> = where the <em>call originates</em> = <strong>Account B</strong> (EC2 is here)</li><li><strong>Destination account</strong> = where the <em>resource and role live</em> = <strong>Account A</strong> (S3 and KMS are here)</li></ul><p>The trust policy lives in the <strong>destination</strong> account. The STS:AssumeRole permission lives in the <strong>source</strong> account. This is "one of those things you get wrong under exam pressure" — get it into your head now.</p></div><h3 id="cross-account-step-by-step">Step by Step</h3><ol><li><strong>Account A (destination):</strong> Create an IAM role with a trust policy allowing Account B to assume it. Attach a permission policy allowing <code>s3:GetObject</code> on the bucket and <code>kms:Decrypt</code> on the KMS key. Update the KMS key policy to independently allow the role to perform <code>kms:Decrypt</code>.</li><li><strong>Account B (source):</strong> Attach an instance profile to EC2 that allows <code>sts:AssumeRole</code> on Account A's role.</li><li><strong>At runtime:</strong> EC2 calls STS AssumeRole → STS issues temporary credentials → EC2 uses them to call <code>s3:GetObject</code> and <code>kms:Decrypt</code>.</li><li><strong>From IAM's perspective:</strong> <span class="exam-highlight-sentence">Once the role is assumed, the session is treated as a <span class="exam-highlight-term">same-account call</span> by the assumed role identity in Account A. The cross-account aspect is resolved at assumption time.</span></li></ol><h3 id="kms-two-pronged-authorization">KMS Two-Pronged Authorization</h3><p>This is one of the highest-frequency exam patterns and highest-error production patterns. When you access a KMS-encrypted resource cross-account:</p><p><span class="exam-highlight-sentence"><span class="exam-highlight-term">Both the IAM role's permission policy AND the KMS key's resource policy</span> must independently permit <code>kms:Decrypt</code>.</span></p><div class="error-box"><p>❌ <strong>Exam distractor pattern:</strong> Answer options that mention only one of the two authorizations (e.g., "add KMS:Decrypt to the IAM role policy") are almost always wrong. You must have it in <strong>both places</strong>. This applies in same-account scenarios too — cross-account just makes it visible.</p></div><h3 id="cross-account-access-debug-order">When Cross-Account Access Fails — Four Places to Check</h3><p>When a cross-account call to a KMS-encrypted S3 bucket fails with Access Denied, check in this order:</p><ol><li>Principal's IAM policy in the <strong>source account</strong> (Account B) — does it have STS:AssumeRole for the target role?</li><li>Role's trust policy in the <strong>destination account</strong> (Account A) — does it name the calling principal?</li><li>Bucket policy in the <strong>destination account</strong> — any explicit deny?</li><li>KMS key policy in the <strong>destination account</strong> — does it independently allow KMS:Decrypt for the role?</li></ol><div class="info-box"><p>📚 <strong>From AWS documentation:</strong> When cross-account principals access KMS-encrypted resources, authorization is a two-stage process. The IAM principal must have permission to call KMS on the key (identity-side), and the KMS key policy must grant that principal permission to use the key (resource-side). Either side alone is insufficient.</p><p><strong>📚 Source:</strong> <a href="https://docs.aws.amazon.com/kms/latest/developerguide/key-policy-overview.html" target="_blank" rel="noopener noreferrer">AWS KMS Key Policy Documentation</a></p></div></div></details><details class="collapsible-section"><summary><h2 id="confused-deputy-problem">🕵️ The Confused Deputy Problem &amp; External ID</h2></summary><div class="section-content"><p>This is an advanced but exam-tested concept that arises specifically in third-party cross-account access (SaaS vendor scenarios). The exam combines it with session policy questions in "select two" format.</p><h3 id="what-is-confused-deputy">What is the Confused Deputy Problem?</h3><p>Imagine a SaaS vendor (like a billing analytics platform) that reads data from each customer's AWS account. The vendor assumes a customer-provided IAM role in each customer account.</p><p>The risk: if the vendor's platform gets confused about which customer it's serving — or if a malicious customer passes a different customer's role ARN — the vendor's platform could <strong>access Customer A's data while acting on behalf of Customer B</strong>. The vendor itself becomes the "confused deputy" — it has legitimate permissions in both accounts, but gets tricked into misusing them.</p><div class="diagram-container"><img src="images/iam-confused-deputy.png" loading="lazy" decoding="async" alt="Diagram showing confused deputy attack: a SaaS vendor platform in the center, Customer A's role ARN on the left, Customer B's role ARN on the right — an attacker from Customer B passes Customer A's role ARN to the vendor, which then incorrectly accesses Customer A's data"><p class="diagram-caption"><em>Figure 7: The Confused Deputy attack — Customer B tricks the vendor into accessing Customer A's data</em></p></div><h3 id="external-id-solution">The Solution — External ID in the Trust Policy</h3><p><span class="exam-highlight-sentence">The AWS-documented solution to the Confused Deputy problem is the <span class="exam-highlight-term">STS External ID condition</span> in the role's trust policy.</span></p><p>Here's how it works:</p><ol><li>The <strong>vendor</strong> generates a unique identifier per customer (e.g., a UUID). The vendor owns and controls this value.</li><li>The <strong>customer</strong> adds a condition to their role's trust policy: <code>sts:ExternalId</code> must equal that specific UUID.</li><li>On every AssumeRole call the vendor makes for that customer, it passes the customer's unique External ID.</li><li>Even if a different customer provides the same role ARN, the assumption fails — the External ID doesn't match.</li></ol><div class="success-box"><p>✅ <strong>Why aws:SourceIp doesn't solve this:</strong> An IP restriction limits where calls come from, but all customer assumptions originate from the same vendor platform IP range. Both Customer A and Customer B's roles might trust the vendor's IP range — the vendor could still accidentally assume Customer A's role while processing Customer B. Source IP solves <em>where</em>, not <em>who for</em>. External ID solves <em>which customer</em>.</p></div></div></details><details class="collapsible-section"><summary><h2 id="mfa-condition-keys">🔐 MFA Condition Keys — Present vs Age</h2></summary><div class="section-content"><p>AWS has two IAM policy condition keys involving MFA. They look similar, but they solve completely different problems — and this distinction is directly tested on the SAA-C03 exam.</p><div class="diagram-container"><img src="images/iam-mfa-condition-keys.png" loading="lazy" decoding="async" alt="Side-by-side comparison diagram: left side shows MultiFactorAuthPresent as a boolean that is set true at session start and stays true for the entire session lifetime (illustrated as a timeline with a constant true bar). Right side shows MultiFactorAuthAge as a counter that starts at 0 and increases with time, with a threshold line at 900 seconds — actions below the threshold succeed, actions above fail"><p class="diagram-caption"><em>Figure 8: MultiFactorAuthPresent stays true all session; MultiFactorAuthAge grows with time and enforces freshness</em></p></div><h3 id="multifactorauthpresent">aws:MultiFactorAuthPresent</h3><p><span class="exam-highlight-sentence"><code>aws:MultiFactorAuthPresent</code> is a <span class="exam-highlight-term">Boolean</span> that returns true if the session was authenticated with MFA at any point during the session's lifetime. It is set at session start and <span class="exam-highlight-term">does not change as the session ages</span>.</span></p><p>A session that signed in with MFA six hours ago still has <code>MultiFactorAuthPresent = true</code>.</p><div class="error-box"><p>❌ <strong>Security gap:</strong> MultiFactorAuthPresent does NOT protect against session hijacking. If an attacker steals a session token hours after sign-in, the condition is still true — the attacker has the same access as the legitimate user for the rest of the session.</p></div><h3 id="multifactorauthage">aws:MultiFactorAuthAge</h3><p><span class="exam-highlight-sentence"><code>aws:MultiFactorAuthAge</code> is a <span class="exam-highlight-term">numeric value in seconds</span> measuring the elapsed time since the MFA credential was issued. It increases as the session ages.</span></p><p>You compare it using <code>NumericLessThan</code>. For example: <code>aws:MultiFactorAuthAge: 900</code> means "MFA was performed within the last 15 minutes."</p><div class="success-box"><p>✅ <strong>Session hijacking defense:</strong> MultiFactorAuthAge with a small threshold forces the user to re-authenticate with MFA before performing sensitive operations. A hijacked session will eventually fail this condition as the age exceeds the threshold — blocking destructive actions even in a stolen session.</p></div><h3 id="mfa-production-pattern">Production Architecture Pattern</h3><p>The best practice Chandra described:</p><ul><li><strong>Routine read operations:</strong> Use <code>aws:MultiFactorAuthPresent: true</code> — session-level MFA at sign-in is sufficient. No friction for daily work.</li><li><strong>Destructive operations (delete, modify production):</strong> Use <code>aws:MultiFactorAuthAge</code> with a small threshold (e.g., <code>NumericLessThan: 900</code>) — requires fresh MFA within 15 minutes.</li></ul><div class="highlight-box"><p>⚡ <strong>One line to remember:</strong> "<strong>Present is for the session. Age is for the action.</strong>"</p></div><table><thead><tr><th>Feature</th><th>aws:MultiFactorAuthPresent</th><th>aws:MultiFactorAuthAge</th></tr></thead><tbody><tr><td><strong>Type</strong></td><td>Boolean</td><td>Numeric (seconds)</td></tr><tr><td><strong>Changes over time?</strong></td><td>No — stays true all session</td><td>Yes — increases every second</td></tr><tr><td><strong>Protects against hijacking?</strong></td><td>No</td><td>Yes (with small threshold)</td></tr><tr><td><strong>Use for</strong></td><td>Read-only operations</td><td>Destructive/sensitive operations</td></tr><tr><td><strong>Comparison operator</strong></td><td>Bool: true/false</td><td>NumericLessThan: 900</td></tr><tr><td><strong>Exam trigger phrase</strong></td><td>"MFA somewhere in the session"</td><td>"Fresh MFA", "session hijacking", "last X seconds"</td></tr></tbody></table></div></details><details class="collapsible-section"><summary><h2 id="mfa-mechanisms">📱 AWS MFA Mechanisms</h2></summary><div class="section-content"><p>AWS supports four MFA mechanisms for IAM users and the root user. Each has different operational characteristics and resistance to specific attack patterns — these distinctions appear on the exam.</p><div class="diagram-container"><img src="images/iam-mfa-mechanisms.png" loading="lazy" decoding="async" alt="Four MFA mechanism cards arranged in a grid: Virtual MFA (phone TOTP app icon, labeled not phishing-resistant), Hardware MFA (physical token device icon, labeled tamper-resistant), FIDO Security Key (YubiKey icon, labeled phishing-resistant domain-bound), Passkey (fingerprint icon, labeled phishing-resistant smooth UX) — each with a security rating badge"><p class="diagram-caption"><em>Figure 9: The four AWS MFA mechanisms compared by type, security properties, and weaknesses</em></p></div><h3 id="virtual-mfa">1. Virtual MFA (TOTP App)</h3><p>A time-based one-time password app on a phone (Google Authenticator, Authy, Duo Mobile). Fast to enroll, free, low friction. Weakness: relies on phone security and is <strong>not phishing-resistant</strong>.</p><h3 id="hardware-mfa">2. Hardware MFA Token</h3><p>A physical time-based key device (SafeID, AWS-shipped tokens). No phone dependency, tamper-resistant hardware. Weakness: hardware procurement cost and the same phishing vulnerability as virtual MFA — someone can still present a fake login page to intercept the code.</p><h3 id="fido-security-key">3. FIDO Security Key</h3><p>A hardware key using public key cryptography (Google Titan, YubiKey). <span class="exam-highlight-sentence">FIDO security keys are <span class="exam-highlight-term">phishing-resistant</span> because the credential is cryptographically bound to the original domain — it cannot be replayed against a different domain.</span> Weakness: hardware procurement and user training for the tap-to-authenticate flow.</p><h3 id="passkey">4. Passkey</h3><p>A FIDO2 device-bound or syncable credential (Touch ID, Windows Hello, password manager passkeys). Phishing-resistant, smooth UX. Supported by IAM Identity Center. Weakness: newer pattern, sync model varies by platform, some legacy flows don't support it.</p><div class="success-box"><p>✅ <strong>2026 production recommendation:</strong> Virtual MFA for general engineering staff. FIDO security keys or passkeys for high-privileged identities (root users, security administrators).</p></div><div class="error-box"><p>❌ <strong>SMS MFA was deprecated in 2019.</strong> <span class="exam-highlight-sentence">New SMS MFA configurations <span class="exam-highlight-term">cannot be created</span>. Existing configurations remain functional but AWS enforces migration in new projects.</span></p></div></div></details><details class="collapsible-section"><summary><h2 id="iam-security-stack">🏗️ The Full IAM Security Stack — Four Mechanisms</h2></summary><div class="section-content"><p>Chandra closed Session 6 with a unifying mental model that covers roughly 80% of IAM questions on the exam. Four mechanisms, each with a specific role:</p><div class="diagram-container"><img src="images/iam-security-stack.png" loading="lazy" decoding="async" alt="Layered architecture diagram showing four IAM security mechanism layers stacked vertically: bottom layer Identity-Based Policies labeled floor in orange, second layer Permission Boundaries labeled ceiling in blue, third layer Resource-Based Policies labeled gate in red, top layer Condition Keys labeled contextual gates in green — with icons and use-case descriptions beside each layer"><p class="diagram-caption"><em>Figure 10: The four-layer IAM security stack — floor, ceiling, gate, and contextual gates</em></p></div><table><thead><tr><th>Mechanism</th><th>Role</th><th>Metaphor</th><th>When to Use</th></tr></thead><tbody><tr><td><strong>Identity-based policies</strong></td><td>Floor</td><td>Job description — what the identity can do</td><td>Grant baseline permissions to users/groups/roles</td></tr><tr><td><strong>Permission boundaries</strong></td><td>Ceiling</td><td>Governor on an engine — caps maximum speed</td><td>Delegated admin, limit blast radius when teams write their own policies</td></tr><tr><td><strong>Resource-based policies</strong></td><td>Gate</td><td>Building access list — the resource decides who enters</td><td>Absolute denies, cross-account access without role assumption</td></tr><tr><td><strong>Condition keys</strong></td><td>Contextual gates</td><td>Time-lock or location-aware entry system</td><td>Source IP, MFA presence, MFA age, time of day, request tags, region</td></tr></tbody></table><div class="highlight-box"><p>⚡ <strong>Exam strategy:</strong> When a scenario question describes multiple security requirements, map each requirement to exactly one mechanism. The correct answer is almost always a combination — e.g., "permission boundary for the delegation requirement + session policy for the per-call scoping requirement." If you can identify each requirement → mechanism mapping, "select two" questions become much easier.</p></div></div></details><details class="collapsible-section"><summary><h2 id="knowledge-check-walkthrough">📝 Knowledge Check Walkthrough</h2></summary><div class="section-content"><p>Chandra used two scenario questions in these sessions that demonstrate exactly how the exam structures multi-requirement, multi-mechanism questions. Let's walk through both with the reasoning.</p><h3 id="knowledge-check-1-delegated-admin">Knowledge Check 1 — Delegated Administration Boundary</h3><div class="info-box"><p><strong>Scenario:</strong> A security team manages an AWS account where delegated administrators create IAM users for developers and attach identity-based policies. The security team wants to limit developer permissions to S3, EC2, and DynamoDB only — and ensure delegated admins cannot grant permissions outside the approved set, even by attaching broad managed policies. No manual policy review.</p></div><p><strong>Correct answer: Attach a permission boundary allowing only the approved actions to each developer IAM user.</strong></p><p><strong>Why it works:</strong> Regardless of how broad a policy a junior admin attaches, the boundary caps the result. The security team defines the allowed set once in the boundary, and that ceiling is automatically enforced on every policy attachment.</p><p><strong>Why the other options fail:</strong></p><ul><li><strong>Option B (attach the approved policy as identity policy):</strong> Instructing admins "don't attach broader policies" is not a technical enforcement. A mistake or malicious action can still broaden access.</li><li><strong>Option C (explicit deny for all disallowed actions):</strong> Listing every disallowed AWS action is impractical — there are thousands of AWS actions. A boundary listing only the allowed set is far more maintainable.</li><li><strong>Option D (boundary with explicit denies on approved actions):</strong> This is backwards — it would deny the approved actions. Boundaries must list what IS allowed, not what's denied.</li></ul><h3 id="knowledge-check-2-confused-deputy-plus-scoping">Knowledge Check 2 — Confused Deputy + Per-Call Scoping (Select Two)</h3><div class="info-box"><p><strong>Scenario:</strong> A SaaS vendor reads billing S3 objects from each customer's account. A new enterprise customer requires: (1) vendor's role assumption cannot be tricked into accessing one customer's data while acting for a different customer, and (2) a single role assumption is limited to read access on a specific S3 prefix, even if the role's permission policy is broader.</p></div><p><strong>Correct answers: B and D</strong></p><ul><li><strong>B — STS External ID in the trust policy:</strong> The vendor generates a unique value per customer and passes it on every AssumeRole call. The customer requires this exact value. Even if a different customer passes the same role ARN, the assumption fails — the External ID doesn't match. This solves the Confused Deputy requirement.</li><li><strong>D — Session policy scoped to specific bucket and prefix:</strong> A session policy passed as a parameter to STS:AssumeRole narrows the resulting session's effective permissions to exactly the per-customer S3 prefix, even though the role's permission policy is broader. This solves the per-call scoping requirement.</li></ul><p><strong>Why the other options fail:</strong></p><ul><li><strong>A (aws:SourceIp):</strong> Both customers' roles might trust the vendor's IP range — source IP doesn't identify which customer's call it is.</li><li><strong>C (short duration_seconds):</strong> Limits credential lifetime but does nothing to prevent accessing the wrong customer's data.</li><li><strong>E (permission boundary on the role):</strong> A boundary applies across all assumptions of the role — it cannot be scoped per-customer per-assumption. Session policy is the correct mechanism for per-assumption scoping.</li></ul></div></details><details class="collapsible-section"><summary><h2 id="exam-tips-summary">🎯 SAA-C03 Exam Tips</h2></summary><div class="section-content"><p>These are the patterns Chandra highlighted as the most tested — and most often answered incorrectly — in the SAA-C03 exam.</p><div class="highlight-box"><p>⚡ <strong>Tip 1 — Permission boundary is a positive construct:</strong> It lists what IS allowed (maximum permissions), not what's forbidden. A boundary with only deny statements = empty allowed set = no effective permissions.</p></div><div class="highlight-box"><p>⚡ <strong>Tip 2 — Boundary on the role, not the user:</strong> A user's permission boundary is NOT evaluated during an assumed role session. Always put the cap on the role if you want it to apply to everyone who assumes it.</p></div><div class="highlight-box"><p>⚡ <strong>Tip 3 — Session policy = per-call; boundary = standing:</strong> Session policies apply to one assumption. Boundaries apply to the entity across all sessions. "Select two" questions that combine both often mean: External ID for Confused Deputy + session policy for per-call scoping.</p></div><div class="highlight-box"><p>⚡ <strong>Tip 4 — Explicit deny wins everywhere:</strong> Regardless of policy type (identity, resource, boundary, session, SCP) and regardless of account (same or cross-account), an explicit deny overrides any allow. When an allow doesn't work, find the deny.</p></div><div class="highlight-box"><p>⚡ <strong>Tip 5 — Source vs destination account:</strong> Source = where the call originates (EC2 lives here). Destination = where the resource and role live. The STS:AssumeRole permission is in the source account. The trust policy, bucket policy, and KMS key policy are in the destination account.</p></div><div class="highlight-box"><p>⚡ <strong>Tip 6 — KMS needs two-pronged authorization:</strong> Cross-account KMS access requires BOTH the IAM role policy AND the KMS key policy to permit KMS:Decrypt. Answer options mentioning only one are usually distractors.</p></div><div class="highlight-box"><p>⚡ <strong>Tip 7 — MFA Age vs Present:</strong> "Fresh MFA", "session hijacking", "last X seconds" → aws:MultiFactorAuthAge with NumericLessThan. "MFA somewhere in the session" → aws:MultiFactorAuthPresent.</p></div><div class="highlight-box"><p>⚡ <strong>Tip 8 — SMS MFA was deprecated in 2019</strong> — new configurations cannot be created. If an answer suggests enabling SMS MFA as a new security control, it's wrong.</p></div></div></details><details class="collapsible-section"><summary><h2 id="session-takeaways">📋 Six Key Takeaways (Chandra's Closing List)</h2></summary><div class="section-content"><p>Chandra ended Session 6 with six points he said "cover the IAM exam questions you will encounter." Internalize all six:</p><ol><li><strong>Roles are assumed, not used.</strong> A role has no long-lived credentials. A trusted principal assumes it and receives temporary credentials from STS.</li><li><strong>Workloads get roles.</strong> EC2 via instance profile. Lambda via execution role. AWS managed services via service-linked roles.</li><li><strong>Lambda has two controls.</strong> The execution role says what the function may do. The resource-based policy says who may invoke it. Do not confuse the two.</li><li><strong>Cross-account access is a two-policy handshake.</strong> The caller needs STS:AssumeRole permission. The role needs a trust policy naming the caller. Both are required.</li><li><strong>Boundaries cap, session policies scope.</strong> A permission boundary is a standing ceiling on an entity. A session policy narrows one assumption. Both work by intersection of allows.</li><li><strong>Cap the role, not the assuming user.</strong> The role session runs with the role's policies and the role's boundary — not the assumer's. External ID in the trust policy stops the Confused Deputy.</li></ol></div></details><details class="collapsible-section"><summary><h2 id="overall-summary">📝 Overall Summary</h2></summary><div class="section-content"><ul><li><strong>Permission boundaries:</strong> A ceiling attached to an IAM entity (user/role). Lists maximum allowed actions (positive construct). Effective permissions = intersection of identity policy and boundary. Never grants anything on its own.</li><li><strong>Session policies:</strong> Passed as a parameter to STS:AssumeRole. Applies to one session only. Can only narrow, never widen beyond what the role allows. Effective permissions = intersection of role policy and session policy.</li><li><strong>Critical distinction:</strong> Boundary = durable standing cap on entity across all sessions. Session policy = per-call scope for one assumption only.</li><li><strong>Role assumption drops the caller's policies:</strong> When a principal assumes a role, the caller's identity policies and permission boundaries are set aside. Only the role's own policies and boundary govern the session.</li><li><strong>Design rule:</strong> To cap what anyone gains by assuming a role, put the boundary on the role — not on the assuming user.</li><li><strong>Cross-account two-policy handshake:</strong> STS:AssumeRole permission in the source account + trust policy naming the caller in the destination account. Both required.</li><li><strong>Source account</strong> = where the call originates. <strong>Destination account</strong> = where the role and resource live.</li><li><strong>KMS two-pronged authorization:</strong> Cross-account KMS-encrypted resource access requires BOTH the IAM role policy AND the KMS key policy to independently permit KMS:Decrypt.</li><li><strong>Confused Deputy prevention:</strong> Use STS External ID in the trust policy — a unique per-customer value the vendor passes on every AssumeRole call.</li><li><strong>aws:MultiFactorAuthPresent</strong> = Boolean, set at session start, true all session, not phishing/hijack resistant. Use for read-only operations.</li><li><strong>aws:MultiFactorAuthAge</strong> = Numeric seconds since MFA, increases over time. Use NumericLessThan: 900 for fresh MFA on destructive operations. Defends against session hijacking.</li><li><strong>Explicit deny wins everywhere:</strong> In any policy type, same or cross-account — explicit deny overrides any allow. The IAM evaluation rule is invariant.</li></ul></div></details><details class="collapsible-section"><summary><h2 id="glossary">📖 Glossary</h2></summary><div class="section-content"><div id="glossaryContainer" data-glossary-source="json/glossary.json"></div></div></details><details class="collapsible-section"><summary><h2 id="interview-questions">🎤 Interview Questions</h2></summary><div class="section-content"><p class="interview-intro">📚 Test your understanding with these questions covering fundamentals, scenario application, and architecture design.</p><div class="interview-progress"><p id="interviewProgress">Progress: 0/25 (0%)</p></div><div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn" id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1 / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn" id="nextInterviewBtn">Next →</button></div><div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json"></div><div class="quiz-reset-container"><button onclick="resetInterviewProgress()" class="quiz-reset-btn">🔄 Reset Progress</button></div></div></details><details class="collapsible-section"><summary><h2 id="multiple-choice-questions">📝 Multiple Choice Questions</h2></summary><div class="section-content"><div class="quiz-header-info"><p>📝 30 SAA-C03 style questions — from foundational to advanced scenario-based.</p></div><div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn" id="prevBtn">← Previous</button><div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button></div><div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div><div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊 View Summary</button><div class="quiz-reset-container"><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄 Reset All</button></div></div></div></details><details class="collapsible-section"><summary><h2 id="hands-on-projects">💼 Hands-On Projects</h2></summary><div class="section-content"><div class="prerequisites-box"><h4>📋 Prerequisites</h4><ul><li>✅ AWS account with IAM admin access</li><li>✅ Understanding of IAM users, roles, and identity-based policies</li><li>✅ Basic familiarity with the AWS Console and AWS CLI</li></ul></div><details class="collapsible-section"><summary><h3 id="project-1-permission-boundary">Project 1: Implement a Permission Boundary for Delegated Administration</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Create a permission boundary that limits a developer user to S3 read-only, then verify a junior admin cannot grant broader permissions by attaching a wider policy.</p><p><strong>⏱️ Time:</strong> 30–45 min</p><p><strong>💰 Cost:</strong> Free tier eligible</p></div><ol><li><p>Sign in to the AWS Console and navigate to <strong>IAM → Policies</strong>. Click <strong>Create policy</strong>. Use the JSON editor to create a boundary policy allowing only <code>s3:GetObject</code> and <code>s3:ListBucket</code> on all resources. Name it <code>DeveloperPermissionBoundary</code>.</p><div class="diagram-container"><img src="images/screenshot-create-boundary-policy.png" loading="lazy" decoding="async" alt="Screenshot of the IAM Create Policy JSON editor showing the boundary policy with Effect Allow and S3 GetObject and ListBucket actions"><p class="diagram-caption"><em>📸 Screenshot: IAM Policy JSON editor with boundary policy — verify both S3 actions are listed under Allow</em></p></div></li><li><p>Navigate to <strong>IAM → Users → Create user</strong>. Name the user <code>developer-test</code>. On the permissions step, <strong>do not attach any policies yet</strong>. Click through to create.</p></li><li><p>Open the <code>developer-test</code> user. Under <strong>Permissions boundary</strong>, click <strong>Set boundary</strong>. Select <code>DeveloperPermissionBoundary</code> and confirm.</p><div class="diagram-container"><img src="images/screenshot-set-permission-boundary.png" loading="lazy" decoding="async" alt="Screenshot of the IAM user permissions boundary panel showing the Set boundary button and the DeveloperPermissionBoundary policy selected"><p class="diagram-caption"><em>📸 Screenshot: Setting the permission boundary on the developer-test user</em></p></div></li><li><p>Now attach <code>AdministratorAccess</code> managed policy to <code>developer-test</code>. (This simulates a junior admin over-granting access.)</p></li><li><p>Test by switching to the <code>developer-test</code> credentials and attempting to call <code>ec2:DescribeInstances</code> — it should fail, because EC2 is outside the boundary. Then call <code>s3:ListBuckets</code> — it should succeed.</p></li><li><p><strong>Cleanup:</strong> Delete the <code>developer-test</code> user and the <code>DeveloperPermissionBoundary</code> policy.</p></li></ol></div></details><details class="collapsible-section"><summary><h3 id="project-2-cross-account-role">Project 2: Cross-Account Role Assumption with STS (Simulated in One Account)</h3></summary><div class="section-content"><div class="info-box"><p><strong>🎯 Objective:</strong> Simulate cross-account role assumption using two IAM users in the same account — one as the "source" caller and one representing the "destination" role. Verify the two-policy handshake.</p><p><strong>⏱️ Time:</strong> 30–45 min</p><p><strong>💰 Cost:</strong> Free tier eligible</p></div><ol><li><p>Create an IAM role named <code>CrossAccountSimRole</code>. In the trust policy, set the trusted principal to your AWS account ID (simulating Account B trusting Account A's structure). Attach a permission policy granting <code>s3:ListBuckets</code> only.</p><div class="diagram-container"><img src="images/screenshot-create-cross-account-role.png" loading="lazy" decoding="async" alt="Screenshot of the IAM Create Role trust policy editor showing the trusted principal set to the current account ID with STS AssumeRole action"><p class="diagram-caption"><em>📸 Screenshot: Trust policy editor — verify the Principal is your account ID and action is sts:AssumeRole</em></p></div></li><li><p>Create an IAM user named <code>source-caller</code> with no permissions initially. Generate access keys.</p></li><li><p>Try calling <code>sts:AssumeRole</code> for <code>CrossAccountSimRole</code> using the AWS CLI with <code>source-caller</code> credentials. It should fail with Access Denied — the user has no <code>sts:AssumeRole</code> permission yet.</p></li><li><p>Attach an inline policy to <code>source-caller</code> granting <code>sts:AssumeRole</code> on the role ARN. Try again — it should now succeed and return temporary credentials.</p></li><li><p>Use the temporary credentials to call <code>s3:ListBuckets</code> — it should succeed. Try <code>s3:PutObject</code> — it should fail (not in the role's permission policy). This demonstrates the handshake and role-governed session.</p><div class="diagram-container"><img src="images/screenshot-assume-role-credentials.png" loading="lazy" decoding="async" alt="Screenshot of terminal output showing the AWS CLI sts assume-role command returning AccessKeyId, SecretAccessKey, and SessionToken temporary credentials"><p class="diagram-caption"><em>📸 Screenshot: STS assume-role returns AccessKeyId, SecretAccessKey, and SessionToken</em></p></div></li><li><p><strong>Cleanup:</strong> Delete <code>source-caller</code> user, delete <code>CrossAccountSimRole</code> role.</p></li></ol></div></details></div></details><details class="collapsible-section"><summary><h2 id="learning-checklist">☑️ Learning Checklist</h2></summary><div class="section-content"><div class="checklist-progress"><p>Progress: <span id="checklistProgress">0/25</span></p><div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%;">0%</div></div></div><div id="checklistContainer" data-checklist-source="json/checklist.json"></div><div class="quiz-reset-container"><button onclick="resetChecklist()" class="quiz-reset-btn">🔄 Reset Checklist</button></div></div></details><details class="collapsible-section"><summary><h2 id="reflection-questions">🤔 Reflection Questions</h2></summary><div class="section-content"><div class="question-block"><h4>1. You want junior admins to create policies for developers but guarantee developers can never exceed an approved set. Why does putting the boundary on the developer user work — and does it still work if the developer later assumes a role?</h4><details class="hint-details"><summary class="hint-summary">💡 Hint</summary><div class="hint-content"><p>Think about what gets evaluated during a direct user action vs. during an assumed role session. Where should the boundary live to be effective in both cases?</p></div></details></div><div class="question-block"><h4>2. A SaaS vendor's platform is trusted by 50 customers. Each customer has a role with the same trust policy allowing the vendor. How does External ID prevent Customer B from accidentally (or maliciously) triggering access to Customer A's data?</h4><details class="hint-details"><summary class="hint-summary">💡 Hint</summary><div class="hint-content"><p>Consider what unique information is included in each customer's trust policy, and what the vendor must pass on every AssumeRole call for each specific customer.</p></div></details></div><div class="question-block"><h4>3. A security alert fires: a production S3 deletion happened 6 hours after a user's MFA sign-in. Your policy uses aws:MultiFactorAuthPresent. How would switching to aws:MultiFactorAuthAge have prevented this?</h4><details class="hint-details"><summary class="hint-summary">💡 Hint</summary><div class="hint-content"><p>Think about what MultiFactorAuthPresent's value is 6 hours after sign-in vs. what MultiFactorAuthAge's value would be, and which comparator you'd use for a 15-minute freshness window.</p></div></details></div><div class="question-block"><h4>4. You're designing a KMS-encrypted S3 cross-account access pattern. A colleague says "I've added KMS:Decrypt to the IAM role policy, so we're done." What critical step did they miss, and why does AWS require it?</h4><details class="hint-details"><summary class="hint-summary">💡 Hint</summary><div class="hint-content"><p>KMS uses two separate authorization checks — one on the identity side and one on the resource side. Both must independently permit the action.</p></div></details></div><div class="question-block"><h4>5. In a cross-account scenario, you keep getting confused about which account is the source and which is the destination. What's the rule, and why does it matter for where you put the STS:AssumeRole permission vs the trust policy?</h4><details class="hint-details"><summary class="hint-summary">💡 Hint</summary><div class="hint-content"><p>Source = where the call originates. Destination = where the resource and role live. Each policy lives on the side where it makes sense — the caller needs permission to call, the role needs to declare who it trusts.</p></div></details></div><div class="question-block"><h4>6. What is the mental model for when to use a permission boundary vs a session policy? Give a concrete real-world example for each.</h4><details class="hint-details"><summary class="hint-summary">💡 Hint</summary><div class="hint-content"><p>Think about whether the control needs to be permanent across all sessions (standing ceiling) or needs to vary per call (per-assumption narrowing). SaaS per-customer scoping vs delegated admin ceiling.</p></div></details></div></div></details><details class="collapsible-section"><summary><h2 id="links-references">🔗 Links &amp; References</h2></summary><div class="section-content"><h3 id="official-aws-docs">📚 Official AWS Documentation</h3><table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody><tr><td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html" target="_blank" rel="noopener noreferrer">IAM Permission Boundaries</a></td><td>Official permission boundary documentation with examples</td></tr><tr><td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html" target="_blank" rel="noopener noreferrer">IAM Policy Evaluation Logic</a></td><td>Complete three-step evaluation with all policy types</td></tr><tr><td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html" target="_blank" rel="noopener noreferrer">External ID — Confused Deputy</a></td><td>How to use External ID to prevent the Confused Deputy problem</td></tr><tr><td><a href="https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html" target="_blank" rel="noopener noreferrer">STS AssumeRole API</a></td><td>AssumeRole parameters including session policy and duration</td></tr><tr><td><a href="https://docs.aws.amazon.com/kms/latest/developerguide/key-policy-overview.html" target="_blank" rel="noopener noreferrer">KMS Key Policies</a></td><td>How KMS key policies interact with IAM policies for authorization</td></tr><tr><td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html" target="_blank" rel="noopener noreferrer">IAM Condition Keys</a></td><td>All IAM global condition keys including MFA keys</td></tr><tr><td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa.html" target="_blank" rel="noopener noreferrer">AWS MFA Documentation</a></td><td>Supported MFA types and configuration guidance</td></tr></tbody></table><h3 id="recommended-reading">🎓 Recommended Reading</h3><table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody><tr><td><a href="https://aws.amazon.com/blogs/security/how-to-use-trust-policies-with-iam-roles/" target="_blank" rel="noopener noreferrer">AWS Blog: Trust Policies with IAM Roles</a></td><td>Deep dive on trust policy design and cross-account patterns</td></tr><tr><td><a href="https://aws.amazon.com/blogs/security/confused-deputy-prevention-across-aws-services/" target="_blank" rel="noopener noreferrer">AWS Blog: Confused Deputy Prevention</a></td><td>Practical guidance on using External ID in SaaS integrations</td></tr><tr><td><a href="https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/identity-and-access-management.html" target="_blank" rel="noopener noreferrer">Well-Architected Security Pillar — IAM</a></td><td>AWS best practices for IAM in well-architected systems</td></tr></tbody></table><h3 id="additional-resources">🔧 Additional Resources</h3><table><thead><tr><th>Resource</th><th>Description</th></tr></thead><tbody><tr><td><a href="https://policysim.aws.amazon.com/" target="_blank" rel="noopener noreferrer">IAM Policy Simulator</a></td><td>Test and debug IAM policies interactively</td></tr><tr><td><a href="https://aws.amazon.com/iam/features/analyze-access/" target="_blank" rel="noopener noreferrer">IAM Access Analyzer</a></td><td>Identify unintended cross-account access and policy gaps</td></tr></tbody></table></div></details></div><div class="tags"><span class="tag">AWS</span><span class="tag">IAM</span><span class="tag">Permission Boundary</span><span class="tag">Session Policy</span><span class="tag">STS</span><span class="tag">Cross-Account</span><span class="tag">MFA</span><span class="tag">SAA-C03</span></div></div><script defer src="../../../js/notes-page.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Deep-dive SAA-C03 notes on IAM Permission Boundaries, Session Policies, Cross-Account Access (STS AssumeRole), and MFA Condition Keys. Sessions May 25 & June 8, 2026.">
+    <meta name="keywords"
+        content="AWS, IAM, Permission Boundary, Session Policy, STS, AssumeRole, Cross-Account, MFA, SAA-C03, certification">
+    <meta property="og:title"
+        content="IAM Advanced — Permission Boundaries, Session Policies & Cross-Account Access - AWS Training">
+    <meta property="og:description"
+        content="Deep-dive SAA-C03 notes on IAM Permission Boundaries, Session Policies, Cross-Account Access (STS AssumeRole), and MFA Condition Keys.">
+    <meta property="og:type" content="article">
+    <meta property="og:url"
+        content="https://namrata2709.github.io/Resources/data/notes/iam-advanced/iam-advanced-complete.html">
+    <meta property="og:image"
+        content="https://namrata2709.github.io/Resources/data/notes/iam-advanced/images/iam-advanced-overview.png">
+    <link rel="canonical"
+        href="https://namrata2709.github.io/Resources/data/notes/iam-advanced/iam-advanced-complete.html">
+    <title>IAM Advanced — Permission Boundaries, Session Policies & Cross-Account - AWS Training</title>
+    <link rel="stylesheet" href="../../../css/styles.css">
+    <link rel="stylesheet" href="../../../css/notes-template.css">
+    <script src="../../../js/theme.js"></script>
+</head>
+
+<body class="complete-notes">
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"IAM Advanced — Permission Boundaries, Session Policies, Cross-Account Access & MFA Condition Keys","description":"Deep-dive SAA-C03 notes on IAM Permission Boundaries, Session Policies, Cross-Account Access (STS AssumeRole), and MFA Condition Keys. Sessions May 25 & June 8, 2026.","author":{"@type":"Person","name":"Namrata Mulwani","email":"awslecturenotes@gmail.com"},"datePublished":"2026-06-14","dateModified":"2026-06-14","publisher":{"@type":"Person","name":"Namrata Mulwani"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://namrata2709.github.io/Resources/data/notes/iam-advanced/iam-advanced-complete.html"},"image":"https://namrata2709.github.io/Resources/data/notes/iam-advanced/images/iam-advanced-overview.png","articleSection":"AWS Training","keywords":["AWS","IAM","Permission Boundary","Session Policy","STS","Cross-Account","MFA","SAA-C03"],"educationalLevel":"Intermediate"}</script>
+    <div class="note-container">
+        <div class="note-header">
+            <h1>IAM Advanced — Permission Boundaries, Session Policies, Cross-Account Access &amp; MFA Condition Keys
+            </h1>
+            <p class="note-date">📅 May 25, 2026 &amp; June 8, 2026</p>
+            <div class="version-info">
+                <p><strong>Version:</strong> 1.0</p>
+                <p><strong>Last Updated:</strong> June 14, 2026</p>
+                <p><strong>Status:</strong> ✅ Current</p>
+            </div>
+        </div>
+        <div class="success-box">
+                <p>🎓 <strong>Lecture by:</strong> <a href="https://www.linkedin.com/in/chandra-dunn" target="_blank"
+                        rel="noopener noreferrer">Chandra Dunn</a><br>💬 <strong>Session:</strong> <a
+                        href="https://awsskillbuild-wb84118.slack.com/archives/C0APY09FW1J/p1777438331264969"
+                        target="_blank" rel="noopener noreferrer">View Slack session details →</a></p>
+            </div>
+        <div class="note-content">
+            
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="introduction">📖 Introduction</h2>
+                </summary>
+                <div class="section-content">
+                    <p>If IAM were a building, identity-based policies are your keycard — they say what you're allowed
+                        to do. But what stops a junior admin from accidentally giving someone <em>too much</em> access?
+                        What stops a shared vendor from peeking at the wrong customer's files? And how do you make sure
+                        that even if someone steals your login session, they can't delete your production database?</p>
+                    <p>Those are exactly the problems this session solves. We're covering the advanced layer of IAM —
+                        the mechanisms that sit <em>above</em> ordinary identity policies and enforce hard limits,
+                        scoped assumptions, and real-time security decisions.</p>
+                    <div class="diagram-container"><img src="images/iam-advanced-overview.png" decoding="async"
+                            alt="Overview diagram showing the four IAM security mechanism layers: identity-based policies as the floor, permission boundaries as the ceiling, resource-based policies as the gate, and condition keys as contextual filters">
+                        <p class="diagram-caption"><em>Figure 1: The four IAM security mechanisms and their roles in the
+                                overall authorization stack</em></p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>What you'll master in these two sessions:</strong></p>
+                        <ul>
+                            <li>Permission boundaries — the ceiling that caps what any identity can ever do</li>
+                            <li>Session policies — the per-call scope you pass directly at role assumption time</li>
+                            <li>Cross-account access — the two-policy handshake between source and destination accounts
+                            </li>
+                            <li>MFA condition keys — the difference between session-level MFA and fresh-MFA enforcement
+                            </li>
+                        </ul>
+                    </div>
+                    <p>These topics map directly to the SAA-C03 domain <strong>Security</strong> (statement 1.1:
+                        Authentication and Authorization) and appear in some of the hardest multi-select scenario
+                        questions on the exam. Get these right and you're set for a significant portion of security
+                        questions.</p>
+                    <div class="info-box">
+                        <p><strong>📋 Prerequisites from earlier sessions:</strong></p>
+                        <ul>
+                            <li>IAM users, groups, and roles — how they differ</li>
+                            <li>Identity-based policies and policy structure (Effect, Action, Resource, Condition)</li>
+                            <li>STS (Security Token Service) — how it issues temporary credentials</li>
+                            <li>The concept of role assumption — what it means to "assume" a role</li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="quick-recap-iam-evaluation">🔁 Quick Recap — How IAM Makes Decisions</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Before diving into permission boundaries and session policies, it's critical to lock in the rule
+                        that underlies every IAM decision. Chandra called this "one of the few things you just have to
+                        memorize" — and for good reason. Every scenario question on the exam reduces to applying this
+                        rule correctly.</p>
+                    <div class="diagram-container"><img src="images/iam-evaluation-flow.png" decoding="async"
+                            alt="Three-step IAM authorization evaluation flowchart: Step 1 Explicit Deny check, Step 2 Explicit Allow check, Step 3 Implicit Deny default — with arrows showing the evaluation stops at Explicit Deny">
+                        <p class="diagram-caption"><em>Figure 2: IAM's three-step authorization evaluation — the
+                                invariant rule that applies everywhere</em></p>
+                    </div>
+                    <p><span class="exam-highlight-sentence">Every IAM authorization decision follows the same <span
+                                class="exam-highlight-term">three-step evaluation</span>, regardless of which AWS
+                            service or how many policies are applied.</span></p>
+                    <ol>
+                        <li><strong>Explicit Deny:</strong> <span class="exam-highlight-sentence">If any evaluated
+                                policy contains an <span class="exam-highlight-term">explicit deny</span>, the request
+                                is denied immediately and evaluation stops. No allow, no condition, no other
+                                consideration can override an explicit deny.</span></li>
+                        <li><strong>Explicit Allow:</strong> If an explicit allow exists and no deny overrides it, the
+                            request is allowed.</li>
+                        <li><strong>Implicit Deny:</strong> <span class="exam-highlight-sentence">If neither an explicit
+                                deny nor an explicit allow applies, the request is <span
+                                    class="exam-highlight-term">denied by default</span>. AWS is deny-by-default — the
+                                absence of a permission means no permission.</span></li>
+                    </ol>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>The sentence to memorize:</strong> <em>"Explicit deny wins. Explicit allow grants.
+                                Implicit deny is the default."</em></p>
+                    </div>
+                    <p>This rule is invariant. It applies to identity-based vs resource-based policy combinations,
+                        permission boundaries, service control policies, session policies, and cross-account evaluation.
+                        When an allow doesn't work during debugging, <strong>look for the explicit deny</strong> — it's
+                        always in one of the evaluated policies.</p>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="permission-boundaries">🔒 Permission Boundaries — The Standing Ceiling</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Permission boundaries are, as Chandra put it, "one of the most misunderstood features in IAM." So
+                        let's be precise.</p>
+                    <h3 id="what-a-boundary-does-and-doesnt-do">What a Boundary Does (and Doesn't Do)</h3>
+                    <p><span class="exam-highlight-sentence">A permission boundary <span
+                                class="exam-highlight-term">grants nothing</span>. It defines the maximum — the ceiling
+                            — of what an identity-based policy is allowed to grant to a user or role.</span></p>
+                    <p>Think of it like a governor on a car engine. The engine (identity policy) might be capable of 200
+                        mph. But the governor (boundary) limits it to 80 mph, no matter what. The governor doesn't make
+                        the car go — it just caps how fast it can go.</p>
+                    <div class="diagram-container"><img src="images/iam-permission-boundary-intersection.png"
+                            loading="lazy" decoding="async"
+                            alt="Venn diagram showing two overlapping circles: left circle labeled Identity Policy with all allowed actions, right circle labeled Permission Boundary with allowed ceiling, the intersection in the middle labeled Effective Permissions — what the principal can actually do">
+                        <p class="diagram-caption"><em>Figure 3: Effective permissions = intersection of identity policy
+                                and permission boundary</em></p>
+                    </div>
+                    <h3 id="how-it-resolves-intersection">How It Resolves — Intersection</h3>
+                    <p><span class="exam-highlight-sentence">Effective permissions are the <span
+                                class="exam-highlight-term">intersection</span> of the identity-based policy and the
+                            permission boundary — only actions that both allow at the same time.</span></p>
+                    <ul>
+                        <li>Identity policy grants 10 actions + boundary allows 3 of them → principal gets <strong>3
+                                actions</strong></li>
+                        <li>Identity policy grants AdministratorAccess + boundary allows only Amazon S3 → principal can
+                            do <strong>S3 only</strong></li>
+                        <li>Boundary has only Deny statements → <span class="exam-highlight-sentence">the allowed set in
+                                the boundary is <span class="exam-highlight-term">empty</span>, so the intersection
+                                collapses to nothing — the principal can do essentially nothing regardless of the
+                                identity policy</span></li>
+                    </ul>
+                    <div class="error-box">
+                        <p>❌ <strong>Common trap:</strong> Adding Deny statements to a permission boundary. A boundary
+                            works by intersection of <em>allows</em>. If you only put denies in the boundary, there's
+                            nothing in the allowed set — the intersection with any identity policy is empty. To use a
+                            boundary correctly, put the <strong>allowed actions</strong> in it.</p>
+                    </div>
+                    <h3 id="the-delegated-administration-pattern">The Delegated Administration Pattern</h3>
+                    <p>Here's the real reason permission boundaries exist. Imagine you want junior administrators to be
+                        able to attach policies to developer users — but you want to guarantee that those developers can
+                        never gain access to things outside an approved set.</p>
+                    <p>You attach a permission boundary with the approved actions to each developer IAM user. Now it
+                        doesn't matter how broad a policy the junior admin attaches. The boundary caps the result
+                        automatically — and the security team doesn't need to review each policy attachment by hand.</p>
+                    <div class="success-box">
+                        <p>✅ <strong>Exam tip from Chandra:</strong> "A permission boundary is an advanced IAM feature
+                            that sets the maximum permissions an identity-based policy can grant to an IAM user or role.
+                            Any action outside the boundary is implicitly denied no matter what an attached policy
+                            grants. The security team does not have to review each attachment because the boundary
+                            enforces the ceiling automatically."</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="session-policies">⏱️ Session Policies — The Per-Call Scope</h2>
+                </summary>
+                <div class="section-content">
+                    <p>If permission boundaries are the standing ceiling on an entity, session policies are the
+                        temporary scope you apply to just one specific role assumption. These two are so often confused
+                        that Chandra called "keeping the two apart worth real exam points."</p>
+                    <h3 id="how-session-policies-work">How Session Policies Work</h3>
+                    <p><span class="exam-highlight-sentence">A session policy is a policy you pass as a <span
+                                class="exam-highlight-term">parameter</span> at the moment you call <span
+                                class="exam-highlight-term">STS:AssumeRole</span>. It applies to that single session
+                            only — the role itself is unchanged.</span></p>
+                    <p>Everyone else who assumes the same role is unaffected. You've simply narrowed this one
+                        assumption.</p>
+                    <div class="diagram-container"><img src="images/iam-session-policy-flow.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing two separate AssumeRole calls to the same role: Call 1 with a session policy narrows to read-only permissions shown as a smaller intersection, Call 2 without session policy gets the full role permissions — illustrating per-call scoping">
+                        <p class="diagram-caption"><em>Figure 4: Session policies narrow one assumption — the role's
+                                permissions are unchanged for other callers</em></p>
+                    </div>
+                    <h3 id="session-policy-resolution">Resolution — Intersection Again</h3>
+                    <p><span class="exam-highlight-sentence">The effective permissions of the session are the <span
+                                class="exam-highlight-term">intersection of the role's permission policy and the session
+                                policy</span> you pass.</span></p>
+                    <p><span class="exam-highlight-sentence">A hard rule: <span class="exam-highlight-term">a session
+                                policy can only narrow, never widen</span>. You cannot use a session policy to grant
+                            more than the role already allows.</span></p>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Example:</strong> Role permits <strong>S3:GetObject</strong> and
+                            <strong>S3:PutObject</strong>. Session policy permits <strong>S3:GetObject</strong> and
+                            <strong>S3:DeleteObject</strong>. The session can only do <strong>S3:GetObject</strong> —
+                            the only action both allow.</p>
+                    </div>
+                    <h3 id="boundary-vs-session-policy-comparison">Boundary vs Session Policy — The Clean Division</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Permission Boundary</th>
+                                <th>Session Policy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Where it lives</strong></td>
+                                <td>Attached to an entity (user or role)</td>
+                                <td>Passed as parameter at AssumeRole time</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Duration</strong></td>
+                                <td>Permanent — applies across all sessions</td>
+                                <td>One session only</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Affects whom</strong></td>
+                                <td>Every session of that entity</td>
+                                <td>Only the caller who passes it</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use case</strong></td>
+                                <td>Delegated admin ceiling, standing cap</td>
+                                <td>SaaS per-customer scoping, per-call narrowing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Resolution</strong></td>
+                                <td>Intersection of allows</td>
+                                <td>Intersection of allows</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="success-box">
+                        <p>✅ <strong>Decision rule:</strong> Use a <strong>session policy</strong> when you want to
+                            scope one specific assumption at the moment you make it. Use a <strong>permission
+                                boundary</strong> when you want a durable cap on an entity across everything it does in
+                            the system.</p>
+                    </div>
+                    <div class="error-box">
+                        <p>❌ <strong>Remember:</strong> An explicit deny in any policy — the identity policy, the
+                            resource policy, the boundary, or the session policy — still wins outright. Both session
+                            policies and permission boundaries work by intersection of <em>allows</em>. A deny anywhere
+                            in the picture overrides all of them.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="role-assumption-mechanics">🔄 Role Assumption — The Most-Missed IAM Fact</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Chandra called this "the most important and most frequently missed fact about role assumption."
+                        It has a direct and surprising consequence for how you design permission boundaries — and the
+                        exam loves to test it.</p>
+                    <h3 id="what-drops-at-assumption-time">What Drops at Assumption Time</h3>
+                    <p><span class="exam-highlight-sentence">When a principal assumes a role, the <span
+                                class="exam-highlight-term">principal's own identity policies and permission boundaries
+                                are not evaluated</span> for the session — they are set aside entirely.</span></p>
+                    <p>The session runs with <strong>the role's permission policy</strong> and <strong>the role's own
+                            permission boundary</strong> only.</p>
+                    <div class="diagram-container"><img src="images/iam-role-assumption-drop.png" loading="lazy"
+                            decoding="async"
+                            alt="Two-stage diagram: Stage 1 shows a principal in Account B with identity policy and permission boundary attached. Stage 2 shows the assumed role session in Account A — the principal's policies are marked with X as dropped, and only the role's own policy and boundary govern the session">
+                        <p class="diagram-caption"><em>Figure 5: The caller's policies are dropped at assumption time —
+                                only the role's policies govern the session</em></p>
+                    </div>
+                    <h3 id="three-step-design-rule">The Three-Step Design Rule</h3>
+                    <ol>
+                        <li><strong>User policies drop away</strong> when the AssumeRole call succeeds. The identity
+                            policies and boundary on the calling principal stop mattering for the session.</li>
+                        <li><strong>The role's policies govern.</strong> The session is authorized by the role's
+                            permission policy and the role's own boundary (or a session policy passed at assume time).
+                        </li>
+                        <li><strong>Design rule:</strong> <span class="exam-highlight-sentence">To limit what anyone
+                                gains by assuming a role, <span class="exam-highlight-term">put the boundary on the
+                                    role</span>, not on the assuming user.</span></li>
+                    </ol>
+                    <div class="error-box">
+                        <p>❌ <strong>The classic trap:</strong> Imagine you let developers assume a read-only analyst
+                            role. You try to cap them by putting a permission boundary on each developer user. Once they
+                            assume the role, the user's boundary is <strong>not evaluated</strong> — they get the role's
+                            full permissions. The correct control is a <strong>boundary on the role</strong>, which caps
+                            every session regardless of who assumes it.</p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Cross-account note:</strong> A permission boundary you put on a user in Account B
+                            does not follow that user into an assumed role session in Account A. It limits only what the
+                            user does directly with its own identity in Account B. This was hammered throughout both
+                            sessions — the policies and boundaries of the caller exist only in their own account and
+                            their own context.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="cross-account-access">🌐 Cross-Account Access — The Two-Policy Handshake</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Cross-account access is one of the most frequently tested patterns on the SAA-C03 exam, and one
+                        of the most commonly answered incorrectly under time pressure. Chandra spent significant time on
+                        this across both sessions — including a live exercise to identify source vs destination account.
+                    </p>
+                    <h3 id="the-cross-account-scenario">The Classic Scenario</h3>
+                    <p>A company has two AWS accounts. EC2 instances in <strong>Account B</strong> need to access
+                        encrypted videos stored in an S3 bucket in <strong>Account A</strong>. The S3 bucket is
+                        encrypted with a customer-managed KMS key also in Account A.</p>
+                    <div class="diagram-container"><img src="images/iam-cross-account-architecture.png" loading="lazy"
+                            decoding="async"
+                            alt="Architecture diagram showing two AWS accounts side by side: Account B on the left contains an EC2 instance with an instance profile, connected by an arrow labeled STS AssumeRole to Account A on the right, which contains an IAM role with trust policy, an S3 bucket with encrypted videos, and a KMS key — arrows show the role's permission policy allowing S3 GetObject and KMS Decrypt">
+                        <p class="diagram-caption"><em>Figure 6: Cross-account architecture — EC2 in Account B assumes a
+                                role in Account A to access KMS-encrypted S3 objects</em></p>
+                    </div>
+                    <h3 id="the-two-policy-handshake">The Two-Policy Handshake</h3>
+                    <p><span class="exam-highlight-sentence">Cross-account access requires <span
+                                class="exam-highlight-term">both policies simultaneously</span>: the caller in the
+                            source account must have STS:AssumeRole permission, AND the role in the destination account
+                            must have a trust policy that names the caller.</span></p>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Source vs Destination — get this right every time:</strong></p>
+                        <ul>
+                            <li><strong>Source account</strong> = where the <em>call originates</em> = <strong>Account
+                                    B</strong> (EC2 is here)</li>
+                            <li><strong>Destination account</strong> = where the <em>resource and role live</em> =
+                                <strong>Account A</strong> (S3 and KMS are here)</li>
+                        </ul>
+                        <p>The trust policy lives in the <strong>destination</strong> account. The STS:AssumeRole
+                            permission lives in the <strong>source</strong> account. This is "one of those things you
+                            get wrong under exam pressure" — get it into your head now.</p>
+                    </div>
+                    <h3 id="cross-account-step-by-step">Step by Step</h3>
+                    <ol>
+                        <li><strong>Account A (destination):</strong> Create an IAM role with a trust policy allowing
+                            Account B to assume it. Attach a permission policy allowing <code>s3:GetObject</code> on the
+                            bucket and <code>kms:Decrypt</code> on the KMS key. Update the KMS key policy to
+                            independently allow the role to perform <code>kms:Decrypt</code>.</li>
+                        <li><strong>Account B (source):</strong> Attach an instance profile to EC2 that allows
+                            <code>sts:AssumeRole</code> on Account A's role.</li>
+                        <li><strong>At runtime:</strong> EC2 calls STS AssumeRole → STS issues temporary credentials →
+                            EC2 uses them to call <code>s3:GetObject</code> and <code>kms:Decrypt</code>.</li>
+                        <li><strong>From IAM's perspective:</strong> <span class="exam-highlight-sentence">Once the role
+                                is assumed, the session is treated as a <span class="exam-highlight-term">same-account
+                                    call</span> by the assumed role identity in Account A. The cross-account aspect is
+                                resolved at assumption time.</span></li>
+                    </ol>
+                    <h3 id="kms-two-pronged-authorization">KMS Two-Pronged Authorization</h3>
+                    <p>This is one of the highest-frequency exam patterns and highest-error production patterns. When
+                        you access a KMS-encrypted resource cross-account:</p>
+                    <p><span class="exam-highlight-sentence"><span class="exam-highlight-term">Both the IAM role's
+                                permission policy AND the KMS key's resource policy</span> must independently permit
+                            <code>kms:Decrypt</code>.</span></p>
+                    <div class="error-box">
+                        <p>❌ <strong>Exam distractor pattern:</strong> Answer options that mention only one of the two
+                            authorizations (e.g., "add KMS:Decrypt to the IAM role policy") are almost always wrong. You
+                            must have it in <strong>both places</strong>. This applies in same-account scenarios too —
+                            cross-account just makes it visible.</p>
+                    </div>
+                    <h3 id="cross-account-access-debug-order">When Cross-Account Access Fails — Four Places to Check
+                    </h3>
+                    <p>When a cross-account call to a KMS-encrypted S3 bucket fails with Access Denied, check in this
+                        order:</p>
+                    <ol>
+                        <li>Principal's IAM policy in the <strong>source account</strong> (Account B) — does it have
+                            STS:AssumeRole for the target role?</li>
+                        <li>Role's trust policy in the <strong>destination account</strong> (Account A) — does it name
+                            the calling principal?</li>
+                        <li>Bucket policy in the <strong>destination account</strong> — any explicit deny?</li>
+                        <li>KMS key policy in the <strong>destination account</strong> — does it independently allow
+                            KMS:Decrypt for the role?</li>
+                    </ol>
+                    <div class="info-box">
+                        <p>📚 <strong>From AWS documentation:</strong> When cross-account principals access
+                            KMS-encrypted resources, authorization is a two-stage process. The IAM principal must have
+                            permission to call KMS on the key (identity-side), and the KMS key policy must grant that
+                            principal permission to use the key (resource-side). Either side alone is insufficient.</p>
+                        <p><strong>📚 Source:</strong> <a
+                                href="https://docs.aws.amazon.com/kms/latest/developerguide/key-policy-overview.html"
+                                target="_blank" rel="noopener noreferrer">AWS KMS Key Policy Documentation</a></p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="confused-deputy-problem">🕵️ The Confused Deputy Problem &amp; External ID</h2>
+                </summary>
+                <div class="section-content">
+                    <p>This is an advanced but exam-tested concept that arises specifically in third-party cross-account
+                        access (SaaS vendor scenarios). The exam combines it with session policy questions in "select
+                        two" format.</p>
+                    <h3 id="what-is-confused-deputy">What is the Confused Deputy Problem?</h3>
+                    <p>Imagine a SaaS vendor (like a billing analytics platform) that reads data from each customer's
+                        AWS account. The vendor assumes a customer-provided IAM role in each customer account.</p>
+                    <p>The risk: if the vendor's platform gets confused about which customer it's serving — or if a
+                        malicious customer passes a different customer's role ARN — the vendor's platform could
+                        <strong>access Customer A's data while acting on behalf of Customer B</strong>. The vendor
+                        itself becomes the "confused deputy" — it has legitimate permissions in both accounts, but gets
+                        tricked into misusing them.</p>
+                    <div class="diagram-container"><img src="images/iam-confused-deputy.png" loading="lazy"
+                            decoding="async"
+                            alt="Diagram showing confused deputy attack: a SaaS vendor platform in the center, Customer A's role ARN on the left, Customer B's role ARN on the right — an attacker from Customer B passes Customer A's role ARN to the vendor, which then incorrectly accesses Customer A's data">
+                        <p class="diagram-caption"><em>Figure 7: The Confused Deputy attack — Customer B tricks the
+                                vendor into accessing Customer A's data</em></p>
+                    </div>
+                    <h3 id="external-id-solution">The Solution — External ID in the Trust Policy</h3>
+                    <p><span class="exam-highlight-sentence">The AWS-documented solution to the Confused Deputy problem
+                            is the <span class="exam-highlight-term">STS External ID condition</span> in the role's
+                            trust policy.</span></p>
+                    <p>Here's how it works:</p>
+                    <ol>
+                        <li>The <strong>vendor</strong> generates a unique identifier per customer (e.g., a UUID). The
+                            vendor owns and controls this value.</li>
+                        <li>The <strong>customer</strong> adds a condition to their role's trust policy:
+                            <code>sts:ExternalId</code> must equal that specific UUID.</li>
+                        <li>On every AssumeRole call the vendor makes for that customer, it passes the customer's unique
+                            External ID.</li>
+                        <li>Even if a different customer provides the same role ARN, the assumption fails — the External
+                            ID doesn't match.</li>
+                    </ol>
+                    <div class="success-box">
+                        <p>✅ <strong>Why aws:SourceIp doesn't solve this:</strong> An IP restriction limits where calls
+                            come from, but all customer assumptions originate from the same vendor platform IP range.
+                            Both Customer A and Customer B's roles might trust the vendor's IP range — the vendor could
+                            still accidentally assume Customer A's role while processing Customer B. Source IP solves
+                            <em>where</em>, not <em>who for</em>. External ID solves <em>which customer</em>.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="mfa-condition-keys">🔐 MFA Condition Keys — Present vs Age</h2>
+                </summary>
+                <div class="section-content">
+                    <p>AWS has two IAM policy condition keys involving MFA. They look similar, but they solve completely
+                        different problems — and this distinction is directly tested on the SAA-C03 exam.</p>
+                    <div class="diagram-container"><img src="images/iam-mfa-condition-keys.png" loading="lazy"
+                            decoding="async"
+                            alt="Side-by-side comparison diagram: left side shows MultiFactorAuthPresent as a boolean that is set true at session start and stays true for the entire session lifetime (illustrated as a timeline with a constant true bar). Right side shows MultiFactorAuthAge as a counter that starts at 0 and increases with time, with a threshold line at 900 seconds — actions below the threshold succeed, actions above fail">
+                        <p class="diagram-caption"><em>Figure 8: MultiFactorAuthPresent stays true all session;
+                                MultiFactorAuthAge grows with time and enforces freshness</em></p>
+                    </div>
+                    <h3 id="multifactorauthpresent">aws:MultiFactorAuthPresent</h3>
+                    <p><span class="exam-highlight-sentence"><code>aws:MultiFactorAuthPresent</code> is a <span
+                                class="exam-highlight-term">Boolean</span> that returns true if the session was
+                            authenticated with MFA at any point during the session's lifetime. It is set at session
+                            start and <span class="exam-highlight-term">does not change as the session
+                                ages</span>.</span></p>
+                    <p>A session that signed in with MFA six hours ago still has
+                        <code>MultiFactorAuthPresent = true</code>.</p>
+                    <div class="error-box">
+                        <p>❌ <strong>Security gap:</strong> MultiFactorAuthPresent does NOT protect against session
+                            hijacking. If an attacker steals a session token hours after sign-in, the condition is still
+                            true — the attacker has the same access as the legitimate user for the rest of the session.
+                        </p>
+                    </div>
+                    <h3 id="multifactorauthage">aws:MultiFactorAuthAge</h3>
+                    <p><span class="exam-highlight-sentence"><code>aws:MultiFactorAuthAge</code> is a <span
+                                class="exam-highlight-term">numeric value in seconds</span> measuring the elapsed time
+                            since the MFA credential was issued. It increases as the session ages.</span></p>
+                    <p>You compare it using <code>NumericLessThan</code>. For example:
+                        <code>aws:MultiFactorAuthAge: 900</code> means "MFA was performed within the last 15 minutes."
+                    </p>
+                    <div class="success-box">
+                        <p>✅ <strong>Session hijacking defense:</strong> MultiFactorAuthAge with a small threshold
+                            forces the user to re-authenticate with MFA before performing sensitive operations. A
+                            hijacked session will eventually fail this condition as the age exceeds the threshold —
+                            blocking destructive actions even in a stolen session.</p>
+                    </div>
+                    <h3 id="mfa-production-pattern">Production Architecture Pattern</h3>
+                    <p>The best practice Chandra described:</p>
+                    <ul>
+                        <li><strong>Routine read operations:</strong> Use <code>aws:MultiFactorAuthPresent: true</code>
+                            — session-level MFA at sign-in is sufficient. No friction for daily work.</li>
+                        <li><strong>Destructive operations (delete, modify production):</strong> Use
+                            <code>aws:MultiFactorAuthAge</code> with a small threshold (e.g.,
+                            <code>NumericLessThan: 900</code>) — requires fresh MFA within 15 minutes.</li>
+                    </ul>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>One line to remember:</strong> "<strong>Present is for the session. Age is for the
+                                action.</strong>"</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>aws:MultiFactorAuthPresent</th>
+                                <th>aws:MultiFactorAuthAge</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Type</strong></td>
+                                <td>Boolean</td>
+                                <td>Numeric (seconds)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Changes over time?</strong></td>
+                                <td>No — stays true all session</td>
+                                <td>Yes — increases every second</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protects against hijacking?</strong></td>
+                                <td>No</td>
+                                <td>Yes (with small threshold)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use for</strong></td>
+                                <td>Read-only operations</td>
+                                <td>Destructive/sensitive operations</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Comparison operator</strong></td>
+                                <td>Bool: true/false</td>
+                                <td>NumericLessThan: 900</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Exam trigger phrase</strong></td>
+                                <td>"MFA somewhere in the session"</td>
+                                <td>"Fresh MFA", "session hijacking", "last X seconds"</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="mfa-mechanisms">📱 AWS MFA Mechanisms</h2>
+                </summary>
+                <div class="section-content">
+                    <p>AWS supports four MFA mechanisms for IAM users and the root user. Each has different operational
+                        characteristics and resistance to specific attack patterns — these distinctions appear on the
+                        exam.</p>
+                    <div class="diagram-container"><img src="images/iam-mfa-mechanisms.png" loading="lazy"
+                            decoding="async"
+                            alt="Four MFA mechanism cards arranged in a grid: Virtual MFA (phone TOTP app icon, labeled not phishing-resistant), Hardware MFA (physical token device icon, labeled tamper-resistant), FIDO Security Key (YubiKey icon, labeled phishing-resistant domain-bound), Passkey (fingerprint icon, labeled phishing-resistant smooth UX) — each with a security rating badge">
+                        <p class="diagram-caption"><em>Figure 9: The four AWS MFA mechanisms compared by type, security
+                                properties, and weaknesses</em></p>
+                    </div>
+                    <h3 id="virtual-mfa">1. Virtual MFA (TOTP App)</h3>
+                    <p>A time-based one-time password app on a phone (Google Authenticator, Authy, Duo Mobile). Fast to
+                        enroll, free, low friction. Weakness: relies on phone security and is <strong>not
+                            phishing-resistant</strong>.</p>
+                    <h3 id="hardware-mfa">2. Hardware MFA Token</h3>
+                    <p>A physical time-based key device (SafeID, AWS-shipped tokens). No phone dependency,
+                        tamper-resistant hardware. Weakness: hardware procurement cost and the same phishing
+                        vulnerability as virtual MFA — someone can still present a fake login page to intercept the
+                        code.</p>
+                    <h3 id="fido-security-key">3. FIDO Security Key</h3>
+                    <p>A hardware key using public key cryptography (Google Titan, YubiKey). <span
+                            class="exam-highlight-sentence">FIDO security keys are <span
+                                class="exam-highlight-term">phishing-resistant</span> because the credential is
+                            cryptographically bound to the original domain — it cannot be replayed against a different
+                            domain.</span> Weakness: hardware procurement and user training for the tap-to-authenticate
+                        flow.</p>
+                    <h3 id="passkey">4. Passkey</h3>
+                    <p>A FIDO2 device-bound or syncable credential (Touch ID, Windows Hello, password manager passkeys).
+                        Phishing-resistant, smooth UX. Supported by IAM Identity Center. Weakness: newer pattern, sync
+                        model varies by platform, some legacy flows don't support it.</p>
+                    <div class="success-box">
+                        <p>✅ <strong>2026 production recommendation:</strong> Virtual MFA for general engineering staff.
+                            FIDO security keys or passkeys for high-privileged identities (root users, security
+                            administrators).</p>
+                    </div>
+                    <div class="error-box">
+                        <p>❌ <strong>SMS MFA was deprecated in 2019.</strong> <span class="exam-highlight-sentence">New
+                                SMS MFA configurations <span class="exam-highlight-term">cannot be created</span>.
+                                Existing configurations remain functional but AWS enforces migration in new
+                                projects.</span></p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="iam-security-stack">🏗️ The Full IAM Security Stack — Four Mechanisms</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Chandra closed Session 6 with a unifying mental model that covers roughly 80% of IAM questions on
+                        the exam. Four mechanisms, each with a specific role:</p>
+                    <div class="diagram-container"><img src="images/iam-security-stack.png" loading="lazy"
+                            decoding="async"
+                            alt="Layered architecture diagram showing four IAM security mechanism layers stacked vertically: bottom layer Identity-Based Policies labeled floor in orange, second layer Permission Boundaries labeled ceiling in blue, third layer Resource-Based Policies labeled gate in red, top layer Condition Keys labeled contextual gates in green — with icons and use-case descriptions beside each layer">
+                        <p class="diagram-caption"><em>Figure 10: The four-layer IAM security stack — floor, ceiling,
+                                gate, and contextual gates</em></p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mechanism</th>
+                                <th>Role</th>
+                                <th>Metaphor</th>
+                                <th>When to Use</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Identity-based policies</strong></td>
+                                <td>Floor</td>
+                                <td>Job description — what the identity can do</td>
+                                <td>Grant baseline permissions to users/groups/roles</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Permission boundaries</strong></td>
+                                <td>Ceiling</td>
+                                <td>Governor on an engine — caps maximum speed</td>
+                                <td>Delegated admin, limit blast radius when teams write their own policies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Resource-based policies</strong></td>
+                                <td>Gate</td>
+                                <td>Building access list — the resource decides who enters</td>
+                                <td>Absolute denies, cross-account access without role assumption</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Condition keys</strong></td>
+                                <td>Contextual gates</td>
+                                <td>Time-lock or location-aware entry system</td>
+                                <td>Source IP, MFA presence, MFA age, time of day, request tags, region</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Exam strategy:</strong> When a scenario question describes multiple security
+                            requirements, map each requirement to exactly one mechanism. The correct answer is almost
+                            always a combination — e.g., "permission boundary for the delegation requirement + session
+                            policy for the per-call scoping requirement." If you can identify each requirement →
+                            mechanism mapping, "select two" questions become much easier.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="knowledge-check-walkthrough">📝 Knowledge Check Walkthrough</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Chandra used two scenario questions in these sessions that demonstrate exactly how the exam
+                        structures multi-requirement, multi-mechanism questions. Let's walk through both with the
+                        reasoning.</p>
+                    <h3 id="knowledge-check-1-delegated-admin">Knowledge Check 1 — Delegated Administration Boundary
+                    </h3>
+                    <div class="info-box">
+                        <p><strong>Scenario:</strong> A security team manages an AWS account where delegated
+                            administrators create IAM users for developers and attach identity-based policies. The
+                            security team wants to limit developer permissions to S3, EC2, and DynamoDB only — and
+                            ensure delegated admins cannot grant permissions outside the approved set, even by attaching
+                            broad managed policies. No manual policy review.</p>
+                    </div>
+                    <p><strong>Correct answer: Attach a permission boundary allowing only the approved actions to each
+                            developer IAM user.</strong></p>
+                    <p><strong>Why it works:</strong> Regardless of how broad a policy a junior admin attaches, the
+                        boundary caps the result. The security team defines the allowed set once in the boundary, and
+                        that ceiling is automatically enforced on every policy attachment.</p>
+                    <p><strong>Why the other options fail:</strong></p>
+                    <ul>
+                        <li><strong>Option B (attach the approved policy as identity policy):</strong> Instructing
+                            admins "don't attach broader policies" is not a technical enforcement. A mistake or
+                            malicious action can still broaden access.</li>
+                        <li><strong>Option C (explicit deny for all disallowed actions):</strong> Listing every
+                            disallowed AWS action is impractical — there are thousands of AWS actions. A boundary
+                            listing only the allowed set is far more maintainable.</li>
+                        <li><strong>Option D (boundary with explicit denies on approved actions):</strong> This is
+                            backwards — it would deny the approved actions. Boundaries must list what IS allowed, not
+                            what's denied.</li>
+                    </ul>
+                    <h3 id="knowledge-check-2-confused-deputy-plus-scoping">Knowledge Check 2 — Confused Deputy +
+                        Per-Call Scoping (Select Two)</h3>
+                    <div class="info-box">
+                        <p><strong>Scenario:</strong> A SaaS vendor reads billing S3 objects from each customer's
+                            account. A new enterprise customer requires: (1) vendor's role assumption cannot be tricked
+                            into accessing one customer's data while acting for a different customer, and (2) a single
+                            role assumption is limited to read access on a specific S3 prefix, even if the role's
+                            permission policy is broader.</p>
+                    </div>
+                    <p><strong>Correct answers: B and D</strong></p>
+                    <ul>
+                        <li><strong>B — STS External ID in the trust policy:</strong> The vendor generates a unique
+                            value per customer and passes it on every AssumeRole call. The customer requires this exact
+                            value. Even if a different customer passes the same role ARN, the assumption fails — the
+                            External ID doesn't match. This solves the Confused Deputy requirement.</li>
+                        <li><strong>D — Session policy scoped to specific bucket and prefix:</strong> A session policy
+                            passed as a parameter to STS:AssumeRole narrows the resulting session's effective
+                            permissions to exactly the per-customer S3 prefix, even though the role's permission policy
+                            is broader. This solves the per-call scoping requirement.</li>
+                    </ul>
+                    <p><strong>Why the other options fail:</strong></p>
+                    <ul>
+                        <li><strong>A (aws:SourceIp):</strong> Both customers' roles might trust the vendor's IP range —
+                            source IP doesn't identify which customer's call it is.</li>
+                        <li><strong>C (short duration_seconds):</strong> Limits credential lifetime but does nothing to
+                            prevent accessing the wrong customer's data.</li>
+                        <li><strong>E (permission boundary on the role):</strong> A boundary applies across all
+                            assumptions of the role — it cannot be scoped per-customer per-assumption. Session policy is
+                            the correct mechanism for per-assumption scoping.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="exam-tips-summary">🎯 SAA-C03 Exam Tips</h2>
+                </summary>
+                <div class="section-content">
+                    <p>These are the patterns Chandra highlighted as the most tested — and most often answered
+                        incorrectly — in the SAA-C03 exam.</p>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Tip 1 — Permission boundary is a positive construct:</strong> It lists what IS
+                            allowed (maximum permissions), not what's forbidden. A boundary with only deny statements =
+                            empty allowed set = no effective permissions.</p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Tip 2 — Boundary on the role, not the user:</strong> A user's permission boundary
+                            is NOT evaluated during an assumed role session. Always put the cap on the role if you want
+                            it to apply to everyone who assumes it.</p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Tip 3 — Session policy = per-call; boundary = standing:</strong> Session policies
+                            apply to one assumption. Boundaries apply to the entity across all sessions. "Select two"
+                            questions that combine both often mean: External ID for Confused Deputy + session policy for
+                            per-call scoping.</p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Tip 4 — Explicit deny wins everywhere:</strong> Regardless of policy type
+                            (identity, resource, boundary, session, SCP) and regardless of account (same or
+                            cross-account), an explicit deny overrides any allow. When an allow doesn't work, find the
+                            deny.</p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Tip 5 — Source vs destination account:</strong> Source = where the call originates
+                            (EC2 lives here). Destination = where the resource and role live. The STS:AssumeRole
+                            permission is in the source account. The trust policy, bucket policy, and KMS key policy are
+                            in the destination account.</p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Tip 6 — KMS needs two-pronged authorization:</strong> Cross-account KMS access
+                            requires BOTH the IAM role policy AND the KMS key policy to permit KMS:Decrypt. Answer
+                            options mentioning only one are usually distractors.</p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Tip 7 — MFA Age vs Present:</strong> "Fresh MFA", "session hijacking", "last X
+                            seconds" → aws:MultiFactorAuthAge with NumericLessThan. "MFA somewhere in the session" →
+                            aws:MultiFactorAuthPresent.</p>
+                    </div>
+                    <div class="highlight-box">
+                        <p>⚡ <strong>Tip 8 — SMS MFA was deprecated in 2019</strong> — new configurations cannot be
+                            created. If an answer suggests enabling SMS MFA as a new security control, it's wrong.</p>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="session-takeaways">📋 Six Key Takeaways (Chandra's Closing List)</h2>
+                </summary>
+                <div class="section-content">
+                    <p>Chandra ended Session 6 with six points he said "cover the IAM exam questions you will
+                        encounter." Internalize all six:</p>
+                    <ol>
+                        <li><strong>Roles are assumed, not used.</strong> A role has no long-lived credentials. A
+                            trusted principal assumes it and receives temporary credentials from STS.</li>
+                        <li><strong>Workloads get roles.</strong> EC2 via instance profile. Lambda via execution role.
+                            AWS managed services via service-linked roles.</li>
+                        <li><strong>Lambda has two controls.</strong> The execution role says what the function may do.
+                            The resource-based policy says who may invoke it. Do not confuse the two.</li>
+                        <li><strong>Cross-account access is a two-policy handshake.</strong> The caller needs
+                            STS:AssumeRole permission. The role needs a trust policy naming the caller. Both are
+                            required.</li>
+                        <li><strong>Boundaries cap, session policies scope.</strong> A permission boundary is a standing
+                            ceiling on an entity. A session policy narrows one assumption. Both work by intersection of
+                            allows.</li>
+                        <li><strong>Cap the role, not the assuming user.</strong> The role session runs with the role's
+                            policies and the role's boundary — not the assumer's. External ID in the trust policy stops
+                            the Confused Deputy.</li>
+                    </ol>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="overall-summary">📝 Overall Summary</h2>
+                </summary>
+                <div class="section-content">
+                    <ul>
+                        <li><strong>Permission boundaries:</strong> A ceiling attached to an IAM entity (user/role).
+                            Lists maximum allowed actions (positive construct). Effective permissions = intersection of
+                            identity policy and boundary. Never grants anything on its own.</li>
+                        <li><strong>Session policies:</strong> Passed as a parameter to STS:AssumeRole. Applies to one
+                            session only. Can only narrow, never widen beyond what the role allows. Effective
+                            permissions = intersection of role policy and session policy.</li>
+                        <li><strong>Critical distinction:</strong> Boundary = durable standing cap on entity across all
+                            sessions. Session policy = per-call scope for one assumption only.</li>
+                        <li><strong>Role assumption drops the caller's policies:</strong> When a principal assumes a
+                            role, the caller's identity policies and permission boundaries are set aside. Only the
+                            role's own policies and boundary govern the session.</li>
+                        <li><strong>Design rule:</strong> To cap what anyone gains by assuming a role, put the boundary
+                            on the role — not on the assuming user.</li>
+                        <li><strong>Cross-account two-policy handshake:</strong> STS:AssumeRole permission in the source
+                            account + trust policy naming the caller in the destination account. Both required.</li>
+                        <li><strong>Source account</strong> = where the call originates. <strong>Destination
+                                account</strong> = where the role and resource live.</li>
+                        <li><strong>KMS two-pronged authorization:</strong> Cross-account KMS-encrypted resource access
+                            requires BOTH the IAM role policy AND the KMS key policy to independently permit
+                            KMS:Decrypt.</li>
+                        <li><strong>Confused Deputy prevention:</strong> Use STS External ID in the trust policy — a
+                            unique per-customer value the vendor passes on every AssumeRole call.</li>
+                        <li><strong>aws:MultiFactorAuthPresent</strong> = Boolean, set at session start, true all
+                            session, not phishing/hijack resistant. Use for read-only operations.</li>
+                        <li><strong>aws:MultiFactorAuthAge</strong> = Numeric seconds since MFA, increases over time.
+                            Use NumericLessThan: 900 for fresh MFA on destructive operations. Defends against session
+                            hijacking.</li>
+                        <li><strong>Explicit deny wins everywhere:</strong> In any policy type, same or cross-account —
+                            explicit deny overrides any allow. The IAM evaluation rule is invariant.</li>
+                    </ul>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="glossary">📖 Glossary</h2>
+                </summary>
+                <div class="section-content">
+                    <div id="glossaryContainer" data-glossary-source="json/glossary.json"></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="interview-questions">🎤 Interview Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <p class="interview-intro">📚 Test your understanding with these questions covering fundamentals,
+                        scenario application, and architecture design.</p>
+                    <div class="interview-progress">
+                        <p id="interviewProgress">Progress: 0/25 (0%)</p>
+                    </div>
+                    <div class="flashcard-navigation"><button onclick="previousInterviewQuestion()" class="nav-btn"
+                            id="prevInterviewBtn">← Previous</button><span id="interviewCounter" class="card-counter">1
+                            / 25</span><button onclick="nextInterviewQuestion()" class="nav-btn"
+                            id="nextInterviewBtn">Next →</button></div>
+                    <div class="flashcard-deck" id="interviewContainer" data-interview-source="json/interview.json">
+                    </div>
+                    <div class="quiz-reset-container"><button onclick="resetInterviewProgress()"
+                            class="quiz-reset-btn">🔄 Reset Progress</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="multiple-choice-questions">📝 Multiple Choice Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="quiz-header-info">
+                        <p>📝 30 SAA-C03 style questions — from foundational to advanced scenario-based.</p>
+                    </div>
+                    <div class="quiz-navigation"><button onclick="previousQuestion()" class="quiz-nav-btn"
+                            id="prevBtn">← Previous</button>
+                        <div class="quiz-info"><span class="quiz-counter" id="quizCounter">Question 1 of 30</span><span
+                                class="quiz-score-display" id="quizScoreDisplay">Score: 0/0 (0%)</span></div><button
+                            onclick="nextQuestion()" class="quiz-nav-btn" id="nextBtn">Next →</button>
+                    </div>
+                    <div class="quiz-carousel-container" id="quizContainer" data-mcq-source="json/mcq.json"></div>
+                    <div class="quiz-summary-section"><button onclick="showQuizSummary()" class="quiz-summary-btn">📊
+                            View Summary</button>
+                        <div class="quiz-reset-container"><button onclick="resetEntireQuiz()" class="quiz-reset-btn">🔄
+                                Reset All</button></div>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="hands-on-projects">💼 Hands-On Projects</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="prerequisites-box">
+                        <h4>📋 Prerequisites</h4>
+                        <ul>
+                            <li>✅ AWS account with IAM admin access</li>
+                            <li>✅ Understanding of IAM users, roles, and identity-based policies</li>
+                            <li>✅ Basic familiarity with the AWS Console and AWS CLI</li>
+                        </ul>
+                    </div>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-1-permission-boundary">Project 1: Implement a Permission Boundary for
+                                Delegated Administration</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Create a permission boundary that limits a developer
+                                    user to S3 read-only, then verify a junior admin cannot grant broader permissions by
+                                    attaching a wider policy.</p>
+                                <p><strong>⏱️ Time:</strong> 30–45 min</p>
+                                <p><strong>💰 Cost:</strong> Free tier eligible</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Sign in to the AWS Console and navigate to <strong>IAM → Policies</strong>. Click
+                                        <strong>Create policy</strong>. Use the JSON editor to create a boundary policy
+                                        allowing only <code>s3:GetObject</code> and <code>s3:ListBucket</code> on all
+                                        resources. Name it <code>DeveloperPermissionBoundary</code>.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-create-boundary-policy.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of the IAM Create Policy JSON editor showing the boundary policy with Effect Allow and S3 GetObject and ListBucket actions">
+                                        <p class="diagram-caption"><em>📸 Screenshot: IAM Policy JSON editor with
+                                                boundary policy — verify both S3 actions are listed under Allow</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Navigate to <strong>IAM → Users → Create user</strong>. Name the user
+                                        <code>developer-test</code>. On the permissions step, <strong>do not attach any
+                                            policies yet</strong>. Click through to create.</p>
+                                </li>
+                                <li>
+                                    <p>Open the <code>developer-test</code> user. Under <strong>Permissions
+                                            boundary</strong>, click <strong>Set boundary</strong>. Select
+                                        <code>DeveloperPermissionBoundary</code> and confirm.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-set-permission-boundary.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of the IAM user permissions boundary panel showing the Set boundary button and the DeveloperPermissionBoundary policy selected">
+                                        <p class="diagram-caption"><em>📸 Screenshot: Setting the permission boundary on
+                                                the developer-test user</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Now attach <code>AdministratorAccess</code> managed policy to
+                                        <code>developer-test</code>. (This simulates a junior admin over-granting
+                                        access.)</p>
+                                </li>
+                                <li>
+                                    <p>Test by switching to the <code>developer-test</code> credentials and attempting
+                                        to call <code>ec2:DescribeInstances</code> — it should fail, because EC2 is
+                                        outside the boundary. Then call <code>s3:ListBuckets</code> — it should succeed.
+                                    </p>
+                                </li>
+                                <li>
+                                    <p><strong>Cleanup:</strong> Delete the <code>developer-test</code> user and the
+                                        <code>DeveloperPermissionBoundary</code> policy.</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="collapsible-section">
+                        <summary>
+                            <h3 id="project-2-cross-account-role">Project 2: Cross-Account Role Assumption with STS
+                                (Simulated in One Account)</h3>
+                        </summary>
+                        <div class="section-content">
+                            <div class="info-box">
+                                <p><strong>🎯 Objective:</strong> Simulate cross-account role assumption using two IAM
+                                    users in the same account — one as the "source" caller and one representing the
+                                    "destination" role. Verify the two-policy handshake.</p>
+                                <p><strong>⏱️ Time:</strong> 30–45 min</p>
+                                <p><strong>💰 Cost:</strong> Free tier eligible</p>
+                            </div>
+                            <ol>
+                                <li>
+                                    <p>Create an IAM role named <code>CrossAccountSimRole</code>. In the trust policy,
+                                        set the trusted principal to your AWS account ID (simulating Account B trusting
+                                        Account A's structure). Attach a permission policy granting
+                                        <code>s3:ListBuckets</code> only.</p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-create-cross-account-role.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of the IAM Create Role trust policy editor showing the trusted principal set to the current account ID with STS AssumeRole action">
+                                        <p class="diagram-caption"><em>📸 Screenshot: Trust policy editor — verify the
+                                                Principal is your account ID and action is sts:AssumeRole</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p>Create an IAM user named <code>source-caller</code> with no permissions
+                                        initially. Generate access keys.</p>
+                                </li>
+                                <li>
+                                    <p>Try calling <code>sts:AssumeRole</code> for <code>CrossAccountSimRole</code>
+                                        using the AWS CLI with <code>source-caller</code> credentials. It should fail
+                                        with Access Denied — the user has no <code>sts:AssumeRole</code> permission yet.
+                                    </p>
+                                </li>
+                                <li>
+                                    <p>Attach an inline policy to <code>source-caller</code> granting
+                                        <code>sts:AssumeRole</code> on the role ARN. Try again — it should now succeed
+                                        and return temporary credentials.</p>
+                                </li>
+                                <li>
+                                    <p>Use the temporary credentials to call <code>s3:ListBuckets</code> — it should
+                                        succeed. Try <code>s3:PutObject</code> — it should fail (not in the role's
+                                        permission policy). This demonstrates the handshake and role-governed session.
+                                    </p>
+                                    <div class="diagram-container"><img
+                                            src="images/screenshot-assume-role-credentials.png" loading="lazy"
+                                            decoding="async"
+                                            alt="Screenshot of terminal output showing the AWS CLI sts assume-role command returning AccessKeyId, SecretAccessKey, and SessionToken temporary credentials">
+                                        <p class="diagram-caption"><em>📸 Screenshot: STS assume-role returns
+                                                AccessKeyId, SecretAccessKey, and SessionToken</em></p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p><strong>Cleanup:</strong> Delete <code>source-caller</code> user, delete
+                                        <code>CrossAccountSimRole</code> role.</p>
+                                </li>
+                            </ol>
+                        </div>
+                    </details>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="learning-checklist">☑️ Learning Checklist</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="checklist-progress">
+                        <p>Progress: <span id="checklistProgress">0/25</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                        </div>
+                    </div>
+                    <div id="checklistContainer" data-checklist-source="json/checklist.json"></div>
+                    <div class="quiz-reset-container"><button onclick="resetChecklist()" class="quiz-reset-btn">🔄 Reset
+                            Checklist</button></div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="reflection-questions">🤔 Reflection Questions</h2>
+                </summary>
+                <div class="section-content">
+                    <div class="question-block">
+                        <h4>1. You want junior admins to create policies for developers but guarantee developers can
+                            never exceed an approved set. Why does putting the boundary on the developer user work — and
+                            does it still work if the developer later assumes a role?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about what gets evaluated during a direct user action vs. during an assumed
+                                    role session. Where should the boundary live to be effective in both cases?</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>2. A SaaS vendor's platform is trusted by 50 customers. Each customer has a role with the
+                            same trust policy allowing the vendor. How does External ID prevent Customer B from
+                            accidentally (or maliciously) triggering access to Customer A's data?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Consider what unique information is included in each customer's trust policy, and
+                                    what the vendor must pass on every AssumeRole call for each specific customer.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>3. A security alert fires: a production S3 deletion happened 6 hours after a user's MFA
+                            sign-in. Your policy uses aws:MultiFactorAuthPresent. How would switching to
+                            aws:MultiFactorAuthAge have prevented this?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about what MultiFactorAuthPresent's value is 6 hours after sign-in vs. what
+                                    MultiFactorAuthAge's value would be, and which comparator you'd use for a 15-minute
+                                    freshness window.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>4. You're designing a KMS-encrypted S3 cross-account access pattern. A colleague says "I've
+                            added KMS:Decrypt to the IAM role policy, so we're done." What critical step did they miss,
+                            and why does AWS require it?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>KMS uses two separate authorization checks — one on the identity side and one on the
+                                    resource side. Both must independently permit the action.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>5. In a cross-account scenario, you keep getting confused about which account is the source
+                            and which is the destination. What's the rule, and why does it matter for where you put the
+                            STS:AssumeRole permission vs the trust policy?</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Source = where the call originates. Destination = where the resource and role live.
+                                    Each policy lives on the side where it makes sense — the caller needs permission to
+                                    call, the role needs to declare who it trusts.</p>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="question-block">
+                        <h4>6. What is the mental model for when to use a permission boundary vs a session policy? Give
+                            a concrete real-world example for each.</h4>
+                        <details class="hint-details">
+                            <summary class="hint-summary">💡 Hint</summary>
+                            <div class="hint-content">
+                                <p>Think about whether the control needs to be permanent across all sessions (standing
+                                    ceiling) or needs to vary per call (per-assumption narrowing). SaaS per-customer
+                                    scoping vs delegated admin ceiling.</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </details>
+            <details class="collapsible-section">
+                <summary>
+                    <h2 id="links-references">🔗 Links &amp; References</h2>
+                </summary>
+                <div class="section-content">
+                    <h3 id="official-aws-docs">📚 Official AWS Documentation</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
+                                        target="_blank" rel="noopener noreferrer">IAM Permission Boundaries</a></td>
+                                <td>Official permission boundary documentation with examples</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html"
+                                        target="_blank" rel="noopener noreferrer">IAM Policy Evaluation Logic</a></td>
+                                <td>Complete three-step evaluation with all policy types</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html"
+                                        target="_blank" rel="noopener noreferrer">External ID — Confused Deputy</a></td>
+                                <td>How to use External ID to prevent the Confused Deputy problem</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
+                                        target="_blank" rel="noopener noreferrer">STS AssumeRole API</a></td>
+                                <td>AssumeRole parameters including session policy and duration</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/kms/latest/developerguide/key-policy-overview.html"
+                                        target="_blank" rel="noopener noreferrer">KMS Key Policies</a></td>
+                                <td>How KMS key policies interact with IAM policies for authorization</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html"
+                                        target="_blank" rel="noopener noreferrer">IAM Condition Keys</a></td>
+                                <td>All IAM global condition keys including MFA keys</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa.html"
+                                        target="_blank" rel="noopener noreferrer">AWS MFA Documentation</a></td>
+                                <td>Supported MFA types and configuration guidance</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="recommended-reading">🎓 Recommended Reading</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/blogs/security/how-to-use-trust-policies-with-iam-roles/"
+                                        target="_blank" rel="noopener noreferrer">AWS Blog: Trust Policies with IAM
+                                        Roles</a></td>
+                                <td>Deep dive on trust policy design and cross-account patterns</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/blogs/security/confused-deputy-prevention-across-aws-services/"
+                                        target="_blank" rel="noopener noreferrer">AWS Blog: Confused Deputy
+                                        Prevention</a></td>
+                                <td>Practical guidance on using External ID in SaaS integrations</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/identity-and-access-management.html"
+                                        target="_blank" rel="noopener noreferrer">Well-Architected Security Pillar —
+                                        IAM</a></td>
+                                <td>AWS best practices for IAM in well-architected systems</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3 id="additional-resources">🔧 Additional Resources</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Resource</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="https://policysim.aws.amazon.com/" target="_blank"
+                                        rel="noopener noreferrer">IAM Policy Simulator</a></td>
+                                <td>Test and debug IAM policies interactively</td>
+                            </tr>
+                            <tr>
+                                <td><a href="https://aws.amazon.com/iam/features/analyze-access/" target="_blank"
+                                        rel="noopener noreferrer">IAM Access Analyzer</a></td>
+                                <td>Identify unintended cross-account access and policy gaps</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        <div class="tags"><span class="tag">AWS</span><span class="tag">IAM</span><span class="tag">Permission
+                Boundary</span><span class="tag">Session Policy</span><span class="tag">STS</span><span
+                class="tag">Cross-Account</span><span class="tag">MFA</span><span class="tag">SAA-C03</span></div>
+    </div>
+    <script defer src="../../../js/notes-page.js"></script>
+</body>
+
+</html>
