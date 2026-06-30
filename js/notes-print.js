@@ -353,8 +353,28 @@
                 });
             }
 
-            if (s.id === 'interviewContainer' && !opts.interviewAnswers) {
-                clone.querySelectorAll('.answer-side').forEach(function (el) { el.remove(); });
+            if (s.id === 'interviewContainer') {
+                if (!opts.interviewAnswers) {
+                    clone.querySelectorAll('.answer-side').forEach(function (el) { el.remove(); });
+                } else {
+                    // The answer side is normally hidden until the user clicks
+                    // "show answer" (e.g. flip-card back face). Cloning the live
+                    // DOM preserves that hidden state, so force it visible here.
+                    clone.querySelectorAll('.answer-side').forEach(function (el) {
+                        el.removeAttribute('hidden');
+                        el.classList.remove('hidden', 'collapsed', 'is-hidden');
+                        el.classList.add('revealed', 'flipped', 'show-answer');
+                        el.style.removeProperty('display');
+                        el.style.display = 'block';
+                        el.style.visibility = 'visible';
+                        el.style.opacity = '1';
+                        el.style.transform = 'none';
+                        el.style.position = 'static';
+                    });
+                    clone.querySelectorAll('.flip-card, .qa-card, .interview-card').forEach(function (card) {
+                        card.classList.add('revealed', 'flipped', 'show-answer');
+                    });
+                }
             }
 
             const sectionContent = clone.querySelector('.section-content');
