@@ -404,25 +404,72 @@
         printWin.document.write(printHTML);
         printWin.document.close();
 
-        // Fire print after stylesheet loads
-        printWin.onload = function () {
-            printWin.focus();
-            printWin.print();
-            printWin.addEventListener('afterprint', function () {
-                printWin.close();
-            });
-        };
+        // Remove broken images (and their containers) before printing,
+        // so a missing image doesn't block or break the print layout.
+        function stripBrokenImages(callback) {
+            const imgs = Array.from(printWin.document.images || []);
+            if (!imgs.length) { callback(); return; }
 
-        // Fallback for browsers where onload already fired
-        setTimeout(function () {
-            if (printWin && !printWin.closed) {
+            let pending = imgs.length;
+            const done = function () {
+                pending -= 1;
+                if (pending <= 0) callback();
+            };
+
+            imgs.forEach(function (img) {
+                function removeImg() {
+                    // Prefer removing a meaningful wrapper (figure/picture) if present,
+                    // otherwise just remove the <img> itself.
+                    const wrapper = img.closest('figure, picture, .image-wrapper, .print-image');
+                    try {
+                        (wrapper || img).remove();
+                    } catch (e) {
+                        if (img.parentNode) img.parentNode.removeChild(img);
+                    }
+                }
+
+                if (img.complete) {
+                    if (img.naturalWidth === 0) {
+                        removeImg();
+                    }
+                    done();
+                } else {
+                    img.addEventListener('error', function () {
+                        removeImg();
+                        done();
+                    }, { once: true });
+                    img.addEventListener('load', done, { once: true });
+                }
+            });
+
+            // Safety timeout in case some image never fires load/error
+            setTimeout(callback, 2000);
+        }
+
+        function doPrint() {
+            if (!printWin || printWin.closed) return;
+            stripBrokenImages(function () {
+                if (!printWin || printWin.closed) return;
                 printWin.focus();
                 printWin.print();
                 printWin.addEventListener('afterprint', function () {
                     printWin.close();
                 });
-            }
-        }, 1000);
+            });
+        }
+
+        let printed = false;
+        function printOnce() {
+            if (printed) return;
+            printed = true;
+            doPrint();
+        }
+
+        // Fire print after stylesheet loads
+        printWin.onload = printOnce;
+
+        // Fallback for browsers where onload already fired
+        setTimeout(printOnce, 1000);
     }
 
     window.openPrintModal = openPrintModal;
