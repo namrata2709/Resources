@@ -1,0 +1,2214 @@
+{
+    "title": "AWS Developer Associate 15-07-2026",
+    "topic": "Trivia",
+    "questions": [
+        {
+            "id": 1,
+            "question": "An order-processing application must continue accepting orders when a downstream fulfillment service is temporarily unavailable. Which design provides the MOST effective decoupling?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Store each order only in an EC2 instance store volume",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "EC2 instance store provides temporary block-level storage that is reset when an instance is stopped.",
+                        "why": "Instance store is ephemeral and tied to the lifecycle of the specific EC2 instance, making it completely unsuitable for decoupled, durable message storage.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon EC2 Instance Store",
+                                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Increase the API Gateway integration timeout",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Increasing a timeout simply makes the client wait longer for a synchronous response.",
+                        "why": "This does not decouple the services; it just forces the order-processing application to wait longer, which can lead to blocked threads and poor user experience during downstream outages.",
+                        "learnMore": [
+                            {
+                                "title": "API Gateway Quotas and Limits",
+                                "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/limits.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Invoke the fulfillment service synchronously from the web tier",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Synchronous invocation creates a tight, blocking dependency between two application components.",
+                        "why": "If the fulfillment service is unavailable, synchronous calls will fail immediately or time out, violating the requirement to continue accepting orders.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Well-Architected Reliability Pillar",
+                                "url": "https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/what-is-reliability.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Place orders in an Amazon SQS queue for asynchronous processing",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Amazon SQS is a fully managed message queuing service that enables you to decouple and scale microservices.",
+                        "why": "Placing orders in an SQS queue allows the web tier to accept orders immediately, while the downstream service can securely retrieve and process them asynchronously when it becomes available.",
+                        "learnMore": [
+                            {
+                                "title": "What is Amazon SQS?",
+                                "url": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "question": "A Lambda function processes messages from an Amazon SQS standard queue. Occasionally, a message is processed more than once. What should the developer do?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Disable the queue visibility timeout",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "The visibility timeout prevents other consumers from receiving and processing a message while it is already being processed.",
+                        "why": "Disabling the visibility timeout would significantly increase the chance of duplicate processing, as other worker instances might immediately pick up the same message.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon SQS Visibility Timeout",
+                                "url": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Change the queue to use short polling",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Short polling returns immediately even if the message queue being polled is empty.",
+                        "why": "This setting affects how messages are retrieved but does not address the core issue of at-least-once delivery inherent to SQS standard queues, which causes duplicate processing.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon SQS Short and Long Polling",
+                                "url": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-short-and-long-polling.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Configure the function with zero reserved concurrency",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Setting reserved concurrency to zero throttles the Lambda function completely, preventing it from processing any events.",
+                        "why": "This would completely stop all message processing instead of safely resolving the occasional duplicate messages.",
+                        "learnMore": [
+                            {
+                                "title": "Managing Lambda Reserved Concurrency",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Make the function idempotent",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Idempotent functions can be executed multiple times with the same input while safely producing the same result.",
+                        "why": "Because SQS standard queues only guarantee at-least-once delivery, messages might be delivered more than once. Making the Lambda function idempotent is the AWS best practice to handle these duplicates safely.",
+                        "learnMore": [
+                            {
+                                "title": "Using AWS Lambda with Amazon SQS",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "question": "A developer needs to retrieve a single item from a DynamoDB table by its complete primary key with the lowest read overhead. Which operation should the developer use?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "GetItem",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "The GetItem operation reads a single item from a DynamoDB table using its exact primary key.",
+                        "why": "GetItem is the most efficient and direct API call to retrieve exactly one item when the complete primary key is known, guaranteeing the lowest read capacity overhead.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon DynamoDB GetItem API",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_GetItem.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Scan",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "A Scan operation reads every single item in a DynamoDB table or secondary index.",
+                        "why": "Scanning the entire table consumes extremely high read capacity and is highly inefficient when only a single specific item is needed.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon DynamoDB Scan Operation",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Scan.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Query",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "The Query operation finds items based on primary key values but is typically used to retrieve collections of items.",
+                        "why": "While highly efficient, Query is designed for retrieving multiple items that share a partition key and requires slightly more overhead than a simple GetItem when retrieving just one item by its complete primary key.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon DynamoDB Query Operation",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "BatchWriteItem",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "BatchWriteItem puts or deletes multiple items in one or more tables.",
+                        "why": "This is a write operation, not a read operation, meaning it cannot be used to retrieve items from DynamoDB.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon DynamoDB BatchWriteItem",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchWriteItem.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "question": "A DynamoDB table receives heavy write traffic. Most requests use the same partition key value and are being throttled. Which change is MOST likely to resolve the problem?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Use a higher-cardinality partition key",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "High-cardinality partition keys possess a large number of distinct values that help distribute workloads.",
+                        "why": "Distributing write traffic across many distinct partition key values prevents \"hot partitions\" and resolves throttling issues by spreading the load evenly across DynamoDB's underlying infrastructure.",
+                        "learnMore": [
+                            {
+                                "title": "DynamoDB Partition Key Design",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Reduce the number of attributes in each item",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Reducing attributes decreases the overall item size in the database.",
+                        "why": "While this reduces storage and slightly lowers write capacity consumption, it does not solve the fundamental hot partition issue caused by targeting the exact same key.",
+                        "learnMore": [
+                            {
+                                "title": "DynamoDB Best Practices",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Use eventually consistent reads",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Eventually consistent reads consume less read capacity unit (RCU) throughput.",
+                        "why": "This option only optimizes read capacity overhead and has absolutely no impact on the heavy write traffic throttling that the table is experiencing.",
+                        "learnMore": [
+                            {
+                                "title": "DynamoDB Read Consistency",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadConsistency.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Add a local secondary index with the same partition key",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "A Local Secondary Index (LSI) enables queries on non-key attributes but shares the same partition key as the base table.",
+                        "why": "Adding an LSI actually increases write overhead and keeps the exact same hot partition key, making the write throttling problem even worse.",
+                        "learnMore": [
+                            {
+                                "title": "DynamoDB Local Secondary Indexes",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/LSI.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "question": "A company wants one event published by an application to be delivered independently to an SQS queue, a Lambda function, and an HTTPS endpoint. Which service should the application publish to?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "AWS CodeArtifact",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AWS CodeArtifact is a fully managed artifact repository service.",
+                        "why": "It is used by developers to securely store and share software packages, not to route or publish event messages to compute and queuing targets.",
+                        "learnMore": [
+                            {
+                                "title": "What is AWS CodeArtifact?",
+                                "url": "https://docs.aws.amazon.com/codeartifact/latest/ug/welcome.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Amazon ElastiCache",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Amazon ElastiCache provides an in-memory data store or cache to accelerate applications.",
+                        "why": "It is heavily utilized to speed up application response times by caching data, and is not built for pub/sub message or event distribution.",
+                        "learnMore": [
+                            {
+                                "title": "What is Amazon ElastiCache?",
+                                "url": "https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/WhatIs.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Amazon SNS",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Amazon SNS is a highly available, durable, secure, fully managed pub/sub messaging service.",
+                        "why": "Amazon SNS allows a single published message to be instantly fanned out to multiple independent targets simultaneously, including SQS queues, AWS Lambda functions, and HTTPS endpoints.",
+                        "learnMore": [
+                            {
+                                "title": "What is Amazon SNS?",
+                                "url": "https://docs.aws.amazon.com/sns/latest/dg/welcome.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Amazon EBS",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Amazon Elastic Block Store (Amazon EBS) provides block-level storage volumes for EC2 instances.",
+                        "why": "EBS is a persistent block storage solution for virtual machines, not a messaging or event routing service.",
+                        "learnMore": [
+                            {
+                                "title": "What is Amazon EBS?",
+                                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEBS.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "question": "A Lambda function must connect to an Amazon RDS database in private subnets. What configuration is required?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Add the database password to the function name",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Function names uniquely identify the Lambda resource and cannot securely store secrets.",
+                        "why": "Storing sensitive credentials in a function name is highly insecure and does absolutely nothing to establish secure network connectivity to a private database subnet.",
+                        "learnMore": [
+                            {
+                                "title": "Security Best Practices for AWS Lambda",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Attach the function to the VPC subnets and security groups that can reach the database",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Configuring Lambda with a VPC grants it access to private network resources.",
+                        "why": "By attaching the function to the appropriate subnets and security groups, Lambda generates an elastic network interface (ENI) to securely communicate with the RDS database inside those private subnets.",
+                        "learnMore": [
+                            {
+                                "title": "Configuring a Lambda Function to Access Resources in a VPC",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Create an internet gateway for the Lambda service",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "An internet gateway enables resources in public subnets to access the public internet.",
+                        "why": "The RDS database is securely located in a private subnet. An internet gateway is meant for public internet routing, which does not securely bridge a Lambda function into a private VPC structure.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon VPC Internet Gateways",
+                                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Convert the RDS database to a public S3 bucket",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Amazon S3 provides highly durable object storage, while Amazon RDS is used for relational database management.",
+                        "why": "Converting a functioning relational database into a static S3 object bucket completely abandons the underlying RDS technology stack required by the application.",
+                        "learnMore": [
+                            {
+                                "title": "What is Amazon RDS?",
+                                "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "question": "A developer needs to store common libraries that are shared by several Lambda functions and update the libraries independently of each function's business logic. Which feature should the developer use?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "API Gateway usage plans",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "API Gateway usage plans define who can access specific APIs and set throttling limits.",
+                        "why": "Usage plans are used primarily for managing API access rates, monetization, and keys. They have no role in packaging or managing AWS Lambda code dependencies.",
+                        "learnMore": [
+                            {
+                                "title": "API Gateway Usage Plans",
+                                "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-usage-plans.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "CloudWatch metric filters",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "CloudWatch metric filters search for and match terms within incoming CloudWatch Logs.",
+                        "why": "These filters are strictly designed for extracting metrics from log patterns and are entirely unrelated to code library management.",
+                        "learnMore": [
+                            {
+                                "title": "Creating Metrics from Log Events Using Filters",
+                                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Lambda layers",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "AWS Lambda layers distribute libraries, custom runtimes, and other dependencies separate from the function code.",
+                        "why": "Layers empower developers to pull common dependencies out of standard deployment packages, reducing archive sizes and allowing those libraries to be managed and updated independently of the core business logic.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Lambda Layers",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Lambda aliases",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "A Lambda alias is a named pointer that maps to a specific version of a Lambda function.",
+                        "why": "Aliases are extremely helpful for routing traffic and managing execution versions, but they do not serve as a repository for shared dependency libraries.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Lambda Function Aliases",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "question": "A Lambda function is invoked asynchronously. The developer wants failed events to be sent to another AWS service after all retry attempts are exhausted and wants the invocation result included. Which feature should be configured?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "DynamoDB time to live",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Time to Live (TTL) automatically deletes expired items from a DynamoDB table.",
+                        "why": "TTL strictly governs data lifecycle management inside DynamoDB storage and has no capability to route or capture failed Lambda function events.",
+                        "learnMore": [
+                            {
+                                "title": "DynamoDB Time to Live",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "API Gateway stage variables",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Stage variables act similarly to environment variables, but apply exclusively to API Gateway stages.",
+                        "why": "They allow administrators to dynamically route API requests, but they cannot capture, handle, or route asynchronous invocation failures from AWS Lambda.",
+                        "learnMore": [
+                            {
+                                "title": "Setting up Stage Variables in API Gateway",
+                                "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/amazon-api-gateway-using-stage-variables.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Lambda provisioned concurrency",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Provisioned concurrency ensures Lambda functions remain initialized and instantly ready to handle invocations.",
+                        "why": "While it effectively eliminates cold starts for latency-sensitive applications, it does not provide any functionality for routing asynchronous execution failures.",
+                        "learnMore": [
+                            {
+                                "title": "Provisioned Concurrency for Lambda Functions",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Lambda Destinations",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Lambda Destinations route the records of asynchronous invocations to designated target AWS services.",
+                        "why": "By configuring a destination for failures, the function automatically pushes detailed event payloads and execution results to external services like SQS, SNS, or EventBridge upon exhausting retry attempts.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Lambda Destinations",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-async-destinations"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "question": "An application reads the same product catalog data repeatedly from DynamoDB, and the data changes infrequently. Which solution can reduce response latency and DynamoDB read traffic?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Amazon S3 Glacier Deep Archive",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 Glacier Deep Archive is an extremely low-cost storage class designed solely for long-term data preservation.",
+                        "why": "It requires retrieval times spanning 12 hours or more, making it entirely inappropriate for reducing application response latency.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon S3 Glacier Storage Classes",
+                                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "AWS CloudTrail Lake",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "CloudTrail Lake is a managed audit and security lake utilized for tracking organizational AWS activity.",
+                        "why": "It is intended for executing analytical queries on API activity logs and provides no caching mechanism to assist with DynamoDB.",
+                        "learnMore": [
+                            {
+                                "title": "Working with AWS CloudTrail Lake",
+                                "url": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-lake.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "AWS CodeDeploy",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AWS CodeDeploy automates the complex deployment of applications to computing instances.",
+                        "why": "It is a continuous delivery service used in CI/CD workflows and is completely unrelated to database caching or latency reduction.",
+                        "learnMore": [
+                            {
+                                "title": "What is AWS CodeDeploy?",
+                                "url": "https://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Amazon DynamoDB Accelerator (DAX)",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "DAX is a fully managed, highly available, in-memory cache tailored specifically for Amazon DynamoDB.",
+                        "why": "It delivers significant performance improvements, reducing latency from milliseconds to microseconds, and effectively offloads repetitive read traffic from the main DynamoDB table.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon DynamoDB Accelerator (DAX)",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "question": "A developer must route events from several AWS services to different targets based on values in each event. Which service is designed to apply event-pattern rules for this purpose?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "AWS CloudFormation",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AWS CloudFormation provisions and manages cloud infrastructure seamlessly using template codes.",
+                        "why": "It handles resource deployment and management workflows rather than real-time application event routing or pattern matching.",
+                        "learnMore": [
+                            {
+                                "title": "What is AWS CloudFormation?",
+                                "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Amazon EventBridge",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Amazon EventBridge operates as a serverless event bus that connects applications, SaaS products, and AWS services.",
+                        "why": "It is explicitly designed to evaluate incoming events against predefined event-pattern rules and automatically route them to designated targets.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon EventBridge Overview",
+                                "url": "https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Amazon ECR",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Amazon Elastic Container Registry (ECR) stores, securely manages, and deploys Docker container images.",
+                        "why": "It serves as a managed container image repository and is entirely unrelated to routing application events.",
+                        "learnMore": [
+                            {
+                                "title": "What is Amazon Elastic Container Registry?",
+                                "url": "https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "AWS Secrets Manager",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AWS Secrets Manager securely stores, controls, and rotates database credentials and API keys.",
+                        "why": "It focuses on sensitive credential lifecycle management rather than processing or dynamically routing operational events between services.",
+                        "learnMore": [
+                            {
+                                "title": "What is AWS Secrets Manager?",
+                                "url": "https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "question": "An application running on an EC2 instance needs temporary permissions to read objects from an S3 bucket. What is the MOST secure approach?",
+            "domain": "Security",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Store an IAM user's access keys in the application configuration",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Long-term access keys present a significant security risk if hardcoded or stored in configuration files.",
+                        "why": "Storing long-term credentials like access keys in an application is highly insecure, as they can be easily leaked and do not rotate automatically.",
+                        "learnMore": [
+                            {
+                                "title": "IAM Security Best Practices",
+                                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Embed the root user credentials in an environment variable",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "The root user has unrestricted access to the entire AWS account and its credentials should never be used.",
+                        "why": "Embedding root credentials anywhere violates all AWS security best practices. Root access keys should be deleted, not used for application-level access.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Account Root User",
+                                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Attach an IAM role with least-privilege permissions to the EC2 instance",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "IAM roles provide secure, temporary, and automatically rotated credentials to EC2 instances.",
+                        "why": "By attaching an IAM role with least-privilege permissions to the EC2 instance, the application can securely retrieve temporary credentials via the instance metadata service without hardcoding any secrets.",
+                        "learnMore": [
+                            {
+                                "title": "IAM Roles for Amazon EC2",
+                                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Make the S3 bucket public",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Making an S3 bucket public exposes its data to anyone on the internet.",
+                        "why": "This is a severe security vulnerability. Permissions should be scoped exclusively to the application needing access rather than opening the bucket to the world.",
+                        "learnMore": [
+                            {
+                                "title": "Blocking Public Access to Amazon S3",
+                                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "question": "A mobile application needs user sign-up, sign-in, and JWT tokens that can be used to authorize API requests. Which AWS service should the developer use?",
+            "domain": "Security",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "AWS CodeCommit",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AWS CodeCommit is a fully managed source control service that hosts secure Git-based repositories.",
+                        "why": "It is used for storing and versioning source code, not for managing user identities or handling application authentication.",
+                        "learnMore": [
+                            {
+                                "title": "What is AWS CodeCommit?",
+                                "url": "https://docs.aws.amazon.com/codecommit/latest/userguide/welcome.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Amazon Cognito user pools",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Amazon Cognito user pools provide a secure user directory that scales to hundreds of millions of users.",
+                        "why": "Cognito user pools handle user registration, authentication, and account recovery. Upon successful sign-in, it provisions JWT tokens that applications can use to authorize API requests securely.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon Cognito User Pools",
+                                "url": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-identity-pools.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "AWS CloudFormation StackSets",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "CloudFormation StackSets allow you to create, update, or delete stacks across multiple accounts and regions.",
+                        "why": "This is an infrastructure-as-code deployment tool and provides absolutely no functionality for mobile application user authentication.",
+                        "learnMore": [
+                            {
+                                "title": "Working with AWS CloudFormation StackSets",
+                                "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/what-is-cfnstacksets.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Amazon Route 53 Resolver",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Route 53 Resolver answers DNS queries for VPCs and on-premises networks.",
+                        "why": "It is a networking service for translating domain names to IP addresses, entirely unrelated to application user sign-up and JWT token generation.",
+                        "learnMore": [
+                            {
+                                "title": "Resolving DNS Queries Between VPCs and Your Network",
+                                "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resolver.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "question": "A Lambda function needs a database password that must be rotated automatically. Where should the developer store the password?",
+            "domain": "Security",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "A plaintext Lambda environment variable",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Plaintext environment variables are visible to anyone with access to the Lambda function configuration.",
+                        "why": "Storing sensitive data in plaintext violates security best practices, and environment variables offer no built-in mechanism to automatically rotate passwords.",
+                        "learnMore": [
+                            {
+                                "title": "Using AWS Lambda Environment Variables",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "AWS Secrets Manager",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "AWS Secrets Manager securely stores, encrypts, and automatically rotates database credentials and API keys.",
+                        "why": "Secrets Manager is explicitly designed to handle the secure storage and automatic rotation lifecycle of sensitive credentials like database passwords, making it the perfect solution.",
+                        "learnMore": [
+                            {
+                                "title": "What is AWS Secrets Manager?",
+                                "url": "https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "An Amazon SNS message attribute",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "SNS message attributes provide structured metadata items about a message payload.",
+                        "why": "SNS is a pub/sub messaging service, not a secure credential vault. Passing passwords via message attributes is highly insecure and does not support rotation.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon SNS Message Attributes",
+                                "url": "https://docs.aws.amazon.com/sns/latest/dg/sns-message-attributes.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "The function deployment package",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "The deployment package is the zip file or container image containing the compiled Lambda code.",
+                        "why": "Hardcoding secrets directly into the source code or deployment package is a massive security risk and makes it impossible to rotate the password without redeploying the entire application.",
+                        "learnMore": [
+                            {
+                                "title": "Lambda Deployment Packages",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-package.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "question": "An application in Account A must access a DynamoDB table in Account B without using long-term credentials. Which approach should the developer use?",
+            "domain": "Security",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Share the Account B root user access keys",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Root user keys grant unrestricted access to the entire AWS account.",
+                        "why": "Sharing root access keys is the most severe security violation possible in AWS and utilizes long-term, rather than temporary, credentials.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Account Root User",
+                                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Copy the table to Account A before every request",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Copying entire databases across accounts is extremely slow and expensive.",
+                        "why": "This is an architectural anti-pattern that introduces massive latency, high data transfer costs, and data synchronization issues instead of securely establishing cross-account access.",
+                        "learnMore": [
+                            {
+                                "title": "Cross-Account Access in IAM",
+                                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Assume an IAM role in Account B by using AWS STS",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "AWS STS generates temporary, short-lived credentials when assuming an IAM role.",
+                        "why": "Creating a cross-account IAM role in Account B and using the AWS Security Token Service (STS) to assume it provides secure, temporary, and least-privilege access without long-term keys.",
+                        "learnMore": [
+                            {
+                                "title": "Providing Access to an IAM User in Another AWS Account",
+                                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_aws-accounts.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Create identical IAM users in both accounts",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "IAM users are distinct entities tied to the specific account where they are created.",
+                        "why": "Creating identical users does not natively bridge permissions across accounts and still relies on long-term credentials, completely failing to meet the requirement.",
+                        "learnMore": [
+                            {
+                                "title": "IAM Users",
+                                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 15,
+            "question": "A developer is encrypting application data with AWS KMS. The ciphertext must include additional authenticated context so that decryption succeeds only when the same context is supplied. Which KMS feature should be used?",
+            "domain": "Security",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Key alias",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "A key alias is a friendly display name that points to a specific KMS key.",
+                        "why": "Aliases help developers manage key references abstractly, but they do not provide cryptographic authenticated data binding to ciphertexts.",
+                        "learnMore": [
+                            {
+                                "title": "Using Aliases in AWS KMS",
+                                "url": "https://docs.aws.amazon.com/kms/latest/developerguide/kms-alias.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Encryption context",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Encryption context is a set of key-value pairs cryptographically bound to the ciphertext.",
+                        "why": "When you provide an encryption context during encryption, AWS KMS binds it to the ciphertext. You must provide the exact same context to successfully decrypt the data, offering an additional layer of authentication.",
+                        "learnMore": [
+                            {
+                                "title": "AWS KMS Encryption Context",
+                                "url": "https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Grant token",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Grant tokens are used to enable permissions to use a KMS key temporarily.",
+                        "why": "They manage access authorization and policy delegation, but they are not cryptographically bound to the data payload itself during the encryption process.",
+                        "learnMore": [
+                            {
+                                "title": "Using Grants in AWS KMS",
+                                "url": "https://docs.aws.amazon.com/kms/latest/developerguide/grants.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Automatic key rotation",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Automatic key rotation generates a new cryptographic backing key every year while keeping the same key ID.",
+                        "why": "This is a compliance and lifecycle management feature, entirely unrelated to adding authenticated contextual data to individual ciphertext requests.",
+                        "learnMore": [
+                            {
+                                "title": "Rotating AWS KMS Keys",
+                                "url": "https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 16,
+            "question": "A web application uses API Gateway and Lambda. Users should be allowed to call an API method only after signing in through a Cognito user pool. What should the developer configure?",
+            "domain": "Security",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "A DynamoDB global secondary index",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "A global secondary index (GSI) allows querying DynamoDB table data using an alternative partition key.",
+                        "why": "GSIs are strictly for database query optimization and have absolutely no role in authenticating or authorizing HTTP API requests.",
+                        "learnMore": [
+                            {
+                                "title": "DynamoDB Global Secondary Indexes",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "A CloudWatch dashboard for the user pool",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "CloudWatch dashboards provide customizable views of metrics and alarms.",
+                        "why": "Dashboards visualize operational telemetry. They do not enforce access control or validate security tokens for an API endpoint.",
+                        "learnMore": [
+                            {
+                                "title": "Using Amazon CloudWatch Dashboards",
+                                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Dashboards.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "An S3 bucket policy on the API stage",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 bucket policies govern access exclusively to objects stored within Amazon S3.",
+                        "why": "API Gateway stages are not S3 buckets, meaning an S3 bucket policy cannot be applied to them or authenticate incoming REST API traffic.",
+                        "learnMore": [
+                            {
+                                "title": "Policies and Permissions in Amazon S3",
+                                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-policy-language-overview.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "A Cognito user pool authorizer on the API method",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "A Cognito user pool authorizer automatically validates JWT tokens passed by users.",
+                        "why": "By attaching a Cognito user pool authorizer directly to the API Gateway method, AWS automatically verifies the user's authentication token before allowing the request to proceed to the Lambda backend.",
+                        "learnMore": [
+                            {
+                                "title": "Control Access to REST APIs Using Amazon Cognito User Pools",
+                                "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-integrate-with-cognito.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 17,
+            "question": "A developer must grant a Lambda function permission to read one specific Secrets Manager secret. Which policy follows the principle of least privilege?",
+            "domain": "Security",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Allow secretsmanager:* on all resources",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "This policy grants full administrative control over every single secret in the account.",
+                        "why": "Providing wildcard permissions violates the principle of least privilege by granting vast, unnecessary permissions that could lead to widespread credential compromise.",
+                        "learnMore": [
+                            {
+                                "title": "Security Best Practices in IAM",
+                                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Allow secretsmanager:GetSecretValue on the ARN of the required secret",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "This policy strictly limits the exact action and the exact resource the function can access.",
+                        "why": "By specifying only the `GetSecretValue` action and binding it to the specific secret's ARN, the policy strictly adheres to the principle of least privilege.",
+                        "learnMore": [
+                            {
+                                "title": "Granting Least Privilege",
+                                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Allow iam:* on the Lambda execution role",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "This policy grants the ability to modify IAM users, roles, and policies.",
+                        "why": "Granting IAM wildcard permissions enables privilege escalation, completely failing to provide access to Secrets Manager while simultaneously creating a massive security risk.",
+                        "learnMore": [
+                            {
+                                "title": "AWS IAM Concepts",
+                                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/intro-structure.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Attach the AdministratorAccess managed policy",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AdministratorAccess provides absolute, unrestricted access to the entire AWS account.",
+                        "why": "This is the complete opposite of least privilege and should almost never be attached to a standard application runtime environment like a Lambda function.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Managed Policies for Job Functions",
+                                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_job-functions.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 18,
+            "question": "A company stores sensitive values in Lambda environment variables. Which action provides additional protection for those values at rest?",
+            "domain": "Security",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Enable Lambda response streaming",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Response streaming allows Lambda to send partial data payloads back to the client continuously.",
+                        "why": "This is a performance and networking optimization for large payloads. It has no capability to encrypt or protect environment variables at rest.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Lambda Response Streaming",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-response-streaming.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Configure the function to use an AWS KMS customer managed key",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "AWS KMS encrypts data at rest using cryptographically secure keys.",
+                        "why": "While Lambda automatically encrypts variables with an AWS managed key, explicitly configuring a customer managed KMS key provides an added layer of control, enabling strict audit logging and access revocation for sensitive variables at rest.",
+                        "learnMore": [
+                            {
+                                "title": "Securing Environment Variables",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-encryption"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Increase the function timeout",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "The timeout determines the maximum amount of time a function can run before AWS terminates it.",
+                        "why": "Changing the execution duration limit provides absolutely no data-at-rest encryption benefits for sensitive stored values.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Lambda Execution Environment",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Add the values to a Lambda layer",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Lambda layers are zip archives containing shared code or libraries.",
+                        "why": "Moving sensitive variables into a layer package simply relocates the plaintext data and does not provide cryptographic encryption at rest.",
+                        "learnMore": [
+                            {
+                                "title": "Creating and Sharing Lambda Layers",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 19,
+            "question": "A developer wants to define a serverless application containing Lambda functions, API Gateway APIs, and DynamoDB tables by using a simplified infrastructure-as-code template. Which service should the developer use?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Amazon Inspector",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Amazon Inspector is a vulnerability management service that scans workloads for software flaws.",
+                        "why": "It is a security assessment tool, entirely unrelated to defining or deploying infrastructure-as-code templates.",
+                        "learnMore": [
+                            {
+                                "title": "What is Amazon Inspector?",
+                                "url": "https://docs.aws.amazon.com/inspector/latest/user/what-is-inspector.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "AWS Serverless Application Model (AWS SAM)",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "AWS SAM is an open-source framework specifically built to simplify the definition of serverless applications.",
+                        "why": "It acts as a streamlined extension of CloudFormation, allowing developers to define complex serverless resources like APIs, Lambda functions, and DynamoDB tables using shorthand syntax that significantly reduces template size.",
+                        "learnMore": [
+                            {
+                                "title": "What is the AWS Serverless Application Model (AWS SAM)?",
+                                "url": "https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "AWS CloudTrail",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AWS CloudTrail logs API calls and user activity for auditing and governance.",
+                        "why": "It is a compliance and tracking tool that does not parse templates or provision cloud resources.",
+                        "learnMore": [
+                            {
+                                "title": "What Is AWS CloudTrail?",
+                                "url": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "AWS Artifact",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AWS Artifact is a self-service portal for retrieving AWS compliance reports and agreements.",
+                        "why": "It provides access to security compliance documents, not infrastructure provisioning capabilities.",
+                        "learnMore": [
+                            {
+                                "title": "What Is AWS Artifact?",
+                                "url": "https://docs.aws.amazon.com/artifact/latest/ug/what-is-artifact.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "question": "A new Lambda version must receive 10% of production traffic while the existing version receives 90%. Which feature should the developer use?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "A Lambda layer",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Lambda layers are zip archives that package dependencies, custom runtimes, or libraries.",
+                        "why": "Layers help manage code size and dependency sharing, but they provide absolutely no traffic routing or deployment shifting capabilities.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Lambda Layers",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "A larger ephemeral storage allocation",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Ephemeral storage allocates temporary disk space in the `/tmp` directory for function execution.",
+                        "why": "This setting strictly governs local file system capacity during invocation, entirely unrelated to routing traffic percentages across versions.",
+                        "learnMore": [
+                            {
+                                "title": "Configuring Ephemeral Storage",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-ephemeral-storage.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Weighted routing on a Lambda alias",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Lambda aliases can point to multiple execution versions simultaneously and distribute traffic using weights.",
+                        "why": "By configuring an alias to route 10% of requests to the new version and 90% to the previous version, developers can seamlessly perform safe, incremental canary deployments.",
+                        "learnMore": [
+                            {
+                                "title": "Lambda Function Aliases",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "A function URL with NONE authentication",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Function URLs provide a dedicated HTTP endpoint to invoke a specific Lambda function.",
+                        "why": "While function URLs expose the function over HTTP, they do not inherently offer traffic splitting or percentage-based routing between internal execution versions.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Lambda Function URLs",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-urls.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 21,
+            "question": "A company deploys a Lambda application with AWS CodeDeploy. The deployment must stop and roll back automatically if an error-rate alarm enters the ALARM state. What should the developer configure?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Enable DynamoDB point-in-time recovery",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Point-in-time recovery protects DynamoDB tables from accidental write or delete operations.",
+                        "why": "This is a database backup feature and provides no integration with CodeDeploy to monitor metrics or halt a software deployment pipeline.",
+                        "learnMore": [
+                            {
+                                "title": "DynamoDB Point-in-Time Recovery",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/PointInTimeRecovery.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Add the alarm name to a Lambda environment variable",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Environment variables securely inject configuration strings into the Lambda runtime.",
+                        "why": "Merely storing an alarm's name inside the application code does nothing to notify the CodeDeploy orchestration engine to halt and rollback the release.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Lambda Environment Variables",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Associate a CloudWatch alarm with the CodeDeploy deployment group",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "CodeDeploy integrates natively with CloudWatch alarms to monitor application health during deployments.",
+                        "why": "By associating an error-rate CloudWatch alarm with the deployment group, CodeDeploy automatically monitors the alarm and safely triggers an immediate rollback if the new code causes errors.",
+                        "learnMore": [
+                            {
+                                "title": "Setting up Advanced Options for a Deployment Group",
+                                "url": "https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-groups-configure-advanced-options.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Configure an S3 lifecycle rule",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 lifecycle rules automatically transition or delete old objects stored in an S3 bucket.",
+                        "why": "This is purely a storage optimization feature. It cannot monitor application error rates or control CodeDeploy pipelines.",
+                        "learnMore": [
+                            {
+                                "title": "Managing your storage lifecycle",
+                                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 22,
+            "question": "A developer wants API requests sent to the dev stage and prod stage in API Gateway to invoke different Lambda aliases without changing the API definition. Which feature should the developer use?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "IAM permissions boundaries",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Permissions boundaries set the maximum permissions an IAM entity can have.",
+                        "why": "This is a security administration feature used to prevent privilege escalation. It cannot be used to dynamically resolve HTTP routing targets.",
+                        "learnMore": [
+                            {
+                                "title": "Permissions Boundaries for IAM Entities",
+                                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "CloudWatch composite alarms",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Composite alarms combine the states of multiple other alarms into a single alert.",
+                        "why": "Alarms are used strictly for telemetry and operational monitoring, providing no capability to alter API integration URIs dynamically.",
+                        "learnMore": [
+                            {
+                                "title": "Create a Composite Alarm",
+                                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Create_Composite_Alarm.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "API Gateway stage variables",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Stage variables act like environment variables specifically scoped to an API Gateway stage.",
+                        "why": "By embedding a stage variable in the Lambda integration URI, the exact same API definition can dynamically resolve to different Lambda aliases depending on whether the request hits the 'dev' or 'prod' stage.",
+                        "learnMore": [
+                            {
+                                "title": "Setting up Stage Variables for a REST API",
+                                "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/amazon-api-gateway-using-stage-variables.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "S3 object tags",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "S3 object tags categorize and classify objects stored in S3 for billing and lifecycle management.",
+                        "why": "S3 object tagging is entirely unrelated to managing execution targets for an API Gateway REST service.",
+                        "learnMore": [
+                            {
+                                "title": "Categorizing your storage using tags",
+                                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-tagging.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 23,
+            "question": "A CodeBuild project needs access to dependencies stored in a private CodeArtifact repository. What should the developer configure?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Store the root access keys in buildspec.yml",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "The buildspec.yml file defines the build instructions and is typically stored in version control.",
+                        "why": "Hardcoding root access keys in a buildspec file is a critical security vulnerability and violates all AWS security best practices.",
+                        "learnMore": [
+                            {
+                                "title": "Buildspec Reference",
+                                "url": "https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Grant the CodeBuild service role permission to access the repository and obtain an authorization token",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "CodeBuild runs under the identity of a service role to securely access other AWS resources.",
+                        "why": "By granting the service role permissions, CodeBuild can securely fetch a temporary token using the AWS CLI in the build script, allowing it to safely download private dependencies from CodeArtifact.",
+                        "learnMore": [
+                            {
+                                "title": "Using CodeArtifact with AWS CodeBuild",
+                                "url": "https://docs.aws.amazon.com/codeartifact/latest/ug/using-with-codebuild.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Attach the repository to an internet gateway",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "An internet gateway enables VPC resources to connect to the public internet.",
+                        "why": "CodeArtifact is a fully managed service and does not attach directly to a VPC internet gateway to manage IAM-level authorization.",
+                        "learnMore": [
+                            {
+                                "title": "Internet Gateways",
+                                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Make the CodeArtifact domain publicly readable",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Making a repository public completely bypasses security access controls.",
+                        "why": "The prompt explicitly states the repository is private. Making it publicly readable exposes proprietary dependencies, defeating the purpose of a private registry.",
+                        "learnMore": [
+                            {
+                                "title": "AWS CodeArtifact Security",
+                                "url": "https://docs.aws.amazon.com/codeartifact/latest/ug/security.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 24,
+            "question": "A team wants commits to a source repository to automatically start a workflow that builds, tests, and deploys an application. Which AWS service should orchestrate these stages?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "AWS Organizations",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AWS Organizations centrally manages billing and policies across multiple AWS accounts.",
+                        "why": "It is an administrative governance tool, providing no capabilities to build or deploy application code.",
+                        "learnMore": [
+                            {
+                                "title": "What is AWS Organizations?",
+                                "url": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "AWS CloudShell",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AWS CloudShell is a browser-based shell pre-authenticated with your console credentials.",
+                        "why": "While useful for running manual CLI commands, it is not an automated continuous integration and delivery (CI/CD) orchestration engine.",
+                        "learnMore": [
+                            {
+                                "title": "What is AWS CloudShell?",
+                                "url": "https://docs.aws.amazon.com/cloudshell/latest/userguide/welcome.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Amazon CloudFront",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Amazon CloudFront is a highly secure global content delivery network (CDN).",
+                        "why": "It caches static and dynamic web content to reduce latency. It cannot build, test, or deploy code.",
+                        "learnMore": [
+                            {
+                                "title": "What is Amazon CloudFront?",
+                                "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "AWS CodePipeline",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "AWS CodePipeline is a fully managed continuous delivery service.",
+                        "why": "It seamlessly orchestrates and automates the release process, linking source code changes to build actions (like CodeBuild) and deployment actions, fulfilling the exact requirement.",
+                        "learnMore": [
+                            {
+                                "title": "What is AWS CodePipeline?",
+                                "url": "https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 25,
+            "question": "A developer changes a CloudFormation template and wants to preview how the running stack will be modified before applying the update. Which feature should the developer use?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "A CloudFormation change set",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Change sets allow you to preview proposed changes to a stack before executing them.",
+                        "why": "By generating a change set, you can safely verify exactly which resources CloudFormation will add, modify, or delete, preventing accidental disruption of critical infrastructure.",
+                        "learnMore": [
+                            {
+                                "title": "Updating Stacks Using Change Sets",
+                                "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-changesets.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "A CloudFormation drift detection result only",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Drift detection identifies manual changes made to stack resources outside of CloudFormation.",
+                        "why": "While useful for finding unmanaged changes, it evaluates past modifications rather than previewing future template updates.",
+                        "learnMore": [
+                            {
+                                "title": "Detecting Unmanaged Configuration Changes",
+                                "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-stack-drift.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "A CodeArtifact package version",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "CodeArtifact securely stores, publishes, and shares software packages used in development.",
+                        "why": "It is an artifact repository completely unrelated to evaluating cloud infrastructure modifications.",
+                        "learnMore": [
+                            {
+                                "title": "What is AWS CodeArtifact?",
+                                "url": "https://docs.aws.amazon.com/codeartifact/latest/ug/welcome.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "An AWS Config conformance pack",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Conformance packs group AWS Config rules to help manage compliance at scale.",
+                        "why": "They constantly audit resources for compliance against predefined rules, but they do not preview changes to a CloudFormation stack.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Config Conformance Packs",
+                                "url": "https://docs.aws.amazon.com/config/latest/developerguide/conformance-packs.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 26,
+            "question": "A Lambda deployment package exceeds the direct .zip upload size workflow and includes large native dependencies. Which packaging option is appropriate?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Store the source code in a CloudWatch log group",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "CloudWatch log groups store and monitor application logs and telemetry data.",
+                        "why": "Log groups are strictly meant for log data, not as a deployment artifact repository for executable application code.",
+                        "learnMore": [
+                            {
+                                "title": "Working with Log Groups and Log Streams",
+                                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Place the dependencies in API Gateway stage variables",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Stage variables define configuration parameters for API Gateway deployments.",
+                        "why": "Stage variables are small text strings used for routing or configuration. They cannot physically store megabytes of native library dependencies.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon API Gateway Stage Variables",
+                                "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/amazon-api-gateway-using-stage-variables.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Package the function as a container image stored in Amazon ECR",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Lambda supports deploying functions packaged as Docker container images up to 10 GB in size.",
+                        "why": "When standard `.zip` files become too large or complex to manage, packaging the application and its heavy native dependencies as a container image in ECR cleanly solves the size constraint.",
+                        "learnMore": [
+                            {
+                                "title": "Deploying Lambda functions as container images",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/images-create.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Convert the dependencies to DynamoDB items",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "DynamoDB is a highly scalable NoSQL database.",
+                        "why": "Executing compiled native dependencies requires them to reside on the local filesystem, not queried continuously as records from a database during runtime.",
+                        "learnMore": [
+                            {
+                                "title": "What is Amazon DynamoDB?",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 27,
+            "question": "Users report intermittent latency across an application that invokes several AWS services. The developer needs an end-to-end view of requests and service dependencies. Which service should the developer use?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Amazon Macie",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Amazon Macie uses machine learning to automatically discover and protect sensitive data in S3.",
+                        "why": "It focuses on data privacy and security auditing, providing absolutely no capabilities for tracking application request latency or service dependencies.",
+                        "learnMore": [
+                            {
+                                "title": "What is Amazon Macie?",
+                                "url": "https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "AWS X-Ray",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "AWS X-Ray provides end-to-end distributed tracing for applications.",
+                        "why": "It allows developers to visualize the entire path of a request across complex microservices, generating service maps and identifying exact bottlenecks causing intermittent latency.",
+                        "learnMore": [
+                            {
+                                "title": "AWS X-Ray Concepts",
+                                "url": "https://docs.aws.amazon.com/xray/latest/devguide/xray-concepts.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "AWS Artifact",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AWS Artifact is an on-demand portal offering AWS compliance reports.",
+                        "why": "It provides security compliance documentation for auditors, not telemetry data or tracing for application performance.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Artifact",
+                                "url": "https://docs.aws.amazon.com/artifact/latest/ug/what-is-artifact.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "AWS Budgets",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "AWS Budgets sets custom alerts for financial spending and usage.",
+                        "why": "It tracks financial metrics entirely independently of application response times and network latency.",
+                        "learnMore": [
+                            {
+                                "title": "Managing Costs with Budgets",
+                                "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 28,
+            "question": "A developer needs to search CloudWatch Logs for requests that contain a specific correlation ID and calculate statistics across matching log events. Which feature should the developer use?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "CloudWatch Synthetics canaries",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Canaries are configurable scripts that continually run to monitor endpoint and API availability.",
+                        "why": "They proactively test application health from the outside; they do not query or extract mathematical statistics from existing log files.",
+                        "learnMore": [
+                            {
+                                "title": "Using Synthetic Monitoring",
+                                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Synthetics_Canaries.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "CloudFormation drift detection",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Drift detection reveals whether a stack's actual configuration differs from its CloudFormation template.",
+                        "why": "It is an infrastructure state auditing tool and has absolutely no capability to parse or compute statistics from application log files.",
+                        "learnMore": [
+                            {
+                                "title": "Detecting Unmanaged Configuration Changes",
+                                "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-stack-drift.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "AWS Health Dashboard",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "The AWS Health Dashboard provides alerts and guidance for AWS events that might affect your environment.",
+                        "why": "It is used for receiving status updates on underlying AWS infrastructure health, completely unrelated to custom application log analysis.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Health Dashboard",
+                                "url": "https://docs.aws.amazon.com/health/latest/ug/what-is-aws-health.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "CloudWatch Logs Insights",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "CloudWatch Logs Insights enables you to interactively search and analyze your log data.",
+                        "why": "It includes a purpose-built query language that allows you to aggregate, filter, and calculate statistics on specific log fields like correlation IDs.",
+                        "learnMore": [
+                            {
+                                "title": "Analyzing Log Data with CloudWatch Logs Insights",
+                                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 29,
+            "question": "A Lambda function is throttled even though the account has available concurrency. The function has a reserved concurrency value of 20 and is already running 20 concurrent invocations. What is the MOST direct explanation?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "The function has an active alias",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Aliases are simply pointers to specific Lambda function versions.",
+                        "why": "The presence of an active alias does not inherently cause throttling. Concurrency issues are determined by execution limits, not routing aliases.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Lambda Function Aliases",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "The function has reached its reserved concurrency limit",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Reserved concurrency guarantees maximum concurrent instances for a function.",
+                        "why": "When you configure reserved concurrency, it also acts as a strict maximum limit. If the function receives requests exceeding this limit, AWS Lambda actively throttles it, regardless of the overall account capacity.",
+                        "learnMore": [
+                            {
+                                "title": "Managing Lambda Reserved Concurrency",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "The function uses an IAM execution role",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "All Lambda functions require an IAM execution role to interact with AWS services.",
+                        "why": "Using an IAM execution role is standard security practice and has no connection to concurrency limitations or execution throttling.",
+                        "learnMore": [
+                            {
+                                "title": "Lambda Execution Role",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "The function's environment variables are encrypted",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Environment variables can be encrypted using AWS KMS to protect sensitive configuration data.",
+                        "why": "Encryption secures data at rest but does not restrict how many concurrent execution environments AWS Lambda is allowed to spin up.",
+                        "learnMore": [
+                            {
+                                "title": "Securing Environment Variables",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-encryption"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 30,
+            "question": "A Lambda function has high duration and frequently initializes new execution environments. The function also loads a large SDK client during every invocation. Which code change is MOST likely to improve performance?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Initialize reusable SDK clients outside the handler",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Code defined outside the Lambda handler function is executed once during the initialization phase.",
+                        "why": "By initializing heavy SDK clients outside the handler, subsequent invocations in the same warm execution environment can reuse the client, dramatically reducing execution duration.",
+                        "learnMore": [
+                            {
+                                "title": "Best Practices for Working with AWS Lambda Functions",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Write all logs as unstructured multiline text",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Logging unstructured text simply changes the format of data pushed to CloudWatch.",
+                        "why": "Changing log formatting does nothing to prevent the heavy computational overhead of initializing an SDK client repeatedly.",
+                        "learnMore": [
+                            {
+                                "title": "Monitoring and Troubleshooting Lambda",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-monitoring.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Create a new SDK client for every record",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Creating a new client for every individual record drastically increases execution overhead.",
+                        "why": "This is a major anti-pattern that would maximize execution duration and worsen performance by re-running heavy initialization logic unnecessarily.",
+                        "learnMore": [
+                            {
+                                "title": "AWS Lambda Execution Environment",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Reduce the SQS visibility timeout to zero",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "The SQS visibility timeout prevents other consumers from processing a message while it is being handled.",
+                        "why": "Setting this to zero would cause immediate message duplication and infinite retries. It has no effect on optimizing the Lambda function's internal code performance.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon SQS Visibility Timeout",
+                                "url": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 31,
+            "question": "An SNS topic has multiple SQS subscriptions, but each queue should receive only messages whose attributes match its business category. What should the developer configure?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "DynamoDB conditional writes",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "DynamoDB conditional writes ensure that a write operation only succeeds if specific item attributes meet expected conditions.",
+                        "why": "It is a database feature for preventing overwrites, entirely unrelated to SNS message routing or pub/sub filtering.",
+                        "learnMore": [
+                            {
+                                "title": "DynamoDB Conditional Writes",
+                                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithItems.html#WorkingWithItems.ConditionalUpdate"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "CloudWatch metric math",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "CloudWatch metric math enables you to query multiple CloudWatch metrics and use math expressions to create new time series.",
+                        "why": "This is a monitoring and observability feature, not a message routing mechanism for Amazon SNS.",
+                        "learnMore": [
+                            {
+                                "title": "Using Metric Math",
+                                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/using-metric-math.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "SQS delay queues",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "SQS delay queues let you postpone the delivery of new messages to a queue for a specified number of seconds.",
+                        "why": "Delay queues affect when messages become visible to consumers; they do not filter which messages are delivered to the queue from an SNS topic.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon SQS Delay Queues",
+                                "url": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-delay-queues.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "SNS subscription filter policies",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "SNS subscription filter policies allow subscribers to specify which messages they want to receive from a topic.",
+                        "why": "By applying a filter policy to the SQS subscription, Amazon SNS will automatically evaluate message attributes and only deliver messages that match the queue's specific business category, effectively fanning out messages based on content.",
+                        "learnMore": [
+                            {
+                                "title": "Amazon SNS Subscription Filter Policies",
+                                "url": "https://docs.aws.amazon.com/sns/latest/dg/sns-message-filtering.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 32,
+            "question": "A developer wants application logs to be easy to query by fields such as requestId, customerId, and statusCode. Which logging approach is MOST appropriate?",
+            "domain": "Development",
+            "multiSelect": false,
+            "evaluationStatus": "conclusive",
+            "options": [
+                {
+                    "id": "A",
+                    "text": "Store log messages only in Lambda environment variables",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Lambda environment variables are used to pass configuration settings to your function code.",
+                        "why": "They are not a logging mechanism, and storing dynamic log data in environment variables is unsupported, insecure, and unqueryable.",
+                        "learnMore": [
+                            {
+                                "title": "Using AWS Lambda Environment Variables",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "B",
+                    "text": "Write all information in one free-form text string",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Free-form text strings combine all log data into a single unstructured line.",
+                        "why": "While readable by humans, unstructured text requires complex regular expressions to parse and is highly inefficient for programmatic querying by specific fields.",
+                        "learnMore": [
+                            {
+                                "title": "Monitoring and Troubleshooting Lambda",
+                                "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-monitoring.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "C",
+                    "text": "Disable timestamps to reduce log size",
+                    "isCorrect": false,
+                    "explanation": {
+                        "summary": "Timestamps provide critical chronological context for operational events.",
+                        "why": "Disabling timestamps removes the ability to order or correlate log events in time, and does nothing to make fields like requestId easily queryable.",
+                        "learnMore": [
+                            {
+                                "title": "CloudWatch Logs Concepts",
+                                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/CloudWatchLogsConcepts.html"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "D",
+                    "text": "Emit structured JSON logs with consistent field names",
+                    "isCorrect": true,
+                    "explanation": {
+                        "summary": "Structured JSON logging formats log entries as key-value pairs.",
+                        "why": "Emitting logs in JSON format allows centralized logging tools like CloudWatch Logs Insights to automatically parse the key-value pairs, making it incredibly fast and easy to query specific fields such as requestId or statusCode.",
+                        "learnMore": [
+                            {
+                                "title": "Analyzing Log Data with CloudWatch Logs Insights",
+                                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
